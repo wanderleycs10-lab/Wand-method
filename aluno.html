@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meu Painel | WAND METHOD</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #080808;
+      color: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      padding: 22px 18px;
+      border-bottom: 1px solid #302817;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header img {
+      width: 55px;
+      height: 55px;
+      object-fit: contain;
+    }
+    .brand { font-size: 20px; font-weight: bold; }
+    .gold { color: #d4af37; }
+    .silver { color: #c0c0c0; }
+    main {
+      max-width: 700px;
+      margin: auto;
+      padding: 24px 16px 90px;
+    }
+    h1 { font-size: 25px; margin-bottom: 8px; }
+    h2 { font-size: 19px; margin-top: 0; }
+    p { line-height: 1.5; color: #ccc; }
+    .tag {
+      color: #d4af37;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .card {
+      background: #171717;
+      border: 1px solid #363024;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .highlight {
+      border-color: #d4af37;
+      background: linear-gradient(135deg, #28200f, #171717);
+    }
+    .button {
+      display: block;
+      background: #d4af37;
+      color: #080808;
+      padding: 14px;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 9px;
+      font-weight: bold;
+      margin-top: 18px;
+    }
+    .secondary {
+      display: block;
+      color: #d4af37;
+      text-decoration: none;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stats .card { margin-top: 16px; }
+    .number {
+      font-size: 26px;
+      color: #d4af37;
+      font-weight: bold;
+    }
+    .small { font-size: 13px; }
+    .week {
+      display: flex;
+      justify-content: space-between;
+      gap: 5px;
+      margin-top: 18px;
+    }
+    .day {
+      flex: 1;
+      text-align: center;
+      background: #292929;
+      padding: 12px 2px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+    .active {
+      background: #d4af37;
+      color: black;
+      font-weight: bold;
+    }
+    footer {
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="LogoNova.png" alt="Logo WAND METHOD">
+  <div class="brand">
+    <span class="gold">WAND</span>
+    <span class="silver">METHOD</span>
+  </div>
+</header>
+
+<main>
+  <div class="tag">Área do aluno • Demonstração</div>
+  <h1>Olá, aluno! 👋</h1>
+  <p>Bem-vindo à sua jornada de evolução.</p>
+
+  <section class="card highlight">
+    <div class="tag">Seu treino de hoje</div>
+    <h2 style="margin-top:12px">Treino A — Superiores</h2>
+    <p>Peito, ombros e tríceps</p>
+    <p class="small">Exemplo de treino • 6 exercícios</p>
+    <a class="button" href="#treinos">VER MEUS TREINOS</a>
+  </section>
+
+  <div class="stats">
+    <section class="card">
+      <div class="number">3/4</div>
+      <p class="small">Treinos na semana</p>
+    </section>
+    <section class="card">
+      <div class="number">150</div>
+      <p class="small">WAND Coins</p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>📅 Minha semana</h2>
+    <p class="small">Exemplo de programação semanal</p>
+    <div class="week">
+      <div class="day active">SEG</div>
+      <div class="day active">TER</div>
+      <div class="day active">QUA</div>
+      <div class="day">QUI</div>
+      <div class="day">SEX</div>
+    </div>
+  </section>
+
+  <section class="card" id="treinos">
+    <h2>🏋️ Meus treinos</h2>
+    <p>Consulte seus exercícios, séries, repetições e progressões.</p>
+    <p class="small">Módulo em desenvolvimento.</p>
+  </section>
+
+  <section class="card">
+    <h2>📊 Minha evolução</h2>
+    <p>Acompanhe suas medidas, avaliações e conquistas.</p>
+    <p class="small">Módulo em desenvolvimento.</p>
+  </section>
+
+  <section class="card">
+    <h2>🏅 WAND Coins</h2>
+    <p>Ganhe pontos por consistência e metas alcançadas.</p>
+    <p class="small">Pontuação ilustrativa nesta demonstração.</p>
+  </section>
+
+  <section class="card">
+    <h2>💬 Meu treinador</h2>
+    <p>Precisa de orientação? Fale diretamente com seu treinador.</p>
+    <a class="button"
+       href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o.">
+       FALAR PELO WHATSAPP
+    </a>
+  </section>
+
+  <a class="secondary" href="index.html">← Voltar ao site</a>
+</main>
+
+<footer>
+  WAND METHOD © 2026 • Tela demonstrativa
+</footer>
+
+</body>
+</html>
