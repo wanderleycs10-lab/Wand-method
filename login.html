@@ -84,7 +84,9 @@
       const campo = document.getElementById('senha');
       const visivel = campo.type === 'password';
       campo.type = visivel ? 'text' : 'password';
-      this.textContent = visivel ? '🙈' : '👁';
+      this.innerHTML = visivel
+  ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.1A10.9 10.9 0 0 1 12 5c5 0 9 4 10 7a13.6 13.6 0 0 1-3 4.3"/><path d="M6.2 6.2C4.3 7.5 2.9 9.5 2 12c1 3 5 7 10 7a10.9 10.9 0 0 0 5.1-1.2"/></svg>'
+  : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
       this.setAttribute('aria-label', visivel ? 'Ocultar senha' : 'Mostrar senha');
       this.setAttribute('aria-pressed', String(visivel));
     "
@@ -107,7 +109,12 @@ font-weight: normal;
 cursor: pointer;
 
     "
-  >👁</button>
+ <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 3l18 18"/>
+  <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
+  <path d="M9.9 5.1A10.9 10.9 0 0 1 12 5c5 0 9 4 10 7a13.6 13.6 0 0 1-3 4.3"/>
+  <path d="M6.2 6.2C4.3 7.5 2.9 9.5 2 12c1 3 5 7 10 7a10.9 10.9 0 0 0 5.1-1.2"/>
+</svg></button>
 </div>
 
 
