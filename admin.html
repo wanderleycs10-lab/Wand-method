@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel Administrativo | WAND METHOD</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #080808;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      padding: 24px;
+      border-bottom: 1px solid #d4af37;
+      text-align: center;
+    }
+    h1, h2 { color: #d4af37; }
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 24px;
+    }
+    .card {
+      background: #171717;
+      border: 1px solid #66551f;
+      border-radius: 12px;
+      padding: 22px;
+      margin: 16px 0;
+    }
+    button {
+      background: #d4af37;
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #painel { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>WAND METHOD</h1>
+    <p>PAINEL ADMINISTRATIVO</p>
+  </header>
+
+  <main>
+    <p id="status">Verificando acesso...</p>
+
+    <section id="painel">
+      <h2>Bem-vindo, administrador!</h2>
+
+      <div class="card">
+        <h2>Alunos</h2>
+        <p>Gerenciamento de alunos em construção.</p>
+      </div>
+
+      <div class="card">
+        <h2>Treinos</h2>
+        <p>Prescrição e acompanhamento em construção.</p>
+      </div>
+
+      <div class="card">
+        <h2>Avaliações</h2>
+        <p>Avaliações físicas em construção.</p>
+      </div>
+
+      <button id="sair">Sair da conta</button>
+    </section>
+  </main>
+
+  <script type="module">
+    import { createClient } from
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const supabase = createClient(
+      "https://kvxdnreipuahoaostlle.supabase.co",
+      "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
+    );
+
+    const status = document.getElementById("status");
+    const painel = document.getElementById("painel");
+
+    async function verificarAcesso() {
+      const { data: { user }, error } =
+        await supabase.auth.getUser();
+
+      if (error || !user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const { data, error: erroPerfil } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (erroPerfil || data?.role !== "admin") {
+        status.textContent = "Acesso não autorizado.";
+        return;
+      }
+
+      status.textContent = "";
+      painel.style.display = "block";
+    }
+
+    document.getElementById("sair")
+      .addEventListener("click", async () => {
+        await supabase.auth.signOut();
+        window.location.replace("login.html");
+      });
+
+    verificarAcesso();
+  </script>
+</body>
+</html>
