@@ -64,9 +64,42 @@
              placeholder="Seu e-mail"
              autocomplete="email" required>
 
-      <input id="senha" type="password"
-             placeholder="Sua senha"
-             autocomplete="current-password" required>
+      
+<div style="position: relative;">
+  <input
+    id="senha"
+    type="password"
+    placeholder="Sua senha"
+    autocomplete="current-password"
+    required
+    style="padding-right: 60px;"
+  >
+
+  <button
+    type="button"
+    id="mostrarSenha"
+    aria-label="Mostrar senha"
+    aria-pressed="false"
+    onclick="
+      const campo = document.getElementById('senha');
+      const visivel = campo.type === 'password';
+      campo.type = visivel ? 'text' : 'password';
+      this.textContent = visivel ? 'Ocultar' : 'Olho';
+      this.setAttribute('aria-label', visivel ? 'Ocultar senha' : 'Mostrar senha');
+      this.setAttribute('aria-pressed', String(visivel));
+    "
+    style="
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    "
+  >Olho</button>
+</div>
+
 
       <button id="entrar" type="submit">ENTRAR</button>
     </form>
