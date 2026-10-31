@@ -115,11 +115,35 @@
           if (error) {
             mensagem.textContent =
               "Não foi possível entrar. Confira e-mail e senha.";
-          } else {
-            mensagem.style.color = "#d4af37";
-            mensagem.textContent =
-              "Login realizado! Área interna em construção.";
-          }
+          
+} else {
+  mensagem.style.color = "#d4af37";
+  mensagem.textContent = "Verificando permissões...";
+
+  const { data: { user }, error: userError } =
+    await supabase.auth.getUser();
+
+  if (userError || !user) {
+    mensagem.textContent = "Não foi possível verificar sua conta.";
+  } else {
+    const { data: perfil, error: perfilError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (perfilError || !perfil) {
+      mensagem.textContent = "Não foi possível verificar seu perfil.";
+    } else if (perfil.role === "admin") {
+      window.location.replace("admin.html");
+      return;
+    } else {
+      window.location.replace("aluno.html");
+      return;
+    }
+  }
+}
+
 
           botao.disabled = false;
         });
