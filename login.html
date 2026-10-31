@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login | WAND METHOD</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #080808;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 400px;
+      padding: 32px 24px;
+      background: #151515;
+      border: 1px solid #d4af37;
+      border-radius: 16px;
+      text-align: center;
+    }
+    h1 { color: #d4af37; margin-bottom: 5px; }
+    .subtitle { color: #bbb; margin-bottom: 30px; }
+    input, button {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input {
+      background: #252525;
+      border: 1px solid #555;
+      color: white;
+    }
+    button {
+      background: #d4af37;
+      color: #080808;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .6; }
+    #mensagem { min-height: 20px; color: #ffb4b4; }
+    a { color: #d4af37; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>WAND METHOD</h1>
+    <p class="subtitle">Seu treino. Sua evolução. Seu método.</p>
+    <h2>Área de acesso</h2>
+
+    <form id="formLogin">
+      <input id="email" type="email"
+             placeholder="Seu e-mail"
+             autocomplete="email" required>
+
+      <input id="senha" type="password"
+             placeholder="Sua senha"
+             autocomplete="current-password" required>
+
+      <button id="entrar" type="submit">ENTRAR</button>
+    </form>
+
+    <p id="mensagem" role="status"></p>
+    <a href="index.html">Voltar ao início</a>
+  </main>
+
+  <script type="module">
+    import { createClient } from
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const SUPABASE_URL = "COLE_AQUI_PROJECT_URL";
+    const SUPABASE_KEY = "COLE_AQUI_PUBLISHABLE_KEY";
+
+    const mensagem = document.getElementById("mensagem");
+    const botao = document.getElementById("entrar");
+
+    const configurado =
+      SUPABASE_URL.startsWith("https://") &&
+      SUPABASE_KEY.startsWith("sb_publishable_");
+
+    if (!configurado) {
+      mensagem.textContent =
+        "A conexão com o Supabase ainda não foi configurada.";
+      botao.disabled = true;
+    } else {
+      const supabase = createClient(
+        SUPABASE_URL, SUPABASE_KEY
+      );
+
+      document.getElementById("formLogin")
+        .addEventListener("submit", async (evento) => {
+          evento.preventDefault();
+          botao.disabled = true;
+          mensagem.textContent = "Verificando acesso...";
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("senha").value;
+
+          const { error } =
+            await supabase.auth.signInWithPassword({
+              email, password
+            });
+
+          if (error) {
+            mensagem.textContent =
+              "Não foi possível entrar. Confira e-mail e senha.";
+          } else {
+            mensagem.style.color = "#d4af37";
+            mensagem.textContent =
+              "Login realizado! Área interna em construção.";
+          }
+
+          botao.disabled = false;
+        });
+    }
+  </script>
+</body>
+</html>
