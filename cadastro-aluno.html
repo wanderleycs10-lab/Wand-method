@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastrar aluno | WAND METHOD</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #080808;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    main { max-width: 600px; margin: auto; }
+    h1, h2 { color: #d4af37; }
+    h1 { text-align: center; }
+    .card {
+      background: #171717;
+      border: 1px solid #66551f;
+      border-radius: 14px;
+      padding: 24px;
+    }
+    label { display: block; margin: 18px 0 7px; }
+    input, select {
+      width: 100%;
+      padding: 14px;
+      background: #252525;
+      color: white;
+      border: 1px solid #666;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 24px;
+      background: #d4af37;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    a { color: #d4af37; }
+    .aviso { color: #bbb; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>WAND METHOD</h1>
+    <p style="text-align:center">CADASTRO DE ALUNO</p>
+
+    <div class="card">
+      <h2>Novo aluno</h2>
+
+      <form id="formAluno">
+        <label for="nome">Nome completo</label>
+        <input id="nome" required>
+
+        <label for="email">E-mail</label>
+        <input id="email" type="email" required>
+
+        <label for="nascimento">Data de nascimento</label>
+        <input id="nascimento" type="date" required>
+
+        <label for="sexo">Sexo</label>
+        <select id="sexo" required>
+          <option value="">Selecione</option>
+          <option value="feminino">Feminino</option>
+          <option value="masculino">Masculino</option>
+          <option value="outro">Outro</option>
+          <option value="nao_informado">Prefiro não informar</option>
+        </select>
+
+        <label for="modalidade">Modalidade</label>
+        <select id="modalidade" required>
+          <option value="">Selecione</option>
+          <option value="online">Online</option>
+          <option value="presencial">Presencial</option>
+          <option value="semipresencial">Semipresencial</option>
+        </select>
+
+        <button type="submit">Cadastrar aluno</button>
+      </form>
+
+      <p id="mensagem" class="aviso">
+        Formulário em preparação. Nenhum dado será enviado nesta etapa.
+      </p>
+    </div>
+
+    <p><a href="admin.html">← Voltar ao painel</a></p>
+  </main>
+
+  <script>
+    document.getElementById("formAluno")
+      .addEventListener("submit", function(event) {
+        event.preventDefault();
+        document.getElementById("mensagem").textContent =
+          "Formulário funcionando! O cadastro no banco de dados será configurado na próxima etapa.";
+      });
+  </script>
+</body>
+</html>
