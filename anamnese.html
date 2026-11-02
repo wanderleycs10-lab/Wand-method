@@ -35,6 +35,14 @@
       padding: 0 16px;
     }
 
+main {
+  display: none;
+}
+
+body.acesso-confirmado main {
+  display: block;
+}
+
     .card {
       background: #171717;
       border: 1px solid #493c18;
@@ -170,6 +178,8 @@ if (error || !data.user) {
     aviso.textContent = "✓ Aluno autenticado com sucesso!";
     document.querySelector("main").prepend(aviso);
   }
+
+document.body.classList.add("acesso-confirmado");
 
 
   verificarAcesso();
