@@ -673,7 +673,7 @@ medida.campos.forEach(campo => {
   resumo.appendChild(
     criarIndicador(
       `${nome} — Variação`,
-      `${sinal}${formatar(diferenca)} ${medida.unidade}`,
+      `${sinal}${formatar(diferenca)} ${medida.unidade} (${sinal}${formatar(percentual)}%)`,
       true
     )
   );
