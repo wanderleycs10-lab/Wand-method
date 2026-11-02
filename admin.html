@@ -56,8 +56,11 @@
 
       <div class="card">
         <h2>Alunos</h2>
-        <p>Gerenciamento de alunos em construção.
-        </p>
+        <p>Alunos cadastrados no WAND METHOD:</p>
+<div id="listaAlunos">
+  <p>Carregando alunos...</p>
+</div>
+
 <button type="button" id="cadastrarAluno" onclick="window.location.href='cadastro-aluno.html'">+ Cadastrar aluno</button>
 </div>
 
@@ -109,7 +112,51 @@
 
       status.textContent = "";
       painel.style.display = "block";
+      await carregarAlunos();
     }
+
+async function carregarAlunos() {
+  const lista = document.getElementById("listaAlunos");
+
+  lista.textContent = "Carregando alunos...";
+
+  const { data: alunos, error } = await supabase
+    .from("alunos")
+    .select("nome_completo, modalidade, status")
+    .order("nome_completo", { ascending: true });
+
+  if (error) {
+    console.error("Erro ao buscar alunos:", error);
+    lista.textContent = "Não foi possível carregar os alunos.";
+    return;
+  }
+
+  if (!alunos || alunos.length === 0) {
+    lista.textContent = "Nenhum aluno cadastrado.";
+    return;
+  }
+
+  lista.replaceChildren();
+
+  alunos.forEach((aluno) => {
+    const item = document.createElement("div");
+    item.style.padding = "12px";
+    item.style.marginBottom = "10px";
+    item.style.border = "1px solid #66551f";
+    item.style.borderRadius = "8px";
+
+    const nome = document.createElement("strong");
+    nome.textContent = aluno.nome_completo || "Sem nome";
+
+    const detalhes = document.createElement("p");
+    detalhes.textContent =
+      "Modalidade: " + (aluno.modalidade || "Não informada") +
+      " | Status: " + (aluno.status || "Não informado");
+
+    item.append(nome, detalhes);
+    lista.appendChild(item);
+  });
+}
 
     document.getElementById("sair")
       .addEventListener("click", async () => {
