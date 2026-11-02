@@ -137,6 +137,12 @@
     
 <section class="card">
   <h2>Avaliação física</h2>
+<a id="novaAvaliacaoFisica"
+   href="#"
+   style="display:inline-block; background:#d4af37; color:#080808; padding:13px 20px; border-radius:8px; font-weight:bold; text-decoration:none; margin:12px 0;">
+  + Nova avaliação física
+</a>
+
   <p>Medidas corporais registradas na anamnese do aluno.</p>
 
   <div id="painelAvaliacaoFisica">
@@ -701,6 +707,15 @@ function carregarGraficosEvolucao() {
 
     area.appendChild(bloco);
   });
+}
+
+const linkNovaAvaliacao = document.getElementById("novaAvaliacaoFisica");
+
+if (linkNovaAvaliacao && alunoId && /^\d+$/.test(alunoId)) {
+  linkNovaAvaliacao.href =
+    "avaliacao-fisica.html?id=" + encodeURIComponent(alunoId);
+} else if (linkNovaAvaliacao) {
+  linkNovaAvaliacao.style.display = "none";
 }
 
 iniciarPerfil();
