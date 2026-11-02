@@ -150,6 +150,15 @@ body.acesso-confirmado main {
     <input type="radio" name="triagem_coracao" value="nao">
     Não
   </label>
+<div id="detalhe_coracao" style="display:none; margin-top:15px;">
+  <label for="descricao_coracao">
+    Qual condição foi identificada? Informe as orientações recebidas
+    e se realiza acompanhamento profissional.
+  </label>
+  <textarea id="descricao_coracao" name="descricao_coracao"
+    rows="3" placeholder="Descreva aqui..."
+    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
+</div>
 </div>
 
 <div class="pergunta">
@@ -165,6 +174,15 @@ body.acesso-confirmado main {
     <input type="radio" name="triagem_peito" value="nao">
     Não
   </label>
+<div id="detalhe_peito" style="display:none; margin-top:15px;">
+  <label for="descricao_peito">
+    Descreva o desconforto, quando acontece e se já procurou
+    avaliação médica.
+  </label>
+  <textarea id="descricao_peito" name="descricao_peito"
+    rows="3" placeholder="Descreva aqui..."
+    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
+</div>
 </div>
 
 <div class="pergunta">
@@ -181,6 +199,15 @@ body.acesso-confirmado main {
     <input type="radio" name="triagem_tontura" value="nao">
     Não
   </label>
+<div id="detalhe_tontura" style="display:none; margin-top:15px;">
+  <label for="descricao_tontura">
+    Descreva o episódio, quando aconteceu e se houve
+    avaliação por um profissional de saúde.
+  </label>
+  <textarea id="descricao_tontura" name="descricao_tontura"
+    rows="3" placeholder="Descreva aqui..."
+    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
+</div>
 </div>
 
 <div class="pergunta">
@@ -197,6 +224,15 @@ body.acesso-confirmado main {
     <input type="radio" name="triagem_articular" value="nao">
     Não
   </label>
+<div id="detalhe_articular" style="display:none; margin-top:15px;">
+  <label for="descricao_articular">
+    Qual região do corpo é afetada? Descreva a condição,
+    os sintomas e eventuais orientações profissionais.
+  </label>
+  <textarea id="descricao_articular" name="descricao_articular"
+    rows="3" placeholder="Descreva aqui..."
+    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
+</div>
 </div>
 
 <div class="pergunta">
@@ -222,18 +258,45 @@ body.acesso-confirmado main {
   <p>6. Você possui alguma condição respiratória que provoque falta de ar, chiado ou dificuldade para respirar durante esforços físicos?</p>
   <label><input type="radio" name="triagem_respiratoria" value="sim"> Sim</label>
   <label><input type="radio" name="triagem_respiratoria" value="nao"> Não</label>
+<div id="detalhe_respiratoria" style="display:none; margin-top:15px;">
+  <label for="descricao_respiratoria">
+    Qual condição respiratória você possui? Informe os sintomas,
+    tratamentos e se realiza acompanhamento profissional.
+  </label>
+  <textarea id="descricao_respiratoria" name="descricao_respiratoria"
+    rows="3" placeholder="Descreva aqui..."
+    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
+</div>
 </div>
 
 <div class="pergunta">
   <p>7. Você possui diabetes ou outra condição metabólica que precise ser considerada durante a prática de exercícios?</p>
   <label><input type="radio" name="triagem_metabolica" value="sim"> Sim</label>
   <label><input type="radio" name="triagem_metabolica" value="nao"> Não</label>
+<div id="detalhe_metabolica" style="display:none; margin-top:15px;">
+  <label for="descricao_metabolica">
+    Qual condição você possui? Informe se utiliza medicamentos,
+    realiza acompanhamento ou recebeu orientações para exercícios.
+  </label>
+  <textarea id="descricao_metabolica" name="descricao_metabolica"
+    rows="3" placeholder="Descreva aqui..."
+    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
+</div>
 </div>
 
 <div class="pergunta">
   <p>8. Você utiliza medicamentos que possam afetar sua frequência cardíaca, pressão arterial, equilíbrio ou resposta ao exercício?</p>
   <label><input type="radio" name="triagem_medicamentos" value="sim"> Sim</label>
   <label><input type="radio" name="triagem_medicamentos" value="nao"> Não</label>
+<div id="detalhe_medicamentos" style="display:none; margin-top:15px;">
+  <label for="descricao_medicamentos">
+    Informe quais medicamentos utiliza, conforme sua prescrição,
+    e se recebeu alguma orientação relacionada à atividade física.
+  </label>
+  <textarea id="descricao_medicamentos" name="descricao_medicamentos"
+    rows="3" placeholder="Descreva aqui..."
+    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
+</div>
 </div>
 
       <p>
@@ -323,21 +386,50 @@ document.body.classList.add("acesso-confirmado");
   verificarAcesso();
 </script>
 
-<script>
-  document.querySelectorAll('input[name="triagem_pressao"]').forEach(function(radio) {
-    radio.addEventListener("change", function() {
-      const campo = document.getElementById("detalhe_pressao");
-      const descricao = document.getElementById("descricao_pressao");
 
-      if (this.value === "sim") {
-        campo.style.display = "block";
-      } else {
-        campo.style.display = "none";
-        descricao.value = "";
+<script>
+  const camposTriagem = {
+    triagem_coracao: "detalhe_coracao",
+    triagem_peito: "detalhe_peito",
+    triagem_tontura: "detalhe_tontura",
+    triagem_articular: "detalhe_articular",
+    triagem_pressao: "detalhe_pressao",
+    triagem_respiratoria: "detalhe_respiratoria",
+    triagem_metabolica: "detalhe_metabolica",
+    triagem_medicamentos: "detalhe_medicamentos"
+  };
+
+  Object.entries(camposTriagem).forEach(([nome, idCampo]) => {
+    const campo = document.getElementById(idCampo);
+    const radios = document.querySelectorAll(
+      `input[name="${nome}"]`
+    );
+
+    if (!campo) return;
+
+    function atualizarCampo() {
+      const selecionado = document.querySelector(
+        `input[name="${nome}"]:checked`
+      );
+
+      const mostrar = selecionado?.value === "sim";
+      campo.style.display = mostrar ? "block" : "none";
+
+      const descricao = campo.querySelector("textarea");
+
+      if (descricao) {
+        descricao.required = mostrar;
       }
+    }
+
+    radios.forEach(radio => {
+      radio.addEventListener("change", atualizarCampo);
     });
+
+    atualizarCampo();
   });
 </script>
+
 
 </body>
 </html>
