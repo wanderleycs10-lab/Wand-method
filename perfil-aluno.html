@@ -140,6 +140,40 @@ async function verificarAdministrador() {
   
 document.querySelector("main").style.display = "none";
 
+async function carregarDadosAluno() {
+  const mensagem = document.getElementById("mensagem");
+
+  if (!alunoId || !/^\d+$/.test(alunoId)) {
+    mensagem.textContent = "Aluno não selecionado ou identificador inválido.";
+    return;
+  }
+
+  mensagem.textContent = "Carregando dados do aluno...";
+
+  const { data: aluno, error } = await supabase
+    .from("alunos")
+    .select("nome_completo, modalidade, Status")
+    .eq("id", alunoId)
+    .single();
+
+  if (error || !aluno) {
+    console.error("Erro ao carregar perfil:", error);
+    mensagem.textContent = "Não foi possível encontrar este aluno.";
+    return;
+  }
+
+  document.getElementById("nome").textContent =
+    aluno.nome_completo || "Não informado";
+
+  document.getElementById("modalidade").textContent =
+    aluno.modalidade || "Não informada";
+
+  document.getElementById("statusAluno").textContent =
+    aluno.Status || "Não informado";
+
+  mensagem.textContent = "";
+}
+
 async function iniciarPerfil() {
   const autorizado = await verificarAdministrador();
 
@@ -149,11 +183,13 @@ async function iniciarPerfil() {
 
   document.querySelector("main").style.display = "block";
 
-  if (!alunoId) {
-    mensagem.textContent = "Nenhum aluno selecionado.";
-  } else {
-    mensagem.textContent = "Preparando perfil do aluno...";
-  }
+  
+if (!alunoId) {
+  mensagem.textContent = "Nenhum aluno selecionado.";
+} else {
+  await carregarDadosAluno();
+}
+
 }
 
 iniciarPerfil();
