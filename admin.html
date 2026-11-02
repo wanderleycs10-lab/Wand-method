@@ -122,7 +122,7 @@ async function carregarAlunos() {
 
   const { data: alunos, error } = await supabase
     .from("alunos")
-    .select("nome_completo, modalidade, Status")
+    .select("id, nome_completo, modalidade, Status")
     .order("nome_completo", { ascending: true });
 
   if (error) {
@@ -145,8 +145,14 @@ async function carregarAlunos() {
     item.style.border = "1px solid #66551f";
     item.style.borderRadius = "8px";
 
-    const nome = document.createElement("strong");
-    nome.textContent = aluno.nome_completo || "Sem nome";
+    
+const nome = document.createElement("a");
+nome.textContent = aluno.nome_completo || "Sem nome";
+nome.href = "perfil-aluno.html?id=" + encodeURIComponent(aluno.id);
+nome.style.color = "#d4af37";
+nome.style.fontWeight = "bold";
+nome.style.textDecoration = "underline";
+
 
     const detalhes = document.createElement("p");
     detalhes.textContent =
