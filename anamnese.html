@@ -139,9 +139,19 @@
   async function verificarAcesso() {
     const { data, error } = await supabase.auth.getUser();
 
-    if (error || !data.user) {
-      window.location.replace("login.html");
-      return;
+    
+if (error || !data.user) {
+  const mensagem = document.createElement("p");
+  mensagem.style.color = "#d4af37";
+  mensagem.style.padding = "20px";
+  mensagem.textContent = error
+    ? "Erro ao verificar sessão: " + error.message
+    : "Nenhuma sessão de aluno encontrada.";
+
+  document.querySelector("main").replaceChildren(mensagem);
+  return;
+}
+
     }
 
     const { data: aluno, error: erroAluno } = await supabase
