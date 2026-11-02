@@ -122,7 +122,7 @@ async function carregarAlunos() {
 
   const { data: alunos, error } = await supabase
     .from("alunos")
-    .select("nome_completo, modalidade, status")
+    .select("nome_completo, modalidade, Status")
     .order("nome_completo", { ascending: true });
 
   if (error) {
@@ -151,7 +151,7 @@ async function carregarAlunos() {
     const detalhes = document.createElement("p");
     detalhes.textContent =
       "Modalidade: " + (aluno.modalidade || "Não informada") +
-      " | Status: " + (aluno.status || "Não informado");
+      " | Status: " + (aluno.Status || "Não informado");
 
     item.append(nome, detalhes);
     lista.appendChild(item);
