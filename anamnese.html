@@ -674,13 +674,21 @@ async function salvarAnamnesePersonalizada(respostas) {
     anamnese_personalizada: respostas
   };
 
-  const { error: erroSalvar } = await supabase
-    .from("anamneses")
-    .update({ respostas: respostasAtualizadas })
-    .eq("id", registro.id)
-    .eq("aluno_id", alunoIdAutenticado);
+  
+const { data: registroSalvo, error: erroSalvar } = await supabase
+  .from("anamneses")
+  .update({ respostas: respostasAtualizadas })
+  .eq("id", registro.id)
+  .eq("aluno_id", alunoIdAutenticado)
+  .select("id, respostas")
+  .single();
 
-  if (erroSalvar) throw erroSalvar;
+if (erroSalvar) throw erroSalvar;
+
+if (!registroSalvo?.respostas?.anamnese_personalizada) {
+  throw new Error("A anamnese não foi confirmada no banco de dados.");
+}
+
 }
 
 window.salvarAnamnesePersonalizada = salvarAnamnesePersonalizada;
