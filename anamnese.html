@@ -389,6 +389,8 @@ body.acesso-confirmado main {
     SUPABASE_KEY
   );
 
+let alunoIdAutenticado = null;
+
   async function verificarAcesso() {
     const { data, error } = await supabase.auth.getUser();
 
@@ -417,6 +419,8 @@ if (error || !data.user) {
         "Acesso restrito a alunos cadastrados.";
       return;
     }
+alunoIdAutenticado = aluno.id;
+
 
     const aviso = document.createElement("p");
     aviso.style.color = "#d4af37";
