@@ -427,6 +427,8 @@ async function salvarTriagem(respostas) {
   if (erroSalvar) throw erroSalvar;
 }
 
+window.salvarTriagem = salvarTriagem;
+
   async function verificarAcesso() {
     const { data, error } = await supabase.auth.getUser();
 
