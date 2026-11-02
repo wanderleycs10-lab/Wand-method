@@ -322,5 +322,21 @@ document.body.classList.add("acesso-confirmado");
   verificarAcesso();
 </script>
 
+<script>
+  document.querySelectorAll('input[name="triagem_pressao"]').forEach(function(radio) {
+    radio.addEventListener("change", function() {
+      const campo = document.getElementById("detalhe_pressao");
+      const descricao = document.getElementById("descricao_pressao");
+
+      if (this.value === "sim") {
+        campo.style.display = "block";
+      } else {
+        campo.style.display = "none";
+        descricao.value = "";
+      }
+    });
+  });
+</script>
+
 </body>
 </html>
