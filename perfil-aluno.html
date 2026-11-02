@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfil do Aluno | WAND METHOD</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #080808;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 24px;
+      text-align: center;
+      border-bottom: 1px solid #d4af37;
+    }
+
+    h1, h2 { color: #d4af37; }
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: #171717;
+      border: 1px solid #66551f;
+      border-radius: 12px;
+      padding: 22px;
+      margin: 16px 0;
+    }
+
+    button {
+      background: #d4af37;
+      color: #080808;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .info {
+      line-height: 1.8;
+      color: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>WAND METHOD</h1>
+    <p>WANDCOACH | PERFIL DO ALUNO</p>
+  </header>
+
+  <main>
+    <button onclick="window.location.href='admin.html'">
+      Voltar ao painel
+    </button>
+
+    <section class="card">
+      <h2>Dados pessoais</h2>
+      <p id="mensagem">Perfil em construção.</p>
+      <div class="info">
+        <p>Nome: <span id="nome">—</span></p>
+        <p>Modalidade: <span id="modalidade">—</span></p>
+        <p>Status: <span id="statusAluno">—</span></p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Anamnese</h2>
+      <p>Questionário de saúde e objetivos do aluno.</p>
+    </section>
+
+    <section class="card">
+      <h2>Avaliação física</h2>
+      <p>Medidas corporais e avaliações.</p>
+    </section>
+
+    <section class="card">
+      <h2>Treinos</h2>
+      <p>Prescrição e acompanhamento dos exercícios.</p>
+    </section>
+
+    <section class="card">
+      <h2>Evolução</h2>
+      <p>Gráficos e histórico de resultados.</p>
+    </section>
+  </main>
+
+<script>
+  const parametros = new URLSearchParams(window.location.search);
+  const alunoId = parametros.get("id");
+
+  const mensagem = document.getElementById("mensagem");
+
+  if (!alunoId) {
+    mensagem.textContent = "Nenhum aluno selecionado.";
+  } else {
+    mensagem.textContent = "Preparando perfil do aluno...";
+  }
+</script>
+
+</body>
+</html>
