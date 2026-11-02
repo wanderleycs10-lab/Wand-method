@@ -254,7 +254,16 @@ async function carregarAvaliacoesAluno() {
     .select("created_at, status, respostas")
     .eq("aluno_id", alunoId)
     .order("created_at", { ascending: false });
-window.historicoEvolucao = avaliacoes || [];
+window.historicoEvolucao = avaliacoes || [];window.objetivoPrincipalAluno = null;
+
+if (!error && avaliacoes?.length) {
+  const avaliacaoComObjetivo = avaliacoes.find(
+    a => a.respostas?.anamnese_personalizada?.objetivo_principal
+  );
+
+  window.objetivoPrincipalAluno =
+    avaliacaoComObjetivo?.respostas?.anamnese_personalizada?.objetivo_principal || null;
+}
   if (error) {
     console.error("Erro ao carregar avaliações:", error);
     area.textContent = "Não foi possível carregar as avaliações.";
