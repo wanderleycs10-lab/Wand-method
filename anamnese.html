@@ -495,6 +495,49 @@ Object.keys(camposTriagem).forEach(nome => {
 
 atualizarAlertaTriagem();
 
+document.getElementById("validar_triagem")
+  ?.addEventListener("click", function () {
+
+  const resultado = document.getElementById("resultado_triagem");
+  const pendencias = [];
+  let possuiRespostaSim = false;
+
+  Object.entries(camposTriagem).forEach(([nome, idCampo], indice) => {
+    const resposta = document.querySelector(
+      `input[name="${nome}"]:checked`
+    );
+
+    if (!resposta) {
+      pendencias.push(`Pergunta ${indice + 1}: selecione Sim ou Não.`);
+      return;
+    }
+
+    if (resposta.value === "sim") {
+      possuiRespostaSim = true;
+
+      const descricao = document
+        .getElementById(idCampo)
+        ?.querySelector("textarea");
+
+      if (!descricao?.value.trim()) {
+        pendencias.push(`Pergunta ${indice + 1}: descreva sua condição.`);
+      }
+    }
+  });
+
+  if (pendencias.length > 0) {
+    resultado.style.color = "#ff9999";
+    resultado.textContent = pendencias.join(" ");
+    return;
+  }
+
+  resultado.style.color = "#d4af37";
+
+  resultado.textContent = possuiRespostaSim
+    ? "Triagem preenchida. Suas respostas precisam de análise profissional antes da definição das atividades."
+    : "Triagem preenchida. As respostas serão analisadas pelo profissional responsável.";
+});
+
 </script>
 
 
