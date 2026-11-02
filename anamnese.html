@@ -69,6 +69,44 @@ body.acesso-confirmado main {
       color: #bcbcbc;
       font-size: 14px;
     }
+.pergunta {
+  background: #101010;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 16px 0;
+}
+
+.pergunta p {
+  line-height: 1.6;
+  margin-top: 0;
+}
+
+.pergunta label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 20px 8px 0;
+  cursor: pointer;
+}
+
+.pergunta input[type="radio"] {
+  accent-color: #d4af37;
+  width: 19px;
+  height: 19px;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .pergunta {
+    padding: 15px;
+  }
+
+  .pergunta label {
+    margin-right: 16px;
+  }
+}
+
   </style>
 </head>
 
