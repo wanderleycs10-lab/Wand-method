@@ -545,7 +545,162 @@ if (!alunoId) {
   await carregarDadosAluno();
 }
 await carregarAvaliacoesAluno();
+carregarGraficosEvolucao();
 await carregarAvaliacaoFisica();
+}
+
+function carregarGraficosEvolucao() {
+  const area = document.getElementById("graficosEvolucao");
+  if (!area) return;
+
+  area.replaceChildren();
+
+  const historico = (window.historicoEvolucao || [])
+    .filter(a => a.respostas?.anamnese_personalizada)
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+  if (!historico.length) {
+    area.textContent = "Nenhuma medida registrada ainda.";
+    return;
+  }
+
+  const medidas = [
+    { titulo: "Peso", campos: ["peso"], unidade: "kg" },
+    { titulo: "Cintura", campos: ["cintura"], unidade: "cm" },
+    { titulo: "Quadril", campos: ["quadril"], unidade: "cm" },
+    { titulo: "Braços", campos: ["braco_direito", "braco_esquerdo"], unidade: "cm" },
+    { titulo: "Coxas", campos: ["coxa_direita", "coxa_esquerda"], unidade: "cm" }
+  ];
+
+  const cores = ["#d4af37", "#57b8ff"];
+
+  medidas.forEach(medida => {
+    const bloco = document.createElement("div");
+    bloco.className = "card";
+
+    const titulo = document.createElement("h3");
+    titulo.textContent = medida.titulo;
+    titulo.style.color = "#d4af37";
+    bloco.appendChild(titulo);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 700;
+    canvas.height = 260;
+    canvas.style.width = "100%";
+    canvas.style.height = "auto";
+    bloco.appendChild(canvas);
+
+    const ctx = canvas.getContext("2d");
+    const series = medida.campos.map((campo, indice) => ({
+      nome: campo.replaceAll("_", " "),
+      cor: cores[indice],
+      pontos: historico.map((a, i) => {
+        const bruto = a.respostas.anamnese_personalizada[campo];
+        if (bruto === null || bruto === undefined || String(bruto).trim() === "") {
+          return null;
+        }
+        const valor = Number(String(bruto).replace(",", "."));
+        return Number.isFinite(valor) && valor > 0
+          ? { x: i, y: valor }
+          : null;
+      }).filter(Boolean)
+    }));
+
+    const valores = series.flatMap(s => s.pontos.map(p => p.y));
+
+    if (!valores.length) {
+      bloco.removeChild(canvas);
+      const aviso = document.createElement("p");
+      aviso.textContent = "Sem medidas disponíveis.";
+      bloco.appendChild(aviso);
+      area.appendChild(bloco);
+      return;
+    }
+
+    const minimo = Math.min(...valores);
+    const maximo = Math.max(...valores);
+    const margem = Math.max((maximo - minimo) * 0.2, 1);
+    const yMin = minimo - margem;
+    const yMax = maximo + margem;
+
+    const esquerda = 65;
+    const direita = 25;
+    const topo = 30;
+    const baixo = 55;
+    const largura = canvas.width - esquerda - direita;
+    const altura = canvas.height - topo - baixo;
+
+    ctx.font = "13px Arial";
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#555555";
+
+    for (let i = 0; i <= 4; i++) {
+      const y = topo + (altura * i / 4);
+      const valor = yMax - ((yMax - yMin) * i / 4);
+
+      ctx.beginPath();
+      ctx.moveTo(esquerda, y);
+      ctx.lineTo(esquerda + largura, y);
+      ctx.stroke();
+
+      ctx.fillText(valor.toFixed(1), 5, y + 4);
+    }
+
+    const posX = i => esquerda +
+      (historico.length === 1
+        ? largura / 2
+        : largura * i / (historico.length - 1));
+
+    const posY = valor => topo +
+      altura * (yMax - valor) / (yMax - yMin);
+
+    series.forEach(serie => {
+      ctx.strokeStyle = serie.cor;
+      ctx.fillStyle = serie.cor;
+      ctx.lineWidth = 3;
+
+      let anterior = null;
+
+      serie.pontos.forEach(p => {
+        const x = posX(p.x);
+        const y = posY(p.y);
+
+        if (anterior) {
+          ctx.beginPath();
+          ctx.moveTo(anterior.x, anterior.y);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        anterior = { x, y };
+      });
+    });
+
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+
+    historico.forEach((a, i) => {
+      const data = new Date(a.created_at).toLocaleDateString("pt-BR");
+      ctx.fillText(data, posX(i), canvas.height - 22);
+    });
+
+    ctx.textAlign = "left";
+
+    series.forEach((serie, i) => {
+      const legenda = document.createElement("p");
+      legenda.style.color = serie.cor;
+      legenda.style.margin = "8px 0";
+      legenda.textContent =
+        serie.nome + " (" + medida.unidade + ")";
+      bloco.appendChild(legenda);
+    });
+
+    area.appendChild(bloco);
+  });
 }
 
 iniciarPerfil();
