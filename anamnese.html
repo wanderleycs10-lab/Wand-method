@@ -675,13 +675,37 @@ async function salvarAnamnesePersonalizada(respostas) {
   };
 
   
-const { data: registroSalvo, error: erroSalvar } = await supabase
-  .from("anamneses")
-  .update({ respostas: respostasAtualizadas })
-  .eq("id", registro.id)
-  .eq("aluno_id", alunoIdAutenticado)
-  .select("id, respostas")
-  .single();
+
+    const triagemPreenchida =
+      respostasAtualizadas.triagem_saude &&
+      Object.keys(respostasAtualizadas.triagem_saude).length > 0;
+
+    const anamnesePreenchida =
+      respostasAtualizadas.anamnese_personalizada &&
+      Object.keys(respostasAtualizadas.anamnese_personalizada).length > 0;
+
+    const novoStatus =
+      triagemPreenchida && anamnesePreenchida
+        ? "concluida"
+        : triagemPreenchida || anamnesePreenchida
+          ? "em_andamento"
+          : "pendente";
+
+    const { data: registroSalvo, error: erroSalvar } = await supabase
+      .from("anamneses")
+      .update({
+        respostas: respostasAtualizadas,
+        status: novoStatus,
+        concluida_em:
+          novoStatus === "concluida"
+            ? new Date().toISOString()
+            : null
+      })
+      .eq("id", registro.id)
+      .eq("aluno_id", alunoIdAutenticado)
+      .select("id, respostas, status")
+      .single();
+
 
 if (erroSalvar) throw erroSalvar;
 
