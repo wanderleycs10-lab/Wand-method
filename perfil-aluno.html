@@ -180,6 +180,99 @@ async function carregarDadosAluno() {
   mensagem.textContent = "";
 }
 
+async function carregarAvaliacoesAluno() {
+  const area = document.getElementById("avaliacoesAluno");
+  if (!area) return;
+
+  area.textContent = "Carregando avaliações...";
+
+  const { data: avaliacoes, error } = await supabase
+    .from("anamneses")
+    .select("created_at, status, respostas")
+    .eq("aluno_id", alunoId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Erro ao carregar avaliações:", error);
+    area.textContent = "Não foi possível carregar as avaliações.";
+    return;
+  }
+
+  if (!avaliacoes || avaliacoes.length === 0) {
+    area.textContent = "Este aluno ainda não possui avaliações.";
+    return;
+  }
+
+  area.replaceChildren();
+
+  function mostrarDados(titulo, dados, destino) {
+    const subtitulo = document.createElement("h3");
+    subtitulo.textContent = titulo;
+    subtitulo.style.color = "#d4af37";
+    destino.appendChild(subtitulo);
+
+    if (!dados || Object.keys(dados).length === 0) {
+      const aviso = document.createElement("p");
+      aviso.textContent = "Ainda não preenchida.";
+      destino.appendChild(aviso);
+      return;
+    }
+
+    for (const [campo, valor] of Object.entries(dados)) {
+      const linha = document.createElement("p");
+      linha.style.overflowWrap = "anywhere";
+
+      const rotulo = document.createElement("strong");
+      rotulo.textContent =
+        campo.replaceAll("_", " ") + ": ";
+
+      const resposta = document.createElement("span");
+      resposta.textContent =
+        valor === null || valor === ""
+          ? "Não informado"
+          : typeof valor === "object"
+            ? JSON.stringify(valor)
+            : String(valor);
+
+      linha.append(rotulo, resposta);
+      destino.appendChild(linha);
+    }
+  }
+
+  avaliacoes.forEach((avaliacao, indice) => {
+    const bloco = document.createElement("div");
+    bloco.className = "card";
+
+    const titulo = document.createElement("h3");
+    titulo.textContent = `Avaliação ${indice + 1}`;
+    titulo.style.color = "#d4af37";
+
+    const informacoes = document.createElement("p");
+    const data = new Date(avaliacao.created_at);
+    informacoes.textContent =
+      `Data: ${data.toLocaleDateString("pt-BR")} | ` +
+      `Status: ${avaliacao.status || "Não informado"}`;
+
+    bloco.append(titulo, informacoes);
+
+    const respostas = avaliacao.respostas || {};
+
+    mostrarDados(
+      "Triagem de saúde",
+      respostas.triagem_saude,
+      bloco
+    );
+
+    mostrarDados(
+      "Anamnese personalizada",
+      respostas.anamnese_personalizada,
+      bloco
+    );
+
+    area.appendChild(bloco);
+  });
+}
+
 async function iniciarPerfil() {
   const autorizado = await verificarAdministrador();
 
@@ -195,7 +288,7 @@ if (!alunoId) {
 } else {
   await carregarDadosAluno();
 }
-
+await carregarAvaliacoesAluno();
 }
 
 iniciarPerfil();
