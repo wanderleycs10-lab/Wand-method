@@ -162,7 +162,12 @@ if (error || !data.user) {
 
     if (erroAluno || !aluno) {
       document.querySelector("main").textContent =
-        "Acesso restrito a alunos cadastrados.";
+        
+const aviso = document.createElement("p");
+aviso.style.color = "#d4af37";
+aviso.textContent = "✓ Aluno autenticado com sucesso!";
+document.querySelector("main").prepend(aviso);
+;
       return;
     }
 
