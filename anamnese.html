@@ -536,7 +536,7 @@ Object.keys(camposTriagem).forEach(nome => {
 atualizarAlertaTriagem();
 
 document.getElementById("validar_triagem")
-  ?.addEventListener("click", function () {
+  ?.addEventListener("click", async function () {
 
   const resultado = document.getElementById("resultado_triagem");
   const pendencias = [];
@@ -571,11 +571,48 @@ document.getElementById("validar_triagem")
     return;
   }
 
-  resultado.style.color = "#d4af37";
 
-  resultado.textContent = possuiRespostaSim
-    ? "Triagem preenchida. Suas respostas precisam de análise profissional antes da definição das atividades."
-    : "Triagem preenchida. As respostas serão analisadas pelo profissional responsável.";
+  const respostasTriagem = {};
+
+  Object.entries(camposTriagem).forEach(([nome, idCampo]) => {
+    const resposta = document.querySelector(
+      `input[name="${nome}"]:checked`
+    );
+
+    const descricao = document
+      .getElementById(idCampo)
+      ?.querySelector("textarea");
+
+    respostasTriagem[nome] = {
+      resposta: resposta.value,
+      descricao: resposta.value === "sim"
+        ? descricao.value.trim()
+        : ""
+    };
+  });
+
+  const botao = document.getElementById("validar_triagem");
+
+  botao.disabled = true;
+  resultado.style.color = "#d4af37";
+  resultado.textContent = "Salvando suas respostas...";
+
+  try {
+    await salvarTriagem(respostasTriagem);
+
+    resultado.textContent = possuiRespostaSim
+      ? "Triagem salva com sucesso! Suas respostas precisam de análise profissional antes da definição das atividades."
+      : "Triagem salva com sucesso! Suas respostas serão analisadas pelo profissional responsável.";
+
+  } catch (erro) {
+    console.error("Erro ao salvar triagem:", erro);
+    resultado.style.color = "#ff9999";
+    resultado.textContent =
+      "Não foi possível salvar suas respostas. Tente novamente.";
+  } finally {
+    botao.disabled = false;
+  }
+
 });
 
 </script>
