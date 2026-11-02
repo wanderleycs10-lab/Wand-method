@@ -355,19 +355,239 @@ body.acesso-confirmado main {
       </p>
     </section>
 
-    <section class="card">
-      <h2>Anamnese personalizada</h2>
+    
+<section class="card" id="anamnese_personalizada">
+  <h2>Anamnese Personalizada — WAND METHOD</h2>
+  <p>Preencha as informações abaixo para que seu treinamento seja planejado de acordo com seus objetivos, rotina e necessidades.</p>
 
-      <p>
-        Aqui você informará seus objetivos,
-        experiências, rotina, preferências
-        e possíveis limitações.
-      </p>
+  <form id="form_anamnese">
 
-      <p class="small">
-        As perguntas serão adicionadas
-        nas próximas etapas.
-      </p>
+    <h3 style="color:#d4af37;">1. Objetivos</h3>
+
+    <div class="pergunta">
+      <p>Qual é seu principal objetivo?</p>
+      <select name="objetivo_principal" required>
+        <option value="">Selecione uma opção</option>
+        <option value="emagrecimento">Emagrecimento</option>
+        <option value="hipertrofia">Hipertrofia muscular</option>
+        <option value="condicionamento">Condicionamento físico</option>
+        <option value="forca">Ganho de força</option>
+        <option value="saude">Saúde e qualidade de vida</option>
+        <option value="retorno_lesao">Retorno ao exercício após lesão</option>
+        <option value="outro">Outro</option>
+      </select>
+    </div>
+
+    <div class="pergunta">
+      <p>Quais são seus objetivos secundários?</p>
+      <textarea name="objetivos_secundarios" rows="3" placeholder="Descreva seus outros objetivos..."></textarea>
+    </div>
+
+    <div class="pergunta">
+      <p>Você possui alguma meta específica ou prazo?</p>
+      <textarea name="meta_especifica" rows="3" placeholder="Ex.: correr 5 km, melhorar resistência, ganhar força..."></textarea>
+    </div>
+
+    <h3 style="color:#d4af37;">2. Histórico de treinamento</h3>
+
+    <div class="pergunta">
+      <p>Você pratica exercícios atualmente?</p>
+      <label><input type="radio" name="treina_atualmente" value="sim" required> Sim</label>
+      <label><input type="radio" name="treina_atualmente" value="nao"> Não</label>
+    </div>
+
+    <div class="pergunta">
+      <p>Há quanto tempo pratica ou praticou exercícios regularmente?</p>
+      <select name="experiencia_treino" required>
+        <option value="">Selecione</option>
+        <option value="nunca">Nunca pratiquei regularmente</option>
+        <option value="menos_3_meses">Menos de 3 meses</option>
+        <option value="3_12_meses">De 3 a 12 meses</option>
+        <option value="1_3_anos">De 1 a 3 anos</option>
+        <option value="mais_3_anos">Mais de 3 anos</option>
+      </select>
+    </div>
+
+    <div class="pergunta">
+      <p>Quais atividades você pratica ou já praticou?</p>
+      <textarea name="modalidades" rows="3" placeholder="Musculação, corrida, dança, pilates, esportes..."></textarea>
+    </div>
+
+    <div class="pergunta">
+      <p>Quantos dias por semana você treina atualmente?</p>
+      <select name="frequencia_atual" required>
+        <option value="">Selecione</option>
+        <option value="0">Não treino atualmente</option>
+        <option value="1">1 dia</option>
+        <option value="2">2 dias</option>
+        <option value="3">3 dias</option>
+        <option value="4">4 dias</option>
+        <option value="5">5 dias</option>
+        <option value="6_7">6 ou 7 dias</option>
+      </select>
+    </div>
+
+    <h3 style="color:#d4af37;">3. Rotina e hábitos</h3>
+
+    <div class="pergunta">
+      <p>Como você descreveria sua rotina diária?</p>
+      <select name="rotina_atividade" required>
+        <option value="">Selecione</option>
+        <option value="sentado">Passo a maior parte do dia sentado</option>
+        <option value="misto">Alterno entre sentado e em movimento</option>
+        <option value="ativo">Passo boa parte do dia em movimento</option>
+        <option value="fisico">Realizo trabalho fisicamente exigente</option>
+      </select>
+    </div>
+
+    <div class="pergunta">
+      <p>Quantas horas você costuma dormir por noite?</p>
+      <select name="horas_sono" required>
+        <option value="">Selecione</option>
+        <option value="menos_5">Menos de 5 horas</option>
+        <option value="5_6">5 a 6 horas</option>
+        <option value="6_7">6 a 7 horas</option>
+        <option value="7_9">7 a 9 horas</option>
+        <option value="mais_9">Mais de 9 horas</option>
+      </select>
+    </div>
+
+    <div class="pergunta">
+      <p>Como avalia a qualidade do seu sono?</p>
+      <label><input type="radio" name="qualidade_sono" value="boa" required> Boa</label>
+      <label><input type="radio" name="qualidade_sono" value="regular"> Regular</label>
+      <label><input type="radio" name="qualidade_sono" value="ruim"> Ruim</label>
+    </div>
+
+    <div class="pergunta">
+      <p>Como avalia seu nível de estresse na maior parte dos dias?</p>
+      <select name="estresse" required>
+        <option value="">Selecione</option>
+        <option value="baixo">Baixo</option>
+        <option value="moderado">Moderado</option>
+        <option value="alto">Alto</option>
+        <option value="muito_alto">Muito alto</option>
+      </select>
+    </div>
+
+    <div class="pergunta">
+      <p>Gostaria de informar algo sobre sua alimentação ou acompanhamento nutricional?</p>
+      <textarea name="alimentacao" rows="3" placeholder="Informação opcional..."></textarea>
+    </div>
+
+    <h3 style="color:#d4af37;">4. Dores, lesões e limitações</h3>
+
+    <div class="pergunta">
+      <p>Você sente alguma dor ou desconforto atualmente?</p>
+      <label><input type="radio" name="dor_atual" value="sim" required> Sim</label>
+      <label><input type="radio" name="dor_atual" value="nao"> Não</label>
+      <textarea name="descricao_dor" rows="3" placeholder="Se sim, informe local, intensidade de 0 a 10 e movimentos que pioram a dor..."></textarea>
+    </div>
+
+    <div class="pergunta">
+      <p>Já sofreu alguma lesão ou realizou cirurgia que possa influenciar seu treinamento?</p>
+      <label><input type="radio" name="historico_lesao" value="sim" required> Sim</label>
+      <label><input type="radio" name="historico_lesao" value="nao"> Não</label>
+      <textarea name="descricao_lesao" rows="3" placeholder="Se sim, descreva o que aconteceu, quando e se houve reabilitação..."></textarea>
+    </div>
+
+    <div class="pergunta">
+      <p>Possui alguma limitação de movimento ou orientação profissional relacionada ao exercício?</p>
+      <textarea name="limitacoes" rows="3" placeholder="Descreva, se houver..."></textarea>
+    </div>
+
+    <h3 style="color:#d4af37;">5. Disponibilidade e preferências</h3>
+
+    <div class="pergunta">
+      <p>Quantos dias por semana pretende treinar?</p>
+      <select name="frequencia_desejada" required>
+        <option value="">Selecione</option>
+        <option value="1">1 dia</option>
+        <option value="2">2 dias</option>
+        <option value="3">3 dias</option>
+        <option value="4">4 dias</option>
+        <option value="5">5 dias</option>
+        <option value="6_7">6 ou 7 dias</option>
+      </select>
+    </div>
+
+    <div class="pergunta">
+      <p>Quais dias e horários estão disponíveis para treinar?</p>
+      <textarea name="disponibilidade" rows="3" placeholder="Ex.: segunda, quarta e sexta após as 18h..." required></textarea>
+    </div>
+
+    <div class="pergunta">
+      <p>Onde pretende realizar seus treinos?</p>
+      <select name="local_treino" required>
+        <option value="">Selecione</option>
+        <option value="academia">Academia</option>
+        <option value="casa">Em casa</option>
+        <option value="condominio">Condomínio</option>
+        <option value="ar_livre">Ao ar livre</option>
+        <option value="variados">Locais variados</option>
+      </select>
+    </div>
+
+    <div class="pergunta">
+      <p>Quais equipamentos você tem disponíveis?</p>
+      <textarea name="equipamentos" rows="3" placeholder="Ex.: academia completa, halteres, elásticos, nenhum..."></textarea>
+    </div>
+
+    <div class="pergunta">
+      <p>Existem exercícios de que você gosta ou não gosta?</p>
+      <textarea name="preferencias_exercicios" rows="3" placeholder="Conte suas preferências..."></textarea>
+    </div>
+
+    <h3 style="color:#d4af37;">6. Medidas corporais</h3>
+    <p>Preencha apenas as medidas que souber. Utilize centímetros para circunferências.</p>
+
+    <div class="pergunta">
+      <p>Peso atual (kg)</p>
+      <input type="number" name="peso" min="0" step="0.1" placeholder="Ex.: 75.5">
+    </div>
+
+    <div class="pergunta">
+      <p>Altura (cm)</p>
+      <input type="number" name="altura" min="0" step="0.1" placeholder="Ex.: 175">
+    </div>
+
+    <div class="pergunta">
+      <p>Cintura (cm)</p>
+      <input type="number" name="cintura" min="0" step="0.1">
+    </div>
+
+    <div class="pergunta">
+      <p>Quadril (cm)</p>
+      <input type="number" name="quadril" min="0" step="0.1">
+    </div>
+
+    <div class="pergunta">
+      <p>Braços (cm)</p>
+      <label>Direito <input type="number" name="braco_direito" min="0" step="0.1"></label>
+      <label>Esquerdo <input type="number" name="braco_esquerdo" min="0" step="0.1"></label>
+    </div>
+
+    <div class="pergunta">
+      <p>Coxas (cm)</p>
+      <label>Direita <input type="number" name="coxa_direita" min="0" step="0.1"></label>
+      <label>Esquerda <input type="number" name="coxa_esquerda" min="0" step="0.1"></label>
+    </div>
+
+    <h3 style="color:#d4af37;">7. Informações adicionais</h3>
+
+    <div class="pergunta">
+      <p>Existe alguma outra informação que considera importante para seu treinamento?</p>
+      <textarea name="observacoes" rows="4" placeholder="Escreva aqui..."></textarea>
+    </div>
+
+    <button type="submit" id="salvar_anamnese" style="background:#d4af37;color:#111;border:0;border-radius:10px;padding:15px 22px;font-weight:bold;cursor:pointer;">
+      SALVAR ANAMNESE PERSONALIZADA
+    </button>
+
+    <p id="resultado_anamnese" role="status" aria-live="polite"></p>
+  </form>
+</section>
+
     </section>
 
     <a class="button" href="aluno.html">
