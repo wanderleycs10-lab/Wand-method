@@ -121,5 +121,46 @@
       Voltar ao meu painel
     </a>
   </main>
+<script type="module">
+  import { createClient } from
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  const SUPABASE_URL =
+    "https://kvxdnreipuahoaostlle.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_8DJWlBHFh_cULSe3icwJg_t9ZqTBjo";
+
+  const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  async function verificarAcesso() {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data.user) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    const { data: aluno, error: erroAluno } = await supabase
+      .from("alunos")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    if (erroAluno || !aluno) {
+      document.querySelector("main").textContent =
+        "Acesso restrito a alunos cadastrados.";
+      return;
+    }
+
+    console.log("Acesso de aluno verificado.");
+  }
+
+  verificarAcesso();
+</script>
+
 </body>
 </html>
