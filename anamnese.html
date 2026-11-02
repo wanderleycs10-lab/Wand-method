@@ -649,6 +649,42 @@ async function salvarTriagem(respostas) {
 
 window.salvarTriagem = salvarTriagem;
 
+async function salvarAnamnesePersonalizada(respostas) {
+  if (!alunoIdAutenticado) {
+    throw new Error("Aluno não identificado. Entre novamente.");
+  }
+
+  const { data: registro, error: erroBusca } = await supabase
+    .from("anamneses")
+    .select("id, respostas")
+    .eq("aluno_id", alunoIdAutenticado)
+    .eq("status", "pendente")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (erroBusca) throw erroBusca;
+
+  if (!registro) {
+    throw new Error("Nenhuma anamnese pendente encontrada.");
+  }
+
+  const respostasAtualizadas = {
+    ...(registro.respostas || {}),
+    anamnese_personalizada: respostas
+  };
+
+  const { error: erroSalvar } = await supabase
+    .from("anamneses")
+    .update({ respostas: respostasAtualizadas })
+    .eq("id", registro.id)
+    .eq("aluno_id", alunoIdAutenticado);
+
+  if (erroSalvar) throw erroSalvar;
+}
+
+window.salvarAnamnesePersonalizada = salvarAnamnesePersonalizada;
+
   async function verificarAcesso() {
     const { data, error } = await supabase.auth.getUser();
 
