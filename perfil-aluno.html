@@ -643,7 +643,7 @@ medida.campos.forEach(campo => {
   const inicial = registros[0];
   const atual = registros[registros.length - 1];
   const diferenca = atual - inicial;
-
+  const percentual = (diferenca / inicial) * 100;
   const nome = campo.replaceAll("_", " ");
   const sinal = diferenca > 0 ? "+" : "";
 
