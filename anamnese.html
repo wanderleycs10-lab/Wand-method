@@ -456,6 +456,29 @@ document.body.classList.add("acesso-confirmado");
 
     atualizarCampo();
   });
+function atualizarAlertaTriagem() {
+  const alerta = document.getElementById("alerta_triagem");
+
+  if (!alerta) return;
+
+  const existeRespostaSim = Object.keys(camposTriagem).some(nome => {
+    const resposta = document.querySelector(
+      `input[name="${nome}"]:checked`
+    );
+    return resposta?.value === "sim";
+  });
+
+  alerta.style.display = existeRespostaSim ? "block" : "none";
+}
+
+Object.keys(camposTriagem).forEach(nome => {
+  document.querySelectorAll(`input[name="${nome}"]`).forEach(radio => {
+    radio.addEventListener("change", atualizarAlertaTriagem);
+  });
+});
+
+atualizarAlertaTriagem();
+
 </script>
 
 
