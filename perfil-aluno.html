@@ -620,6 +620,18 @@ function criarIndicador(rotulo, valor, destaque = false) {
   const numero = document.createElement("div");
   numero.textContent = valor;
   numero.style.color = destaque ? "#d4af37" : "#fff";
+
+if (destaque && rotulo.includes("Variação")) {
+  const texto = String(valor).trim();
+
+  if (texto.startsWith("+")) {
+    numero.style.color = "#4ade80"; // Verde: aumento
+  } else if (texto.startsWith("-") || texto.startsWith("−")) {
+    numero.style.color = "#f87171"; // Vermelho: redução
+  } else {
+    numero.style.color = "#a3a3a3"; // Cinza: sem alteração
+  }
+}
   numero.style.fontSize = "22px";
   numero.style.fontWeight = "bold";
 
