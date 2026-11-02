@@ -248,7 +248,7 @@ async function carregarAvaliacoesAluno() {
     .select("created_at, status, respostas")
     .eq("aluno_id", alunoId)
     .order("created_at", { ascending: false });
-
+window.historicoEvolucao = avaliacoes || [];
   if (error) {
     console.error("Erro ao carregar avaliações:", error);
     area.textContent = "Não foi possível carregar as avaliações.";
