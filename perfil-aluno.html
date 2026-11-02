@@ -551,7 +551,14 @@ if (!alunoId) {
   await carregarDadosAluno();
 }
 await carregarAvaliacoesAluno();
-carregarGraficosEvolucao();
+
+try {
+  await carregarHistoricoFisico();
+  carregarGraficosEvolucao();
+} catch (erro) {
+  document.getElementById("graficosEvolucao").textContent =
+    "Não foi possível carregar o histórico de evolução.";
+}
 await carregarAvaliacaoFisica();
 }
 
@@ -716,6 +723,43 @@ if (linkNovaAvaliacao && alunoId && /^\d+$/.test(alunoId)) {
     "avaliacao-fisica.html?id=" + encodeURIComponent(alunoId);
 } else if (linkNovaAvaliacao) {
   linkNovaAvaliacao.style.display = "none";
+}
+
+async function carregarHistoricoFisico() {
+  const { data: avaliacoes, error } = await supabase
+    .from("avaliacoes_fisicas")
+    .select("data_avaliacao, peso, cintura, quadril, braco_direito, braco_esquerdo, coxa_direita, coxa_esquerda")
+    .eq("aluno_id", alunoId)
+    .order("data_avaliacao", { ascending: true });
+
+  if (error) {
+    console.error("Erro ao carregar histórico físico:", error);
+    throw error;
+  }
+
+  const iniciais = (window.historicoEvolucao || [])
+    .filter(a => a.respostas?.anamnese_personalizada)
+    .map(a => ({
+      created_at: a.created_at,
+      respostas: a.respostas
+    }));
+
+  const novas = (avaliacoes || []).map(a => ({
+    created_at: a.data_avaliacao + "T12:00:00",
+    respostas: {
+      anamnese_personalizada: {
+        peso: a.peso,
+        cintura: a.cintura,
+        quadril: a.quadril,
+        braco_direito: a.braco_direito,
+        braco_esquerdo: a.braco_esquerdo,
+        coxa_direita: a.coxa_direita,
+        coxa_esquerda: a.coxa_esquerda
+      }
+    }
+  }));
+
+  window.historicoEvolucao = [...iniciais, ...novas];
 }
 
 iniciarPerfil();
