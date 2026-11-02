@@ -97,17 +97,67 @@
     </section>
   </main>
 
-<script>
+
+<script type="module">
+  import { createClient } from
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  const supabase = createClient(
+    "https://kvxdnreipuahoaostlle.supabase.co",
+    "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
+  );
+
+async function verificarAdministrador() {
+  const { data: { user }, error } =
+    await supabase.auth.getUser();
+
+  if (error || !user) {
+    window.location.replace("login.html");
+    return false;
+  }
+
+  const { data: perfil, error: erroPerfil } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (erroPerfil || perfil?.role !== "admin") {
+    document.querySelector("main").style.display = "none";
+    document.getElementById("mensagem").textContent =
+      "Acesso não autorizado.";
+    return false;
+  }
+
+  return true;
+}
+
   const parametros = new URLSearchParams(window.location.search);
   const alunoId = parametros.get("id");
 
   const mensagem = document.getElementById("mensagem");
+
+  
+document.querySelector("main").style.display = "none";
+
+async function iniciarPerfil() {
+  const autorizado = await verificarAdministrador();
+
+  if (!autorizado) {
+    return;
+  }
+
+  document.querySelector("main").style.display = "block";
 
   if (!alunoId) {
     mensagem.textContent = "Nenhum aluno selecionado.";
   } else {
     mensagem.textContent = "Preparando perfil do aluno...";
   }
+}
+
+iniciarPerfil();
+
 </script>
 
 </body>
