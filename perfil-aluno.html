@@ -52,6 +52,53 @@
       line-height: 1.8;
       color: #ddd;
     }
+.grupo-avaliacao {
+  margin-top: 24px;
+}
+
+.grupo-avaliacao h3 {
+  color: #d4af37;
+  border-bottom: 1px solid #66551f;
+  padding-bottom: 12px;
+}
+
+.grade-respostas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.item-resposta {
+  background: #101010;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 16px;
+  overflow-wrap: anywhere;
+}
+
+.item-resposta strong {
+  display: block;
+  color: #d4af37;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+}
+
+.item-resposta span {
+  display: block;
+  color: #f1f1f1;
+  line-height: 1.5;
+}
+
+.resposta-atencao {
+  border-color: #d49a37;
+}
+
+@media (max-width: 600px) {
+  .grade-respostas {
+    grid-template-columns: 1fr;
+  }
+}
+
   </style>
 </head>
 
@@ -205,39 +252,130 @@ async function carregarAvaliacoesAluno() {
 
   area.replaceChildren();
 
+  
   function mostrarDados(titulo, dados, destino) {
+    const secao = document.createElement("section");
+    secao.className = "grupo-avaliacao";
+
     const subtitulo = document.createElement("h3");
     subtitulo.textContent = titulo;
-    subtitulo.style.color = "#d4af37";
-    destino.appendChild(subtitulo);
+    secao.appendChild(subtitulo);
 
     if (!dados || Object.keys(dados).length === 0) {
       const aviso = document.createElement("p");
       aviso.textContent = "Ainda não preenchida.";
-      destino.appendChild(aviso);
+      secao.appendChild(aviso);
+      destino.appendChild(secao);
       return;
     }
 
+    const nomesCampos = {
+      objetivo_principal: "Objetivo principal",
+      objetivos_secundarios: "Objetivos secundários",
+      meta_especifica: "Meta específica",
+      treina_atualmente: "Treina atualmente",
+      experiencia_treino: "Experiência com exercícios",
+      frequencia_atual: "Frequência atual",
+      frequencia_desejada: "Frequência desejada",
+      historico_lesao: "Histórico de lesões",
+      descricao_lesao: "Descrição da lesão",
+      dor_atual: "Sente dor atualmente",
+      descricao_dor: "Descrição da dor",
+      horas_sono: "Horas de sono",
+      qualidade_sono: "Qualidade do sono",
+      rotina_atividade: "Rotina de atividade",
+      local_treino: "Local de treinamento",
+      preferencias_exercicios: "Preferências de exercícios",
+      braco_direito: "Braço direito (cm)",
+      braco_esquerdo: "Braço esquerdo (cm)",
+      coxa_direita: "Coxa direita (cm)",
+      coxa_esquerda: "Coxa esquerda (cm)",
+      cintura: "Cintura (cm)",
+      quadril: "Quadril (cm)",
+      peso: "Peso (kg)",
+      altura: "Altura (cm)"
+    };
+
+    const nomesTriagem = {
+      triagem_peito: "Dor ou desconforto no peito",
+      triagem_coracao: "Condição cardíaca",
+      triagem_pressao: "Pressão arterial",
+      triagem_tontura: "Tontura ou desmaio",
+      triagem_articular: "Problemas articulares",
+      triagem_metabolica: "Condições metabólicas",
+      triagem_medicamentos: "Uso de medicamentos",
+      triagem_respiratoria: "Problemas respiratórios"
+    };
+
+    function formatarValor(valor) {
+      if (valor === null || valor === undefined || valor === "") {
+        return "Não informado";
+      }
+
+      if (Array.isArray(valor)) {
+        return valor.map(formatarValor).join(", ");
+      }
+
+      const traducoes = {
+        sim: "Sim",
+        nao: "Não",
+        nunca: "Nunca",
+        menos_3_meses: "Menos de 3 meses",
+        "3_12_meses": "De 3 a 12 meses",
+        "1_3_anos": "De 1 a 3 anos",
+        mais_3_anos: "Mais de 3 anos",
+        hipertrofia: "Hipertrofia muscular",
+        moderado: "Moderado",
+        musculacao: "Musculação"
+      };
+
+      const texto = String(valor);
+      return traducoes[texto] || texto.replaceAll("_", " ");
+    }
+
+    const grade = document.createElement("div");
+    grade.className = "grade-respostas";
+
     for (const [campo, valor] of Object.entries(dados)) {
-      const linha = document.createElement("p");
-      linha.style.overflowWrap = "anywhere";
+      const item = document.createElement("div");
+      item.className = "item-resposta";
 
       const rotulo = document.createElement("strong");
       rotulo.textContent =
-        campo.replaceAll("_", " ") + ": ";
+        nomesTriagem[campo] ||
+        nomesCampos[campo] ||
+        campo.replaceAll("_", " ");
 
       const resposta = document.createElement("span");
-      resposta.textContent =
-        valor === null || valor === ""
-          ? "Não informado"
-          : typeof valor === "object"
-            ? JSON.stringify(valor)
-            : String(valor);
 
-      linha.append(rotulo, resposta);
-      destino.appendChild(linha);
+      if (
+        valor &&
+        typeof valor === "object" &&
+        !Array.isArray(valor) &&
+        "resposta" in valor
+      ) {
+        const respostaPrincipal = formatarValor(valor.resposta);
+        const descricao = String(valor.descricao || "").trim();
+
+        resposta.textContent = descricao
+          ? respostaPrincipal + " — " + descricao
+          : respostaPrincipal;
+
+        if (valor.resposta === "sim") {
+          item.classList.add("resposta-atencao");
+        }
+      } else {
+        resposta.textContent = formatarValor(valor);
+      }
+
+      item.append(rotulo, resposta);
+      grade.appendChild(item);
     }
+
+    secao.appendChild(grade);
+    destino.appendChild(secao);
   }
+
 
   avaliacoes.forEach((avaliacao, indice) => {
     const bloco = document.createElement("div");
