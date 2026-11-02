@@ -697,9 +697,20 @@ function carregarGraficosEvolucao() {
     ctx.textAlign = "center";
 
     historico.forEach((a, i) => {
-      const data = new Date(a.created_at).toLocaleDateString("pt-BR");
-      ctx.fillText(data, posX(i), canvas.height - 22);
-    });
+  const data = new Date(a.created_at).toLocaleDateString("pt-BR");
+
+  ctx.fillText(
+    `Aval. ${i + 1}`,
+    posX(i),
+    canvas.height - 36
+  );
+
+  ctx.fillText(
+    data,
+    posX(i),
+    canvas.height - 18
+  );
+});
 
     ctx.textAlign = "left";
 
