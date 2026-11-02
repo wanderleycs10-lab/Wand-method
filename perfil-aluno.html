@@ -417,6 +417,114 @@ async function carregarAvaliacoesAluno() {
   });
 }
 
+async function carregarAvaliacaoFisica() {
+  const painel = document.getElementById("painelAvaliacaoFisica");
+  if (!painel) return;
+
+  painel.textContent = "Carregando medidas...";
+
+  const { data: avaliacoes, error } = await supabase
+    .from("anamneses")
+    .select("created_at, respostas")
+    .eq("aluno_id", alunoId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Erro ao carregar medidas:", error);
+    painel.textContent = "Não foi possível carregar as medidas.";
+    return;
+  }
+
+  const avaliacao = (avaliacoes || []).find(
+    item => item.respostas?.anamnese_personalizada
+  );
+
+  if (!avaliacao) {
+    painel.textContent = "Nenhuma avaliação física registrada.";
+    return;
+  }
+
+  const medidas = avaliacao.respostas.anamnese_personalizada;
+  painel.replaceChildren();
+
+  const titulo = document.createElement("h3");
+  titulo.textContent = "Medidas corporais";
+  titulo.style.color = "#d4af37";
+  painel.appendChild(titulo);
+
+  const grade = document.createElement("div");
+  grade.className = "grade-respostas";
+
+  const campos = [
+    ["peso", "Peso", "kg"],
+    ["altura", "Altura", "cm"],
+    ["cintura", "Cintura", "cm"],
+    ["quadril", "Quadril", "cm"],
+    ["braco_direito", "Braço direito", "cm"],
+    ["braco_esquerdo", "Braço esquerdo", "cm"],
+    ["coxa_direita", "Coxa direita", "cm"],
+    ["coxa_esquerda", "Coxa esquerda", "cm"]
+  ];
+
+  campos.forEach(([campo, nome, unidade]) => {
+    const item = document.createElement("div");
+    item.className = "item-resposta";
+
+    const rotulo = document.createElement("strong");
+    rotulo.textContent = nome;
+
+    const valor = document.createElement("span");
+    const medida = medidas[campo];
+
+    valor.textContent =
+      medida !== undefined && medida !== null && medida !== ""
+        ? `${medida} ${unidade}`
+        : "Não informado";
+
+    item.append(rotulo, valor);
+    grade.appendChild(item);
+  });
+
+  painel.appendChild(grade);
+
+  const alertas = [];
+
+  function verificarAssimetria(direito, esquerdo, nome) {
+    const a = Number(String(medidas[direito] ?? "").replace(",", "."));
+    const b = Number(String(medidas[esquerdo] ?? "").replace(",", "."));
+
+    if (
+      !Number.isFinite(a) ||
+      !Number.isFinite(b) ||
+      a <= 0 ||
+      b <= 0
+    ) return;
+
+    const diferenca = Math.abs(a - b);
+
+    if (diferenca >= 2.5) {
+      alertas.push(
+        `${nome}: diferença de ${diferenca.toFixed(1).replace(".", ",")} cm entre os lados.`
+      );
+    }
+  }
+
+  verificarAssimetria("braco_direito", "braco_esquerdo", "Braços");
+  verificarAssimetria("coxa_direita", "coxa_esquerda", "Coxas");
+
+  if (alertas.length > 0) {
+    const aviso = document.createElement("p");
+    aviso.style.color = "#d4af37";
+    aviso.style.marginTop = "20px";
+    aviso.textContent =
+      "⚠ Atenção às medidas: " +
+      alertas.join(" ") +
+      " Confira as medições com o profissional.";
+
+    painel.appendChild(aviso);
+  }
+}
+
 async function iniciarPerfil() {
   const autorizado = await verificarAdministrador();
 
@@ -433,6 +541,7 @@ if (!alunoId) {
   await carregarDadosAluno();
 }
 await carregarAvaliacoesAluno();
+await carregarAvaliacaoFisica();
 }
 
 iniciarPerfil();
