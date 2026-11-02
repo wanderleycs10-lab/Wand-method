@@ -876,5 +876,91 @@ document.getElementById("validar_triagem")
 </script>
 
 
+<script>
+document.getElementById("form_anamnese")
+  ?.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const formulario = event.currentTarget;
+    const botao = document.getElementById("salvar_anamnese");
+    const resultado = document.getElementById("resultado_anamnese");
+
+    if (!formulario.reportValidity()) return;
+
+    const dados = new FormData(formulario);
+    const respostas = {};
+
+    for (const [nome, valor] of dados.entries()) {
+      respostas[nome] = typeof valor === "string"
+        ? valor.trim()
+        : valor;
+    }
+
+    // Exigir explicações quando houver dor ou lesão.
+    const explicacoes = [
+      ["dor_atual", "descricao_dor", "Descreva a dor atual."],
+      ["historico_lesao", "descricao_lesao", "Descreva a lesão ou cirurgia."]
+    ];
+
+    for (const [pergunta, campo, mensagem] of explicacoes) {
+      if (respostas[pergunta] === "sim" && !respostas[campo]) {
+        resultado.style.color = "#ff9999";
+        resultado.textContent = mensagem;
+        formulario.elements[campo].focus();
+        return;
+      }
+    }
+
+    // Verificar diferenças entre os lados do corpo.
+    const alertasMedidas = [];
+
+    for (const [direita, esquerda, regiao] of [
+      ["braco_direito", "braco_esquerdo", "braços"],
+      ["coxa_direita", "coxa_esquerda", "coxas"]
+    ]) {
+      if (respostas[direita] && respostas[esquerda]) {
+        const diferenca = Math.abs(
+          Number(respostas[direita]) - Number(respostas[esquerda])
+        );
+
+        if (diferenca >= 3) {
+          alertasMedidas.push(
+            `Diferença de ${diferenca.toFixed(1)} cm entre os ${regiao}.`
+          );
+        }
+      }
+    }
+
+    botao.disabled = true;
+    resultado.style.color = "#d4af37";
+    resultado.textContent = "Salvando anamnese...";
+
+    try {
+      if (typeof window.salvarAnamnesePersonalizada !== "function") {
+        throw new Error("Função de salvamento indisponível.");
+      }
+
+      await window.salvarAnamnesePersonalizada(respostas);
+
+      resultado.style.color = "#d4af37";
+      resultado.textContent =
+        "Anamnese personalizada salva com sucesso! " +
+        (alertasMedidas.length
+          ? "Atenção às medidas informadas: " +
+            alertasMedidas.join(" ") +
+            " Confira as medições com o profissional."
+          : "");
+
+    } catch (erro) {
+      console.error("Erro ao salvar anamnese:", erro);
+      resultado.style.color = "#ff9999";
+      resultado.textContent =
+        "Não foi possível salvar a anamnese. Tente novamente.";
+    } finally {
+      botao.disabled = false;
+    }
+  });
+</script>
+
 </body>
 </html>
