@@ -597,13 +597,44 @@ function carregarGraficosEvolucao() {
     bloco.appendChild(titulo);
 const resumo = document.createElement("div");
 
-resumo.style.margin = "15px 0 25px";
-resumo.style.lineHeight = "1.8";
+resumo.style.display = "grid";
+resumo.style.gridTemplateColumns =
+  "repeat(auto-fit, minmax(140px, 1fr))";
+resumo.style.gap = "12px";
+resumo.style.margin = "20px 0 28px";
+
+function criarIndicador(rotulo, valor, destaque = false) {
+  const card = document.createElement("div");
+
+  card.style.background = "#0d0d0d";
+  card.style.border = "1px solid #3a321b";
+  card.style.borderRadius = "12px";
+  card.style.padding = "18px";
+
+  const tituloIndicador = document.createElement("div");
+  tituloIndicador.textContent = rotulo;
+  tituloIndicador.style.color = "#aaa";
+  tituloIndicador.style.fontSize = "13px";
+  tituloIndicador.style.marginBottom = "10px";
+
+  const numero = document.createElement("div");
+  numero.textContent = valor;
+  numero.style.color = destaque ? "#d4af37" : "#fff";
+  numero.style.fontSize = "22px";
+  numero.style.fontWeight = "bold";
+
+  card.append(tituloIndicador, numero);
+  return card;
+}
 
 medida.campos.forEach(campo => {
   const registros = historico
     .map(a => a.respostas?.anamnese_personalizada?.[campo])
-    .filter(v => v !== null && v !== undefined && String(v).trim() !== "")
+    .filter(v =>
+      v !== null &&
+      v !== undefined &&
+      String(v).trim() !== ""
+    )
     .map(v => Number(String(v).replace(",", ".")))
     .filter(v => Number.isFinite(v) && v > 0);
 
@@ -616,16 +647,36 @@ medida.campos.forEach(campo => {
   const nome = campo.replaceAll("_", " ");
   const sinal = diferenca > 0 ? "+" : "";
 
-  const linha = document.createElement("p");
-
-  linha.textContent =
-    `${nome}: ${inicial.toLocaleString("pt-BR")} → ` +
-    `${atual.toLocaleString("pt-BR")} ${medida.unidade} ` +
-    `(${sinal}${diferenca.toLocaleString("pt-BR", {
+  const formatar = valor =>
+    valor.toLocaleString("pt-BR", {
       maximumFractionDigits: 2
-    })} ${medida.unidade})`;
+    });
 
-  resumo.appendChild(linha);
+  const grupo = document.createElement("div");
+
+  grupo.style.display = "contents";
+
+  resumo.appendChild(
+    criarIndicador(
+      `${nome} — Inicial`,
+      `${formatar(inicial)} ${medida.unidade}`
+    )
+  );
+
+  resumo.appendChild(
+    criarIndicador(
+      `${nome} — Atual`,
+      `${formatar(atual)} ${medida.unidade}`
+    )
+  );
+
+  resumo.appendChild(
+    criarIndicador(
+      `${nome} — Variação`,
+      `${sinal}${formatar(diferenca)} ${medida.unidade}`,
+      true
+    )
+  );
 });
 
 if (resumo.childElementCount > 0) {
