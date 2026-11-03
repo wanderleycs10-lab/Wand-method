@@ -593,7 +593,31 @@ function carregarGraficosEvolucao() {
     { titulo: "Braços", campos: ["braco_direito", "braco_esquerdo"], unidade: "cm" },
     { titulo: "Coxas", campos: ["coxa_direita", "coxa_esquerda"], unidade: "cm" }
   ];
+function obterMedida(avaliacao, campo) {
+  const bruto = avaliacao?.respostas?.anamnese_personalizada?.[campo];
 
+  if (bruto === null || bruto === undefined || String(bruto).trim() === "") {
+    return null;
+  }
+
+  const valor = Number(String(bruto).replace(",", "."));
+
+  return Number.isFinite(valor) && valor > 0 ? valor : null;
+}
+
+function compararMedida(campo) {
+  const registros = historico
+    .map(avaliacao => obterMedida(avaliacao, campo))
+    .filter(valor => valor !== null);
+
+  if (registros.length < 2) return null;
+
+  return {
+    inicial: registros[0],
+    atual: registros[registros.length - 1],
+    diferenca: registros[registros.length - 1] - registros[0]
+  };
+}
   const cores = ["#d4af37", "#57b8ff"];
 
   medidas.forEach(medida => {
