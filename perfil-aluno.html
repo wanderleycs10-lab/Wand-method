@@ -657,12 +657,59 @@ medida.campos.forEach(campo => {
   const percentual = (diferenca / inicial) * 100;
   const nome = campo.replaceAll("_", " ");
   const sinal = diferenca > 0 ? "+" : "";
-
+  const objetivoAluno = String(
+  window.objetivoPrincipalAluno || ""
+).toLowerCase().trim();
   const formatar = valor =>
     valor.toLocaleString("pt-BR", {
       maximumFractionDigits: 2
     });
+if (campo === "peso" && objetivoAluno) {
+  const objetivoTexto = document.createElement("p");
 
+  const nomesObjetivos = {
+    hipertrofia: "Hipertrofia",
+    emagrecimento: "Emagrecimento",
+    condicionamento: "Condicionamento físico",
+    saude: "Saúde e qualidade de vida"
+  };
+
+  objetivoTexto.textContent =
+    "Objetivo principal: " +
+    (nomesObjetivos[objetivoAluno] || objetivoAluno);
+
+  objetivoTexto.style.color = "#d4af37";
+  objetivoTexto.style.fontSize = "14px";
+  objetivoTexto.style.margin = "8px 0 16px";
+
+  bloco.appendChild(objetivoTexto);
+}if (campo === "peso" && objetivoAluno) {
+  const interpretacao = document.createElement("p");
+
+  let mensagem = "";
+
+  if (objetivoAluno === "hipertrofia") {
+    mensagem =
+      "Na hipertrofia, a variação do peso deve ser analisada junto " +
+      "às medidas corporais, à força e ao desempenho nos treinos.";
+  } else if (objetivoAluno === "emagrecimento") {
+    mensagem =
+      "No emagrecimento, acompanhe a tendência do peso junto " +
+      "às circunferências e à evolução da composição corporal.";
+  } else {
+    mensagem =
+      "A evolução do peso deve ser interpretada considerando " +
+      "o objetivo individual e os demais indicadores físicos.";
+  }
+
+  interpretacao.textContent = "Análise WAND: " + mensagem;
+  interpretacao.style.color = "#bdbdbd";
+  interpretacao.style.fontSize = "13px";
+  interpretacao.style.lineHeight = "1.6";
+  interpretacao.style.margin = "0 0 18px";
+
+  bloco.appendChild(interpretacao);
+}
   const grupo = document.createElement("div");
 
   grupo.style.display = "contents";
