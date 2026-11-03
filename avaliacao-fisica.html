@@ -222,7 +222,7 @@
 
         const { data: aluno, error: erroAluno } = await supabase
           .from("alunos")
-          .select("nome_completo, modalidade")
+          .select("nome_completo, modalidade, sexo, data_nascimento")
           .eq("id", alunoId)
           .single();
 
