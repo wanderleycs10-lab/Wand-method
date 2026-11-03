@@ -139,7 +139,7 @@
     </label>
 
     <label>Axilar média (mm)
-      <input type="number" name="dobra_axilar" min="0.1" step="0.1">
+      <input type="number" name="dobra_axilar_media" min="0.1" step="0.1">
     </label>
 
     <label>Tríceps (mm)
@@ -193,7 +193,80 @@
     const form = document.getElementById("formAvaliacao");
     const resultado = document.getElementById("resultado");
     const botao = document.getElementById("salvar");
+let dadosAlunoAvaliacao = null;function calcularIdade(dataNascimento, dataAvaliacao) {
+  const nascimento = String(dataNascimento).split("-").map(Number);
+  const avaliacao = String(dataAvaliacao).split("-").map(Number);
 
+  if (
+    nascimento.length !== 3 ||
+    avaliacao.length !== 3 ||
+    [...nascimento, ...avaliacao].some(n => !Number.isInteger(n))
+  ) {
+    return null;
+  }
+
+  let idade = avaliacao[0] - nascimento[0];
+
+  if (
+    avaliacao[1] < nascimento[1] ||
+    (avaliacao[1] === nascimento[1] && avaliacao[2] < nascimento[2])
+  ) {
+    idade--;
+  }
+
+  return idade >= 0 ? idade : null;
+}function calcularComposicaoCorporal(somaDobras, idade, sexo) {
+  const sexoNormalizado = String(sexo || "")
+    .trim()
+    .toLowerCase();
+
+  if (
+    !Number.isFinite(somaDobras) ||
+    somaDobras <= 0 ||
+    !Number.isInteger(idade) ||
+    idade < 18
+  ) {
+    return null;
+  }
+
+  let densidade;
+
+  if (sexoNormalizado === "masculino") {
+    densidade =
+      1.112 -
+      0.00043499 * somaDobras +
+      0.00000055 * somaDobras ** 2 -
+      0.00028826 * idade;
+  } else if (sexoNormalizado === "feminino") {
+    densidade =
+      1.097 -
+      0.00046971 * somaDobras +
+      0.00000056 * somaDobras ** 2 -
+      0.00012828 * idade;
+  } else {
+    return null;
+  }
+
+  if (!Number.isFinite(densidade) || densidade <= 0) {
+    return null;
+  }
+
+  const percentualGordura = 495 / densidade - 450;
+
+  if (
+    !Number.isFinite(percentualGordura) ||
+    percentualGordura < 0 ||
+    percentualGordura > 100
+  ) {
+    return null;
+  }
+
+  return {
+    soma_7_dobras: somaDobras,
+    densidade_corporal: densidade,
+    percentual_gordura: percentualGordura
+  };
+}
     async function iniciar() {
       try {
         const { data: { user }, error } =
@@ -230,7 +303,10 @@
           status.textContent = "Aluno não encontrado.";
           return;
         }
-
+dadosAlunoAvaliacao = {
+  sexo: aluno.sexo,
+  data_nascimento: aluno.data_nascimento
+};
         document.getElementById("nomeAluno").textContent =
           "Aluno: " + aluno.nome_completo;
 
@@ -278,7 +354,15 @@ secaoDobras.hidden = !permiteDobras;
         data_avaliacao: form.elements.data_avaliacao.value,
         observacoes: form.elements.observacoes.value.trim() || null
       };
-
+const camposDobras = [
+  "dobra_peitoral",
+  "dobra_axilar_media",
+  "dobra_triceps",
+  "dobra_subescapular",
+  "dobra_abdominal",
+  "dobra_suprailiaca",
+  "dobra_coxa"
+];
       let preenchidos = 0;
 
       for (const campo of campos) {
@@ -300,8 +384,65 @@ secaoDobras.hidden = !permiteDobras;
         registro[campo] = numero;
         preenchidos++;
       }
+const secaoDobrasAtiva =
+  !document.getElementById("secaoDobras").hidden;
 
-      if (preenchidos === 0) {
+let dobrasPreenchidas = 0;
+
+if (secaoDobrasAtiva) {
+  for (const campo of camposDobras) {
+    const texto = form.elements[campo].value.trim();
+
+    if (texto === "") {
+      registro[campo] = null;
+      continue;
+    }
+
+    const numero = Number(texto);
+
+    if (!Number.isFinite(numero) || numero <= 0) {
+      resultado.textContent =
+        "Confira a dobra: " + campo.replaceAll("_", " ");
+      return;
+    }
+
+    registro[campo] = numero;
+    dobrasPreenchidas++;
+  }
+
+  if (dobrasPreenchidas > 0 && dobrasPreenchidas < 7) {
+    resultado.textContent =
+      "Preencha as 7 dobras para calcular a composição corporal.";
+    return;
+  }
+}
+
+if (dobrasPreenchidas === 7) {
+  const somaDobras = camposDobras.reduce(
+    (total, campo) => total + registro[campo],
+    0
+  );
+
+  const idade = calcularIdade(
+    dadosAlunoAvaliacao?.data_nascimento,
+    registro.data_avaliacao
+  );
+
+  const composicao = calcularComposicaoCorporal(
+    somaDobras,
+    idade,
+    dadosAlunoAvaliacao?.sexo
+  );
+
+  if (!composicao) {
+    resultado.textContent =
+      "Não foi possível calcular a composição corporal. Confira a idade, o sexo e as medidas informadas.";
+    return;
+  }
+
+  Object.assign(registro, composicao);
+}
+      if (preenchidos === 0 && dobrasPreenchidas === 0) {
         resultado.textContent =
           "Informe pelo menos uma medida corporal.";
         return;
