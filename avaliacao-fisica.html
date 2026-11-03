@@ -222,7 +222,7 @@
 
         const { data: aluno, error: erroAluno } = await supabase
           .from("alunos")
-          .select("nome_completo")
+          .select("nome_completo, modalidade")
           .eq("id", alunoId)
           .single();
 
@@ -233,6 +233,18 @@
 
         document.getElementById("nomeAluno").textContent =
           "Aluno: " + aluno.nome_completo;
+
+const secaoDobras = document.getElementById("secaoDobras");
+
+const modalidade = String(aluno.modalidade || "")
+  .trim()
+  .toLowerCase();
+
+const permiteDobras =
+  modalidade === "presencial" ||
+  modalidade === "semipresencial";
+
+secaoDobras.hidden = !permiteDobras;
 
         document.getElementById("voltar").href =
           "perfil-aluno.html?id=" + encodeURIComponent(alunoId);
