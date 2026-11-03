@@ -591,7 +591,8 @@ function carregarGraficosEvolucao() {
     { titulo: "Cintura", campos: ["cintura"], unidade: "cm" },
     { titulo: "Quadril", campos: ["quadril"], unidade: "cm" },
     { titulo: "Braços", campos: ["braco_direito", "braco_esquerdo"], unidade: "cm" },
-    { titulo: "Coxas", campos: ["coxa_direita", "coxa_esquerda"], unidade: "cm" }
+    { titulo: "Coxas", campos: ["coxa_direita", "coxa_esquerda"], unidade: "cm" },
+{ titulo: "Gordura corporal estimada", campos: ["percentual_gordura"], unidade: "%" }
   ];
 function obterMedida(avaliacao, campo) {
   const bruto = avaliacao?.respostas?.anamnese_personalizada?.[campo];
@@ -636,7 +637,7 @@ resumo.style.gridTemplateColumns =
 resumo.style.gap = "12px";
 resumo.style.margin = "20px 0 28px";
 
-function criarIndicador(rotulo, valor, destaque = false) {
+function criarIndicador(rotulo, valor, destaque = false, corPersonalizada = null) {
   const card = document.createElement("div");
 
   card.style.background = "#0d0d0d";
@@ -652,7 +653,7 @@ function criarIndicador(rotulo, valor, destaque = false) {
 
   const numero = document.createElement("div");
   numero.textContent = valor;
-  numero.style.color = destaque ? "#d4af37" : "#ffffff";
+  numero.style.color = corPersonalizada || (destaque ? "#d4af37" : "#ffffff");
 
 
   numero.style.fontSize = "22px";
@@ -673,12 +674,17 @@ medida.campos.forEach(campo => {
     .map(v => Number(String(v).replace(",", ".")))
     .filter(v => Number.isFinite(v) && v > 0);
 
-  if (registros.length < 2) return;
+  if (registros.length === 0) return;
 
   const inicial = registros[0];
   const atual = registros[registros.length - 1];
   const diferenca = atual - inicial;
   const percentual = (diferenca / inicial) * 100;
+  const ehGorduraCorporal = campo === "percentual_gordura";
+
+const unidadeVariacao = ehGorduraCorporal
+  ? "p.p."
+  : medida.unidade;
   const nome = campo.replaceAll("_", " ");
   const sinal = diferenca > 0 ? "+" : "";
   const objetivoAluno = String(
@@ -769,14 +775,26 @@ interpretacao.textContent =
     )
   );
 
+  if (registros.length >= 2) {
+    const corVariacao = ehGorduraCorporal
+  ? diferenca < 0
+    ? "#22c55e"
+    : diferenca > 0
+      ? "#ef4444"
+      : "#d4af37"
+  : null;
   resumo.appendChild(
     criarIndicador(
       `${nome} — Variação`,
-      `${sinal}${formatar(diferenca)} ${medida.unidade} (${sinal}${formatar(percentual)}%)`,
-      true
+      ehGorduraCorporal
+        ? `${sinal}${formatar(diferenca)} ${unidadeVariacao}`
+        : `${sinal}${formatar(diferenca)} ${unidadeVariacao} (${sinal}${formatar(percentual)}%)`,
+            true,
+      corVariacao
+    )
     )
   );
-});
+}
 
 if (resumo.childElementCount > 0) {
   bloco.appendChild(resumo);
@@ -924,7 +942,7 @@ if (linkNovaAvaliacao && alunoId && /^\d+$/.test(alunoId)) {
 async function carregarHistoricoFisico() {
   const { data: avaliacoes, error } = await supabase
     .from("avaliacoes_fisicas")
-    .select("data_avaliacao, peso, cintura, quadril, braco_direito, braco_esquerdo, coxa_direita, coxa_esquerda")
+    .select("data_avaliacao, peso, cintura, quadril, braco_direito, braco_esquerdo, coxa_direita, coxa_esquerda, percentual_gordura")
     .eq("aluno_id", alunoId)
     .order("data_avaliacao", { ascending: true });
 
@@ -950,7 +968,8 @@ async function carregarHistoricoFisico() {
         braco_direito: a.braco_direito,
         braco_esquerdo: a.braco_esquerdo,
         coxa_direita: a.coxa_direita,
-        coxa_esquerda: a.coxa_esquerda
+        coxa_esquerda: a.coxa_esquerda,
+percentual_gordura: a.percentual_gordura
       }
     }
   }));
