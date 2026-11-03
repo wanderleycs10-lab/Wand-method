@@ -702,7 +702,24 @@ if (campo === "peso" && objetivoAluno) {
       "o objetivo individual e os demais indicadores físicos.";
   }
 
-  interpretacao.textContent = "Análise WAND: " + mensagem;
+  const variacaoTexto = Math.abs(diferenca).toLocaleString("pt-BR", {
+  maximumFractionDigits: 2
+});
+
+const percentualTexto = Math.abs(percentual).toLocaleString("pt-BR", {
+  maximumFractionDigits: 2
+});
+
+const movimento = diferenca > 0
+  ? "aumento"
+  : diferenca < 0
+    ? "redução"
+    : "estabilidade";
+
+interpretacao.textContent =
+  `Análise WAND: O peso apresentou ${movimento} de ` +
+  `${variacaoTexto} kg (${percentualTexto}%). ` +
+  mensagem;
   interpretacao.style.color = "#bdbdbd";
   interpretacao.style.fontSize = "13px";
   interpretacao.style.lineHeight = "1.6";
