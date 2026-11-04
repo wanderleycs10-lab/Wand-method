@@ -70,6 +70,12 @@
       color: #d4af37;
     }
     #resultado { line-height: 1.5; }
+    .acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .secundario { background: transparent; color: #d4af37; border: 1px solid #d4af37; }
+    .aviso { color: #bbb; font-size: 14px; line-height: 1.5; }
+    #secaoDobras[hidden] { display: none; }
+    #resultado.erro { color: #ff7777; }
+    #resultado.sucesso { color: #8cdb9d; }
   </style>
 </head>
 <body>
@@ -170,9 +176,20 @@
             placeholder="Observações sobre esta avaliação..."></textarea>
         </label>
 
-        <button id="salvar" type="submit">
-          Salvar avaliação física
-        </button>
+        <label>
+          Parecer profissional
+          <textarea name="parecer_profissional" rows="5"
+            placeholder="Análise técnica, evolução, orientações e recomendações para o aluno..."></textarea>
+        </label>
+        <p class="aviso">O parecer é obrigatório para liberar a avaliação ao aluno. Você pode salvar um rascunho sem preenchê-lo.</p>
+        <div class="acoes">
+          <button id="salvar" type="submit" value="rascunho" class="secundario">
+            Salvar rascunho
+          </button>
+          <button id="liberar" type="submit" value="liberar">
+            Finalizar e liberar avaliação
+          </button>
+        </div>
         <p id="resultado" role="status" aria-live="polite"></p>
       </form>
     </section>
@@ -193,6 +210,8 @@
     const form = document.getElementById("formAvaliacao");
     const resultado = document.getElementById("resultado");
     const botao = document.getElementById("salvar");
+    const botaoLiberar = document.getElementById("liberar");
+    let enviando = false;
 let dadosAlunoAvaliacao = null;function calcularIdade(dataNascimento, dataAvaliacao) {
   const nascimento = String(dataNascimento).split("-").map(Number);
   const avaliacao = String(dataAvaliacao).split("-").map(Number);
@@ -342,6 +361,16 @@ secaoDobras.hidden = !permiteDobras;
 
     form.addEventListener("submit", async (evento) => {
       evento.preventDefault();
+      if (enviando) return;
+      const liberar = evento.submitter?.value === "liberar";
+      resultado.className = "";
+      const parecer = form.elements.parecer_profissional.value.trim();
+      if (liberar && !parecer) {
+        resultado.className = "erro";
+        resultado.textContent = "Preencha o parecer profissional antes de liberar a avaliação.";
+        form.elements.parecer_profissional.focus();
+        return;
+      }
 
       const campos = [
         "peso", "cintura", "quadril",
@@ -352,7 +381,8 @@ secaoDobras.hidden = !permiteDobras;
       const registro = {
         aluno_id: Number(alunoId),
         data_avaliacao: form.elements.data_avaliacao.value,
-        observacoes: form.elements.observacoes.value.trim() || null
+        observacoes: form.elements.observacoes.value.trim() || null,
+        parecer_profissional: parecer || null
       };
 const camposDobras = [
   "dobra_peitoral",
@@ -441,6 +471,11 @@ if (dobrasPreenchidas === 7) {
   }
 
   Object.assign(registro, composicao);
+  if (registro.peso != null) {
+    registro.massa_gordura_kg = registro.peso * composicao.percentual_gordura / 100;
+    registro.massa_livre_gordura_kg = registro.peso - registro.massa_gordura_kg;
+    registro.percentual_massa_livre_gordura = 100 - composicao.percentual_gordura;
+  }
 }
       if (preenchidos === 0 && dobrasPreenchidas === 0) {
         resultado.textContent =
@@ -448,26 +483,46 @@ if (dobrasPreenchidas === 7) {
         return;
       }
 
+      enviando = true;
       botao.disabled = true;
-      resultado.textContent = "Salvando avaliação...";
+      botaoLiberar.disabled = true;
+      resultado.textContent = liberar ? "Salvando e liberando avaliação..." : "Salvando rascunho...";
 
+      let idCriado = null;
       try {
-        const { error } = await supabase
+        const { data: inserida, error: erroInsercao } = await supabase
           .from("avaliacoes_fisicas")
-          .insert(registro);
+          .insert(registro)
+          .select("id")
+          .single();
 
-        if (error) throw error;
+        if (erroInsercao) throw erroInsercao;
+        idCriado = inserida.id;
 
-        resultado.textContent =
-          "Avaliação física salva com sucesso!";
+        if (liberar) {
+          const { error: erroLiberacao } = await supabase.rpc(
+            "aprovar_avaliacao_fisica",
+            { p_avaliacao_id: idCriado, p_parecer: parecer }
+          );
+          if (erroLiberacao) throw erroLiberacao;
+          resultado.textContent = "Avaliação finalizada e liberada ao aluno com sucesso!";
+        } else {
+          resultado.textContent = "Rascunho salvo com sucesso! A avaliação ainda não está visível ao aluno.";
+        }
 
+        resultado.className = "sucesso";
         form.reset();
-        botao.disabled = true;
+        form.elements.data_avaliacao.value = registro.data_avaliacao;
       } catch (erro) {
         console.error(erro);
-        resultado.textContent =
-          "Não foi possível salvar: " + erro.message;
+        resultado.className = "erro";
+        resultado.textContent = idCriado != null
+          ? "A avaliação foi salva como rascunho (ID " + idCriado + "), mas não foi liberada: " + erro.message + ". Não envie novamente para evitar duplicidade."
+          : "Não foi possível salvar: " + erro.message;
+      } finally {
+        enviando = false;
         botao.disabled = false;
+        botaoLiberar.disabled = false;
       }
     });
 
