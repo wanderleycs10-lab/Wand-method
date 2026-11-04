@@ -144,6 +144,9 @@
   + Nova avaliação física
 </a>
 
+  <div id="revisaoAvaliacoes" class="grupo-avaliacao" aria-live="polite">
+    <p>Carregando avaliações físicas cadastradas...</p>
+  </div>
   <p>Medidas corporais registradas na anamnese do aluno.</p>
 
   <div id="painelAvaliacaoFisica">
@@ -931,11 +934,104 @@ if (resumo.childElementCount > 0) {
   });
 }
 
+
+// Revisão e liberação de avaliações existentes, sem duplicar cadastro.
+async function carregarRevisaoAvaliacoes() {
+  const area = document.getElementById("revisaoAvaliacoes");
+  if (!area || !alunoId) return;
+  area.textContent = "Carregando avaliações físicas...";
+
+  const { data, error } = await supabase
+    .from("avaliacoes_fisicas")
+    .select("id,data_avaliacao,status_avaliacao,peso,percentual_gordura,parecer_profissional,liberada_em")
+    .eq("aluno_id", alunoId)
+    .order("data_avaliacao", { ascending: false });
+
+  if (error) {
+    console.error("Erro ao consultar avaliações:", error);
+    area.textContent = "Não foi possível carregar as avaliações físicas: " + error.message;
+    return;
+  }
+  area.replaceChildren();
+  if (!data?.length) {
+    area.textContent = "Ainda não há avaliações físicas cadastradas.";
+    return;
+  }
+
+  for (const avaliacao of data) {
+    const card = document.createElement("section");
+    card.className = "item-resposta";
+    card.style.margin = "14px 0";
+
+    const titulo = document.createElement("strong");
+    const dataBR = String(avaliacao.data_avaliacao || "").split("-").reverse().join("/");
+    titulo.textContent = `Avaliação #${avaliacao.id} — ${dataBR}`;
+    card.appendChild(titulo);
+
+    const detalhes = document.createElement("p");
+    const status = avaliacao.status_avaliacao || "rascunho";
+    const peso = avaliacao.peso == null ? "não informado" : `${Number(avaliacao.peso).toLocaleString("pt-BR")} kg`;
+    const gordura = avaliacao.percentual_gordura == null ? "não calculada" : `${Number(avaliacao.percentual_gordura).toLocaleString("pt-BR", {maximumFractionDigits:2})}%`;
+    detalhes.textContent = `Status: ${status} | Peso: ${peso} | Gordura estimada: ${gordura}`;
+    card.appendChild(detalhes);
+
+    if (status !== "liberada") {
+      const rotulo = document.createElement("label");
+      rotulo.textContent = "Parecer profissional (obrigatório para liberar)";
+      const campo = document.createElement("textarea");
+      campo.rows = 5;
+      campo.placeholder = "Análise técnica, evolução, orientações e recomendações...";
+      campo.value = avaliacao.parecer_profissional || "";
+      campo.style.cssText = "display:block;width:100%;margin:10px 0;padding:12px;background:#101010;color:white;border:1px solid #66551f;border-radius:8px;font:inherit;resize:vertical";
+      rotulo.appendChild(campo);
+      card.appendChild(rotulo);
+
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.textContent = "Finalizar e liberar avaliação";
+      const aviso = document.createElement("p");
+      aviso.setAttribute("role", "status");
+      aviso.style.color = "#d4af37";
+      botao.addEventListener("click", async () => {
+        const parecer = campo.value.trim();
+        if (!parecer) { aviso.textContent = "Preencha o parecer profissional antes de liberar."; campo.focus(); return; }
+        if (!window.confirm(`Liberar a avaliação #${avaliacao.id} para o aluno? Essa ação não pode ser desfeita pelo formulário.`)) return;
+        botao.disabled = true;
+        aviso.textContent = "Liberando avaliação...";
+        const { error: erroAprovacao } = await supabase.rpc("aprovar_avaliacao_fisica", {
+          p_avaliacao_id: avaliacao.id,
+          p_parecer: parecer
+        });
+        if (erroAprovacao) {
+          aviso.textContent = "Não foi possível liberar: " + erroAprovacao.message;
+          botao.disabled = false;
+          return;
+        }
+        aviso.textContent = "Avaliação liberada com sucesso!";
+        await carregarRevisaoAvaliacoes();
+      });
+      card.append(botao, aviso);
+    } else {
+      const aviso = document.createElement("p");
+      aviso.style.color = "#22c55e";
+      aviso.textContent = "Avaliação liberada para o aluno.";
+      card.appendChild(aviso);
+      if (avaliacao.parecer_profissional) {
+        const parecer = document.createElement("p");
+        parecer.style.whiteSpace = "pre-wrap";
+        parecer.textContent = "Parecer profissional: " + avaliacao.parecer_profissional;
+        card.appendChild(parecer);
+      }
+    }
+    area.appendChild(card);
+  }
+}
+
 const linkNovaAvaliacao = document.getElementById("novaAvaliacaoFisica");
 
 if (linkNovaAvaliacao && alunoId && /^\d+$/.test(alunoId)) {
   linkNovaAvaliacao.href =
-    "avaliacao_fisica.html?id=" + encodeURIComponent(alunoId);
+    "avaliacao-fisica.html?id=" + encodeURIComponent(alunoId);
 } else if (linkNovaAvaliacao) {
   linkNovaAvaliacao.style.display = "none";
 }
