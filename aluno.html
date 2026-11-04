@@ -2,201 +2,841 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meu Painel | WAND METHOD</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #080808;
-      color: #f5f5f5;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      padding: 22px 18px;
-      border-bottom: 1px solid #302817;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    header img {
-      width: 55px;
-      height: 55px;
-      object-fit: contain;
-    }
-    .brand { font-size: 20px; font-weight: bold; }
-    .gold { color: #d4af37; }
-    .silver { color: #c0c0c0; }
-    main {
-      max-width: 700px;
-      margin: auto;
-      padding: 24px 16px 90px;
-    }
-    h1 { font-size: 25px; margin-bottom: 8px; }
-    h2 { font-size: 19px; margin-top: 0; }
-    p { line-height: 1.5; color: #ccc; }
-    .tag {
-      color: #d4af37;
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    .card {
-      background: #171717;
-      border: 1px solid #363024;
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 16px;
-    }
-    .highlight {
-      border-color: #d4af37;
-      background: linear-gradient(135deg, #28200f, #171717);
-    }
-    .button {
-      display: block;
-      background: #d4af37;
-      color: #080808;
-      padding: 14px;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 9px;
-      font-weight: bold;
-      margin-top: 18px;
-    }
-    .secondary {
-      display: block;
-      color: #d4af37;
-      text-decoration: none;
-      margin-top: 12px;
-      font-weight: bold;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .stats .card { margin-top: 16px; }
-    .number {
-      font-size: 26px;
-      color: #d4af37;
-      font-weight: bold;
-    }
-    .small { font-size: 13px; }
-    .week {
-      display: flex;
-      justify-content: space-between;
-      gap: 5px;
-      margin-top: 18px;
-    }
-    .day {
-      flex: 1;
-      text-align: center;
-      background: #292929;
-      padding: 12px 2px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
-    .active {
-      background: #d4af37;
-      color: black;
-      font-weight: bold;
-    }
-    footer {
-      text-align: center;
-      color: #888;
-      font-size: 12px;
-      padding: 24px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meu Painel | WAND METHOD</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#080808;
+  --card:#171717;
+  --gold:#d4af37;
+  --line:#393126;
+  --text:#f5f5f5;
+  --muted:#aaa;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+header{
+  padding:20px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+header img{
+  width:55px;
+  height:55px;
+  object-fit:contain;
+}
+.brand{
+  font-size:20px;
+  font-weight:bold;
+}
+.gold{color:var(--gold)}
+.silver{color:#c0c0c0}
+main{
+  max-width:850px;
+  margin:auto;
+  padding:24px 16px 75px;
+}
+h1{font-size:25px}
+h2{
+  font-size:20px;
+  color:var(--gold);
+}
+h3{
+  font-size:16px;
+  color:var(--gold);
+}
+p{line-height:1.55}
+.muted{
+  color:var(--muted);
+  font-size:14px;
+}
+.tag{
+  color:var(--gold);
+  font-size:12px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  margin-top:16px;
+}
+.highlight{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,#29210f,#171717);
+}
+.button{
+  display:inline-block;
+  background:var(--gold);
+  color:#080808;
+  padding:13px 18px;
+  text-align:center;
+  text-decoration:none;
+  border:0;
+  border-radius:9px;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:14px;
+}
+.secondary{
+  background:transparent;
+  color:var(--gold);
+  border:1px solid var(--gold);
+}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:16px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:12px;
+}
+.metric{
+  background:#101010;
+  border:1px solid #333;
+  border-radius:11px;
+  padding:15px;
+}
+.metric strong{
+  display:block;
+  color:var(--gold);
+  font-size:13px;
+  margin-bottom:9px;
+}
+.metric span{
+  display:block;
+  font-size:20px;
+  font-weight:bold;
+}
+.metric small{
+  display:block;
+  color:#aaa;
+  margin-top:7px;
+}
+.subcard{
+  background:#101010;
+  border:1px solid #393126;
+  border-radius:12px;
+  padding:16px;
+  margin:13px 0;
+}
+.status{
+  display:inline-block;
+  padding:6px 10px;
+  border:1px solid #665321;
+  border-radius:20px;
+  font-size:12px;
+  color:var(--gold);
+}
+.notice{
+  background:#211b10;
+  border-left:3px solid var(--gold);
+  padding:12px;
+  border-radius:6px;
+}
+.chart{
+  display:block;
+  width:100%;
+  height:145px;
+}
+.green{color:#83dca1}
+.red{color:#f28b8b}
+.hidden{display:none!important}
+.error{color:#ff9292}
+footer{
+  text-align:center;
+  color:#888;
+  font-size:12px;
+  padding:24px;
+}
+@media(max-width:600px){
+  .card{padding:16px}
+  .metric span{font-size:17px}
+}
+</style>
 </head>
+
 <body>
 
 <header>
-  <img src="LogoNova.png" alt="Logo WAND METHOD">
-  <div class="brand">
-    <span class="gold">WAND</span>
-    <span class="silver">METHOD</span>
-  </div>
+<img src="LogoNova.png" alt="Logo WAND METHOD">
+<div class="brand">
+<span class="gold">WAND</span>
+<span class="silver">METHOD</span>
+</div>
 </header>
 
 <main>
-  <div class="tag">Área do aluno • Demonstração</div>
-  <h1>Olá, aluno! 👋</h1>
-  <p>Bem-vindo à sua jornada de evolução.</p>
 
-  <section class="card highlight">
-    <div class="tag">Seu treino de hoje</div>
-    <h2 style="margin-top:12px">Treino A — Superiores</h2>
-    <p>Peito, ombros e tríceps</p>
-    <p class="small">Exemplo de treino • 6 exercícios</p>
-    <a class="button" href="#treinos">VER MEUS TREINOS</a>
-  </section>
+<div class="tag">Área do aluno</div>
+<h1 id="saudacao">Bem-vindo ao WAND METHOD!</h1>
+<p>Seu espaço para acompanhar sua evolução física.</p>
+
+<p id="statusPagina">Carregando seus dados...</p>
+
+<div id="painel" class="hidden">
 
 <section class="card highlight">
-  <div class="tag">Avaliação inicial</div>
-  <h2>Minha Anamnese</h2>
-  <p>Responda ao questionário de saúde e conheça melhor seu ponto de partida.</p>
-  <p class="small">PAR-Q+ e anamnese personalizada WAND METHOD</p>
-  <a class="button" href="anamnese.html">RESPONDER ANAMNESE</a>
+<div class="tag">Sua jornada</div>
+<h2>Meu acompanhamento</h2>
+<p>
+Acompanhe suas avaliações físicas, medidas,
+resultados e orientações profissionais.
+</p>
+<div class="actions">
+<a class="button" href="#avaliacoes">
+VER MINHAS AVALIAÇÕES
+</a>
+<a class="button secondary" href="#evolucao">
+MINHA EVOLUÇÃO
+</a>
+</div>
 </section>
 
-  <div class="stats">
-    <section class="card">
-      <div class="number">3/4</div>
-      <p class="small">Treinos na semana</p>
-    </section>
-    <section class="card">
-      <div class="number">150</div>
-      <p class="small">WAND Coins</p>
-    </section>
-  </div>
+<section class="card">
+<h2>Minha anamnese</h2>
+<p>
+Questionário de saúde e informações para
+personalizar seu acompanhamento.
+</p>
+<a class="button" href="anamnese.html">
+ACESSAR ANAMNESE
+</a>
+</section>
 
-  <section class="card">
-    <h2>📅 Minha semana</h2>
-    <p class="small">Exemplo de programação semanal</p>
-    <div class="week">
-      <div class="day active">SEG</div>
-      <div class="day active">TER</div>
-      <div class="day active">QUA</div>
-      <div class="day">QUI</div>
-      <div class="day">SEX</div>
-    </div>
-  </section>
+<section class="card" id="avaliacoes">
+<h2>Minhas avaliações físicas</h2>
+<p class="muted">
+Somente avaliações finalizadas e liberadas
+pelo treinador aparecem nesta área.
+</p>
+<div id="listaAvaliacoes">
+Carregando avaliações...
+</div>
+</section>
 
-  <section class="card" id="treinos">
-    <h2>🏋️ Meus treinos</h2>
-    <p>Consulte seus exercícios, séries, repetições e progressões.</p>
-    <p class="small">Módulo em desenvolvimento.</p>
-  </section>
+<section class="card" id="evolucao">
+<h2>Minha evolução física</h2>
+<p class="muted">
+Compare suas avaliações e acompanhe as
+mudanças nas medidas corporais.
+</p>
+<div id="graficos">
+Carregando evolução...
+</div>
+</section>
 
-  <section class="card">
-    <h2>📊 Minha evolução</h2>
-    <p>Acompanhe suas medidas, avaliações e conquistas.</p>
-    <p class="small">Módulo em desenvolvimento.</p>
-  </section>
+<section class="card">
+<h2>Meus treinos</h2>
+<p>
+Em breve, você poderá consultar seus exercícios,
+séries, repetições e progressões aqui.
+</p>
+<p class="muted">Módulo em desenvolvimento.</p>
+</section>
 
-  <section class="card">
-    <h2>🏅 WAND Coins</h2>
-    <p>Ganhe pontos por consistência e metas alcançadas.</p>
-    <p class="small">Pontuação ilustrativa nesta demonstração.</p>
-  </section>
+<section class="card">
+<h2>WAND Coins</h2>
+<p>
+Conquiste recompensas por sua consistência
+e evolução.
+</p>
+<p class="muted">
+A pontuação será exibida quando
+o módulo estiver disponível.
+</p>
+</section>
 
-  <section class="card">
-    <h2>💬 Meu treinador</h2>
-    <p>Precisa de orientação? Fale diretamente com seu treinador.</p>
-    <a class="button"
-       href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o.">
-       FALAR PELO WHATSAPP
-    </a>
-  </section>
+<section class="card">
+<h2>Meu treinador</h2>
+<p>
+Precisa de orientação sobre sua avaliação
+ou seu treinamento?
+</p>
+<a class="button"
+href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o."
+target="_blank"
+rel="noopener noreferrer">
+FALAR PELO WHATSAPP
+</a>
+</section>
 
-  <a class="secondary" href="index.html">← Voltar ao site</a>
+<div class="actions">
+<button class="button secondary" id="sair">
+SAIR DA MINHA CONTA
+</button>
+</div>
+
+</div>
 </main>
 
 <footer>
-  WAND METHOD © 2026 • Tela demonstrativa
+WAND METHOD © 2026
 </footer>
+
+<script type="module">
+
+import {createClient} from
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const supabase=createClient(
+"https://kvxdnreipuahoaostlle.supabase.co",
+"sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
+);
+
+const $=id=>document.getElementById(id);
+
+const CAMPOS=[
+["peso","Peso","kg"],
+["cintura","Cintura","cm"],
+["quadril","Quadril","cm"],
+["braco_direito","Braço direito","cm"],
+["braco_esquerdo","Braço esquerdo","cm"],
+["coxa_direita","Coxa direita","cm"],
+["coxa_esquerda","Coxa esquerda","cm"],
+["percentual_gordura","Gordura corporal","%"],
+["massa_gordura_kg","Massa de gordura","kg"],
+["massa_livre_gordura_kg","Massa livre de gordura","kg"]
+];
+
+const DOBRAS=[
+["dobra_peitoral","Peitoral"],
+["dobra_axilar_media","Axilar média"],
+["dobra_triceps","Tríceps"],
+["dobra_subescapular","Subescapular"],
+["dobra_abdominal","Abdominal"],
+["dobra_suprailiaca","Suprailíaca"],
+["dobra_coxa","Coxa"]
+];
+
+let alunoAtual=null;
+let avaliacoes=[];
+
+function elemento(tag,classe,texto){
+const e=document.createElement(tag);
+if(classe)e.className=classe;
+if(texto!==undefined)e.textContent=texto;
+return e;
+}
+
+function adicionar(pai,tag,texto,classe){
+const e=elemento(tag,classe,texto);
+pai.appendChild(e);
+return e;
+}
+
+function formatarNumero(v,casas=2){
+if(v===null||v===undefined||v==="")return "—";
+const numero=Number(v);
+if(!Number.isFinite(numero))return "—";
+return numero.toLocaleString("pt-BR",{
+maximumFractionDigits:casas
+});
+}
+
+function dataBR(data){
+if(!data)return "—";
+const partes=String(data).slice(0,10).split("-");
+if(partes.length!==3)return "—";
+return partes.reverse().join("/");
+}
+
+function criarGrade(destino,registro,campos){
+const grade=elemento("div","grid");
+
+for(const [campo,nome,unidade] of campos){
+const valor=registro[campo];
+
+if(valor===null||valor===undefined||valor==="")
+continue;
+
+const item=elemento("div","metric");
+
+adicionar(item,"strong",nome);
+
+adicionar(
+item,
+"span",
+formatarNumero(valor)+" "+unidade
+);
+
+grade.appendChild(item);
+}
+
+if(!grade.children.length){
+adicionar(destino,"p",
+"Nenhuma medida disponível.","muted");
+return;
+}
+
+destino.appendChild(grade);
+}
+
+function criarAvisoAssimetria(destino,avaliacao){
+const pares=[
+["braco_direito","braco_esquerdo","braços"],
+["coxa_direita","coxa_esquerda","coxas"]
+];
+
+for(const [direito,esquerdo,nome] of pares){
+const d=Number(avaliacao[direito]);
+const e=Number(avaliacao[esquerdo]);
+
+if(d>0&&e>0){
+const diferenca=Math.abs(d-e);
+
+if(diferenca>=2.5){
+adicionar(
+destino,
+"p",
+"Observação: diferença entre "+nome+
+" de "+formatarNumero(diferenca)+" cm.",
+"notice"
+);
+}
+}
+}
+}
+
+function criarAvaliacao(avaliacao){
+const card=elemento("article","subcard");
+
+adicionar(
+card,
+"h3",
+"Avaliação física · "+
+dataBR(avaliacao.data_avaliacao)
+);
+
+adicionar(
+card,
+"span",
+"Avaliação liberada",
+"status"
+);
+
+if(avaliacao.liberada_em){
+adicionar(
+card,
+"p",
+"Disponibilizada em "+
+dataBR(avaliacao.liberada_em),
+"muted"
+);
+}
+
+adicionar(card,"h3","Resultados");
+criarGrade(card,avaliacao,CAMPOS);
+criarAvisoAssimetria(card,avaliacao);
+
+const possuiDobras=DOBRAS.some(
+([campo])=>avaliacao[campo]!=null
+);
+
+if(possuiDobras){
+const detalhe=elemento("details");
+const resumo=elemento("summary",null,
+"Ver dobras cutâneas");
+resumo.style.color="#d4af37";
+resumo.style.cursor="pointer";
+resumo.style.padding="12px 0";
+detalhe.appendChild(resumo);
+
+criarGrade(
+detalhe,
+avaliacao,
+DOBRAS.map(([campo,nome])=>[
+campo,nome,"mm"
+])
+);
+
+card.appendChild(detalhe);
+}
+
+if(avaliacao.observacoes){
+adicionar(card,"h3","Observações");
+adicionar(card,"p",avaliacao.observacoes);
+}
+
+adicionar(card,"h3","Parecer do treinador");
+
+if(avaliacao.parecer_profissional){
+adicionar(
+card,
+"p",
+avaliacao.parecer_profissional
+);
+}else{
+adicionar(
+card,
+"p",
+"Parecer profissional não disponível.",
+"muted"
+);
+}
+
+const acoes=elemento("div","actions");
+
+const botaoCompartilhar=elemento(
+"button",
+"button secondary",
+"COMPARTILHAR AVALIAÇÃO"
+);
+
+botaoCompartilhar.type="button";
+
+botaoCompartilhar.addEventListener("click",()=>{
+const texto=
+"Minha avaliação física WAND METHOD\n"+
+"Data: "+dataBR(avaliacao.data_avaliacao)+"\n"+
+"Clique para acessar meu painel:\n"+
+location.origin+
+location.pathname.replace(/[^/]+$/,"")+
+"aluno.html";
+
+if(navigator.share){
+navigator.share({
+title:"Minha avaliação física",
+text:texto
+}).catch(()=>{});
+}else if(navigator.clipboard){
+navigator.clipboard.writeText(texto)
+.then(()=>alert("Informações copiadas!"))
+.catch(()=>alert("Não foi possível copiar."));
+}else{
+alert("Compartilhamento não disponível.");
+}
+});
+
+acoes.appendChild(botaoCompartilhar);
+card.appendChild(acoes);
+
+return card;
+}
+
+function desenharGrafico(destino,registros,campo,titulo,unidade){
+
+const pontos=registros
+.filter(a=>
+a[campo]!==null&&
+a[campo]!==undefined&&
+Number.isFinite(Number(a[campo]))
+)
+.map(a=>({
+data:a.data_avaliacao,
+valor:Number(a[campo])
+}));
+
+const card=elemento("div","subcard");
+adicionar(card,"h3",titulo);
+
+if(!pontos.length){
+adicionar(card,"p",
+"Sem medidas disponíveis.","muted");
+destino.appendChild(card);
+return;
+}
+
+const inicial=pontos[0].valor;
+const atual=pontos[pontos.length-1].valor;
+const diferenca=atual-inicial;
+
+adicionar(
+card,
+"p",
+"Inicial: "+formatarNumero(inicial)+" "+unidade+
+" · Atual: "+formatarNumero(atual)+" "+unidade,
+"muted"
+);
+
+if(pontos.length>1){
+const variacao=elemento("p");
+
+const sinal=diferenca>0?"+":"";
+
+variacao.textContent=
+"Variação: "+sinal+
+formatarNumero(diferenca)+" "+
+(unidade==="%"?"p.p.":unidade);
+
+const menorMelhor=[
+"percentual_gordura",
+"massa_gordura_kg"
+].includes(campo);
+
+if(diferenca===0){
+variacao.className="gold";
+}else if(menorMelhor){
+variacao.className=diferenca<0
+?"green":"red";
+}else{
+variacao.className="gold";
+}
+
+card.appendChild(variacao);
+}
+
+const ns="http://www.w3.org/2000/svg";
+const svg=document.createElementNS(ns,"svg");
+
+svg.setAttribute("viewBox","0 0 320 145");
+svg.setAttribute("class","chart");
+svg.setAttribute("role","img");
+svg.setAttribute("aria-label","Gráfico de "+titulo);
+
+let minimo=Math.min(...pontos.map(p=>p.valor));
+let maximo=Math.max(...pontos.map(p=>p.valor));
+
+let amplitude=maximo-minimo;
+
+if(amplitude===0){
+amplitude=Math.max(1,maximo*.1);
+}
+
+minimo-=amplitude*.15;
+maximo+=amplitude*.15;
+
+const coordenadas=pontos.map((p,i)=>({
+x:pontos.length===1
+?160
+:20+i*280/(pontos.length-1),
+y:125-(p.valor-minimo)/(maximo-minimo)*105
+}));
+
+const eixo=document.createElementNS(ns,"line");
+eixo.setAttribute("x1","15");
+eixo.setAttribute("y1","125");
+eixo.setAttribute("x2","305");
+eixo.setAttribute("y2","125");
+eixo.setAttribute("stroke","#555");
+svg.appendChild(eixo);
+
+if(coordenadas.length>1){
+const linha=document.createElementNS(ns,"polyline");
+
+linha.setAttribute(
+"points",
+coordenadas.map(p=>p.x+","+p.y).join(" ")
+);
+
+linha.setAttribute("fill","none");
+linha.setAttribute("stroke","#d4af37");
+linha.setAttribute("stroke-width","3");
+linha.setAttribute("stroke-linejoin","round");
+
+svg.appendChild(linha);
+}
+
+for(let i=0;i<coordenadas.length;i++){
+const ponto=coordenadas[i];
+
+const circulo=document.createElementNS(ns,"circle");
+
+circulo.setAttribute("cx",ponto.x);
+circulo.setAttribute("cy",ponto.y);
+circulo.setAttribute("r","4.5");
+circulo.setAttribute("fill","#d4af37");
+
+const descricao=document.createElementNS(ns,"title");
+
+descricao.textContent=
+dataBR(pontos[i].data)+": "+
+formatarNumero(pontos[i].valor)+" "+unidade;
+
+circulo.appendChild(descricao);
+svg.appendChild(circulo);
+}
+
+card.appendChild(svg);
+
+const datas=elemento("div","muted");
+datas.style.display="flex";
+datas.style.justifyContent="space-between";
+
+adicionar(datas,"span",dataBR(pontos[0].data));
+adicionar(
+datas,
+"span",
+dataBR(pontos[pontos.length-1].data)
+);
+
+card.appendChild(datas);
+destino.appendChild(card);
+}
+
+async function verificarSessao(){
+const {data:{user},error}=await supabase.auth.getUser();
+
+if(error||!user){
+location.replace("login.html");
+return null;
+}
+
+return user;
+}
+
+async function identificarAluno(user){
+const {data,error}=await supabase
+.from("alunos")
+.select("id,nome_completo,user_id")
+.eq("user_id",user.id)
+.single();
+
+if(error||!data){
+throw new Error(
+"Não foi encontrado um cadastro de aluno vinculado a esta conta. Solicite ao treinador que verifique seu acesso."
+);
+}
+
+return data;
+}
+
+async function carregarAvaliacoes(){
+const area=$("listaAvaliacoes");
+
+area.textContent="Carregando avaliações...";
+
+const {data,error}=await supabase
+.from("avaliacoes_fisicas")
+.select("*")
+.eq("aluno_id",alunoAtual.id)
+.eq("status_avaliacao","liberada")
+.order("data_avaliacao",{ascending:false})
+.order("id",{ascending:false});
+
+area.replaceChildren();
+
+if(error){
+area.className="error";
+area.textContent=
+"Não foi possível carregar suas avaliações: "+
+error.message;
+return;
+}
+
+avaliacoes=data||[];
+
+if(!avaliacoes.length){
+adicionar(
+area,
+"p",
+"Você ainda não possui avaliações físicas liberadas pelo treinador.",
+"notice"
+);
+return;
+}
+
+adicionar(
+area,
+"p",
+"Você possui "+avaliacoes.length+
+" avaliação(ões) disponível(is).",
+"muted"
+);
+
+for(const avaliacao of avaliacoes){
+area.appendChild(criarAvaliacao(avaliacao));
+}
+}
+
+function carregarEvolucao(){
+const area=$("graficos");
+area.replaceChildren();
+
+if(!avaliacoes.length){
+adicionar(
+area,
+"p",
+"Os gráficos aparecerão quando houver avaliações liberadas.",
+"muted"
+);
+return;
+}
+
+const ordenadas=[...avaliacoes].sort((a,b)=>{
+const dataA=String(a.data_avaliacao||"");
+const dataB=String(b.data_avaliacao||"");
+
+const comparacao=dataA.localeCompare(dataB);
+
+return comparacao||
+Number(a.id)-Number(b.id);
+});
+
+for(const [campo,titulo,unidade] of CAMPOS){
+desenharGrafico(
+area,
+ordenadas,
+campo,
+titulo,
+unidade
+);
+}
+}
+
+async function sair(){
+const {error}=await supabase.auth.signOut();
+
+if(error){
+alert("Não foi possível sair: "+error.message);
+return;
+}
+
+location.replace("login.html");
+}
+
+async function iniciar(){
+try{
+const user=await verificarSessao();
+
+if(!user)return;
+
+alunoAtual=await identificarAluno(user);
+
+const primeiroNome=
+String(alunoAtual.nome_completo||"aluno")
+.trim()
+.split(/\s+/)[0];
+
+$("saudacao").textContent=
+"Olá, "+primeiroNome+"! 👋";
+
+$("painel").classList.remove("hidden");
+$("statusPagina").textContent="";
+
+await carregarAvaliacoes();
+
+carregarEvolucao();
+
+}catch(erro){
+console.error(erro);
+
+$("statusPagina").className="error";
+
+$("statusPagina").textContent=
+"Não foi possível carregar seu painel: "+
+(erro.message||String(erro));
+}
+}
+
+$("sair").addEventListener("click",sair);
+
+iniciar();
+
+</script>
 
 </body>
 </html>
