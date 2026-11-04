@@ -2,254 +2,135 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nova avaliação física | WAND METHOD</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #080808;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      text-align: center;
-      padding: 24px;
-      border-bottom: 1px solid #d4af37;
-    }
-    h1, h2 { color: #d4af37; }
-    main {
-      max-width: 800px;
-      margin: auto;
-      padding: 24px;
-      display: none;
-    }
-    .card {
-      background: #171717;
-      border: 1px solid #66551f;
-      border-radius: 12px;
-      padding: 22px;
-      margin: 16px 0;
-    }
-    .grade {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 16px;
-    }
-    label {
-      display: block;
-      margin-bottom: 14px;
-    }
-    input, textarea {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      background: #101010;
-      color: white;
-      border: 1px solid #666;
-      border-radius: 8px;
-      font: inherit;
-    }
-    button, .voltar {
-      display: inline-block;
-      background: #d4af37;
-      color: #080808;
-      padding: 13px 20px;
-      border: 0;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    button:disabled { opacity: .5; cursor: wait; }
-    #status {
-      padding: 16px;
-      text-align: center;
-      color: #d4af37;
-    }
-    #resultado { line-height: 1.5; }
-    .acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
-    .secundario { background: transparent; color: #d4af37; border: 1px solid #d4af37; }
-    .aviso { color: #bbb; font-size: 14px; line-height: 1.5; }
-    #secaoDobras[hidden] { display: none; }
-    #resultado.erro { color: #ff7777; }
-    #resultado.sucesso { color: #8cdb9d; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova avaliação física | WAND METHOD</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080808;color:white;font-family:Arial,sans-serif}
+header{text-align:center;padding:24px;border-bottom:1px solid #d4af37}
+h1,h2{color:#d4af37}
+main{max-width:800px;margin:auto;padding:24px;display:none}
+.card{background:#171717;border:1px solid #66551f;border-radius:12px;padding:22px;margin:16px 0}
+.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+label{display:block;margin-bottom:14px}
+input,textarea{display:block;width:100%;padding:12px;margin-top:8px;background:#101010;color:white;border:1px solid #666;border-radius:8px;font:inherit}
+button,.voltar{display:inline-block;background:#d4af37;color:#080808;padding:13px 20px;border:0;border-radius:8px;font-weight:bold;cursor:pointer;text-decoration:none}
+button:disabled{opacity:.5;cursor:wait}
+#status{padding:16px;text-align:center;color:#d4af37}
+#resultado{line-height:1.5}
+.acoes{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+.secundario{background:transparent;color:#d4af37;border:1px solid #d4af37}
+.aviso{color:#bbb;font-size:14px;line-height:1.5}
+#secaoDobras[hidden]{display:none}
+#resultado.erro{color:#ff7777}
+#resultado.sucesso{color:#8cdb9d}
+</style>
 </head>
 <body>
-  <header>
-    <h1>WAND METHOD</h1>
-    <p>WANDCOACH | NOVA AVALIAÇÃO FÍSICA</p>
-  </header>
-
-  <p id="status">Verificando acesso...</p>
-
-  <main id="conteudo">
-    <a class="voltar" id="voltar" href="admin.html">
-      Voltar ao perfil
-    </a>
-
-    <section class="card">
-      <h2>Nova avaliação física</h2>
-      <p id="nomeAluno">Carregando aluno...</p>
-
-      <form id="formAvaliacao">
-        <label>
-          Data da avaliação
-          <input type="date" name="data_avaliacao" required>
-        </label>
-
-        <h2>Medidas corporais</h2>
-        <p>Informe as medidas em centímetros e o peso em kg.</p>
-
-        <div class="grade">
-          <label>Peso (kg)
-            <input type="number" name="peso" min="0.01" step="0.01">
-          </label>
-
-          <label>Cintura (cm)
-            <input type="number" name="cintura" min="0.01" step="0.01">
-          </label>
-
-          <label>Quadril (cm)
-            <input type="number" name="quadril" min="0.01" step="0.01">
-          </label>
-
-          <label>Braço direito (cm)
-            <input type="number" name="braco_direito" min="0.01" step="0.01">
-          </label>
-
-          <label>Braço esquerdo (cm)
-            <input type="number" name="braco_esquerdo" min="0.01" step="0.01">
-          </label>
-
-          <label>Coxa direita (cm)
-            <input type="number" name="coxa_direita" min="0.01" step="0.01">
-          </label>
-
-          <label>Coxa esquerda (cm)
-            <input type="number" name="coxa_esquerda" min="0.01" step="0.01">
-          </label>
-        </div>
-
-<div id="secaoDobras" class="card" hidden>
-  <h2>Avaliação de composição corporal</h2>
-  <p>Protocolo de Jackson &amp; Pollock — 7 dobras cutâneas.</p>
-  <p>Registre as espessuras em milímetros (mm).</p>
-
-  <div class="grade">
-    <label>Peitoral (mm)
-      <input type="number" name="dobra_peitoral" min="0.1" step="0.1">
-    </label>
-
-    <label>Axilar média (mm)
-      <input type="number" name="dobra_axilar_media" min="0.1" step="0.1">
-    </label>
-
-    <label>Tríceps (mm)
-      <input type="number" name="dobra_triceps" min="0.1" step="0.1">
-    </label>
-
-    <label>Subescapular (mm)
-      <input type="number" name="dobra_subescapular" min="0.1" step="0.1">
-    </label>
-
-    <label>Abdominal (mm)
-      <input type="number" name="dobra_abdominal" min="0.1" step="0.1">
-    </label>
-
-    <label>Suprailíaca (mm)
-      <input type="number" name="dobra_suprailiaca" min="0.1" step="0.1">
-    </label>
-
-    <label>Coxa (mm)
-      <input type="number" name="dobra_coxa" min="0.1" step="0.1">
-    </label>
-  </div>
+<header>
+<h1>WAND METHOD</h1>
+<p>WANDCOACH | NOVA AVALIAÇÃO FÍSICA</p>
+</header>
+<p id="status">Verificando acesso...</p>
+<main id="conteudo">
+<a class="voltar" id="voltar" href="admin.html">Voltar ao perfil</a>
+<section class="card">
+<h2>Nova avaliação física</h2>
+<p id="nomeAluno">Carregando aluno...</p>
+<form id="formAvaliacao">
+<label>Data da avaliação
+<input type="date" name="data_avaliacao" required>
+</label>
+<h2>Medidas corporais</h2>
+<p>Informe as medidas em centímetros e o peso em kg.</p>
+<div class="grade">
+<label>Peso (kg)<input type="number" name="peso" min="0.01" step="0.01"></label>
+<label>Cintura (cm)<input type="number" name="cintura" min="0.01" step="0.01"></label>
+<label>Quadril (cm)<input type="number" name="quadril" min="0.01" step="0.01"></label>
+<label>Braço direito (cm)<input type="number" name="braco_direito" min="0.01" step="0.01"></label>
+<label>Braço esquerdo (cm)<input type="number" name="braco_esquerdo" min="0.01" step="0.01"></label>
+<label>Coxa direita (cm)<input type="number" name="coxa_direita" min="0.01" step="0.01"></label>
+<label>Coxa esquerda (cm)<input type="number" name="coxa_esquerda" min="0.01" step="0.01"></label>
 </div>
 
-        <label>
-          Observações
-          <textarea name="observacoes" rows="4"
-            placeholder="Observações sobre esta avaliação..."></textarea>
-        </label>
+<div id="secaoDobras" class="card" hidden>
+<h2>Avaliação de composição corporal</h2>
+<p>Protocolo de Jackson &amp; Pollock — 7 dobras cutâneas.</p>
+<p>Registre as espessuras em milímetros (mm).</p>
+<div class="grade">
+<label>Peitoral (mm)<input type="number" name="dobra_peitoral" min="0.1" step="0.1"></label>
+<label>Axilar média (mm)<input type="number" name="dobra_axilar_media" min="0.1" step="0.1"></label>
+<label>Tríceps (mm)<input type="number" name="dobra_triceps" min="0.1" step="0.1"></label>
+<label>Subescapular (mm)<input type="number" name="dobra_subescapular" min="0.1" step="0.1"></label>
+<label>Abdominal (mm)<input type="number" name="dobra_abdominal" min="0.1" step="0.1"></label>
+<label>Suprailíaca (mm)<input type="number" name="dobra_suprailiaca" min="0.1" step="0.1"></label>
+<label>Coxa (mm)<input type="number" name="dobra_coxa" min="0.1" step="0.1"></label>
+</div>
+</div>
 
-        <label>
-          Parecer profissional
-          <textarea name="parecer_profissional" rows="5"
-            placeholder="Análise técnica, evolução, orientações e recomendações para o aluno..."></textarea>
-        </label>
-        <p class="aviso">O parecer é obrigatório para liberar a avaliação ao aluno. Você pode salvar um rascunho sem preenchê-lo.</p>
-        <div class="acoes">
-          <button id="salvar" type="submit" value="rascunho" class="secundario">
-            Salvar rascunho
-          </button>
-          <button id="liberar" type="submit" value="liberar">
-            Finalizar e liberar avaliação
-          </button>
-        </div>
-        <p id="resultado" role="status" aria-live="polite"></p>
-      </form>
-    </section>
-  </main>
+<label>Observações
+<textarea name="observacoes" rows="4" placeholder="Observações sobre esta avaliação..."></textarea>
+</label>
+<label>Parecer profissional
+<textarea name="parecer_profissional" rows="5" placeholder="Análise técnica, evolução, orientações e recomendações para o aluno..."></textarea>
+</label>
+<p class="aviso">O parecer é obrigatório para liberar a avaliação ao aluno. Você pode salvar um rascunho sem preenchê-lo.</p>
+<div class="acoes">
+<button id="salvar" type="submit" value="rascunho" class="secundario">Salvar rascunho</button>
+<button id="liberar" type="submit" value="liberar">Finalizar e liberar avaliação</button>
+</div>
+<p id="resultado" role="status" aria-live="polite"></p>
+</form>
+</section>
+</main>
 
-  <script type="module">
-    import { createClient } from
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    const supabase = createClient(
-      "https://kvxdnreipuahoaostlle.supabase.co",
-      "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
-    );
+const supabase = createClient(
+  "https://kvxdnreipuahoaostlle.supabase.co",
+  "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
+);
 
-    const parametros = new URLSearchParams(location.search);
-    const alunoId = parametros.get("id");
-    const status = document.getElementById("status");
-    const form = document.getElementById("formAvaliacao");
-    const resultado = document.getElementById("resultado");
-    const botao = document.getElementById("salvar");
-    const botaoLiberar = document.getElementById("liberar");
-    let enviando = false;
-let dadosAlunoAvaliacao = null;function calcularIdade(dataNascimento, dataAvaliacao) {
+const parametros = new URLSearchParams(location.search);
+const alunoId = parametros.get("id");
+const status = document.getElementById("status");
+const form = document.getElementById("formAvaliacao");
+const resultado = document.getElementById("resultado");
+const botao = document.getElementById("salvar");
+const botaoLiberar = document.getElementById("liberar");
+let enviando = false;
+let dadosAlunoAvaliacao = null;
+
+function calcularIdade(dataNascimento, dataAvaliacao) {
   const nascimento = String(dataNascimento).split("-").map(Number);
   const avaliacao = String(dataAvaliacao).split("-").map(Number);
-
   if (
     nascimento.length !== 3 ||
     avaliacao.length !== 3 ||
     [...nascimento, ...avaliacao].some(n => !Number.isInteger(n))
-  ) {
-    return null;
-  }
+  ) return null;
 
   let idade = avaliacao[0] - nascimento[0];
-
   if (
     avaliacao[1] < nascimento[1] ||
     (avaliacao[1] === nascimento[1] && avaliacao[2] < nascimento[2])
-  ) {
-    idade--;
-  }
+  ) idade--;
 
   return idade >= 0 ? idade : null;
-}function calcularComposicaoCorporal(somaDobras, idade, sexo) {
-  const sexoNormalizado = String(sexo || "")
-    .trim()
-    .toLowerCase();
+}
 
+function calcularComposicaoCorporal(somaDobras, idade, sexo) {
+  const sexoNormalizado = String(sexo || "").trim().toLowerCase();
   if (
     !Number.isFinite(somaDobras) ||
     somaDobras <= 0 ||
     !Number.isInteger(idade) ||
     idade < 18
-  ) {
-    return null;
-  }
+  ) return null;
 
   let densidade;
-
   if (sexoNormalizado === "masculino") {
     densidade =
       1.112 -
@@ -262,23 +143,15 @@ let dadosAlunoAvaliacao = null;function calcularIdade(dataNascimento, dataAvalia
       0.00046971 * somaDobras +
       0.00000056 * somaDobras ** 2 -
       0.00012828 * idade;
-  } else {
-    return null;
-  }
+  } else return null;
 
-  if (!Number.isFinite(densidade) || densidade <= 0) {
-    return null;
-  }
-
+  if (!Number.isFinite(densidade) || densidade <= 0) return null;
   const percentualGordura = 495 / densidade - 450;
-
   if (
     !Number.isFinite(percentualGordura) ||
     percentualGordura < 0 ||
     percentualGordura > 100
-  ) {
-    return null;
-  }
+  ) return null;
 
   return {
     soma_7_dobras: somaDobras,
@@ -286,247 +159,256 @@ let dadosAlunoAvaliacao = null;function calcularIdade(dataNascimento, dataAvalia
     percentual_gordura: percentualGordura
   };
 }
-    async function iniciar() {
-      try {
-        const { data: { user }, error } =
-          await supabase.auth.getUser();
 
-        if (error || !user) {
-          location.replace("login.html");
-          return;
-        }
-
-        const { data: perfil, error: erroPerfil } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-
-        if (erroPerfil || perfil?.role !== "admin") {
-          status.textContent = "Acesso não autorizado.";
-          return;
-        }
-
-        if (!alunoId || !/^\d+$/.test(alunoId)) {
-          status.textContent = "Aluno não selecionado.";
-          return;
-        }
-
-        const { data: aluno, error: erroAluno } = await supabase
-          .from("alunos")
-          .select("nome_completo, modalidade, sexo, data_nascimento")
-          .eq("id", alunoId)
-          .single();
-
-        if (erroAluno || !aluno) {
-          status.textContent = "Aluno não encontrado.";
-          return;
-        }
-dadosAlunoAvaliacao = {
-  sexo: aluno.sexo,
-  data_nascimento: aluno.data_nascimento
-};
-        document.getElementById("nomeAluno").textContent =
-          "Aluno: " + aluno.nome_completo;
-
-const secaoDobras = document.getElementById("secaoDobras");
-
-const modalidade = String(aluno.modalidade || "")
-  .trim()
-  .toLowerCase();
-
-const permiteDobras =
-  modalidade === "presencial" ||
-  modalidade === "semipresencial";
-
-secaoDobras.hidden = !permiteDobras;
-
-        document.getElementById("voltar").href =
-          "perfil-aluno.html?id=" + encodeURIComponent(alunoId);
-
-        const hoje = new Date();
-        const dataLocal = new Date(
-          hoje.getTime() - hoje.getTimezoneOffset() * 60000
-        ).toISOString().slice(0, 10);
-
-        form.elements.data_avaliacao.value = dataLocal;
-
-        status.style.display = "none";
-        document.getElementById("conteudo").style.display = "block";
-      } catch (erro) {
-        console.error(erro);
-        status.textContent = "Erro ao carregar a avaliação.";
-      }
+async function iniciar() {
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      location.replace("login.html");
+      return;
     }
 
-    form.addEventListener("submit", async (evento) => {
-      evento.preventDefault();
-      if (enviando) return;
-      const liberar = evento.submitter?.value === "liberar";
-      resultado.className = "";
-      const parecer = form.elements.parecer_profissional.value.trim();
-      if (liberar && !parecer) {
-        resultado.className = "erro";
-        resultado.textContent = "Preencha o parecer profissional antes de liberar a avaliação.";
-        form.elements.parecer_profissional.focus();
-        return;
-      }
+    const { data: perfil, error: erroPerfil } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
-      const campos = [
-        "peso", "cintura", "quadril",
-        "braco_direito", "braco_esquerdo",
-        "coxa_direita", "coxa_esquerda"
-      ];
+    if (erroPerfil || perfil?.role !== "admin") {
+      status.textContent = "Acesso não autorizado.";
+      return;
+    }
 
-      const registro = {
-        aluno_id: Number(alunoId),
-        data_avaliacao: form.elements.data_avaliacao.value,
-        observacoes: form.elements.observacoes.value.trim() || null,
-        parecer_profissional: parecer || null
-      };
-const camposDobras = [
-  "dobra_peitoral",
-  "dobra_axilar_media",
-  "dobra_triceps",
-  "dobra_subescapular",
-  "dobra_abdominal",
-  "dobra_suprailiaca",
-  "dobra_coxa"
-];
-      let preenchidos = 0;
+    if (!alunoId || !/^\d+$/.test(alunoId)) {
+      status.textContent = "Aluno não selecionado.";
+      return;
+    }
 
-      for (const campo of campos) {
-        const texto = form.elements[campo].value.trim();
+    const { data: aluno, error: erroAluno } = await supabase
+      .from("alunos")
+      .select("nome_completo, modalidade, sexo, data_nascimento")
+      .eq("id", alunoId)
+      .single();
 
-        if (texto === "") {
-          registro[campo] = null;
-          continue;
-        }
+    if (erroAluno || !aluno) {
+      status.textContent = "Aluno não encontrado.";
+      return;
+    }
 
-        const numero = Number(texto);
+    dadosAlunoAvaliacao = {
+      sexo: aluno.sexo,
+      data_nascimento: aluno.data_nascimento
+    };
 
-        if (!Number.isFinite(numero) || numero <= 0) {
-          resultado.textContent =
-            "Confira a medida: " + campo.replaceAll("_", " ");
-          return;
-        }
+    document.getElementById("nomeAluno").textContent =
+      "Aluno: " + aluno.nome_completo;
 
-        registro[campo] = numero;
-        preenchidos++;
-      }
-const secaoDobrasAtiva =
-  !document.getElementById("secaoDobras").hidden;
+    const secaoDobras = document.getElementById("secaoDobras");
+    const modalidade = String(aluno.modalidade || "").trim().toLowerCase();
+    const permiteDobras =
+      modalidade === "presencial" ||
+      modalidade === "semipresencial";
+    secaoDobras.hidden = !permiteDobras;
 
-let dobrasPreenchidas = 0;
+    document.getElementById("voltar").href =
+      "perfil-aluno.html?id=" + encodeURIComponent(alunoId);
 
-if (secaoDobrasAtiva) {
-  for (const campo of camposDobras) {
+    const hoje = new Date();
+    const dataLocal = new Date(
+      hoje.getTime() - hoje.getTimezoneOffset() * 60000
+    ).toISOString().slice(0, 10);
+
+    form.elements.data_avaliacao.value = dataLocal;
+    status.style.display = "none";
+    document.getElementById("conteudo").style.display = "block";
+  } catch (erro) {
+    console.error(erro);
+    status.textContent = "Erro ao carregar a avaliação.";
+  }
+}
+
+form.addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+  if (enviando) return;
+
+  const liberar = evento.submitter?.value === "liberar";
+  resultado.className = "";
+  const parecer = form.elements.parecer_profissional.value.trim();
+
+  if (liberar && !parecer) {
+    resultado.className = "erro";
+    resultado.textContent =
+      "Preencha o parecer profissional antes de liberar a avaliação.";
+    form.elements.parecer_profissional.focus();
+    return;
+  }
+
+  const campos = [
+    "peso", "cintura", "quadril",
+    "braco_direito", "braco_esquerdo",
+    "coxa_direita", "coxa_esquerda"
+  ];
+
+  const registro = {
+    aluno_id: Number(alunoId),
+    data_avaliacao: form.elements.data_avaliacao.value,
+    observacoes: form.elements.observacoes.value.trim() || null,
+    parecer_profissional: parecer || null
+  };
+
+  const camposDobras = [
+    "dobra_peitoral",
+    "dobra_axilar_media",
+    "dobra_triceps",
+    "dobra_subescapular",
+    "dobra_abdominal",
+    "dobra_suprailiaca",
+    "dobra_coxa"
+  ];
+
+  let preenchidos = 0;
+  for (const campo of campos) {
     const texto = form.elements[campo].value.trim();
-
     if (texto === "") {
       registro[campo] = null;
       continue;
     }
 
     const numero = Number(texto);
-
     if (!Number.isFinite(numero) || numero <= 0) {
+      resultado.className = "erro";
       resultado.textContent =
-        "Confira a dobra: " + campo.replaceAll("_", " ");
+        "Confira a medida: " + campo.replaceAll("_", " ");
       return;
     }
 
     registro[campo] = numero;
-    dobrasPreenchidas++;
+    preenchidos++;
   }
 
-  if (dobrasPreenchidas > 0 && dobrasPreenchidas < 7) {
-    resultado.textContent =
-      "Preencha as 7 dobras para calcular a composição corporal.";
-    return;
-  }
-}
+  const secaoDobrasAtiva =
+    !document.getElementById("secaoDobras").hidden;
+  let dobrasPreenchidas = 0;
 
-if (dobrasPreenchidas === 7) {
-  const somaDobras = camposDobras.reduce(
-    (total, campo) => total + registro[campo],
-    0
-  );
+  if (secaoDobrasAtiva) {
+    for (const campo of camposDobras) {
+      const texto = form.elements[campo].value.trim();
+      if (texto === "") {
+        registro[campo] = null;
+        continue;
+      }
 
-  const idade = calcularIdade(
-    dadosAlunoAvaliacao?.data_nascimento,
-    registro.data_avaliacao
-  );
-
-  const composicao = calcularComposicaoCorporal(
-    somaDobras,
-    idade,
-    dadosAlunoAvaliacao?.sexo
-  );
-
-  if (!composicao) {
-    resultado.textContent =
-      "Não foi possível calcular a composição corporal. Confira a idade, o sexo e as medidas informadas.";
-    return;
-  }
-
-  Object.assign(registro, composicao);
-  if (registro.peso != null) {
-    registro.massa_gordura_kg = registro.peso * composicao.percentual_gordura / 100;
-    registro.massa_livre_gordura_kg = registro.peso - registro.massa_gordura_kg;
-    registro.percentual_massa_livre_gordura = 100 - composicao.percentual_gordura;
-  }
-}
-      if (preenchidos === 0 && dobrasPreenchidas === 0) {
+      const numero = Number(texto);
+      if (!Number.isFinite(numero) || numero <= 0) {
+        resultado.className = "erro";
         resultado.textContent =
-          "Informe pelo menos uma medida corporal.";
+          "Confira a dobra: " + campo.replaceAll("_", " ");
         return;
       }
 
-      enviando = true;
-      botao.disabled = true;
-      botaoLiberar.disabled = true;
-      resultado.textContent = liberar ? "Salvando e liberando avaliação..." : "Salvando rascunho...";
+      registro[campo] = numero;
+      dobrasPreenchidas++;
+    }
 
-      let idCriado = null;
-      try {
-        const { data: inserida, error: erroInsercao } = await supabase
-          .from("avaliacoes_fisicas")
-          .insert(registro)
-          .select("id")
-          .single();
+    if (dobrasPreenchidas > 0 && dobrasPreenchidas < 7) {
+      resultado.className = "erro";
+      resultado.textContent =
+        "Preencha as 7 dobras para calcular a composição corporal.";
+      return;
+    }
+  }
 
-        if (erroInsercao) throw erroInsercao;
-        idCriado = inserida.id;
+  if (dobrasPreenchidas === 7) {
+    const somaDobras = camposDobras.reduce(
+      (total, campo) => total + registro[campo], 0
+    );
 
-        if (liberar) {
-          const { error: erroLiberacao } = await supabase.rpc(
-            "aprovar_avaliacao_fisica",
-            { p_avaliacao_id: idCriado, p_parecer: parecer }
-          );
-          if (erroLiberacao) throw erroLiberacao;
-          resultado.textContent = "Avaliação finalizada e liberada ao aluno com sucesso!";
-        } else {
-          resultado.textContent = "Rascunho salvo com sucesso! A avaliação ainda não está visível ao aluno.";
-        }
+    const idade = calcularIdade(
+      dadosAlunoAvaliacao?.data_nascimento,
+      registro.data_avaliacao
+    );
 
-        resultado.className = "sucesso";
-        form.reset();
-        form.elements.data_avaliacao.value = registro.data_avaliacao;
-      } catch (erro) {
-        console.error(erro);
-        resultado.className = "erro";
-        resultado.textContent = idCriado != null
-          ? "A avaliação foi salva como rascunho (ID " + idCriado + "), mas não foi liberada: " + erro.message + ". Não envie novamente para evitar duplicidade."
-          : "Não foi possível salvar: " + erro.message;
-      } finally {
-        enviando = false;
-        botao.disabled = false;
-        botaoLiberar.disabled = false;
-      }
-    });
+    const composicao = calcularComposicaoCorporal(
+      somaDobras,
+      idade,
+      dadosAlunoAvaliacao?.sexo
+    );
 
-    iniciar();
-  </script>
+    if (!composicao) {
+      resultado.className = "erro";
+      resultado.textContent =
+        "Não foi possível calcular a composição corporal. Confira a idade, o sexo e as medidas informadas.";
+      return;
+    }
+
+    Object.assign(registro, composicao);
+    if (registro.peso != null) {
+      registro.massa_gordura_kg =
+        registro.peso * composicao.percentual_gordura / 100;
+      registro.massa_livre_gordura_kg =
+        registro.peso - registro.massa_gordura_kg;
+      registro.percentual_massa_livre_gordura =
+        100 - composicao.percentual_gordura;
+    }
+  }
+
+  if (preenchidos === 0 && dobrasPreenchidas === 0) {
+    resultado.className = "erro";
+    resultado.textContent =
+      "Informe pelo menos uma medida corporal.";
+    return;
+  }
+
+  enviando = true;
+  botao.disabled = true;
+  botaoLiberar.disabled = true;
+  resultado.textContent = liberar
+    ? "Salvando e liberando avaliação..."
+    : "Salvando rascunho...";
+
+  let idCriado = null;
+  try {
+    const { data: inserida, error: erroInsercao } = await supabase
+      .from("avaliacoes_fisicas")
+      .insert(registro)
+      .select("id")
+      .single();
+
+    if (erroInsercao) throw erroInsercao;
+    idCriado = inserida.id;
+
+    if (liberar) {
+      const { error: erroLiberacao } = await supabase.rpc(
+        "aprovar_avaliacao_fisica",
+        { p_avaliacao_id: idCriado, p_parecer: parecer }
+      );
+      if (erroLiberacao) throw erroLiberacao;
+      resultado.textContent =
+        "Avaliação finalizada e liberada ao aluno com sucesso!";
+    } else {
+      resultado.textContent =
+        "Rascunho salvo com sucesso! A avaliação ainda não está visível ao aluno.";
+    }
+
+    resultado.className = "sucesso";
+    form.reset();
+    form.elements.data_avaliacao.value = registro.data_avaliacao;
+  } catch (erro) {
+    console.error(erro);
+    resultado.className = "erro";
+    resultado.textContent = idCriado != null
+      ? "A avaliação foi salva como rascunho (ID " + idCriado +
+        "), mas não foi liberada: " + erro.message +
+        ". Não envie novamente para evitar duplicidade."
+      : "Não foi possível salvar: " + erro.message;
+  } finally {
+    enviando = false;
+    botao.disabled = false;
+    botaoLiberar.disabled = false;
+  }
+});
+
+iniciar();
+</script>
 </body>
 </html>
