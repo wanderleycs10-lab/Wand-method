@@ -796,7 +796,7 @@ function mostrarVista(nome){
   const valido=VIEWS.includes(nome)?nome:null;
   $("homeView").hidden=Boolean(valido);
   for(const id of VIEWS) $("view-"+id).hidden=id!==valido;
-  if(valido==="fotografica") acomodarFotografias();
+  acomodarModulos();
   window.scrollTo({top:0,behavior:"instant"});
 }
 function acomodarFotografias(){
@@ -805,17 +805,45 @@ function acomodarFotografias(){
   if(modulo&&destino&&modulo.parentElement!==destino) destino.appendChild(modulo);
   $("fotografiaAjuda").hidden=Boolean(modulo);
 }
+function acomodarAnalise(){
+  const modulo=document.getElementById("wandAnaliseCorporal");
+  const destino=$("view-avaliacoes");
+  const evolucao=$("view-evolucao");
+  if(!modulo||!destino||!evolucao) return;
+  if(modulo.parentElement!==destino) destino.appendChild(modulo);
+  // O modulo original gera os graficos dentro do mesmo painel.
+  // Movemos somente a secao de graficos para Minha Evolucao.
+  const historico=Array.from(modulo.children).find(el=>
+    el.classList.contains("wa-painel") &&
+    el.querySelector("h2")?.textContent?.trim()==="Gráficos de evolução corporal"
+  );
+  if(historico&&historico.parentElement!==evolucao) evolucao.appendChild(historico);
+}
+function acomodarModulos(){
+  acomodarFotografias();
+  acomodarAnalise();
+}
 for(const btn of document.querySelectorAll("[data-view]")){
   btn.addEventListener("click",()=>mostrarVista(btn.dataset.view));
 }
 for(const btn of document.querySelectorAll("[data-home]")){
   btn.addEventListener("click",()=>mostrarVista(null));
 }
-// O modulo fotografico e carregado por outro script; pode terminar depois.
-const observadorFotos=new MutationObserver(()=>{
-  if(!$("view-fotografica").hidden) acomodarFotografias();
+// Os modulos podem carregar depois da tela principal e atualizar seus dados.
+// Observamos inclusoes sem recriar os componentes ou modificar o Supabase.
+let ajustando=false;
+const observadorModulos=new MutationObserver(()=>{
+  if(ajustando) return;
+  ajustando=true;
+  observadorModulos.disconnect();
+  try { acomodarModulos(); }
+  finally {
+    observadorModulos.observe(document.body,{childList:true,subtree:true});
+    ajustando=false;
+  }
 });
-observadorFotos.observe(document.body,{childList:true,subtree:false});
+observadorModulos.observe(document.body,{childList:true,subtree:true});
+acomodarModulos();
 
 $("sair").addEventListener("click",sair);
 
