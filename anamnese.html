@@ -3,110 +3,212 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Minha Anamnese | WAND METHOD</title>
 
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --ouro: #d4af37;
+      --fundo: #080808;
+      --painel: #171717;
+      --borda: #493c18;
+      --texto: #f5f5f5;
+      --muted: #bcbcbc;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: #080808;
-      color: #f5f5f5;
-      font-family: Arial, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     header {
       text-align: center;
-      padding: 28px 16px;
-      border-bottom: 1px solid #d4af37;
+      padding: 25px 16px;
+      border-bottom: 1px solid var(--ouro);
     }
 
     header h1 {
-      color: #d4af37;
-      margin: 0 0 10px;
+      color: var(--ouro);
+      margin: 0 0 8px;
     }
+
+    header p { margin: 0; }
 
     main {
-      max-width: 800px;
-      margin: 30px auto;
-      padding: 0 16px;
+      max-width: 850px;
+      margin: 25px auto;
+      padding: 0 16px 40px;
     }
 
-main {
-  display: none;
-}
-
-body.acesso-confirmado main {
-  display: block;
-}
+    #conteudo { display: none; }
 
     .card {
-      background: #171717;
-      border: 1px solid #493c18;
+      background: var(--painel);
+      border: 1px solid var(--borda);
       border-radius: 14px;
-      padding: 24px;
-      margin-bottom: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
     }
 
-    h2 {
-      color: #d4af37;
+    h2, h3 { color: var(--ouro); }
+
+    h2 { margin-top: 0; }
+
+    h3 { font-size: 17px; }
+
+    p, label { line-height: 1.55; }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
     }
+
+    .pergunta {
+      background: #101010;
+      border: 1px solid #333;
+      border-radius: 11px;
+      padding: 16px;
+      margin: 13px 0;
+    }
+
+    .pergunta p {
+      margin-top: 0;
+      font-weight: bold;
+    }
+
+    .opcoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .opcoes label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      accent-color: var(--ouro);
+      width: 18px;
+      height: 18px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      background: #111;
+      color: white;
+      border: 1px solid #555;
+      border-radius: 8px;
+      padding: 12px;
+      font: inherit;
+      margin-top: 6px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid var(--ouro);
+      outline-offset: 1px;
+    }
+
+    .detalhe {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .detalhe.visivel { display: block; }
 
     .button {
       display: inline-block;
-      padding: 13px 20px;
-      background: #d4af37;
-      color: #080808;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 10px;
-    }
-
-    .small {
-      color: #bcbcbc;
+      background: var(--ouro);
+      color: #111;
+      border: 0;
+      border-radius: 9px;
+      padding: 13px 18px;
       font-size: 14px;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
     }
-.pergunta {
-  background: #101010;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 18px;
-  margin: 16px 0;
-}
 
-.pergunta p {
-  line-height: 1.6;
-  margin-top: 0;
-}
+    .button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
 
-.pergunta label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 20px 8px 0;
-  cursor: pointer;
-}
+    .button.secondary {
+      background: #303030;
+      color: white;
+      border: 1px solid #777;
+    }
 
-.pergunta input[type="radio"] {
-  accent-color: #d4af37;
-  width: 19px;
-  height: 19px;
-  cursor: pointer;
-}
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
 
-@media (max-width: 480px) {
-  .pergunta {
-    padding: 15px;
-  }
+    .alerta {
+      background: #2b2110;
+      border: 1px solid var(--ouro);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 15px 0;
+      color: #f5e6bc;
+    }
 
-  .pergunta label {
-    margin-right: 16px;
-  }
-}
+    .sucesso { color: #7ee0a5; }
+    .erro { color: #ff9999; }
 
+    .status {
+      font-size: 14px;
+      color: var(--ouro);
+      margin-top: 12px;
+      white-space: pre-line;
+    }
+
+    .oculto { display: none !important; }
+
+    details.card > summary {
+      color: var(--ouro);
+      font-size: 19px;
+      font-weight: bold;
+      cursor: pointer;
+      list-style-position: inside;
+    }
+
+    details.card[open] > summary {
+      margin-bottom: 18px;
+    }
+
+    .medidas-duplas {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media(max-width: 600px) {
+      .card { padding: 15px; }
+      .pergunta { padding: 13px; }
+      .medidas-duplas { gap: 8px; }
+      .button { width: 100%; text-align: center; }
+    }
   </style>
 </head>
 
@@ -117,885 +219,1320 @@ body.acesso-confirmado main {
   </header>
 
   <main>
-    <section class="card">
-      <h2>Avaliação inicial</h2>
-
-      <p>
-        Este questionário ajudará seu treinador
-        a conhecer seu histórico de saúde,
-        seus objetivos e sua rotina.
-      </p>
-
-      <p class="small">
-        Responda com atenção e sinceridade.
-        Suas informações serão utilizadas
-        para orientar seu acompanhamento.
+    <section class="card" id="carregamento">
+      <h2>Preparando sua anamnese</h2>
+      <p id="mensagem_acesso" class="small">
+        Verificando seu acesso...
       </p>
     </section>
 
-    <section class="card">
-      <h2>Triagem de Saúde — WAND METHOD</h2>
+    <div id="conteudo">
 
-<div class="pergunta">
-  <p><strong>1. Algum médico já informou que você possui
-  uma condição cardíaca ou que precisa de cuidados
-  específicos para praticar exercícios?</strong></p>
+      <section class="card">
+        <h2>Avaliação inicial</h2>
+        <p>
+          Suas respostas ajudam seu treinador a
+          planejar um acompanhamento individualizado.
+        </p>
+        <p class="small" id="nome_aluno"></p>
+        <p class="status" id="status_anamnese"></p>
+      </section>
 
-  <label>
-    <input type="radio" name="triagem_coracao" value="sim">
-    Sim
-  </label>
+      <details class="card" id="secao_triagem" open>
+        <summary>1. Triagem de saúde</summary>
 
-  <label>
-    <input type="radio" name="triagem_coracao" value="nao">
-    Não
-  </label>
-<div id="detalhe_coracao" style="display:none; margin-top:15px;">
-  <label for="descricao_coracao">
-    Qual condição foi identificada? Informe as orientações recebidas
-    e se realiza acompanhamento profissional.
-  </label>
-  <textarea id="descricao_coracao" name="descricao_coracao"
-    rows="3" placeholder="Descreva aqui..."
-    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
-</div>
-</div>
+        <p class="small">
+          Informe condições de saúde que possam
+          exigir cuidados durante o exercício.
+        </p>
 
-<div class="pergunta">
-  <p><strong>2. Você sente dor ou desconforto no peito
-  durante a prática de atividades físicas?</strong></p>
+        <form id="form_triagem">
+          <div id="perguntas_triagem"></div>
 
-  <label>
-    <input type="radio" name="triagem_peito" value="sim">
-    Sim
-  </label>
+          <div id="alerta_triagem"
+               class="alerta oculto"
+               role="alert">
+            <strong>Atenção à sua saúde</strong>
+            <p>
+              Suas respostas indicam condições que
+              precisam ser analisadas pelo profissional
+              responsável antes da definição das atividades.
+            </p>
+            <p>
+              Se estiver apresentando dor no peito,
+              desmaio, falta de ar intensa ou outros
+              sintomas graves, não inicie o exercício
+              e procure atendimento médico imediato.
+            </p>
+          </div>
 
-  <label>
-    <input type="radio" name="triagem_peito" value="nao">
-    Não
-  </label>
-<div id="detalhe_peito" style="display:none; margin-top:15px;">
-  <label for="descricao_peito">
-    Descreva o desconforto, quando acontece e se já procurou
-    avaliação médica.
-  </label>
-  <textarea id="descricao_peito" name="descricao_peito"
-    rows="3" placeholder="Descreva aqui..."
-    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
-</div>
-</div>
+          <button class="button"
+                  type="submit"
+                  id="validar_triagem">
+            SALVAR TRIAGEM
+          </button>
 
-<div class="pergunta">
-  <p><strong>3. Você já apresentou tontura intensa,
-  desmaio ou perda de equilíbrio durante
-  atividades físicas?</strong></p>
+          <p id="resultado_triagem"
+             class="status"
+             role="status"
+             aria-live="polite"></p>
+        </form>
+      </details>
 
-  <label>
-    <input type="radio" name="triagem_tontura" value="sim">
-    Sim
-  </label>
+      <details class="card" id="secao_anamnese">
+        <summary>2. Anamnese personalizada</summary>
 
-  <label>
-    <input type="radio" name="triagem_tontura" value="nao">
-    Não
-  </label>
-<div id="detalhe_tontura" style="display:none; margin-top:15px;">
-  <label for="descricao_tontura">
-    Descreva o episódio, quando aconteceu e se houve
-    avaliação por um profissional de saúde.
-  </label>
-  <textarea id="descricao_tontura" name="descricao_tontura"
-    rows="3" placeholder="Descreva aqui..."
-    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
-</div>
-</div>
+        <p class="small">
+          Informe seus objetivos, histórico,
+          rotina e preferências.
+        </p>
 
-<div class="pergunta">
-  <p><strong>4. Você possui alguma condição óssea,
-  muscular ou articular que possa ser agravada
-  pela prática de exercícios?</strong></p>
+        <form id="form_anamnese">
+          <div id="campos_anamnese"></div>
 
-  <label>
-    <input type="radio" name="triagem_articular" value="sim">
-    Sim
-  </label>
+          <button class="button"
+                  type="submit"
+                  id="salvar_anamnese">
+            SALVAR ANAMNESE
+          </button>
 
-  <label>
-    <input type="radio" name="triagem_articular" value="nao">
-    Não
-  </label>
-<div id="detalhe_articular" style="display:none; margin-top:15px;">
-  <label for="descricao_articular">
-    Qual região do corpo é afetada? Descreva a condição,
-    os sintomas e eventuais orientações profissionais.
-  </label>
-  <textarea id="descricao_articular" name="descricao_articular"
-    rows="3" placeholder="Descreva aqui..."
-    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
-</div>
-</div>
+          <p id="resultado_anamnese"
+             class="status"
+             role="status"
+             aria-live="polite"></p>
+        </form>
+      </details>
 
-<div class="pergunta">
-  <p>5. Algum profissional de saúde já informou que você possui pressão arterial elevada ou outra condição cardiovascular que exige acompanhamento?</p>
-  <label><input type="radio" name="triagem_pressao" value="sim"> Sim</label>
-  <label><input type="radio" name="triagem_pressao" value="nao"> Não</label>
+      <section class="card">
+        <h2>Avaliação fotográfica</h2>
+        <p class="small">
+          As fotografias são opcionais e dependem
+          de sua autorização.
+        </p>
+        <p class="small">
+          O módulo fotográfico será exibido
+          separadamente nesta página.
+        </p>
+      </section>
 
-<div id="detalhe_pressao" style="display:none; margin-top:15px;">
-  <label for="descricao_pressao">
-    Descreva sua condição e informe se realiza acompanhamento profissional:
-  </label>
-  <textarea
-    id="descricao_pressao"
-    name="descricao_pressao"
-    rows="3"
-    placeholder="Escreva aqui..."
-    style="width:100%; box-sizing:border-box; margin-top:10px; padding:12px; background:#111; color:white; border:1px solid #d4af37; border-radius:8px;"
-  ></textarea>
-</div>
-</div>
-
-<div class="pergunta">
-  <p>6. Você possui alguma condição respiratória que provoque falta de ar, chiado ou dificuldade para respirar durante esforços físicos?</p>
-  <label><input type="radio" name="triagem_respiratoria" value="sim"> Sim</label>
-  <label><input type="radio" name="triagem_respiratoria" value="nao"> Não</label>
-<div id="detalhe_respiratoria" style="display:none; margin-top:15px;">
-  <label for="descricao_respiratoria">
-    Qual condição respiratória você possui? Informe os sintomas,
-    tratamentos e se realiza acompanhamento profissional.
-  </label>
-  <textarea id="descricao_respiratoria" name="descricao_respiratoria"
-    rows="3" placeholder="Descreva aqui..."
-    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
-</div>
-</div>
-
-<div class="pergunta">
-  <p>7. Você possui diabetes ou outra condição metabólica que precise ser considerada durante a prática de exercícios?</p>
-  <label><input type="radio" name="triagem_metabolica" value="sim"> Sim</label>
-  <label><input type="radio" name="triagem_metabolica" value="nao"> Não</label>
-<div id="detalhe_metabolica" style="display:none; margin-top:15px;">
-  <label for="descricao_metabolica">
-    Qual condição você possui? Informe se utiliza medicamentos,
-    realiza acompanhamento ou recebeu orientações para exercícios.
-  </label>
-  <textarea id="descricao_metabolica" name="descricao_metabolica"
-    rows="3" placeholder="Descreva aqui..."
-    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
-</div>
-</div>
-
-<div class="pergunta">
-  <p>8. Você utiliza medicamentos que possam afetar sua frequência cardíaca, pressão arterial, equilíbrio ou resposta ao exercício?</p>
-  <label><input type="radio" name="triagem_medicamentos" value="sim"> Sim</label>
-  <label><input type="radio" name="triagem_medicamentos" value="nao"> Não</label>
-<div id="detalhe_medicamentos" style="display:none; margin-top:15px;">
-  <label for="descricao_medicamentos">
-    Informe quais medicamentos utiliza, conforme sua prescrição,
-    e se recebeu alguma orientação relacionada à atividade física.
-  </label>
-  <textarea id="descricao_medicamentos" name="descricao_medicamentos"
-    rows="3" placeholder="Descreva aqui..."
-    style="width:100%;box-sizing:border-box;margin-top:10px;padding:12px;background:#111;color:white;border:1px solid #d4af37;border-radius:8px;"></textarea>
-</div>
-<div id="alerta_triagem" role="alert"
-  style="display:none; background:#2b2110;
-  border:1px solid #d4af37; border-radius:12px;
-  padding:18px; margin-top:20px; color:#f5e6bc;">
-
-  <strong>⚠️ Atenção à sua saúde</strong>
-
-  <p>
-    Você informou uma ou mais condições que
-    merecem atenção antes da prática de exercícios.
-  </p>
-
-  <p>
-    Suas respostas serão analisadas pelo profissional
-    responsável. Dependendo dos sintomas ou condições
-    relatados, poderá ser necessária avaliação por
-    um profissional de saúde antes de iniciar ou
-    intensificar os exercícios.
-  </p>
-
-  <p>
-    Se estiver apresentando dor no peito, desmaio,
-    falta de ar intensa ou outros sintomas graves,
-    não inicie o exercício e procure atendimento
-    médico imediato.
-  </p>
-</div>
-<div style="margin-top:20px;">
-  <button
-    type="button"
-    id="validar_triagem"
-    style="background:#d4af37;color:#111;border:0;
-    border-radius:10px;padding:14px 22px;
-    font-weight:bold;cursor:pointer;">
-    VALIDAR TRIAGEM
-  </button>
-
-  <p id="resultado_triagem"
-     role="status"
-     aria-live="polite"
-     style="margin-top:15px;"></p>
-</div>
-
-
-</div>
-
-      <p>
-        Nesta etapa, você responderá perguntas
-        relacionadas à sua saúde e à prática
-        de atividades físicas.
-      </p>
-
-      <p class="small">
-        O questionário completo será
-        implementado na próxima etapa.
-      </p>
-    </section>
-
-    
-<section class="card" id="anamnese_personalizada">
-  <h2>Anamnese Personalizada — WAND METHOD</h2>
-  <p>Preencha as informações abaixo para que seu treinamento seja planejado de acordo com seus objetivos, rotina e necessidades.</p>
-
-  <form id="form_anamnese">
-
-    <h3 style="color:#d4af37;">1. Objetivos</h3>
-
-    <div class="pergunta">
-      <p>Qual é seu principal objetivo?</p>
-      <select name="objetivo_principal" required>
-        <option value="">Selecione uma opção</option>
-        <option value="emagrecimento">Emagrecimento</option>
-        <option value="hipertrofia">Hipertrofia muscular</option>
-        <option value="condicionamento">Condicionamento físico</option>
-        <option value="forca">Ganho de força</option>
-        <option value="saude">Saúde e qualidade de vida</option>
-        <option value="retorno_lesao">Retorno ao exercício após lesão</option>
-        <option value="outro">Outro</option>
-      </select>
+      <div class="actions">
+        <a class="button secondary" href="aluno.html">
+          Voltar ao meu painel
+        </a>
+      </div>
     </div>
-
-    <div class="pergunta">
-      <p>Quais são seus objetivos secundários?</p>
-      <textarea name="objetivos_secundarios" rows="3" placeholder="Descreva seus outros objetivos..."></textarea>
-    </div>
-
-    <div class="pergunta">
-      <p>Você possui alguma meta específica ou prazo?</p>
-      <textarea name="meta_especifica" rows="3" placeholder="Ex.: correr 5 km, melhorar resistência, ganhar força..."></textarea>
-    </div>
-
-    <h3 style="color:#d4af37;">2. Histórico de treinamento</h3>
-
-    <div class="pergunta">
-      <p>Você pratica exercícios atualmente?</p>
-      <label><input type="radio" name="treina_atualmente" value="sim" required> Sim</label>
-      <label><input type="radio" name="treina_atualmente" value="nao"> Não</label>
-    </div>
-
-    <div class="pergunta">
-      <p>Há quanto tempo pratica ou praticou exercícios regularmente?</p>
-      <select name="experiencia_treino" required>
-        <option value="">Selecione</option>
-        <option value="nunca">Nunca pratiquei regularmente</option>
-        <option value="menos_3_meses">Menos de 3 meses</option>
-        <option value="3_12_meses">De 3 a 12 meses</option>
-        <option value="1_3_anos">De 1 a 3 anos</option>
-        <option value="mais_3_anos">Mais de 3 anos</option>
-      </select>
-    </div>
-
-    <div class="pergunta">
-      <p>Quais atividades você pratica ou já praticou?</p>
-      <textarea name="modalidades" rows="3" placeholder="Musculação, corrida, dança, pilates, esportes..."></textarea>
-    </div>
-
-    <div class="pergunta">
-      <p>Quantos dias por semana você treina atualmente?</p>
-      <select name="frequencia_atual" required>
-        <option value="">Selecione</option>
-        <option value="0">Não treino atualmente</option>
-        <option value="1">1 dia</option>
-        <option value="2">2 dias</option>
-        <option value="3">3 dias</option>
-        <option value="4">4 dias</option>
-        <option value="5">5 dias</option>
-        <option value="6_7">6 ou 7 dias</option>
-      </select>
-    </div>
-
-    <h3 style="color:#d4af37;">3. Rotina e hábitos</h3>
-
-    <div class="pergunta">
-      <p>Como você descreveria sua rotina diária?</p>
-      <select name="rotina_atividade" required>
-        <option value="">Selecione</option>
-        <option value="sentado">Passo a maior parte do dia sentado</option>
-        <option value="misto">Alterno entre sentado e em movimento</option>
-        <option value="ativo">Passo boa parte do dia em movimento</option>
-        <option value="fisico">Realizo trabalho fisicamente exigente</option>
-      </select>
-    </div>
-
-    <div class="pergunta">
-      <p>Quantas horas você costuma dormir por noite?</p>
-      <select name="horas_sono" required>
-        <option value="">Selecione</option>
-        <option value="menos_5">Menos de 5 horas</option>
-        <option value="5_6">5 a 6 horas</option>
-        <option value="6_7">6 a 7 horas</option>
-        <option value="7_9">7 a 9 horas</option>
-        <option value="mais_9">Mais de 9 horas</option>
-      </select>
-    </div>
-
-    <div class="pergunta">
-      <p>Como avalia a qualidade do seu sono?</p>
-      <label><input type="radio" name="qualidade_sono" value="boa" required> Boa</label>
-      <label><input type="radio" name="qualidade_sono" value="regular"> Regular</label>
-      <label><input type="radio" name="qualidade_sono" value="ruim"> Ruim</label>
-    </div>
-
-    <div class="pergunta">
-      <p>Como avalia seu nível de estresse na maior parte dos dias?</p>
-      <select name="estresse" required>
-        <option value="">Selecione</option>
-        <option value="baixo">Baixo</option>
-        <option value="moderado">Moderado</option>
-        <option value="alto">Alto</option>
-        <option value="muito_alto">Muito alto</option>
-      </select>
-    </div>
-
-    <div class="pergunta">
-      <p>Gostaria de informar algo sobre sua alimentação ou acompanhamento nutricional?</p>
-      <textarea name="alimentacao" rows="3" placeholder="Informação opcional..."></textarea>
-    </div>
-
-    <h3 style="color:#d4af37;">4. Dores, lesões e limitações</h3>
-
-    <div class="pergunta">
-      <p>Você sente alguma dor ou desconforto atualmente?</p>
-      <label><input type="radio" name="dor_atual" value="sim" required> Sim</label>
-      <label><input type="radio" name="dor_atual" value="nao"> Não</label>
-      <textarea name="descricao_dor" rows="3" placeholder="Se sim, informe local, intensidade de 0 a 10 e movimentos que pioram a dor..."></textarea>
-    </div>
-
-    <div class="pergunta">
-      <p>Já sofreu alguma lesão ou realizou cirurgia que possa influenciar seu treinamento?</p>
-      <label><input type="radio" name="historico_lesao" value="sim" required> Sim</label>
-      <label><input type="radio" name="historico_lesao" value="nao"> Não</label>
-      <textarea name="descricao_lesao" rows="3" placeholder="Se sim, descreva o que aconteceu, quando e se houve reabilitação..."></textarea>
-    </div>
-
-    <div class="pergunta">
-      <p>Possui alguma limitação de movimento ou orientação profissional relacionada ao exercício?</p>
-      <textarea name="limitacoes" rows="3" placeholder="Descreva, se houver..."></textarea>
-    </div>
-
-    <h3 style="color:#d4af37;">5. Disponibilidade e preferências</h3>
-
-    <div class="pergunta">
-      <p>Quantos dias por semana pretende treinar?</p>
-      <select name="frequencia_desejada" required>
-        <option value="">Selecione</option>
-        <option value="1">1 dia</option>
-        <option value="2">2 dias</option>
-        <option value="3">3 dias</option>
-        <option value="4">4 dias</option>
-        <option value="5">5 dias</option>
-        <option value="6_7">6 ou 7 dias</option>
-      </select>
-    </div>
-
-    <div class="pergunta">
-      <p>Quais dias e horários estão disponíveis para treinar?</p>
-      <textarea name="disponibilidade" rows="3" placeholder="Ex.: segunda, quarta e sexta após as 18h..." required></textarea>
-    </div>
-
-    <div class="pergunta">
-      <p>Onde pretende realizar seus treinos?</p>
-      <select name="local_treino" required>
-        <option value="">Selecione</option>
-        <option value="academia">Academia</option>
-        <option value="casa">Em casa</option>
-        <option value="condominio">Condomínio</option>
-        <option value="ar_livre">Ao ar livre</option>
-        <option value="variados">Locais variados</option>
-      </select>
-    </div>
-
-    <div class="pergunta">
-      <p>Quais equipamentos você tem disponíveis?</p>
-      <textarea name="equipamentos" rows="3" placeholder="Ex.: academia completa, halteres, elásticos, nenhum..."></textarea>
-    </div>
-
-    <div class="pergunta">
-      <p>Existem exercícios de que você gosta ou não gosta?</p>
-      <textarea name="preferencias_exercicios" rows="3" placeholder="Conte suas preferências..."></textarea>
-    </div>
-
-    <h3 style="color:#d4af37;">6. Medidas corporais</h3>
-    <p>Preencha apenas as medidas que souber. Utilize centímetros para circunferências.</p>
-
-    <div class="pergunta">
-      <p>Peso atual (kg)</p>
-      <input type="number" name="peso" min="0" step="0.1" placeholder="Ex.: 75.5">
-    </div>
-
-    <div class="pergunta">
-      <p>Altura (cm)</p>
-      <input type="number" name="altura" min="0" step="0.1" placeholder="Ex.: 175">
-    </div>
-
-    <div class="pergunta">
-      <p>Cintura (cm)</p>
-      <input type="number" name="cintura" min="0" step="0.1">
-    </div>
-
-    <div class="pergunta">
-      <p>Quadril (cm)</p>
-      <input type="number" name="quadril" min="0" step="0.1">
-    </div>
-
-    <div class="pergunta">
-      <p>Braços (cm)</p>
-      <label>Direito <input type="number" name="braco_direito" min="0" step="0.1"></label>
-      <label>Esquerdo <input type="number" name="braco_esquerdo" min="0" step="0.1"></label>
-    </div>
-
-    <div class="pergunta">
-      <p>Coxas (cm)</p>
-      <label>Direita <input type="number" name="coxa_direita" min="0" step="0.1"></label>
-      <label>Esquerda <input type="number" name="coxa_esquerda" min="0" step="0.1"></label>
-    </div>
-
-    <h3 style="color:#d4af37;">7. Informações adicionais</h3>
-
-    <div class="pergunta">
-      <p>Existe alguma outra informação que considera importante para seu treinamento?</p>
-      <textarea name="observacoes" rows="4" placeholder="Escreva aqui..."></textarea>
-    </div>
-
-    <button type="submit" id="salvar_anamnese" style="background:#d4af37;color:#111;border:0;border-radius:10px;padding:15px 22px;font-weight:bold;cursor:pointer;">
-      SALVAR ANAMNESE PERSONALIZADA
-    </button>
-
-    <p id="resultado_anamnese" role="status" aria-live="polite"></p>
-  </form>
-</section>
-
-    </section>
-
-    <a class="button" href="aluno.html">
-      Voltar ao meu painel
-    </a>
   </main>
-<script type="module">
-  import { createClient } from
-    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-  const SUPABASE_URL =
-    "https://kvxdnreipuahoaostlle.supabase.co";
+  <script type="module">
+    import { createClient } from
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-  const SUPABASE_KEY =
-    "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo";
+    const SUPABASE_URL =
+      "https://kvxdnreipuahoaostlle.supabase.co";
 
-  const supabase = createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+    const SUPABASE_KEY =
+      "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo";
 
-let alunoIdAutenticado = null;
-
-async function salvarTriagem(respostas) {
-  if (!alunoIdAutenticado) {
-    throw new Error("Aluno não identificado. Entre novamente.");
-  }
-
-  const { data: registro, error: erroBusca } = await supabase
-    .from("anamneses")
-    .select("id, respostas")
-    .eq("aluno_id", alunoIdAutenticado)
-    .eq("status", "pendente")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (erroBusca) throw erroBusca;
-
-  if (!registro) {
-    throw new Error(
-      "Nenhuma anamnese pendente encontrada para este aluno."
-    );
-  }
-
-  const respostasAtualizadas = {
-    ...(registro.respostas || {}),
-    triagem_saude: respostas
-  };
-
-  const { error: erroSalvar } = await supabase
-    .from("anamneses")
-    .update({ respostas: respostasAtualizadas })
-    .eq("id", registro.id)
-    .eq("aluno_id", alunoIdAutenticado);
-
-  if (erroSalvar) throw erroSalvar;
-}
-
-window.salvarTriagem = salvarTriagem;
-
-async function salvarAnamnesePersonalizada(respostas) {
-  if (!alunoIdAutenticado) {
-    throw new Error("Aluno não identificado. Entre novamente.");
-  }
-
-  const { data: registro, error: erroBusca } = await supabase
-    .from("anamneses")
-    .select("id, respostas")
-    .eq("aluno_id", alunoIdAutenticado)
-    .eq("status", "pendente")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (erroBusca) throw erroBusca;
-
-  if (!registro) {
-    throw new Error("Nenhuma anamnese pendente encontrada.");
-  }
-
-  const respostasAtualizadas = {
-    ...(registro.respostas || {}),
-    anamnese_personalizada: respostas
-  };
-
-  
-
-    const triagemPreenchida =
-      respostasAtualizadas.triagem_saude &&
-      Object.keys(respostasAtualizadas.triagem_saude).length > 0;
-
-    const anamnesePreenchida =
-      respostasAtualizadas.anamnese_personalizada &&
-      Object.keys(respostasAtualizadas.anamnese_personalizada).length > 0;
-
-    const novoStatus =
-      triagemPreenchida && anamnesePreenchida
-        ? "concluida"
-        : triagemPreenchida || anamnesePreenchida
-          ? "em_andamento"
-          : "pendente";
-
-    const { data: registroSalvo, error: erroSalvar } = await supabase
-      .from("anamneses")
-      .update({
-        respostas: respostasAtualizadas,
-        status: novoStatus,
-        concluida_em:
-          novoStatus === "concluida"
-            ? new Date().toISOString()
-            : null
-      })
-      .eq("id", registro.id)
-      .eq("aluno_id", alunoIdAutenticado)
-      .select("id, respostas, status")
-      .single();
-
-
-if (erroSalvar) throw erroSalvar;
-
-if (!registroSalvo?.respostas?.anamnese_personalizada) {
-  throw new Error("A anamnese não foi confirmada no banco de dados.");
-}
-
-}
-
-window.salvarAnamnesePersonalizada = salvarAnamnesePersonalizada;
-
-  async function verificarAcesso() {
-    const { data, error } = await supabase.auth.getUser();
-
-    
-if (error || !data.user) {
-  const mensagem = document.createElement("p");
-  mensagem.style.color = "#d4af37";
-  mensagem.style.padding = "20px";
-  mensagem.textContent = error
-    ? "Erro ao verificar sessão: " + error.message
-    : "Nenhuma sessão de aluno encontrada.";
-
-  document.querySelector("main").replaceChildren(mensagem);
-  return;
-}
-
-    
-    const { data: aluno, error: erroAluno } = await supabase
-      .from("alunos")
-      .select("id")
-      .eq("user_id", data.user.id)
-      .maybeSingle();
-
-    if (erroAluno || !aluno) {
-      document.querySelector("main").textContent =
-        "Acesso restrito a alunos cadastrados.";
-      return;
-    }
-alunoIdAutenticado = aluno.id;
-
-
-    const aviso = document.createElement("p");
-    aviso.style.color = "#d4af37";
-    aviso.textContent = "✓ Aluno autenticado com sucesso!";
-    document.querySelector("main").prepend(aviso);
-  }
-
-document.body.classList.add("acesso-confirmado");
-
-
-  verificarAcesso();
-</script>
-
-
-<script>
-  const camposTriagem = {
-    triagem_coracao: "detalhe_coracao",
-    triagem_peito: "detalhe_peito",
-    triagem_tontura: "detalhe_tontura",
-    triagem_articular: "detalhe_articular",
-    triagem_pressao: "detalhe_pressao",
-    triagem_respiratoria: "detalhe_respiratoria",
-    triagem_metabolica: "detalhe_metabolica",
-    triagem_medicamentos: "detalhe_medicamentos"
-  };
-
-  Object.entries(camposTriagem).forEach(([nome, idCampo]) => {
-    const campo = document.getElementById(idCampo);
-    const radios = document.querySelectorAll(
-      `input[name="${nome}"]`
+    const supabase = createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
     );
 
-    if (!campo) return;
+    let alunoId = null;
+    let registroId = null;
+    let respostasSalvas = {};
+    let statusRegistro = "pendente";
+    let salvando = false;
 
-    function atualizarCampo() {
-      const selecionado = document.querySelector(
-        `input[name="${nome}"]:checked`
-      );
+    const $ = id => document.getElementById(id);
 
-      const mostrar = selecionado?.value === "sim";
-      campo.style.display = mostrar ? "block" : "none";
-
-      const descricao = campo.querySelector("textarea");
-
-      if (descricao) {
-        descricao.required = mostrar;
+    const perguntasTriagem = [
+      {
+        nome: "triagem_coracao",
+        detalhe: "descricao_coracao",
+        pergunta:
+          "Algum médico já informou que você possui " +
+          "uma condição cardíaca ou precisa de cuidados " +
+          "específicos para praticar exercícios?",
+        explicacao:
+          "Qual condição foi identificada? Informe " +
+          "orientações e acompanhamento profissional."
+      },
+      {
+        nome: "triagem_peito",
+        detalhe: "descricao_peito",
+        pergunta:
+          "Você sente dor ou desconforto no peito " +
+          "durante a prática de atividades físicas?",
+        explicacao:
+          "Descreva o desconforto, quando acontece " +
+          "e se procurou avaliação médica."
+      },
+      {
+        nome: "triagem_tontura",
+        detalhe: "descricao_tontura",
+        pergunta:
+          "Você já apresentou tontura intensa, " +
+          "desmaio ou perda de equilíbrio durante " +
+          "atividades físicas?",
+        explicacao:
+          "Descreva o episódio e se houve " +
+          "avaliação por profissional de saúde."
+      },
+      {
+        nome: "triagem_articular",
+        detalhe: "descricao_articular",
+        pergunta:
+          "Você possui alguma condição óssea, " +
+          "muscular ou articular que possa ser " +
+          "agravada pela prática de exercícios?",
+        explicacao:
+          "Informe a região afetada, sintomas " +
+          "e orientações profissionais."
+      },
+      {
+        nome: "triagem_pressao",
+        detalhe: "descricao_pressao",
+        pergunta:
+          "Algum profissional de saúde já informou " +
+          "que você possui pressão arterial elevada " +
+          "ou outra condição cardiovascular?",
+        explicacao:
+          "Descreva a condição e o acompanhamento."
+      },
+      {
+        nome: "triagem_respiratoria",
+        detalhe: "descricao_respiratoria",
+        pergunta:
+          "Você possui alguma condição respiratória " +
+          "que provoque falta de ar, chiado ou " +
+          "dificuldade para respirar durante esforços?",
+        explicacao:
+          "Informe a condição, sintomas e tratamentos."
+      },
+      {
+        nome: "triagem_metabolica",
+        detalhe: "descricao_metabolica",
+        pergunta:
+          "Você possui diabetes ou outra condição " +
+          "metabólica que precise ser considerada " +
+          "durante a prática de exercícios?",
+        explicacao:
+          "Informe a condição, medicamentos " +
+          "e orientações recebidas."
+      },
+      {
+        nome: "triagem_medicamentos",
+        detalhe: "descricao_medicamentos",
+        pergunta:
+          "Você utiliza medicamentos que possam " +
+          "afetar frequência cardíaca, pressão " +
+          "arterial, equilíbrio ou resposta ao exercício?",
+        explicacao:
+          "Informe os medicamentos utilizados " +
+          "e orientações relacionadas ao exercício."
       }
-    }
-
-    radios.forEach(radio => {
-      radio.addEventListener("change", atualizarCampo);
-    });
-
-    atualizarCampo();
-  });
-function atualizarAlertaTriagem() {
-  const alerta = document.getElementById("alerta_triagem");
-
-  if (!alerta) return;
-
-  const existeRespostaSim = Object.keys(camposTriagem).some(nome => {
-    const resposta = document.querySelector(
-      `input[name="${nome}"]:checked`
-    );
-    return resposta?.value === "sim";
-  });
-
-  alerta.style.display = existeRespostaSim ? "block" : "none";
-}
-
-Object.keys(camposTriagem).forEach(nome => {
-  document.querySelectorAll(`input[name="${nome}"]`).forEach(radio => {
-    radio.addEventListener("change", atualizarAlertaTriagem);
-  });
-});
-
-atualizarAlertaTriagem();
-
-document.getElementById("validar_triagem")
-  ?.addEventListener("click", async function () {
-
-  const resultado = document.getElementById("resultado_triagem");
-  const pendencias = [];
-  let possuiRespostaSim = false;
-
-  Object.entries(camposTriagem).forEach(([nome, idCampo], indice) => {
-    const resposta = document.querySelector(
-      `input[name="${nome}"]:checked`
-    );
-
-    if (!resposta) {
-      pendencias.push(`Pergunta ${indice + 1}: selecione Sim ou Não.`);
-      return;
-    }
-
-    if (resposta.value === "sim") {
-      possuiRespostaSim = true;
-
-      const descricao = document
-        .getElementById(idCampo)
-        ?.querySelector("textarea");
-
-      if (!descricao?.value.trim()) {
-        pendencias.push(`Pergunta ${indice + 1}: descreva sua condição.`);
-      }
-    }
-  });
-
-  if (pendencias.length > 0) {
-    resultado.style.color = "#ff9999";
-    resultado.textContent = pendencias.join(" ");
-    return;
-  }
-
-
-  const respostasTriagem = {};
-
-  Object.entries(camposTriagem).forEach(([nome, idCampo]) => {
-    const resposta = document.querySelector(
-      `input[name="${nome}"]:checked`
-    );
-
-    const descricao = document
-      .getElementById(idCampo)
-      ?.querySelector("textarea");
-
-    respostasTriagem[nome] = {
-      resposta: resposta.value,
-      descricao: resposta.value === "sim"
-        ? descricao.value.trim()
-        : ""
-    };
-  });
-
-  const botao = document.getElementById("validar_triagem");
-
-  botao.disabled = true;
-  resultado.style.color = "#d4af37";
-  resultado.textContent = "Salvando suas respostas...";
-
-  try {
-    await salvarTriagem(respostasTriagem);
-
-    resultado.textContent = possuiRespostaSim
-      ? "Triagem salva com sucesso! Suas respostas precisam de análise profissional antes da definição das atividades."
-      : "Triagem salva com sucesso! Suas respostas serão analisadas pelo profissional responsável.";
-
-  } catch (erro) {
-    console.error("Erro ao salvar triagem:", erro);
-    resultado.style.color = "#ff9999";
-    resultado.textContent =
-      "Não foi possível salvar suas respostas. Tente novamente.";
-  } finally {
-    botao.disabled = false;
-  }
-
-});
-
-</script>
-
-
-<script>
-document.getElementById("form_anamnese")
-  ?.addEventListener("submit", async function(event) {
-    event.preventDefault();
-
-    const formulario = event.currentTarget;
-    const botao = document.getElementById("salvar_anamnese");
-    const resultado = document.getElementById("resultado_anamnese");
-
-    if (!formulario.reportValidity()) return;
-
-    const dados = new FormData(formulario);
-    const respostas = {};
-
-    for (const [nome, valor] of dados.entries()) {
-      respostas[nome] = typeof valor === "string"
-        ? valor.trim()
-        : valor;
-    }
-
-    // Exigir explicações quando houver dor ou lesão.
-    const explicacoes = [
-      ["dor_atual", "descricao_dor", "Descreva a dor atual."],
-      ["historico_lesao", "descricao_lesao", "Descreva a lesão ou cirurgia."]
     ];
 
-    for (const [pergunta, campo, mensagem] of explicacoes) {
-      if (respostas[pergunta] === "sim" && !respostas[campo]) {
-        resultado.style.color = "#ff9999";
-        resultado.textContent = mensagem;
-        formulario.elements[campo].focus();
-        return;
+    const camposAnamnese = [
+      {
+        titulo: "1. Objetivos",
+        campos: [
+          {
+            nome: "objetivo_principal",
+            tipo: "select",
+            pergunta: "Qual é seu principal objetivo?",
+            obrigatorio: true,
+            opcoes: [
+              ["emagrecimento", "Emagrecimento"],
+              ["hipertrofia", "Hipertrofia muscular"],
+              ["condicionamento", "Condicionamento físico"],
+              ["forca", "Ganho de força"],
+              ["saude", "Saúde e qualidade de vida"],
+              ["retorno_lesao", "Retorno após lesão"],
+              ["outro", "Outro"]
+            ]
+          },
+          {
+            nome: "objetivos_secundarios",
+            tipo: "textarea",
+            pergunta: "Quais são seus objetivos secundários?"
+          },
+          {
+            nome: "meta_especifica",
+            tipo: "textarea",
+            pergunta: "Possui alguma meta específica ou prazo?"
+          }
+        ]
+      },
+      {
+        titulo: "2. Histórico de treinamento",
+        campos: [
+          {
+            nome: "treina_atualmente",
+            tipo: "radio",
+            pergunta: "Você pratica exercícios atualmente?",
+            obrigatorio: true
+          },
+          {
+            nome: "experiencia_treino",
+            tipo: "select",
+            pergunta:
+              "Há quanto tempo pratica ou praticou " +
+              "exercícios regularmente?",
+            obrigatorio: true,
+            opcoes: [
+              ["nunca", "Nunca pratiquei regularmente"],
+              ["menos_3_meses", "Menos de 3 meses"],
+              ["3_12_meses", "De 3 a 12 meses"],
+              ["1_3_anos", "De 1 a 3 anos"],
+              ["mais_3_anos", "Mais de 3 anos"]
+            ]
+          },
+          {
+            nome: "modalidades",
+            tipo: "textarea",
+            pergunta:
+              "Quais atividades pratica ou já praticou?"
+          },
+          {
+            nome: "frequencia_atual",
+            tipo: "select",
+            pergunta:
+              "Quantos dias por semana treina atualmente?",
+            obrigatorio: true,
+            opcoes: [
+              ["0", "Não treino"],
+              ["1", "1 dia"],
+              ["2", "2 dias"],
+              ["3", "3 dias"],
+              ["4", "4 dias"],
+              ["5", "5 dias"],
+              ["6_7", "6 ou 7 dias"]
+            ]
+          }
+        ]
+      },
+      {
+        titulo: "3. Rotina e hábitos",
+        campos: [
+          {
+            nome: "rotina_atividade",
+            tipo: "select",
+            pergunta: "Como é sua rotina diária?",
+            obrigatorio: true,
+            opcoes: [
+              ["sentado", "Maior parte do dia sentado"],
+              ["misto", "Sentado e em movimento"],
+              ["ativo", "Boa parte do dia em movimento"],
+              ["fisico", "Trabalho fisicamente exigente"]
+            ]
+          },
+          {
+            nome: "horas_sono",
+            tipo: "select",
+            pergunta: "Quantas horas costuma dormir?",
+            obrigatorio: true,
+            opcoes: [
+              ["menos_5", "Menos de 5 horas"],
+              ["5_6", "5 a 6 horas"],
+              ["6_7", "6 a 7 horas"],
+              ["7_9", "7 a 9 horas"],
+              ["mais_9", "Mais de 9 horas"]
+            ]
+          },
+          {
+            nome: "qualidade_sono",
+            tipo: "radio",
+            pergunta: "Como avalia a qualidade do sono?",
+            obrigatorio: true,
+            opcoes: [
+              ["boa", "Boa"],
+              ["regular", "Regular"],
+              ["ruim", "Ruim"]
+            ]
+          },
+          {
+            nome: "estresse",
+            tipo: "select",
+            pergunta: "Como avalia seu nível de estresse?",
+            obrigatorio: true,
+            opcoes: [
+              ["baixo", "Baixo"],
+              ["moderado", "Moderado"],
+              ["alto", "Alto"],
+              ["muito_alto", "Muito alto"]
+            ]
+          },
+          {
+            nome: "alimentacao",
+            tipo: "textarea",
+            pergunta:
+              "Deseja informar algo sobre alimentação " +
+              "ou acompanhamento nutricional?"
+          }
+        ]
+      },
+      {
+        titulo: "4. Dores, lesões e limitações",
+        campos: [
+          {
+            nome: "dor_atual",
+            tipo: "radio",
+            pergunta:
+              "Sente alguma dor ou desconforto atualmente?",
+            obrigatorio: true
+          },
+          {
+            nome: "descricao_dor",
+            tipo: "textarea",
+            pergunta:
+              "Se sim, informe local, intensidade " +
+              "de 0 a 10 e movimentos que pioram a dor."
+          },
+          {
+            nome: "historico_lesao",
+            tipo: "radio",
+            pergunta:
+              "Já sofreu lesão ou realizou cirurgia " +
+              "que possa influenciar o treinamento?",
+            obrigatorio: true
+          },
+          {
+            nome: "descricao_lesao",
+            tipo: "textarea",
+            pergunta:
+              "Se sim, descreva o ocorrido, quando " +
+              "aconteceu e se houve reabilitação."
+          },
+          {
+            nome: "limitacoes",
+            tipo: "textarea",
+            pergunta:
+              "Possui limitação de movimento ou " +
+              "orientação profissional relacionada " +
+              "ao exercício?"
+          }
+        ]
+      },
+      {
+        titulo: "5. Disponibilidade e preferências",
+        campos: [
+          {
+            nome: "frequencia_desejada",
+            tipo: "select",
+            pergunta:
+              "Quantos dias por semana pretende treinar?",
+            obrigatorio: true,
+            opcoes: [
+              ["1", "1 dia"],
+              ["2", "2 dias"],
+              ["3", "3 dias"],
+              ["4", "4 dias"],
+              ["5", "5 dias"],
+              ["6_7", "6 ou 7 dias"]
+            ]
+          },
+          {
+            nome: "disponibilidade",
+            tipo: "textarea",
+            pergunta:
+              "Quais dias e horários tem disponíveis?",
+            obrigatorio: true
+          },
+          {
+            nome: "local_treino",
+            tipo: "select",
+            pergunta: "Onde pretende realizar os treinos?",
+            obrigatorio: true,
+            opcoes: [
+              ["academia", "Academia"],
+              ["casa", "Em casa"],
+              ["condominio", "Condomínio"],
+              ["ar_livre", "Ao ar livre"],
+              ["variados", "Locais variados"]
+            ]
+          },
+          {
+            nome: "equipamentos",
+            tipo: "textarea",
+            pergunta: "Quais equipamentos tem disponíveis?"
+          },
+          {
+            nome: "preferencias_exercicios",
+            tipo: "textarea",
+            pergunta:
+              "Existem exercícios de que gosta ou não gosta?"
+          }
+        ]
+      },
+      {
+        titulo: "6. Medidas corporais",
+        campos: [
+          {
+            nome: "peso",
+            tipo: "number",
+            pergunta: "Peso atual (kg)"
+          },
+          {
+            nome: "altura",
+            tipo: "number",
+            pergunta: "Altura (cm)"
+          },
+          {
+            nome: "cintura",
+            tipo: "number",
+            pergunta: "Cintura (cm)"
+          },
+          {
+            nome: "quadril",
+            tipo: "number",
+            pergunta: "Quadril (cm)"
+          },
+          {
+            nome: "braco_direito",
+            tipo: "number",
+            pergunta: "Braço direito (cm)"
+          },
+          {
+            nome: "braco_esquerdo",
+            tipo: "number",
+            pergunta: "Braço esquerdo (cm)"
+          },
+          {
+            nome: "coxa_direita",
+            tipo: "number",
+            pergunta: "Coxa direita (cm)"
+          },
+          {
+            nome: "coxa_esquerda",
+            tipo: "number",
+            pergunta: "Coxa esquerda (cm)"
+          }
+        ]
+      },
+      {
+        titulo: "7. Informações adicionais",
+        campos: [
+          {
+            nome: "observacoes",
+            tipo: "textarea",
+            pergunta:
+              "Existe outra informação importante " +
+              "para seu treinamento?"
+          }
+        ]
       }
+    ];
+
+    function elemento(tag, texto, classe) {
+      const el = document.createElement(tag);
+
+      if (texto !== undefined && texto !== null) {
+        el.textContent = texto;
+      }
+
+      if (classe) el.className = classe;
+
+      return el;
     }
 
-    // Verificar diferenças entre os lados do corpo.
-    const alertasMedidas = [];
+    function montarTriagem() {
+      const destino = $("perguntas_triagem");
 
-    for (const [direita, esquerda, regiao] of [
-      ["braco_direito", "braco_esquerdo", "braços"],
-      ["coxa_direita", "coxa_esquerda", "coxas"]
-    ]) {
-      if (respostas[direita] && respostas[esquerda]) {
-        const diferenca = Math.abs(
-          Number(respostas[direita]) - Number(respostas[esquerda])
+      perguntasTriagem.forEach((item, indice) => {
+        const bloco = elemento("div", null, "pergunta");
+        const pergunta = elemento(
+          "p",
+          `${indice + 1}. ${item.pergunta}`
         );
 
-        if (diferenca >= 3) {
-          alertasMedidas.push(
-            `Diferença de ${diferenca.toFixed(1)} cm entre os ${regiao}.`
+        bloco.appendChild(pergunta);
+
+        const opcoes = elemento("div", null, "opcoes");
+
+        ["sim", "nao"].forEach(valor => {
+          const label = elemento("label");
+          const input = elemento("input");
+
+          input.type = "radio";
+          input.name = item.nome;
+          input.value = valor;
+          input.required = true;
+
+          label.appendChild(input);
+          label.append(
+            valor === "sim" ? "Sim" : "Não"
           );
+
+          opcoes.appendChild(label);
+
+          input.addEventListener(
+            "change",
+            atualizarTriagem
+          );
+        });
+
+        bloco.appendChild(opcoes);
+
+        const detalhe = elemento(
+          "div",
+          null,
+          "detalhe"
+        );
+
+        detalhe.id = "bloco_" + item.detalhe;
+
+        const labelDetalhe = elemento(
+          "label",
+          item.explicacao
+        );
+
+        labelDetalhe.htmlFor = item.detalhe;
+
+        const textarea = elemento("textarea");
+
+        textarea.id = item.detalhe;
+        textarea.name = item.detalhe;
+        textarea.rows = 3;
+
+        detalhe.appendChild(labelDetalhe);
+        detalhe.appendChild(textarea);
+        bloco.appendChild(detalhe);
+        destino.appendChild(bloco);
+      });
+    }
+
+    function montarAnamnese() {
+      const destino = $("campos_anamnese");
+
+      camposAnamnese.forEach(secao => {
+        destino.appendChild(
+          elemento("h3", secao.titulo)
+        );
+
+        if (secao.titulo.includes("Medidas")) {
+          destino.appendChild(
+            elemento(
+              "p",
+              "Preencha apenas as medidas que souber. " +
+              "Utilize centímetros nas circunferências.",
+              "small"
+            )
+          );
+        }
+
+        secao.campos.forEach(campo => {
+          const bloco = elemento(
+            "div",
+            null,
+            "pergunta"
+          );
+
+          const titulo = elemento(
+            "p",
+            campo.pergunta
+          );
+
+          bloco.appendChild(titulo);
+
+          if (campo.tipo === "radio") {
+            const opcoes = elemento(
+              "div",
+              null,
+              "opcoes"
+            );
+
+            const valores = campo.opcoes || [
+              ["sim", "Sim"],
+              ["nao", "Não"]
+            ];
+
+            valores.forEach(([valor, texto]) => {
+              const label = elemento("label");
+              const input = elemento("input");
+
+              input.type = "radio";
+              input.name = campo.nome;
+              input.value = valor;
+              input.required = !!campo.obrigatorio;
+
+              label.appendChild(input);
+              label.append(texto);
+              opcoes.appendChild(label);
+            });
+
+            bloco.appendChild(opcoes);
+
+          } else if (campo.tipo === "select") {
+            const select = elemento("select");
+
+            select.name = campo.nome;
+            select.required = !!campo.obrigatorio;
+
+            const inicial = elemento(
+              "option",
+              "Selecione uma opção"
+            );
+
+            inicial.value = "";
+            select.appendChild(inicial);
+
+            campo.opcoes.forEach(([valor, texto]) => {
+              const opcao = elemento(
+                "option",
+                texto
+              );
+
+              opcao.value = valor;
+              select.appendChild(opcao);
+            });
+
+            bloco.appendChild(select);
+
+          } else if (campo.tipo === "textarea") {
+            const textarea = elemento("textarea");
+
+            textarea.name = campo.nome;
+            textarea.rows = 3;
+            textarea.required = !!campo.obrigatorio;
+
+            bloco.appendChild(textarea);
+
+          } else if (campo.tipo === "number") {
+            const input = elemento("input");
+
+            input.type = "number";
+            input.name = campo.nome;
+            input.min = "0";
+            input.step = "0.1";
+            input.inputMode = "decimal";
+
+            bloco.appendChild(input);
+          }
+
+          destino.appendChild(bloco);
+        });
+      });
+    }
+
+    function atualizarTriagem() {
+      let existeSim = false;
+
+      perguntasTriagem.forEach(item => {
+        const selecionado = document.querySelector(
+          `input[name="${item.nome}"]:checked`
+        );
+
+        const bloco = $(
+          "bloco_" + item.detalhe
+        );
+
+        const descricao = bloco.querySelector(
+          "textarea"
+        );
+
+        const mostrar =
+          selecionado?.value === "sim";
+
+        bloco.classList.toggle(
+          "visivel",
+          mostrar
+        );
+
+        descricao.required = mostrar;
+
+        if (mostrar) existeSim = true;
+      });
+
+      $("alerta_triagem").classList.toggle(
+        "oculto",
+        !existeSim
+      );
+    }
+
+    function preencherFormulario(formulario, dados) {
+      if (!dados || typeof dados !== "object") {
+        return;
+      }
+
+      Object.entries(dados).forEach(([nome, valor]) => {
+        const campos = formulario.querySelectorAll(
+          `[name="${nome}"]`
+        );
+
+        campos.forEach(campo => {
+          if (campo.type === "radio") {
+            campo.checked =
+              campo.value === String(valor);
+
+          } else if (
+            typeof valor === "string" ||
+            typeof valor === "number"
+          ) {
+            campo.value = String(valor);
+          }
+        });
+      });
+    }
+
+    function preencherTriagem(dados) {
+      if (!dados || typeof dados !== "object") {
+        return;
+      }
+
+      perguntasTriagem.forEach(item => {
+        const resposta = dados[item.nome];
+
+        if (!resposta) return;
+
+        const valor = typeof resposta === "object"
+          ? resposta.resposta
+          : resposta;
+
+        const descricao = typeof resposta === "object"
+          ? resposta.descricao
+          : "";
+
+        const radio = document.querySelector(
+          `input[name="${item.nome}"][value="${valor}"]`
+        );
+
+        if (radio) radio.checked = true;
+
+        const textarea = $(item.detalhe);
+
+        if (textarea) {
+          textarea.value = descricao || "";
+        }
+      });
+
+      atualizarTriagem();
+    }
+
+    function coletarTriagem() {
+      const respostas = {};
+
+      perguntasTriagem.forEach(item => {
+        const selecionado = document.querySelector(
+          `input[name="${item.nome}"]:checked`
+        );
+
+        const descricao = $(item.detalhe);
+
+        respostas[item.nome] = {
+          resposta: selecionado.value,
+          descricao:
+            selecionado.value === "sim"
+              ? descricao.value.trim()
+              : ""
+        };
+      });
+
+      return respostas;
+    }
+
+    function coletarAnamnese() {
+      const formulario = $("form_anamnese");
+      const dados = new FormData(formulario);
+      const respostas = {};
+
+      for (const [nome, valor] of dados.entries()) {
+        respostas[nome] =
+          typeof valor === "string"
+            ? valor.trim()
+            : valor;
+      }
+
+      return respostas;
+    }
+
+    function triagemCompleta(respostas) {
+      return perguntasTriagem.every(item => {
+        const valor = respostas?.[item.nome];
+
+        if (!valor || typeof valor !== "object") {
+          return false;
+        }
+
+        if (!["sim", "nao"].includes(valor.resposta)) {
+          return false;
+        }
+
+        if (
+          valor.resposta === "sim" &&
+          !String(valor.descricao || "").trim()
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+    }
+
+    function anamneseCompleta(respostas) {
+      if (!respostas || typeof respostas !== "object") {
+        return false;
+      }
+
+      const obrigatorios = camposAnamnese
+        .flatMap(secao => secao.campos)
+        .filter(campo => campo.obrigatorio);
+
+      return obrigatorios.every(campo => {
+        return String(
+          respostas[campo.nome] ?? ""
+        ).trim() !== "";
+      });
+    }
+
+    function calcularStatus(respostas) {
+      const triagemOk = triagemCompleta(
+        respostas.triagem_saude
+      );
+
+      const anamneseOk = anamneseCompleta(
+        respostas.anamnese_personalizada
+      );
+
+      if (triagemOk && anamneseOk) {
+        return "concluida";
+      }
+
+      if (triagemOk || anamneseOk) {
+        return "em_andamento";
+      }
+
+      return "pendente";
+    }
+
+    function atualizarStatusVisual() {
+      const nomes = {
+        pendente: "Pendente",
+        em_andamento: "Em andamento",
+        concluida: "Concluída"
+      };
+
+      $("status_anamnese").textContent =
+        "Status: " +
+        (nomes[statusRegistro] || statusRegistro);
+    }
+
+    function mostrarResultado(id, mensagem, erro = false) {
+      const campo = $(id);
+
+      campo.textContent = mensagem;
+      campo.className =
+        "status " + (erro ? "erro" : "sucesso");
+    }
+
+    function validarDores(respostas) {
+      const validacoes = [
+        ["dor_atual", "descricao_dor",
+          "Descreva a dor atual."],
+        ["historico_lesao", "descricao_lesao",
+          "Descreva a lesão ou cirurgia."]
+      ];
+
+      for (const [pergunta, detalhe, mensagem]
+        of validacoes) {
+
+        if (
+          respostas[pergunta] === "sim" &&
+          !respostas[detalhe]
+        ) {
+          const campo = document.querySelector(
+            `[name="${detalhe}"]`
+          );
+
+          campo?.focus();
+          throw new Error(mensagem);
         }
       }
     }
 
-    botao.disabled = true;
-    resultado.style.color = "#d4af37";
-    resultado.textContent = "Salvando anamnese...";
+    function alertasDeMedidas(respostas) {
+      const alertas = [];
 
-    try {
-      if (typeof window.salvarAnamnesePersonalizada !== "function") {
-        throw new Error("Função de salvamento indisponível.");
+      const pares = [
+        ["braco_direito", "braco_esquerdo", "braços"],
+        ["coxa_direita", "coxa_esquerda", "coxas"]
+      ];
+
+      pares.forEach(([direita, esquerda, nome]) => {
+        const valorD = respostas[direita];
+        const valorE = respostas[esquerda];
+
+        if (valorD === "" || valorE === "") return;
+        if (valorD == null || valorE == null) return;
+
+        const diferenca = Math.abs(
+          Number(valorD) - Number(valorE)
+        );
+
+        if (
+          Number.isFinite(diferenca) &&
+          diferenca >= 3
+        ) {
+          alertas.push(
+            `Diferença de ${diferenca.toFixed(1)} cm ` +
+            `entre os ${nome}.`
+          );
+        }
+      });
+
+      return alertas;
+    }
+
+    async function carregarRegistro() {
+      const consulta = await supabase
+        .from("anamneses")
+        .select(
+          "id, respostas, status, created_at"
+        )
+        .eq("aluno_id", alunoId)
+        .order("created_at", {
+          ascending: false
+        })
+        .limit(1)
+        .maybeSingle();
+
+      if (consulta.error) {
+        throw consulta.error;
       }
 
-      await window.salvarAnamnesePersonalizada(respostas);
+      if (!consulta.data) {
+        registroId = null;
+        respostasSalvas = {};
+        statusRegistro = "pendente";
+        atualizarStatusVisual();
+        return;
+      }
 
-      resultado.style.color = "#d4af37";
-      resultado.textContent =
-        "Anamnese personalizada salva com sucesso! " +
-        (alertasMedidas.length
-          ? "Atenção às medidas informadas: " +
-            alertasMedidas.join(" ") +
-            " Confira as medições com o profissional."
-          : "");
+      registroId = consulta.data.id;
+      respostasSalvas =
+        consulta.data.respostas || {};
+      statusRegistro =
+        consulta.data.status || "pendente";
 
-    } catch (erro) {
-      console.error("Erro ao salvar anamnese:", erro);
-      resultado.style.color = "#ff9999";
-      resultado.textContent =
-        "Não foi possível salvar a anamnese. Tente novamente.";
-    } finally {
-      botao.disabled = false;
+      preencherTriagem(
+        respostasSalvas.triagem_saude
+      );
+
+      preencherFormulario(
+        $("form_anamnese"),
+        respostasSalvas.anamnese_personalizada
+      );
+
+      atualizarStatusVisual();
     }
-  });
-</script>
 
+    async function salvarRespostas(tipo, respostas) {
+      if (!alunoId) {
+        throw new Error(
+          "Aluno não identificado. Entre novamente."
+        );
+      }
 
-<script defer src="./avaliacao-fotografica.js?v=2"></script>
+      if (salvando) {
+        throw new Error(
+          "Aguarde o salvamento anterior terminar."
+        );
+      }
 
+      salvando = true;
+
+      try {
+        // Reconsulta o registro mais recente para
+        // preservar respostas de outras etapas.
+        const consulta = await supabase
+          .from("anamneses")
+          .select("id, respostas, status, created_at")
+          .eq("aluno_id", alunoId)
+          .order("created_at", {
+            ascending: false
+          })
+          .limit(1)
+          .maybeSingle();
+
+        if (consulta.error) {
+          throw consulta.error;
+        }
+
+        if (!consulta.data) {
+          throw new Error(
+            "Nenhuma anamnese foi enviada pelo " +
+            "treinador. Solicite o envio antes de responder."
+          );
+        }
+
+        const atualizadas = {
+          ...(consulta.data.respostas || {}),
+          [tipo]: respostas
+        };
+
+        const novoStatus = calcularStatus(
+          atualizadas
+        );
+
+        const alteracoes = {
+          respostas: atualizadas,
+          status: novoStatus,
+          concluida_em:
+            novoStatus === "concluida"
+              ? new Date().toISOString()
+              : null
+        };
+
+        const resultado = await supabase
+          .from("anamneses")
+          .update(alteracoes)
+          .eq("id", consulta.data.id)
+          .eq("aluno_id", alunoId)
+          .select("id, respostas, status")
+          .single();
+
+        if (resultado.error) {
+          throw resultado.error;
+        }
+
+        if (!resultado.data) {
+          throw new Error(
+            "Não foi possível confirmar o salvamento."
+          );
+        }
+
+        registroId = resultado.data.id;
+        respostasSalvas =
+          resultado.data.respostas || {};
+        statusRegistro =
+          resultado.data.status || novoStatus;
+
+        atualizarStatusVisual();
+
+      } finally {
+        salvando = false;
+      }
+    }
+
+    $("form_triagem").addEventListener(
+      "submit",
+      async evento => {
+        evento.preventDefault();
+
+        const formulario = evento.currentTarget;
+        const botao = $("validar_triagem");
+
+        if (!formulario.reportValidity()) return;
+
+        const respostas = coletarTriagem();
+
+        if (!triagemCompleta(respostas)) {
+          mostrarResultado(
+            "resultado_triagem",
+            "Responda todas as perguntas e descreva " +
+            "as condições assinaladas como Sim.",
+            true
+          );
+          return;
+        }
+
+        botao.disabled = true;
+
+        mostrarResultado(
+          "resultado_triagem",
+          "Salvando triagem..."
+        );
+
+        try {
+          await salvarRespostas(
+            "triagem_saude",
+            respostas
+          );
+
+          const existeSim = Object.values(
+            respostas
+          ).some(item => item.resposta === "sim");
+
+          mostrarResultado(
+            "resultado_triagem",
+            existeSim
+              ? "Triagem salva. Suas condições serão " +
+                "analisadas pelo treinador."
+              : "Triagem salva com sucesso."
+          );
+
+        } catch (erro) {
+          console.error(
+            "Erro ao salvar triagem:",
+            erro
+          );
+
+          mostrarResultado(
+            "resultado_triagem",
+            erro.message,
+            true
+          );
+
+        } finally {
+          botao.disabled = false;
+        }
+      }
+    );
+
+    $("form_anamnese").addEventListener(
+      "submit",
+      async evento => {
+        evento.preventDefault();
+
+        const formulario = evento.currentTarget;
+        const botao = $("salvar_anamnese");
+
+        if (!formulario.reportValidity()) return;
+
+        const respostas = coletarAnamnese();
+
+        try {
+          validarDores(respostas);
+
+          botao.disabled = true;
+
+          mostrarResultado(
+            "resultado_anamnese",
+            "Salvando anamnese..."
+          );
+
+          await salvarRespostas(
+            "anamnese_personalizada",
+            respostas
+          );
+
+          const alertas = alertasDeMedidas(
+            respostas
+          );
+
+          mostrarResultado(
+            "resultado_anamnese",
+            "Anamnese salva com sucesso!" +
+            (
+              alertas.length
+                ? "\nConfira as medidas com o treinador: " +
+                  alertas.join(" ")
+                : ""
+            )
+          );
+
+        } catch (erro) {
+          console.error(
+            "Erro ao salvar anamnese:",
+            erro
+          );
+
+          mostrarResultado(
+            "resultado_anamnese",
+            erro.message,
+            true
+          );
+
+        } finally {
+          botao.disabled = false;
+        }
+      }
+    );
+
+    function carregarModuloFotografico() {
+      if (
+        document.querySelector(
+          'script[src*="avaliacao-fotografica.js"]'
+        )
+      ) {
+        return;
+      }
+
+      const script = document.createElement("script");
+
+      script.src =
+        "./avaliacao-fotografica.js?v=21";
+
+      script.defer = true;
+
+      script.onerror = () => {
+        console.error(
+          "Não foi possível carregar " +
+          "a avaliação fotográfica."
+        );
+      };
+
+      document.body.appendChild(script);
+    }
+
+    async function verificarAcesso() {
+      try {
+        const autenticacao =
+          await supabase.auth.getUser();
+
+        if (
+          autenticacao.error ||
+          !autenticacao.data?.user
+        ) {
+          throw new Error(
+            "Faça login como aluno para " +
+            "acessar sua anamnese."
+          );
+        }
+
+        const usuario = autenticacao.data.user;
+
+        const consultaAluno = await supabase
+          .from("alunos")
+          .select("id, nome_completo")
+          .eq("user_id", usuario.id)
+          .maybeSingle();
+
+        if (consultaAluno.error) {
+          throw consultaAluno.error;
+        }
+
+        if (!consultaAluno.data) {
+          throw new Error(
+            "Acesso restrito a alunos cadastrados."
+          );
+        }
+
+        alunoId = consultaAluno.data.id;
+
+        $("nome_aluno").textContent =
+          "Aluno(a): " +
+          (
+            consultaAluno.data.nome_completo ||
+            "Cadastro identificado"
+          );
+
+        montarTriagem();
+        montarAnamnese();
+
+        await carregarRegistro();
+
+        $("carregamento").classList.add("oculto");
+        $("conteudo").style.display = "block";
+
+        carregarModuloFotografico();
+
+      } catch (erro) {
+        console.error(
+          "Erro ao verificar acesso:",
+          erro
+        );
+
+        $("mensagem_acesso").textContent =
+          erro.message;
+
+        $("mensagem_acesso").className =
+          "erro";
+      }
+    }
+
+    verificarAcesso();
+  </script>
 </body>
 </html>
