@@ -166,6 +166,29 @@ footer{
   .card{padding:16px}
   .metric span{font-size:17px}
 }
+
+/* Painel de navegacao WAND METHOD */
+:root{color-scheme:dark}
+header{max-width:100%;padding:16px max(18px,calc((100vw - 850px)/2));}
+main{max-width:850px;padding:22px 16px 90px}
+.dashboard-title{margin:5px 0 4px;font-size:26px}
+.dashboard-subtitle{color:var(--muted);font-size:14px;margin:0 0 18px}
+.welcome{background:#1c1c1c;border:1px solid #34302a;border-radius:15px;padding:18px;margin:16px 0 20px}
+.welcome strong{display:block;font-size:19px;margin-bottom:6px}
+.welcome p{margin:0;color:#bbb;font-size:14px}
+.nav-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.nav-tile{background:#202020;border:1px solid #3c3832;border-radius:14px;padding:17px 14px;min-height:123px;color:#fff;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:9px;text-decoration:none;cursor:pointer;font:inherit;transition:border-color .15s,background .15s}
+.nav-tile:hover,.nav-tile:focus-visible{border-color:var(--gold);background:#28231b;outline-offset:2px}
+.nav-icon{font-size:24px;line-height:1;color:var(--gold)}
+.nav-name{font-weight:700;font-size:15px}
+.nav-desc{font-size:12px;color:#b8b8b8;line-height:1.35}
+.panel-view{margin-top:18px}
+.panel-view[hidden],#homeView[hidden]{display:none!important}
+.back-btn{background:none;border:1px solid #62552d;border-radius:9px;color:var(--gold);font:inherit;font-weight:700;padding:11px 15px;cursor:pointer;margin-bottom:8px}
+.module-note{border:1px solid #4c412a;background:#211c13;padding:16px;border-radius:12px;color:#ddd;line-height:1.5}
+#statusPagina:empty{display:none}
+@media(max-width:370px){.nav-grid{gap:9px}.nav-tile{padding:13px 10px}.nav-name{font-size:13px}.nav-desc{font-size:11px}}
+
 </style>
 </head>
 
@@ -182,104 +205,33 @@ footer{
 <main>
 
 <div class="tag">Área do aluno</div>
-<h1 id="saudacao">Bem-vindo ao WAND METHOD!</h1>
-<p>Seu espaço para acompanhar sua evolução física.</p>
-
-<p id="statusPagina">Carregando seus dados...</p>
+<h1 id="saudacao" class="dashboard-title">Bem-vindo ao WAND METHOD!</h1>
+<p class="dashboard-subtitle">Sua evolução em um só lugar.</p>
+<p id="statusPagina" role="status">Carregando seus dados...</p>
 
 <div id="painel" class="hidden">
+  <section id="homeView" aria-label="Menu do aluno">
+    <div class="welcome"><strong>Meu acompanhamento</strong><p>Acesse seus dados, avaliações e evolução física.</p></div>
+    <nav class="nav-grid" aria-label="Áreas do aluno">
+      <button type="button" class="nav-tile" data-view="treinos"><span class="nav-icon">🏋</span><span class="nav-name">Meus Treinos</span><span class="nav-desc">Exercícios e séries</span></button>
+      <button type="button" class="nav-tile" data-view="ficha"><span class="nav-icon">▤</span><span class="nav-name">Minha Ficha</span><span class="nav-desc">Dados e saúde</span></button>
+      <a class="nav-tile" href="anamnese.html"><span class="nav-icon">♡</span><span class="nav-name">Anamnese</span><span class="nav-desc">Histórico e rotina</span></a>
+      <button type="button" class="nav-tile" data-view="avaliacoes"><span class="nav-icon">⌁</span><span class="nav-name">Avaliação Física</span><span class="nav-desc">Medidas corporais</span></button>
+      <button type="button" class="nav-tile" data-view="fotografica"><span class="nav-icon">▣</span><span class="nav-name">Avaliação Fotográfica</span><span class="nav-desc">Frente, perfil e costas</span></button>
+      <button type="button" class="nav-tile" data-view="evolucao"><span class="nav-icon">↗</span><span class="nav-name">Minha Evolução</span><span class="nav-desc">Gráficos e resultados</span></button>
+      <button type="button" class="nav-tile" data-view="coins"><span class="nav-icon">★</span><span class="nav-name">WAND Coins</span><span class="nav-desc">Conquistas e recompensas</span></button>
+      <button type="button" class="nav-tile" data-view="treinador"><span class="nav-icon">☏</span><span class="nav-name">Meu Treinador</span><span class="nav-desc">Contato e suporte</span></button>
+    </nav>
+  </section>
 
-<section class="card highlight">
-<div class="tag">Sua jornada</div>
-<h2>Meu acompanhamento</h2>
-<p>
-Acompanhe suas avaliações físicas, medidas,
-resultados e orientações profissionais.
-</p>
-<div class="actions">
-<a class="button" href="#avaliacoes">
-VER MINHAS AVALIAÇÕES
-</a>
-<a class="button secondary" href="#evolucao">
-MINHA EVOLUÇÃO
-</a>
-</div>
-</section>
-
-<section class="card">
-<h2>Minha anamnese</h2>
-<p>
-Questionário de saúde e informações para
-personalizar seu acompanhamento.
-</p>
-<a class="button" href="anamnese.html">
-ACESSAR ANAMNESE
-</a>
-</section>
-
-<section class="card" id="avaliacoes">
-<h2>Minhas avaliações físicas</h2>
-<p class="muted">
-Somente avaliações finalizadas e liberadas
-pelo treinador aparecem nesta área.
-</p>
-<div id="listaAvaliacoes">
-Carregando avaliações...
-</div>
-</section>
-
-<section class="card" id="evolucao">
-<h2>Minha evolução física</h2>
-<p class="muted">
-Compare suas avaliações e acompanhe as
-mudanças nas medidas corporais.
-</p>
-<div id="graficos">
-Carregando evolução...
-</div>
-</section>
-
-<section class="card">
-<h2>Meus treinos</h2>
-<p>
-Em breve, você poderá consultar seus exercícios,
-séries, repetições e progressões aqui.
-</p>
-<p class="muted">Módulo em desenvolvimento.</p>
-</section>
-
-<section class="card">
-<h2>WAND Coins</h2>
-<p>
-Conquiste recompensas por sua consistência
-e evolução.
-</p>
-<p class="muted">
-A pontuação será exibida quando
-o módulo estiver disponível.
-</p>
-</section>
-
-<section class="card">
-<h2>Meu treinador</h2>
-<p>
-Precisa de orientação sobre sua avaliação
-ou seu treinamento?
-</p>
-<a class="button"
-href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o."
-target="_blank"
-rel="noopener noreferrer">
-FALAR PELO WHATSAPP
-</a>
-</section>
-
-<div class="actions">
-<button class="button secondary" id="sair">
-SAIR DA MINHA CONTA
-</button>
-</div>
-
+  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="module-note">O módulo de prescrição e acompanhamento de treinos ainda está em desenvolvimento. Seus exercícios, séries e progressões aparecerão aqui quando estiver disponível.</p></div></section>
+  <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div><a class="button secondary" href="anamnese.html">ACESSAR ANAMNESE</a></div></section>
+  <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div></section>
+  <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div></section>
+  <section class="panel-view" id="view-evolucao" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Compare suas avaliações e acompanhe as mudanças nas medidas corporais.</p><div id="graficos">Carregando evolução...</div></div></section>
+  <section class="panel-view" id="view-coins" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>WAND Coins</h2><p class="module-note">O sistema de pontos e recompensas está em desenvolvimento. Sua pontuação será exibida quando o módulo estiver disponível.</p></div></section>
+  <section class="panel-view" id="view-treinador" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu Treinador</h2><p>Precisa de orientação sobre sua avaliação ou treinamento?</p><a class="button" href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o." target="_blank" rel="noopener noreferrer">FALAR PELO WHATSAPP</a></div></section>
+  <div class="actions"><button class="button secondary" id="sair" type="button">SAIR DA MINHA CONTA</button></div>
 </div>
 </main>
 
@@ -815,6 +767,11 @@ $("saudacao").textContent=
 "Olá, "+primeiroNome+"! 👋";
 
 $("painel").classList.remove("hidden");
+
+const ficha=$("dadosFicha");
+ficha.replaceChildren();
+adicionar(ficha,"strong",alunoAtual.nome_completo||"Aluno");
+adicionar(ficha,"p","Cadastro vinculado à sua conta WAND METHOD.","muted");
 $("statusPagina").textContent="";
 
 await carregarAvaliacoes();
@@ -831,6 +788,34 @@ $("statusPagina").textContent=
 (erro.message||String(erro));
 }
 }
+
+
+// Navegacao do painel: conserva os IDs e as rotinas de avaliacao originais.
+const VIEWS=["treinos","ficha","avaliacoes","fotografica","evolucao","coins","treinador"];
+function mostrarVista(nome){
+  const valido=VIEWS.includes(nome)?nome:null;
+  $("homeView").hidden=Boolean(valido);
+  for(const id of VIEWS) $("view-"+id).hidden=id!==valido;
+  if(valido==="fotografica") acomodarFotografias();
+  window.scrollTo({top:0,behavior:"instant"});
+}
+function acomodarFotografias(){
+  const modulo=document.getElementById("wand-fotos");
+  const destino=$("fotografiaDestino");
+  if(modulo&&destino&&modulo.parentElement!==destino) destino.appendChild(modulo);
+  $("fotografiaAjuda").hidden=Boolean(modulo);
+}
+for(const btn of document.querySelectorAll("[data-view]")){
+  btn.addEventListener("click",()=>mostrarVista(btn.dataset.view));
+}
+for(const btn of document.querySelectorAll("[data-home]")){
+  btn.addEventListener("click",()=>mostrarVista(null));
+}
+// O modulo fotografico e carregado por outro script; pode terminar depois.
+const observadorFotos=new MutationObserver(()=>{
+  if(!$("view-fotografica").hidden) acomodarFotografias();
+});
+observadorFotos.observe(document.body,{childList:true,subtree:false});
 
 $("sair").addEventListener("click",sair);
 
