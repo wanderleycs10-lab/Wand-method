@@ -1,25 +1,15 @@
 
-/*
-  WAND METHOD
-  Avaliação Fotográfica — versão 2.0
-
-  Páginas:
-  anamnese.html
-  perfil-aluno.html
-  aluno.html
-
-  Armazenamento privado: avaliacoes-fotograficas
-*/
 (() => {
   "use strict";
 
   if (window.__wandFotosV2) return;
   window.__wandFotosV2 = true;
 
+  // WAND METHOD - Avaliacao Fotografica 2.1
   const URL_DB = "https://kvxdnreipuahoaostlle.supabase.co";
   const CHAVE_DB = "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo";
   const BUCKET = "avaliacoes-fotograficas";
-  const VERSAO = "2.0";
+  const VERSAO = "2.1";
 
   const pagina = location.pathname.split("/").pop();
   const paginas = [
@@ -30,13 +20,17 @@
 
   if (!paginas.includes(pagina)) return;
 
-  let db, usuario, aluno, consentimento;
+  let db;
+  let usuario;
+  let aluno;
+  let consentimento = null;
   let fotos = [];
   let processando = false;
   let exibirTermos = false;
   let guia = "masculino";
 
   const estilo = document.createElement("style");
+
   estilo.textContent = `
     #wand-fotos {
       --ouro:#f5cc37;
@@ -59,24 +53,33 @@
       box-sizing:border-box;
       clear:both;
     }
-    #wand-fotos * {box-sizing:border-box}
+
+    #wand-fotos * {
+      box-sizing:border-box;
+    }
+
     #wand-fotos h2 {
       margin:0 0 10px;
       color:#fff;
       font-size:24px;
     }
+
     #wand-fotos h3 {
       color:var(--ouro);
       font-size:17px;
       margin:0 0 10px;
     }
-    #wand-fotos p, #wand-fotos li {
+
+    #wand-fotos p,
+    #wand-fotos li {
       line-height:1.55;
     }
+
     #wand-fotos .wf-muted {
       color:#c5c5c5;
       font-size:14px;
     }
+
     #wand-fotos .wf-box {
       background:var(--painel);
       border:1px solid #424242;
@@ -84,6 +87,7 @@
       padding:16px;
       margin:15px 0;
     }
+
     #wand-fotos .wf-warning {
       background:#342a13;
       border-left:4px solid var(--ouro);
@@ -91,12 +95,14 @@
       padding:13px;
       margin:15px 0;
     }
+
     #wand-fotos .wf-grid {
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
       gap:12px;
       margin:18px 0;
     }
+
     #wand-fotos .wf-card {
       background:#202020;
       border:1px solid #555;
@@ -105,26 +111,30 @@
       text-align:center;
       min-width:0;
     }
+
     #wand-fotos .wf-image {
       width:100%;
       aspect-ratio:3/4;
-      background:#dedede;
+      background:#e9e7e3;
       border-radius:8px;
       overflow:hidden;
       display:flex;
       align-items:center;
       justify-content:center;
     }
+
     #wand-fotos .wf-image img,
     #wand-fotos .wf-image svg {
       width:100%;
       height:100%;
       object-fit:contain;
     }
+
     #wand-fotos .wf-card strong {
       display:block;
       margin:10px 0;
     }
+
     #wand-fotos .wf-button {
       display:inline-block;
       background:var(--ouro);
@@ -138,39 +148,47 @@
       cursor:pointer;
       max-width:100%;
     }
+
     #wand-fotos .wf-button.secondary {
       background:#353535;
       color:#fff;
       border:1px solid #777;
     }
+
     #wand-fotos .wf-button:disabled {
       opacity:.5;
       cursor:not-allowed;
     }
+
     #wand-fotos .wf-card .wf-button {
       display:block;
       width:100%;
     }
+
     #wand-fotos .wf-actions {
       display:flex;
       flex-wrap:wrap;
       gap:9px;
       margin:12px 0;
     }
+
     #wand-fotos .wf-status {
       font-weight:bold;
       color:var(--ouro);
     }
+
     #wand-fotos label {
       display:block;
       margin:12px 0;
       line-height:1.5;
     }
+
     #wand-fotos input[type=checkbox],
     #wand-fotos input[type=radio] {
       accent-color:var(--ouro);
       margin-right:8px;
     }
+
     #wand-fotos .wf-term {
       white-space:pre-wrap;
       overflow:auto;
@@ -183,13 +201,21 @@
       line-height:1.6;
       color:#ddd;
     }
-    #wand-fotos .wf-error {color:#ff9999}
-    #wand-fotos .wf-success {color:#77e2a3}
+
+    #wand-fotos .wf-error {
+      color:#ff9999;
+    }
+
+    #wand-fotos .wf-success {
+      color:#77e2a3;
+    }
+
     #wand-fotos .wf-history {
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
       gap:12px;
     }
+
     #wand-fotos .wf-history img {
       width:100%;
       aspect-ratio:3/4;
@@ -197,102 +223,143 @@
       background:#ddd;
       border-radius:8px;
     }
+
     #wand-fotos .wf-small {
       color:#bcbcbc;
       font-size:12px;
     }
+
     @media(max-width:600px) {
-      #wand-fotos {padding:12px}
+      #wand-fotos {
+        padding:12px;
+      }
+
       #wand-fotos .wf-grid,
-      #wand-fotos .wf-history {gap:6px}
-      #wand-fotos .wf-card {padding:5px}
+      #wand-fotos .wf-history {
+        gap:6px;
+      }
+
+      #wand-fotos .wf-card {
+        padding:5px;
+      }
+
       #wand-fotos .wf-card .wf-button {
         font-size:11px;
         padding:9px 4px;
       }
     }
   `;
+
   document.head.appendChild(estilo);
 
-  const $ = (tag, classe, texto) => {
-    const e = document.createElement(tag);
-    if (classe) e.className = classe;
-    if (texto !== undefined) e.textContent = texto;
-    return e;
-  };
+  function criar(tag, classe, texto) {
+    const elemento = document.createElement(tag);
 
-  const add = (pai, tag, classe, texto) => {
-    const e = $(tag, classe, texto);
-    pai.appendChild(e);
-    return e;
-  };
+    if (classe) elemento.className = classe;
+    if (texto !== undefined) elemento.textContent = texto;
 
-  const button = (texto, acao, secondary = false) => {
-    const b = $("button",
-      "wf-button" + (secondary ? " secondary" : ""),
+    return elemento;
+  }
+
+  function adicionar(pai, tag, classe, texto) {
+    const elemento = criar(tag, classe, texto);
+    pai.appendChild(elemento);
+    return elemento;
+  }
+
+  function botao(texto, acao, secundario = false) {
+    const elemento = criar(
+      "button",
+      "wf-button" + (secundario ? " secondary" : ""),
       texto
     );
-    b.type = "button";
-    b.addEventListener("click", acao);
-    return b;
-  };
 
-  const container = $("section");
+    elemento.type = "button";
+    elemento.addEventListener("click", acao);
+
+    return elemento;
+  }
+
+  const container = criar("section");
   container.id = "wand-fotos";
 
   function montar() {
     if (!document.body) {
-      document.addEventListener("DOMContentLoaded", montar, {
-        once:true
-      });
+      document.addEventListener(
+        "DOMContentLoaded",
+        montar,
+        { once:true }
+      );
       return;
     }
 
     if (!container.isConnected) {
-      // Fora de formulários para evitar interferências.
       document.body.appendChild(container);
     }
 
     container.replaceChildren();
-    add(container, "h2", null,
-      "WAND METHOD | Avaliação Fotográfica");
-    add(container, "p", "wf-muted",
-      "Preparando o registro fotográfico...");
+
+    adicionar(
+      container,
+      "h2",
+      null,
+      "WAND METHOD | Avaliação Fotográfica"
+    );
+
+    adicionar(
+      container,
+      "p",
+      "wf-muted",
+      "Preparando o registro fotográfico..."
+    );
   }
 
   montar();
 
   function erroVisivel(erro) {
     console.error("[WAND FOTOS]", erro);
+
     container.replaceChildren();
 
-    add(container, "h2", null,
-      "Avaliação Fotográfica");
+    adicionar(
+      container,
+      "h2",
+      null,
+      "Avaliação Fotográfica"
+    );
 
-    add(container, "p", "wf-error",
+    adicionar(
+      container,
+      "p",
+      "wf-error",
       "Não foi possível carregar o módulo: " +
-      (erro?.message || String(erro)));
+      (erro?.message || String(erro))
+    );
 
     container.appendChild(
-      button("Tentar novamente", iniciar)
+      botao("Tentar novamente", iniciar)
     );
   }
 
   function mostrarMensagem(texto, falha = false) {
-    let e = container.querySelector("#wf-mensagem");
+    let elemento = container.querySelector("#wf-mensagem");
 
-    if (!e) {
-      e = add(container, "p");
-      e.id = "wf-mensagem";
+    if (!elemento) {
+      elemento = adicionar(container, "p");
+      elemento.id = "wf-mensagem";
     }
 
-    e.className = falha ? "wf-error" : "wf-success";
-    e.textContent = texto;
+    elemento.className = falha
+      ? "wf-error"
+      : "wf-success";
+
+    elemento.textContent = texto;
   }
 
-  function dataBR(v) {
-    if (!v) return "—";
-    return new Date(v).toLocaleDateString("pt-BR");
+  function dataBR(valor) {
+    if (!valor) return "—";
+
+    return new Date(valor).toLocaleDateString("pt-BR");
   }
 
   function statusAtual() {
@@ -300,84 +367,400 @@
   }
 
   function ultimaFoto(posicao) {
-    return fotos.find(f => f.posicao === posicao);
+    return fotos.find(foto => foto.posicao === posicao);
   }
 
+  // GUIAS VISUAIS - FRENTE, PERFIL E COSTAS
+
   function desenho(posicao) {
-    // Figura orientativa, não uma fotografia real.
     const feminino = guia === "feminino";
+
     const pele = "#c99b78";
-    const roupa = "#222";
+    const sombra = "#ae7958";
+    const roupa = "#242424";
+    const detalhe = "#956849";
 
-    const frente = `
-      <ellipse cx="100" cy="45" rx="17" ry="21"
-        fill="${pele}"/>
-      <path d="M85 66 L73 82 L77 170 L123 170
-        L127 82 L115 66 Z" fill="${pele}"/>
-      <path d="M74 80 L60 91 L51 158 L55 183
-        L65 183 L68 155 L84 98 Z" fill="${pele}"/>
-      <path d="M126 80 L140 91 L149 158 L145 183
-        L135 183 L132 155 L116 98 Z" fill="${pele}"/>
-      <path d="M77 168 L74 281 L92 281
-        L100 185 L108 281 L126 281
-        L123 168 Z" fill="${pele}"/>
-      <path d="M74 277 L68 294 L92 294 L92 280 Z"
-        fill="${pele}"/>
-      <path d="M108 280 L108 294 L132 294
-        L126 277 Z" fill="${pele}"/>
-      <path d="M77 164 L123 164 L119 187
-        L105 187 L100 179 L95 187 L81 187 Z"
-        fill="${roupa}"/>
-      ${feminino ? `
-        <path d="M82 89 L118 89 L122 115
-          L78 115 Z" fill="${roupa}"/>
-      ` : ""}
+    const fundo = `
+      <rect width="240" height="360" fill="#e9e7e3"/>
+
+      <line
+        x1="120" y1="12"
+        x2="120" y2="342"
+        stroke="#c9b76f"
+        stroke-width="1"
+        stroke-dasharray="5 5"
+      />
+
+      <line
+        x1="24" y1="340"
+        x2="216" y2="340"
+        stroke="#b6b6b6"
+        stroke-width="2"
+      />
     `;
 
-    const perfil = `
-      <ellipse cx="108" cy="45" rx="15" ry="21"
-        fill="${pele}"/>
-      <path d="M94 66 Q124 69 123 101
-        L117 171 L92 171 L88 101 Z"
-        fill="${pele}"/>
-      <path d="M111 85 L125 98 L124 169
-        L119 184 L110 181 L112 160
-        L110 112 Z" fill="${pele}"/>
-      <path d="M93 168 L90 281 L110 281
-        L112 185 L118 281 L135 281
-        L118 168 Z" fill="${pele}"/>
-      <path d="M90 278 L86 294 L112 294
-        L110 280 Z" fill="${pele}"/>
-      <path d="M118 279 L114 294 L138 294
-        L135 280 Z" fill="${pele}"/>
-      <path d="M93 163 L118 163 L123 187
-        L96 187 Z" fill="${roupa}"/>
-      ${feminino ? `
-        <path d="M92 92 L121 92 L121 115
-          L92 115 Z" fill="${roupa}"/>
-      ` : ""}
+    const cabecaFrente = `
+      <path
+        d="M104 31 Q104 15 120 15
+           Q136 15 136 31 L135 49
+           Q132 65 120 68
+           Q108 65 105 49 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M104 35 Q101 17 112 12
+           Q120 8 129 13
+           Q140 18 136 36
+           L133 26 Q119 19 106 28 Z"
+        fill="#40332d"
+      />
+
+      <path
+        d="M112 69 L112 83 L128 83 L128 69"
+        fill="${pele}"
+      />
     `;
 
-    const figura = posicao === "perfil"
-      ? perfil
-      : frente;
+    const cabecaCostas = `
+      <path
+        d="M104 31 Q104 15 120 15
+           Q136 15 136 31 L135 49
+           Q132 65 120 68
+           Q108 65 105 49 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M104 43 Q99 16 113 12
+           Q125 7 134 16
+           Q140 24 136 46
+           Q120 53 104 43 Z"
+        fill="#40332d"
+      />
+
+      <path
+        d="M112 69 L112 83 L128 83 L128 69"
+        fill="${pele}"
+      />
+    `;
+
+    const tronco = `
+      <path
+        d="M110 79
+           Q94 82 83 90
+           Q76 100 81 120
+           L91 157
+           Q96 179 92 198
+           Q120 209 148 198
+           Q144 179 149 157
+           L159 120
+           Q164 100 157 90
+           Q146 82 130 79
+           Q125 87 120 87
+           Q115 87 110 79 Z"
+        fill="${pele}"
+      />
+    `;
+
+    const bracos = `
+      <path
+        d="M84 91
+           Q75 91 70 105
+           L61 163 L57 199
+           Q57 208 63 210
+           Q69 211 71 203
+           L77 170 L91 119 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M156 91
+           Q165 91 170 105
+           L179 163 L183 199
+           Q183 208 177 210
+           Q171 211 169 203
+           L163 170 L149 119 Z"
+        fill="${pele}"
+      />
+    `;
+
+    const pernas = `
+      <path
+        d="M94 195
+           Q90 217 94 251
+           L97 317
+           Q97 329 106 329
+           Q115 328 115 316
+           L119 238 L120 207 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M146 195
+           Q150 217 146 251
+           L143 317
+           Q143 329 134 329
+           Q125 328 125 316
+           L121 238 L120 207 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M98 321
+           Q95 333 90 337
+           Q89 342 106 342
+           Q116 342 113 334
+           L110 322 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M142 321
+           Q145 333 150 337
+           Q151 342 134 342
+           Q124 342 127 334
+           L130 322 Z"
+        fill="${pele}"
+      />
+    `;
+
+    const sunga = `
+      <path
+        d="M92 194
+           Q120 201 148 194
+           L145 217
+           Q132 225 121 231
+           Q108 225 95 217 Z"
+        fill="${roupa}"
+      />
+    `;
+
+    const top = feminino ? `
+      <path
+        d="M94 91
+           Q106 94 120 94
+           Q134 94 146 91
+           L151 125
+           Q120 133 89 125 Z"
+        fill="${roupa}"
+      />
+
+      <path
+        d="M101 88 L106 78
+           M139 88 L134 78"
+        fill="none"
+        stroke="${roupa}"
+        stroke-width="7"
+      />
+    ` : "";
+
+    const short = feminino ? `
+      <path
+        d="M92 194
+           Q120 201 148 194
+           L151 227 L124 229
+           L120 214 L116 229
+           L89 227 Z"
+        fill="${roupa}"
+      />
+    ` : sunga;
+
+    const detalhesFrente = `
+      <path
+        d="M101 137 Q120 144 139 137"
+        fill="none"
+        stroke="${sombra}"
+        stroke-width="1.4"
+        opacity=".55"
+      />
+
+      <path
+        d="M120 151 L120 183"
+        fill="none"
+        stroke="${sombra}"
+        stroke-width="1.2"
+        opacity=".5"
+      />
+
+      <circle
+        cx="120" cy="180" r="1.5"
+        fill="${detalhe}"
+      />
+    `;
+
+    const detalhesCostas = `
+      <path
+        d="M120 88 L120 190"
+        stroke="${detalhe}"
+        stroke-width="1.3"
+        fill="none"
+        opacity=".65"
+      />
+
+      <path
+        d="M104 98 Q90 113 103 145
+           M136 98 Q150 113 137 145"
+        stroke="${sombra}"
+        stroke-width="2"
+        fill="none"
+        opacity=".7"
+      />
+
+      <path
+        d="M100 150 Q120 161 140 150"
+        stroke="${sombra}"
+        stroke-width="1.3"
+        fill="none"
+        opacity=".5"
+      />
+    `;
+
+    const corpoFrente = `
+      ${pernas}
+      ${bracos}
+      ${tronco}
+      ${cabecaFrente}
+      ${feminino ? "" : detalhesFrente}
+      ${top}
+      ${short}
+    `;
+
+    const corpoCostas = `
+      ${pernas}
+      ${bracos}
+      ${tronco}
+      ${cabecaCostas}
+      ${detalhesCostas}
+      ${top}
+      ${short}
+    `;
+
+    const corpoPerfil = `
+      <path
+        d="M116 18
+           Q131 15 136 30
+           L138 47
+           Q136 61 124 68
+           L116 65
+           Q110 55 111 41
+           L109 34 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M115 20
+           Q125 9 135 20
+           Q140 28 136 39
+           L132 29
+           Q124 25 115 31 Z"
+        fill="#40332d"
+      />
+
+      <path
+        d="M119 67
+           L119 83 L131 83 L131 67"
+        fill="${pele}"
+      />
+
+      <path
+        d="M118 80
+           Q137 79 142 97
+           Q148 114 141 143
+           Q137 165 143 196
+           L112 198
+           Q108 172 111 150
+           Q107 125 110 104
+           Q109 91 118 80 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M135 91
+           Q145 94 146 109
+           L143 170 L143 204
+           Q143 212 137 212
+           Q131 211 132 202
+           L130 165 L128 112 Z"
+        fill="${sombra}"
+      />
+
+      <path
+        d="M113 195
+           Q111 224 116 259
+           L115 321
+           Q115 330 124 330
+           Q131 329 130 318
+           L132 248 L141 202 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M131 198
+           Q140 219 141 248
+           L144 321
+           Q145 330 153 330
+           Q161 329 158 317
+           L155 248 L145 194 Z"
+        fill="${sombra}"
+      />
+
+      <path
+        d="M116 321 L112 339
+           Q112 343 132 342
+           L130 322 Z"
+        fill="${pele}"
+      />
+
+      <path
+        d="M145 321 L143 339
+           Q143 343 163 342
+           L158 322 Z"
+        fill="${sombra}"
+      />
+
+      ${feminino ? `
+        <path
+          d="M112 93 L141 93
+             L142 122 L110 122 Z"
+          fill="${roupa}"
+        />
+
+        <path
+          d="M112 193 L145 193
+             L149 225 L115 225 Z"
+          fill="${roupa}"
+        />
+      ` : `
+        <path
+          d="M112 193 L145 193
+             L146 218 L116 221 Z"
+          fill="${roupa}"
+        />
+      `}
+    `;
+
+    const figura =
+      posicao === "perfil"
+        ? corpoPerfil
+        : posicao === "costas"
+          ? corpoCostas
+          : corpoFrente;
 
     return `
-      <svg xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 200 320"
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 240 360"
         role="img"
-        aria-label="Guia de posição ${posicao}">
-        <rect width="200" height="320" fill="#e7e7e7"/>
-        <line x1="20" y1="297" x2="180" y2="297"
-          stroke="#aaa"/>
+        aria-label="Modelo ${guia}, posição ${posicao}"
+      >
+        ${fundo}
         ${figura}
-        ${posicao === "costas" ? `
-          <path d="M100 82 L100 152"
-            stroke="#a97d5c" stroke-width="1.5"/>
-        ` : ""}
       </svg>
     `;
   }
+
+  // TERMOS DE AUTORIZACAO
 
   const TERMO_AVALIACAO = `
 TERMO DE REGISTRO FOTOGRÁFICO — VERSÃO ${VERSAO}
@@ -423,28 +806,39 @@ A autorização poderá ser revogada, observadas
 as condições legais aplicáveis.
 `;
 
+  // CONSULTA DOS REGISTROS
+
   async function buscar() {
-    const c = await db
+    const consultaConsentimento = await db
       .from("consentimentos_fotograficos")
       .select("*")
       .eq("aluno_id", aluno.id)
       .maybeSingle();
 
-    if (c.error) throw c.error;
-    consentimento = c.data;
+    if (consultaConsentimento.error) {
+      throw consultaConsentimento.error;
+    }
 
-    const f = await db
+    consentimento = consultaConsentimento.data;
+
+    const consultaFotos = await db
       .from("fotos_avaliacao")
       .select("*")
       .eq("aluno_id", aluno.id)
-      .order("criado_em", {ascending:false});
+      .order("criado_em", { ascending:false });
 
-    if (f.error) throw f.error;
-    fotos = f.data || [];
+    if (consultaFotos.error) {
+      throw consultaFotos.error;
+    }
+
+    fotos = consultaFotos.data || [];
   }
+
+  // SALVAR CONSENTIMENTO
 
   async function salvarConsentimento(status, divulgacao) {
     if (processando) return;
+
     processando = true;
 
     try {
@@ -455,66 +849,98 @@ as condições legais aplicáveis.
       }
 
       const registro = {
-        aluno_id:aluno.id,
-        status_avaliacao:status,
+        aluno_id: aluno.id,
+        status_avaliacao: status,
         divulgacao_autorizada:
           status === "autorizada" && divulgacao,
-        versao_termo:VERSAO,
-        atualizado_por:usuario.id,
-        atualizado_em:new Date().toISOString()
+        versao_termo: VERSAO,
+        atualizado_por: usuario.id,
+        atualizado_em: new Date().toISOString()
       };
 
-      const r = await db
+      const resultado = await db
         .from("consentimentos_fotograficos")
-        .upsert(registro, {onConflict:"aluno_id"});
+        .upsert(registro, { onConflict:"aluno_id" });
 
-      if (r.error) throw r.error;
+      if (resultado.error) {
+        throw resultado.error;
+      }
 
       exibirTermos = false;
+
       await buscar();
       renderizar();
 
       mostrarMensagem("Sua escolha foi registrada.");
 
-    } catch (e) {
-      mostrarMensagem(e.message, true);
+    } catch (erro) {
+      mostrarMensagem(erro.message, true);
+
     } finally {
       processando = false;
     }
   }
 
+  // INTERFACE DOS TERMOS
+
   function criarTermos(pai) {
-    const caixa = add(pai, "div", "wf-box");
-    add(caixa, "h3", null,
-      "Autorização para avaliação fotográfica");
+    const caixa = adicionar(pai, "div", "wf-box");
 
-    add(caixa, "pre", "wf-term", TERMO_AVALIACAO);
+    adicionar(
+      caixa,
+      "h3",
+      null,
+      "Autorização para avaliação fotográfica"
+    );
 
-    const label = add(caixa, "label");
+    adicionar(
+      caixa,
+      "pre",
+      "wf-term",
+      TERMO_AVALIACAO
+    );
+
+    const label = adicionar(caixa, "label");
+
     const aceite = document.createElement("input");
     aceite.type = "checkbox";
+
     label.appendChild(aceite);
+
     label.append(
       "Li o termo e autorizo o registro fotográfico " +
       "para avaliação e acompanhamento."
     );
 
-    add(caixa, "h3", null,
-      "Autorização de divulgação — opcional");
+    adicionar(
+      caixa,
+      "h3",
+      null,
+      "Autorização de divulgação — opcional"
+    );
 
-    add(caixa, "pre", "wf-term", TERMO_DIVULGACAO);
+    adicionar(
+      caixa,
+      "pre",
+      "wf-term",
+      TERMO_DIVULGACAO
+    );
 
-    const simLabel = add(caixa, "label");
+    const simLabel = adicionar(caixa, "label");
+
     const sim = document.createElement("input");
     sim.type = "radio";
     sim.name = "wand-divulgacao-v2";
+
     simLabel.appendChild(sim);
     simLabel.append("Autorizo divulgação conforme o termo.");
 
-    const naoLabel = add(caixa, "label");
+    const naoLabel = adicionar(caixa, "label");
+
     const nao = document.createElement("input");
     nao.type = "radio";
     nao.name = "wand-divulgacao-v2";
+
     naoLabel.appendChild(nao);
     naoLabel.append("Não autorizo divulgação.");
 
@@ -525,7 +951,7 @@ as condições legais aplicáveis.
     }
 
     caixa.appendChild(
-      button("Autorizar avaliação e continuar", () => {
+      botao("Autorizar avaliação e continuar", () => {
         if (!aceite.checked) {
           mostrarMensagem(
             "Leia e aceite o termo de avaliação.",
@@ -533,49 +959,71 @@ as condições legais aplicáveis.
           );
           return;
         }
-        salvarConsentimento("autorizada", sim.checked);
+
+        salvarConsentimento(
+          "autorizada",
+          sim.checked
+        );
       })
     );
 
     caixa.appendChild(
-      button("Não quero realizar esta etapa", () => {
-        const ok = confirm(
+      botao("Não quero realizar esta etapa", () => {
+        const confirmado = confirm(
           "A avaliação fotográfica ficará incompleta. " +
           "Você poderá realizá-la posteriormente. " +
           "Deseja registrar sua recusa?"
         );
 
-        if (ok) {
+        if (confirmado) {
           salvarConsentimento("recusada", false);
         }
       }, true)
     );
   }
 
+  // AVISO DE RECUSA
+
   function avisoRecusa(pai) {
-    const caixa = add(pai, "div", "wf-warning");
+    const caixa = adicionar(pai, "div", "wf-warning");
 
-    add(caixa, "h3", null,
-      "Avaliação fotográfica recusada");
+    adicionar(
+      caixa,
+      "h3",
+      null,
+      "Avaliação fotográfica recusada"
+    );
 
-    add(caixa, "p", null,
+    adicionar(
+      caixa,
+      "p",
+      null,
       "No WAND METHOD, as fotografias ajudam a " +
       "acompanhar a evolução corporal e observar " +
-      "possíveis assimetrias posturais.");
+      "possíveis assimetrias posturais."
+    );
 
-    add(caixa, "p", null,
+    adicionar(
+      caixa,
+      "p",
+      null,
       "Sem esse registro, a avaliação ficará " +
       "incompleta na parte fotográfica. Isso " +
       "reduz as informações disponíveis para " +
-      "o acompanhamento individualizado.");
+      "o acompanhamento individualizado."
+    );
 
-    add(caixa, "p", null,
+    adicionar(
+      caixa,
+      "p",
+      null,
       "Seu treinamento poderá continuar. " +
-      "Você poderá realizar essa etapa depois.");
+      "Você poderá realizar essa etapa depois."
+    );
 
     if (pagina !== "perfil-aluno.html") {
       caixa.appendChild(
-        button("Quero realizar a avaliação", () => {
+        botao("Quero realizar a avaliação", () => {
           exibirTermos = true;
           renderizar();
         })
@@ -583,27 +1031,37 @@ as condições legais aplicáveis.
     }
   }
 
-  function validarArquivo(file) {
-    if (!file) throw new Error("Selecione uma imagem.");
+  // VALIDACAO DE ARQUIVOS
 
-    if (![
+  function validarArquivo(arquivo) {
+    if (!arquivo) {
+      throw new Error("Selecione uma imagem.");
+    }
+
+    const tiposPermitidos = [
       "image/jpeg",
       "image/png",
       "image/webp"
-    ].includes(file.type)) {
+    ];
+
+    if (!tiposPermitidos.includes(arquivo.type)) {
       throw new Error("Use JPG, PNG ou WebP.");
     }
 
-    if (file.size > 10 * 1024 * 1024) {
+    if (arquivo.size > 10 * 1024 * 1024) {
       throw new Error("Máximo de 10 MB por imagem.");
     }
   }
 
-  async function enviar(posicao, file) {
+  // ENVIO DE FOTOGRAFIAS
+
+  async function enviar(posicao, arquivo) {
     if (processando) return;
+
     processando = true;
 
     let caminho = null;
+    let arquivoEnviado = false;
 
     try {
       if (statusAtual() !== "autorizada") {
@@ -612,114 +1070,161 @@ as condições legais aplicáveis.
         );
       }
 
-      validarArquivo(file);
+      validarArquivo(arquivo);
 
       const extensao = {
-        "image/jpeg":"jpg",
-        "image/png":"png",
-        "image/webp":"webp"
-      }[file.type];
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp"
+      }[arquivo.type];
 
       caminho =
         aluno.id + "/" +
         crypto.randomUUID() + "." + extensao;
 
-      mostrarMensagem("Enviando foto de " + posicao + "...");
+      mostrarMensagem(
+        "Enviando foto de " + posicao + "..."
+      );
 
-      const up = await db.storage
+      const upload = await db.storage
         .from(BUCKET)
-        .upload(caminho, file, {
-          contentType:file.type,
-          upsert:false
+        .upload(caminho, arquivo, {
+          contentType: arquivo.type,
+          upsert: false
         });
 
-      if (up.error) throw up.error;
+      if (upload.error) {
+        throw upload.error;
+      }
 
-      const reg = await db
+      arquivoEnviado = true;
+
+      const registro = await db
         .from("fotos_avaliacao")
         .insert({
-          aluno_id:aluno.id,
-          posicao,
-          caminho,
-          enviado_por:usuario.id
+          aluno_id: aluno.id,
+          posicao: posicao,
+          caminho: caminho,
+          enviado_por: usuario.id
         });
 
-      if (reg.error) throw reg.error;
+      if (registro.error) {
+        throw registro.error;
+      }
 
       await buscar();
       renderizar();
 
-      mostrarMensagem("Fotografia enviada com sucesso.");
+      mostrarMensagem(
+        "Fotografia enviada com sucesso."
+      );
 
-    } catch (e) {
-      if (caminho) {
-        await db.storage.from(BUCKET)
+    } catch (erro) {
+      if (arquivoEnviado && caminho) {
+        await db.storage
+          .from(BUCKET)
           .remove([caminho]);
       }
-      mostrarMensagem(e.message, true);
+
+      mostrarMensagem(erro.message, true);
+
     } finally {
       processando = false;
     }
   }
 
+  // EXCLUIR FOTOGRAFIA
+
   async function excluir(foto) {
     if (processando) return;
-    if (!confirm("Excluir esta fotografia?")) return;
+
+    if (!confirm("Excluir esta fotografia?")) {
+      return;
+    }
 
     processando = true;
 
     try {
-      const arq = await db.storage
+      const arquivo = await db.storage
         .from(BUCKET)
         .remove([foto.caminho]);
 
-      if (arq.error) throw arq.error;
+      if (arquivo.error) {
+        throw arquivo.error;
+      }
 
-      const reg = await db
+      const registro = await db
         .from("fotos_avaliacao")
         .delete()
         .eq("id", foto.id);
 
-      if (reg.error) throw reg.error;
+      if (registro.error) {
+        throw registro.error;
+      }
 
       await buscar();
       renderizar();
 
       mostrarMensagem("Fotografia excluída.");
 
-    } catch (e) {
-      mostrarMensagem(e.message, true);
+    } catch (erro) {
+      mostrarMensagem(erro.message, true);
+
     } finally {
       processando = false;
     }
   }
+
+  // VISUALIZAR FOTOGRAFIA PRIVADA
 
   async function exibirImagem(local, foto) {
     const resultado = await db.storage
       .from(BUCKET)
       .createSignedUrl(foto.caminho, 300);
 
-    if (resultado.error || !resultado.data?.signedUrl) {
-      local.textContent = "Imagem indisponível";
+    if (
+      resultado.error ||
+      !resultado.data?.signedUrl
+    ) {
+      if (local.isConnected) {
+        local.textContent = "Imagem indisponível";
+      }
       return;
     }
 
     if (!local.isConnected) return;
 
-    const img = document.createElement("img");
-    img.src = resultado.data.signedUrl;
-    img.alt = "Fotografia de " + foto.posicao;
-    img.loading = "lazy";
+    const imagem = document.createElement("img");
 
-    local.replaceChildren(img);
+    imagem.src = resultado.data.signedUrl;
+    imagem.alt = "Fotografia de " + foto.posicao;
+    imagem.loading = "lazy";
+
+    local.replaceChildren(imagem);
   }
 
-  function cartoes(pai) {
-    const grade = add(pai, "div", "wf-grid");
+  // CARDS DE FRENTE, PERFIL E COSTAS
 
-    for (const posicao of ["frente","perfil","costas"]) {
-      const card = add(grade, "div", "wf-card");
-      const area = add(card, "div", "wf-image");
+  function cartoes(pai) {
+    const grade = adicionar(pai, "div", "wf-grid");
+
+    for (const posicao of [
+      "frente",
+      "perfil",
+      "costas"
+    ]) {
+      const card = adicionar(
+        grade,
+        "div",
+        "wf-card"
+      );
+
+      const area = adicionar(
+        card,
+        "div",
+        "wf-image"
+      );
+
       const foto = ultimaFoto(posicao);
 
       if (foto) {
@@ -728,11 +1233,16 @@ as condições legais aplicáveis.
         area.innerHTML = desenho(posicao);
       }
 
-      add(card, "strong", null,
+      adicionar(
+        card,
+        "strong",
+        null,
         posicao.charAt(0).toUpperCase() +
-        posicao.slice(1));
+        posicao.slice(1)
+      );
 
       const input = document.createElement("input");
+
       input.type = "file";
       input.accept = "image/jpeg,image/png,image/webp";
       input.style.display = "none";
@@ -746,28 +1256,43 @@ as condições legais aplicáveis.
       card.appendChild(input);
 
       card.appendChild(
-        button(foto ? "Nova foto" : "Tirar / enviar", () => {
-          input.click();
-        })
+        botao(
+          foto ? "Nova foto" : "Tirar / enviar",
+          () => input.click()
+        )
       );
 
       if (foto) {
         card.appendChild(
-          button("Excluir", () => excluir(foto), true)
+          botao(
+            "Excluir",
+            () => excluir(foto),
+            true
+          )
         );
       }
     }
   }
 
+  // INSTRUCOES PARA O ALUNO
+
   function instrucoes(pai) {
-    const caixa = add(pai, "div", "wf-box");
+    const caixa = adicionar(
+      pai,
+      "div",
+      "wf-box"
+    );
 
-    add(caixa, "h3", null,
-      "Como tirar suas fotografias");
+    adicionar(
+      caixa,
+      "h3",
+      null,
+      "Como tirar suas fotografias"
+    );
 
-    const ul = add(caixa, "ul");
+    const lista = adicionar(caixa, "ul");
 
-    [
+    const orientacoes = [
       "Fotografe o corpo inteiro, da cabeça aos pés.",
       "Utilize iluminação adequada e fundo neutro.",
       "Fique descalço e com os braços relaxados.",
@@ -776,124 +1301,242 @@ as condições legais aplicáveis.
       "Não tente corrigir artificialmente sua postura.",
       "Posicione a câmera aproximadamente na altura do quadril.",
       "Quando possível, mantenha cerca de 2 a 3 metros de distância."
-    ].forEach(t => add(ul, "li", null, t));
+    ];
 
-    add(caixa, "h3", null, "Vestimenta recomendada");
+    orientacoes.forEach(texto => {
+      adicionar(lista, "li", null, texto);
+    });
 
-    add(caixa, "p", null,
+    adicionar(
+      caixa,
+      "h3",
+      null,
+      "Vestimenta recomendada"
+    );
+
+    adicionar(
+      caixa,
+      "p",
+      null,
       guia === "feminino"
         ? "Top esportivo com short curto ou biquíni, conforme seu conforto."
-        : "Sunga ou short curto e ajustado, conforme seu conforto.");
+        : "Sunga ou short curto e ajustado, conforme seu conforto."
+    );
 
-    add(caixa, "p", "wf-muted",
+    adicionar(
+      caixa,
+      "p",
+      "wf-muted",
       "Essas roupas facilitam a observação de " +
-      "contornos e assimetrias, mas não são obrigatórias.");
+      "contornos e assimetrias, mas não são obrigatórias."
+    );
 
-    add(caixa, "div", "wf-warning",
+    adicionar(
+      caixa,
+      "div",
+      "wf-warning",
       "Importante: não contraia a musculatura, " +
       "não estufe o peito e não tente corrigir " +
-      "sua postura para as fotografias.");
+      "sua postura para as fotografias."
+    );
   }
+
+  // HISTORICO FOTOGRAFICO
 
   function historico(pai) {
     if (!fotos.length) return;
 
-    const caixa = add(pai, "div", "wf-box");
-    add(caixa, "h3", null, "Histórico fotográfico");
+    const caixa = adicionar(
+      pai,
+      "div",
+      "wf-box"
+    );
 
-    const grade = add(caixa, "div", "wf-history");
+    adicionar(
+      caixa,
+      "h3",
+      null,
+      "Histórico fotográfico"
+    );
+
+    const grade = adicionar(
+      caixa,
+      "div",
+      "wf-history"
+    );
 
     for (const foto of fotos) {
-      const card = add(grade, "div", "wf-card");
-      const area = add(card, "div", "wf-image");
+      const card = adicionar(
+        grade,
+        "div",
+        "wf-card"
+      );
+
+      const area = adicionar(
+        card,
+        "div",
+        "wf-image"
+      );
 
       exibirImagem(area, foto);
 
-      add(card, "p", "wf-small",
+      adicionar(
+        card,
+        "p",
+        "wf-small",
         foto.posicao.toUpperCase() +
-        " · " + dataBR(foto.criado_em));
+        " · " +
+        dataBR(foto.criado_em)
+      );
     }
   }
+
+  // MONTAGEM DA INTERFACE
 
   function renderizar() {
     container.replaceChildren();
 
-    add(container, "h2", null,
-      "Suas fotografias corporais");
+    adicionar(
+      container,
+      "h2",
+      null,
+      "Suas fotografias corporais"
+    );
 
-    add(container, "p", "wf-muted",
+    adicionar(
+      container,
+      "p",
+      "wf-muted",
       "WAND METHOD — Registro fotográfico e " +
-      "acompanhamento corporal e postural.");
+      "acompanhamento corporal e postural."
+    );
 
     if (aluno?.nome_completo) {
-      add(container, "p", "wf-muted",
-        "Aluno(a): " + aluno.nome_completo);
+      adicionar(
+        container,
+        "p",
+        "wf-muted",
+        "Aluno(a): " + aluno.nome_completo
+      );
     }
 
     const status = statusAtual();
 
-    const topo = add(container, "div", "wf-box");
+    const topo = adicionar(
+      container,
+      "div",
+      "wf-box"
+    );
 
-    add(topo, "p", "wf-status",
+    adicionar(
+      topo,
+      "p",
+      "wf-status",
       "Avaliação fotográfica: " +
-      (status === "autorizada"
-        ? "AUTORIZADA"
-        : status === "recusada"
-          ? "RECUSADA"
-          : "PENDENTE"));
+      (
+        status === "autorizada"
+          ? "AUTORIZADA"
+          : status === "recusada"
+            ? "RECUSADA"
+            : "PENDENTE"
+      )
+    );
 
-    add(topo, "p", "wf-muted",
+    adicionar(
+      topo,
+      "p",
+      "wf-muted",
       "Divulgação: " +
-      (consentimento?.divulgacao_autorizada
-        ? "Autorização inicial registrada. " +
-          "Publicação depende de aprovação específica."
-        : "Não autorizada."));
+      (
+        consentimento?.divulgacao_autorizada
+          ? "Autorização inicial registrada. " +
+            "Publicação depende de aprovação específica."
+          : "Não autorizada."
+      )
+    );
 
     if (pagina === "perfil-aluno.html") {
-      add(topo, "p", "wf-small",
+      adicionar(
+        topo,
+        "p",
+        "wf-small",
         "As autorizações devem ser registradas " +
-        "pelo próprio aluno na conta dele.");
+        "pelo próprio aluno na conta dele."
+      );
     }
 
     if (status === "recusada") {
       avisoRecusa(container);
     }
 
-    if (pagina !== "perfil-aluno.html" &&
-        (status !== "autorizada" || exibirTermos)) {
+    if (
+      pagina !== "perfil-aluno.html" &&
+      (
+        status !== "autorizada" ||
+        exibirTermos
+      )
+    ) {
       criarTermos(container);
     }
 
     if (status === "autorizada") {
-      const guiaBox = add(container, "div", "wf-box");
+      const guiaBox = adicionar(
+        container,
+        "div",
+        "wf-box"
+      );
 
-      add(guiaBox, "h3", null, "Guia visual");
+      adicionar(
+        guiaBox,
+        "h3",
+        null,
+        "Guia visual"
+      );
 
-      const botoes = add(guiaBox, "div", "wf-actions");
-
-      botoes.appendChild(
-        button("Modelo masculino", () => {
-          guia = "masculino";
-          renderizar();
-        }, guia !== "masculino")
+      const botoes = adicionar(
+        guiaBox,
+        "div",
+        "wf-actions"
       );
 
       botoes.appendChild(
-        button("Modelo feminino", () => {
-          guia = "feminino";
-          renderizar();
-        }, guia !== "feminino")
+        botao(
+          "Modelo masculino",
+          () => {
+            guia = "masculino";
+            renderizar();
+          },
+          guia !== "masculino"
+        )
+      );
+
+      botoes.appendChild(
+        botao(
+          "Modelo feminino",
+          () => {
+            guia = "feminino";
+            renderizar();
+          },
+          guia !== "feminino"
+        )
       );
 
       cartoes(container);
       instrucoes(container);
 
-      if (pagina !== "perfil-aluno.html" && !exibirTermos) {
+      if (
+        pagina !== "perfil-aluno.html" &&
+        !exibirTermos
+      ) {
         container.appendChild(
-          button("Revisar autorizações", () => {
-            exibirTermos = true;
-            renderizar();
-          }, true)
+          botao(
+            "Revisar autorizações",
+            () => {
+              exibirTermos = true;
+              renderizar();
+            },
+            true
+          )
         );
       }
     }
@@ -901,42 +1544,54 @@ as condições legais aplicáveis.
     historico(container);
 
     if (fotos.length) {
-      add(container, "p", "wf-small",
+      adicionar(
+        container,
+        "p",
+        "wf-small",
         "As fotografias são privadas. Para solicitar " +
         "exclusão de dados ou revogação de consentimento, " +
-        "entre em contato com o responsável pelo WAND METHOD.");
+        "entre em contato com o responsável pelo WAND METHOD."
+      );
     }
 
-    const msg = add(container, "p");
-    msg.id = "wf-mensagem";
+    const mensagem = adicionar(container, "p");
+    mensagem.id = "wf-mensagem";
   }
+
+  // INICIALIZACAO E IDENTIFICACAO DO ALUNO
 
   async function iniciar() {
     try {
       montar();
 
-      // Carrega a biblioteca após mostrar a interface.
       const biblioteca = await import(
         "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
       );
 
-      db = biblioteca.createClient(URL_DB, CHAVE_DB, {
-        auth: {
-          persistSession:true,
-          autoRefreshToken:true,
-          detectSessionInUrl:false
+      db = biblioteca.createClient(
+        URL_DB,
+        CHAVE_DB,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: false
+          }
         }
-      });
+      );
 
-      const auth = await db.auth.getUser();
+      const autenticacao = await db.auth.getUser();
 
-      if (auth.error || !auth.data?.user) {
+      if (
+        autenticacao.error ||
+        !autenticacao.data?.user
+      ) {
         throw new Error(
           "Faça login no WAND METHOD para abrir esta etapa."
         );
       }
 
-      usuario = auth.data.user;
+      usuario = autenticacao.data.user;
 
       if (pagina === "perfil-aluno.html") {
         const perfil = await db
@@ -945,17 +1600,23 @@ as condições legais aplicáveis.
           .eq("id", usuario.id)
           .single();
 
-        if (perfil.error || perfil.data?.role !== "admin") {
+        if (
+          perfil.error ||
+          perfil.data?.role !== "admin"
+        ) {
           throw new Error(
             "Esta área é exclusiva do treinador."
           );
         }
 
-        const id = new URLSearchParams(location.search)
-          .get("id");
+        const id = new URLSearchParams(
+          location.search
+        ).get("id");
 
         if (!id || !/^\d+$/.test(id)) {
-          throw new Error("Aluno não identificado na URL.");
+          throw new Error(
+            "Aluno não identificado na URL."
+          );
         }
 
         const consulta = await db
@@ -964,7 +1625,10 @@ as condições legais aplicáveis.
           .eq("id", Number(id))
           .single();
 
-        if (consulta.error) throw consulta.error;
+        if (consulta.error) {
+          throw consulta.error;
+        }
+
         aluno = consulta.data;
 
       } else {
@@ -974,7 +1638,10 @@ as condições legais aplicáveis.
           .eq("user_id", usuario.id)
           .single();
 
-        if (consulta.error) throw consulta.error;
+        if (consulta.error) {
+          throw consulta.error;
+        }
+
         aluno = consulta.data;
       }
 
@@ -982,18 +1649,26 @@ as condições legais aplicáveis.
         throw new Error("Aluno não encontrado.");
       }
 
-      const sexo = String(aluno.sexo || "").toLowerCase();
-      guia = ["f","feminino","mulher"].includes(sexo)
+      const sexo = String(
+        aluno.sexo || ""
+      ).toLowerCase();
+
+      guia = [
+        "f",
+        "feminino",
+        "mulher"
+      ].includes(sexo)
         ? "feminino"
         : "masculino";
 
       await buscar();
       renderizar();
 
-    } catch (e) {
-      erroVisivel(e);
+    } catch (erro) {
+      erroVisivel(erro);
     }
   }
 
   iniciar();
+
 })();
