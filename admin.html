@@ -5,25 +5,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel Administrativo | WAND METHOD</title>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       background: #080808;
       color: #fff;
       font-family: Arial, sans-serif;
     }
+
     header {
       padding: 24px;
       border-bottom: 1px solid #d4af37;
       text-align: center;
     }
-    h1, h2 { color: #d4af37; }
+
+    h1, h2 {
+      color: #d4af37;
+    }
+
     main {
       max-width: 900px;
       margin: auto;
       padding: 24px;
     }
+
     .card {
       background: #171717;
       border: 1px solid #66551f;
@@ -31,54 +41,149 @@
       padding: 22px;
       margin: 16px 0;
     }
-    button {
+
+    button,
+    .botao-link {
+      display: inline-block;
       background: #d4af37;
+      color: #111;
       border: 0;
       border-radius: 8px;
       padding: 12px 20px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
       font-weight: bold;
+      text-decoration: none;
+      text-align: center;
       cursor: pointer;
     }
-    #painel { display: none; }
+
+    button:hover,
+    .botao-link:hover {
+      background: #f0c65c;
+    }
+
+    .acoes-treino {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .descricao {
+      color: #bbb;
+      line-height: 1.5;
+    }
+
+    #painel {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 16px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .acoes-treino {
+        flex-direction: column;
+      }
+
+      .acoes-treino .botao-link {
+        width: 100%;
+      }
+    }
   </style>
 </head>
+
 <body>
+
   <header>
     <h1>WAND METHOD</h1>
     <p>PAINEL ADMINISTRATIVO</p>
   </header>
 
   <main>
+
     <p id="status">Verificando acesso...</p>
 
     <section id="painel">
+
       <h2>Bem-vindo, administrador!</h2>
 
+      <!-- ALUNOS -->
       <div class="card">
+
         <h2>Alunos</h2>
+
         <p>Alunos cadastrados no WAND METHOD:</p>
-<div id="listaAlunos">
-  <p>Carregando alunos...</p>
-</div>
 
-<button type="button" id="cadastrarAluno" onclick="window.location.href='cadastro-aluno.html'">+ Cadastrar aluno</button>
-</div>
+        <div id="listaAlunos">
+          <p>Carregando alunos...</p>
+        </div>
 
+        <button
+          type="button"
+          id="cadastrarAluno"
+          onclick="window.location.href='cadastro-aluno.html'"
+        >
+          + Cadastrar aluno
+        </button>
+
+      </div>
+
+      <!-- TREINOS -->
       <div class="card">
+
         <h2>Treinos</h2>
-        <p>Prescrição e acompanhamento em construção.</p>
+
+        <p class="descricao">
+          Gerencie sua biblioteca de exercícios
+          e prepare a prescrição dos treinos
+          dos seus alunos.
+        </p>
+
+        <div class="acoes-treino">
+
+          <a
+            href="biblioteca-exercicios.html"
+            class="botao-link"
+          >
+            Biblioteca de Exercícios
+          </a>
+
+        </div>
+
+        <p class="descricao">
+          Prescrição de treinos e acompanhamento
+          de evolução serão adicionados
+          nas próximas etapas.
+        </p>
+
       </div>
 
+      <!-- AVALIACOES -->
       <div class="card">
+
         <h2>Avaliações</h2>
+
         <p>Avaliações físicas em construção.</p>
+
       </div>
 
-      <button id="sair">Sair da conta</button>
+      <button id="sair" type="button">
+        Sair da conta
+      </button>
+
     </section>
+
   </main>
 
   <script type="module">
+
     import { createClient } from
       "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
@@ -91,6 +196,7 @@
     const painel = document.getElementById("painel");
 
     async function verificarAcesso() {
+
       const { data: { user }, error } =
         await supabase.auth.getUser();
 
@@ -99,11 +205,12 @@
         return;
       }
 
-      const { data, error: erroPerfil } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+      const { data, error: erroPerfil } =
+        await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
 
       if (erroPerfil || data?.role !== "admin") {
         status.textContent = "Acesso não autorizado.";
@@ -112,65 +219,96 @@
 
       status.textContent = "";
       painel.style.display = "block";
+
       await carregarAlunos();
     }
 
-async function carregarAlunos() {
-  const lista = document.getElementById("listaAlunos");
+    async function carregarAlunos() {
 
-  lista.textContent = "Carregando alunos...";
+      const lista =
+        document.getElementById("listaAlunos");
 
-  const { data: alunos, error } = await supabase
-    .from("alunos")
-    .select("id, nome_completo, modalidade, Status")
-    .order("nome_completo", { ascending: true });
+      lista.textContent = "Carregando alunos...";
 
-  if (error) {
-    console.error("Erro ao buscar alunos:", error);
-    lista.textContent = "Não foi possível carregar os alunos.";
-    return;
-  }
+      const { data: alunos, error } =
+        await supabase
+          .from("alunos")
+          .select("id, nome_completo, modalidade, Status")
+          .order("nome_completo", {
+            ascending: true
+          });
 
-  if (!alunos || alunos.length === 0) {
-    lista.textContent = "Nenhum aluno cadastrado.";
-    return;
-  }
+      if (error) {
+        console.error(
+          "Erro ao buscar alunos:",
+          error
+        );
 
-  lista.replaceChildren();
+        lista.textContent =
+          "Não foi possível carregar os alunos.";
 
-  alunos.forEach((aluno) => {
-    const item = document.createElement("div");
-    item.style.padding = "12px";
-    item.style.marginBottom = "10px";
-    item.style.border = "1px solid #66551f";
-    item.style.borderRadius = "8px";
+        return;
+      }
 
-    
-const nome = document.createElement("a");
-nome.textContent = aluno.nome_completo || "Sem nome";
-nome.href = "perfil-aluno.html?id=" + encodeURIComponent(aluno.id);
-nome.style.color = "#d4af37";
-nome.style.fontWeight = "bold";
-nome.style.textDecoration = "underline";
+      if (!alunos || alunos.length === 0) {
+        lista.textContent =
+          "Nenhum aluno cadastrado.";
+        return;
+      }
 
+      lista.replaceChildren();
 
-    const detalhes = document.createElement("p");
-    detalhes.textContent =
-      "Modalidade: " + (aluno.modalidade || "Não informada") +
-      " | Status: " + (aluno.Status || "Não informado");
+      alunos.forEach((aluno) => {
 
-    item.append(nome, detalhes);
-    lista.appendChild(item);
-  });
-}
+        const item =
+          document.createElement("div");
+
+        item.style.padding = "12px";
+        item.style.marginBottom = "10px";
+        item.style.border = "1px solid #66551f";
+        item.style.borderRadius = "8px";
+
+        const nome =
+          document.createElement("a");
+
+        nome.textContent =
+          aluno.nome_completo || "Sem nome";
+
+        nome.href =
+          "perfil-aluno.html?id=" +
+          encodeURIComponent(aluno.id);
+
+        nome.style.color = "#d4af37";
+        nome.style.fontWeight = "bold";
+        nome.style.textDecoration = "underline";
+
+        const detalhes =
+          document.createElement("p");
+
+        detalhes.textContent =
+          "Modalidade: " +
+          (aluno.modalidade || "Não informada") +
+          " | Status: " +
+          (aluno.Status || "Não informado");
+
+        item.append(nome, detalhes);
+        lista.appendChild(item);
+
+      });
+    }
 
     document.getElementById("sair")
       .addEventListener("click", async () => {
+
         await supabase.auth.signOut();
+
         window.location.replace("login.html");
+
       });
 
     verificarAcesso();
+
   </script>
+
 </body>
 </html>
