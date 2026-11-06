@@ -42,6 +42,14 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 .success{color:#86dca6}
 .hidden{display:none!important}
 @media(max-width:600px){.card{padding:15px}.metric span{font-size:16px}}
+
+/* Navegação compacta do perfil */
+.menu-perfil{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.menu-perfil button{background:#191919;color:#f5f5f5;border:1px solid #665321;min-height:82px;padding:15px;text-align:center;font-size:15px}
+.menu-perfil button.ativo{background:#d4af37;color:#080808;border-color:#d4af37}
+.painel-perfil{display:none}
+.painel-perfil.ativo{display:block}
+@media(max-width:420px){.menu-perfil button{font-size:13px;padding:10px;min-height:70px}}
 </style>
 </head>
 <body>
@@ -67,33 +75,41 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 </div>
 </section>
 
-<section class="card">
+<nav class="menu-perfil" aria-label="Seções do perfil do aluno">
+<button type="button" data-painel="anamnese" aria-controls="painel-anamnese">📋 Anamnese</button>
+<button type="button" data-painel="avaliacao" aria-controls="painel-avaliacao">📏 Avaliação física</button>
+<button type="button" data-painel="evolucao" aria-controls="painel-evolucao">📈 Evolução física</button>
+<button type="button" data-painel="treinos" aria-controls="painel-treinos">🏋️ Treinos</button>
+</nav>
+<p id="orientacaoPerfil" class="muted">Selecione uma opção acima para visualizar os detalhes.</p>
+
+<section id="painel-anamnese" class="card painel-perfil">
 <h2>Anamnese</h2>
 <p class="muted">Triagem de saúde e respostas do aluno.</p>
 <div id="anamneses">Carregando anamnese...</div>
 </section>
 
-<section class="card">
+<section id="painel-avaliacao" class="card painel-perfil">
 <h2>Avaliação física</h2>
 <p>Cadastre avaliações, acompanhe os resultados e libere o parecer profissional.</p>
 <a id="novaAvaliacao" class="button" href="#">+ Nova avaliação física</a>
 <div id="avaliacoes">Carregando avaliações...</div>
 </section>
 
-<section class="card">
+<section id="painel-evolucao" class="card painel-perfil">
 <h2>Evolução física</h2>
 <p class="muted">Histórico das avaliações físicas registradas.</p>
 <div id="evolucao">Carregando gráficos...</div>
 </section>
 
-<section class="card">
+<section id="painel-treinos" class="card painel-perfil">
 <h2>Treinos</h2>
 <p class="muted">Crie prescrições e consulte os treinos deste aluno.</p>
 <div class="actions">
 <a id="prescreverTreino" class="button" href="#">+ Prescrever treino</a>
 <a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
 </div>
-<p class="muted">Os links levam o identificador deste aluno. A seleção automática nas páginas de destino será configurada na próxima etapa.</p>
+
 </section>
 </div>
 </main>
@@ -602,6 +618,21 @@ desenharGrafico(area,data,campo,nome,unidade);
 }
 }
 
+function configurarMenuPerfil(){
+const botoes=[...document.querySelectorAll(".menu-perfil button")];
+const paineis=[...document.querySelectorAll(".painel-perfil")];
+function abrirPainel(nome){
+  botoes.forEach(botao=>{
+    const ativo=botao.dataset.painel===nome;
+    botao.classList.toggle("ativo",ativo);
+    botao.setAttribute("aria-expanded",String(ativo));
+  });
+  paineis.forEach(painel=>painel.classList.toggle("ativo",painel.id==="painel-"+nome));
+  $("orientacaoPerfil").classList.add("hidden");
+}
+botoes.forEach(botao=>botao.addEventListener("click",()=>abrirPainel(botao.dataset.painel)));
+}
+
 async function iniciar(){
 try{
 if(!alunoId||!/^\d+$/.test(alunoId))
@@ -615,6 +646,7 @@ $("prescreverTreino").href=
 $("treinosAluno").href=
 "gerenciar-treinos.html?aluno_id="+encodeURIComponent(alunoId);
 $("conteudo").classList.remove("hidden");
+configurarMenuPerfil();
 $("statusPagina").textContent="";
 await Promise.all([
 carregarAnamneses(),
