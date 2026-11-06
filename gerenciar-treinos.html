@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -148,25 +147,28 @@ button:disabled{
 </header>
 
 <main>
-  <a href="admin.html">← Voltar ao WandCoach</a>
+  <a id="voltar" href="admin.html">← Voltar ao WandCoach</a>
 
   <p id="status">Verificando acesso...</p>
 
   <section id="app" hidden>
-    <h2>Treinos cadastrados</h2>
+    <h2 id="tituloTreinos">Treinos cadastrados</h2>
+    <p id="contextoAluno" class="info" hidden></p>
 
     <div class="card">
+      <div id="areaFiltro">
       <label for="filtroAluno">Filtrar por aluno</label>
       <select id="filtroAluno">
         <option value="">Todos os alunos</option>
       </select>
+      </div>
 
       <div class="acoes">
         <button id="atualizar" type="button">
           Atualizar lista
         </button>
         <a class="botao secundario"
-           href="prescricao-treinos.html">
+           id="criarTreino" href="prescricao-treinos.html">
           + Criar novo treino
         </a>
       </div>
@@ -225,6 +227,10 @@ const supabase=createClient(
 );
 
 const $=id=>document.getElementById(id);
+const parametroAluno=new URLSearchParams(location.search).get("id");
+const alunoFixo=parametroAluno!==null;
+const alunoFixoId=alunoFixo && /^\d+$/.test(parametroAluno) && Number.isSafeInteger(Number(parametroAluno)) && Number(parametroAluno)>0
+  ? Number(parametroAluno) : null;
 
 let alunos=[];
 let treinos=[];
@@ -286,6 +292,19 @@ async function iniciar(){
 
     alunos=ra.data||[];
 
+    if(alunoFixo){
+      if(alunoFixoId===null)throw Error("Identificador de aluno inválido.");
+      const selecionado=alunos.find(a=>Number(a.id)===alunoFixoId);
+      if(!selecionado)throw Error("Aluno não encontrado ou sem permissão de acesso.");
+      $("tituloTreinos").textContent="Treinos do aluno";
+      $("contextoAluno").textContent="Aluno: "+(selecionado.nome_completo||"Sem nome");
+      $("contextoAluno").hidden=false;
+      $("areaFiltro").hidden=true;
+      $("voltar").href="perfil-aluno.html?id="+encodeURIComponent(alunoFixoId);
+      $("voltar").textContent="← Voltar ao perfil do aluno";
+      $("criarTreino").href="prescricao-treinos.html?id="+encodeURIComponent(alunoFixoId);
+    }
+
     (re.data||[]).forEach(e=>{
       nomesExercicios[e.id]=e.nome;
     });
@@ -302,6 +321,7 @@ async function iniciar(){
     $("status").textContent="";
     $("app").hidden=false;
 
+    if(alunoFixo)$("filtroAluno").value=String(alunoFixoId);
     await carregarTreinos();
 
   }catch(e){
@@ -322,7 +342,7 @@ async function carregarTreinos(){
     )
     .order("created_at",{ascending:false});
 
-  const filtro=$("filtroAluno").value;
+  const filtro=alunoFixo ? String(alunoFixoId) : $("filtroAluno").value;
 
   if(filtro){
     consulta=consulta.eq("aluno_id",Number(filtro));
@@ -724,6 +744,7 @@ async function salvarAlteracoes(){
 $("atualizar").onclick=carregarTreinos;
 
 $("filtroAluno").onchange=()=>{
+  if(alunoFixo)return;
   $("editor").style.display="none";
   treinoAtual=null;
   carregarTreinos();
