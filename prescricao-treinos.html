@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prescrição de Treinos | WAND METHOD</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif}
+header{text-align:center;padding:24px;border-bottom:1px solid #d4af37}
+header h1{color:#d4af37;margin:0 0 8px}
+header p{color:#aaa;letter-spacing:2px;margin:0}
+main{max-width:1050px;margin:auto;padding:24px 16px}
+h2,h3{color:#d4af37}
+a{color:#d4af37}
+.card{background:#171717;border:1px solid #66551f;border-radius:14px;padding:20px;margin:18px 0}
+label{display:block;margin:12px 0 6px;color:#ddd;font-size:14px}
+input,select,textarea{width:100%;background:#242424;color:#fff;border:1px solid #66551f;border-radius:8px;padding:12px;font:inherit}
+input:focus,select:focus,textarea:focus{outline:1px solid #d4af37}
+button{background:#d4af37;color:#111;border:0;border-radius:8px;padding:12px 18px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+button.secundario{background:#303030;color:#fff;border:1px solid #66551f}
+button.remover{background:#572323;color:#fff}
+.botoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.linha{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.exercicio{border:1px solid #5b4b22;border-radius:12px;padding:16px;margin:16px 0;background:#111}
+.exercicio-topo{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.serie{display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:10px;align-items:end;margin:10px 0}
+.serie label{margin-top:0;font-size:12px}
+.serie input{padding:10px}
+.info{color:#bbb;font-size:14px;line-height:1.5}
+#app{display:none}
+#mensagem{margin:14px 0;line-height:1.5}
+.sucesso{color:#75d68a}
+.erro{color:#ff8b8b}
+@media(max-width:650px){
+.linha{grid-template-columns:1fr}
+.serie{grid-template-columns:55px 1fr 1fr}
+.serie>div:last-child{grid-column:2/4}
+.card{padding:15px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>WAND METHOD</h1>
+<p>PRESCRIÇÃO AVANÇADA</p>
+</header>
+
+<main>
+<a href="admin.html">← Voltar ao WandCoach</a>
+<p id="status">Verificando acesso...</p>
+
+<div id="app">
+<h2>Criar treino</h2>
+<p class="info">
+Monte o treino do aluno. Nesta primeira versão,
+ele será salvo como rascunho e ainda não ficará
+disponível para execução pelo aluno.
+</p>
+
+<div class="card">
+<label for="aluno">Aluno</label>
+<select id="aluno">
+<option value="">Selecione um aluno</option>
+</select>
+
+<label for="nome">Nome do treino</label>
+<input id="nome" placeholder="Ex.: Treino A - Peitoral e Tríceps">
+
+<label for="objetivo">Objetivo</label>
+<input id="objetivo" placeholder="Ex.: Hipertrofia">
+
+<label for="observacoes">Orientações gerais</label>
+<textarea id="observacoes" rows="3"
+placeholder="Observações para o aluno"></textarea>
+</div>
+
+<h2>Exercícios prescritos</h2>
+<div id="exercicios"></div>
+
+<div class="botoes">
+<button type="button" id="adicionar">
++ Adicionar exercício
+</button>
+<button type="button" id="salvar">
+Salvar treino como rascunho
+</button>
+</div>
+
+<p id="mensagem" role="status" aria-live="polite"></p>
+</div>
+</main>
+
+<script type="module">
+import {createClient} from
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const supabase=createClient(
+"https://kvxdnreipuahoaostlle.supabase.co",
+"sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
+);
+
+const $=id=>document.getElementById(id);
+let usuario=null;
+let biblioteca=[];
+let metodos=[];
+let contador=0;
+let salvando=false;
+
+function mensagem(texto,tipo=""){
+$("mensagem").textContent=texto;
+$("mensagem").className=tipo;
+}
+
+function criar(tag,classe="",texto=""){
+const el=document.createElement(tag);
+if(classe)el.className=classe;
+if(texto)el.textContent=texto;
+return el;
+}
+
+function opcao(select,valor,texto){
+const o=document.createElement("option");
+o.value=valor;
+o.textContent=texto;
+select.appendChild(o);
+}
+
+function campo(rotulo,tipo,valor){
+const div=criar("div");
+const label=criar("label","",rotulo);
+const input=criar("input");
+input.type=tipo;
+input.value=valor;
+if(tipo==="number"){
+input.min="0";
+input.step="any";
+}
+div.append(label,input);
+return {div,input};
+}
+
+async function iniciar(){
+try{
+const {data:{user},error}=await supabase.auth.getUser();
+if(error||!user){
+location.replace("login.html");
+return;
+}
+usuario=user;
+
+const {data:perfil,error:ep}=await supabase
+.from("profiles").select("role")
+.eq("id",user.id).single();
+
+if(ep||perfil?.role!=="admin"){
+$("status").textContent="Acesso não autorizado.";
+return;
+}
+
+const [ra,re,rm]=await Promise.all([
+supabase.from("alunos")
+.select("id,nome_completo")
+.order("nome_completo"),
+supabase.from("wand_exercicios")
+.select("id,nome,grupo_muscular")
+.eq("ativo",true).order("nome"),
+supabase.from("wand_metodos")
+.select("id,nome")
+.eq("ativo",true).order("nome")
+]);
+
+if(ra.error)throw ra.error;
+if(re.error)throw re.error;
+if(rm.error)throw rm.error;
+
+biblioteca=re.data||[];
+metodos=rm.data||[];
+
+(ra.data||[]).forEach(a=>
+opcao($("aluno"),String(a.id),a.nome_completo||"Sem nome")
+);
+
+$("app").style.display="block";
+$("status").textContent="";
+adicionarExercicio();
+}catch(e){
+console.error(e);
+$("status").textContent="Erro ao carregar dados: "+e.message;
+}
+}
+
+function adicionarExercicio(){
+if(!biblioteca.length){
+mensagem("Nenhum exercício disponível na biblioteca.","erro");
+return;
+}
+
+contador++;
+const numero=contador;
+const bloco=criar("div","exercicio");
+bloco.dataset.numero=String(numero);
+
+const topo=criar("div","exercicio-topo");
+const titulo=criar("h3","","Exercício "+numero);
+const remover=criar("button","remover","Remover");
+remover.type="button";
+remover.onclick=()=>bloco.remove();
+topo.append(titulo,remover);
+
+const labelEx=criar("label","","Exercício da biblioteca");
+const seletor=criar("select","seletor-exercicio");
+biblioteca.forEach(e=>
+opcao(seletor,e.id,e.nome+" — "+e.grupo_muscular)
+);
+
+const labelMetodo=criar("label","","Método de treinamento");
+const metodo=criar("select","seletor-metodo");
+opcao(metodo,"","Sem método específico");
+metodos.forEach(m=>opcao(metodo,m.id,m.nome));
+
+const labelNotas=criar("label","","Dicas do treinador");
+const notas=criar("textarea","notas");
+notas.rows=2;
+notas.placeholder="Orientações para este exercício";
+
+const tituloSeries=criar("h4","","Séries");
+const areaSeries=criar("div","area-series");
+
+const botaoSerie=criar("button","secundario","+ Adicionar série");
+botaoSerie.type="button";
+botaoSerie.onclick=()=>adicionarSerie(areaSeries);
+
+bloco.append(
+topo,labelEx,seletor,labelMetodo,metodo,
+labelNotas,notas,tituloSeries,areaSeries,botaoSerie
+);
+
+$("exercicios").appendChild(bloco);
+
+for(let i=0;i<3;i++)adicionarSerie(areaSeries);
+}
+
+function adicionarSerie(area){
+const linha=criar("div","serie");
+
+const numero=criar("div");
+numero.append(criar("label","","Série"));
+const indicador=criar("strong","numero-serie","");
+numero.append(indicador);
+
+const reps=campo("Repetições","text","12");
+reps.input.className="repeticoes";
+reps.input.maxLength=40;
+
+const carga=campo("Carga (kg)","number","");
+carga.input.className="carga";
+carga.input.placeholder="Opcional";
+
+const descanso=campo("Descanso (seg)","number","60");
+descanso.input.className="descanso";
+descanso.input.step="1";
+
+linha.append(numero,reps.div,carga.div,descanso.div);
+area.appendChild(linha);
+renumerar(area);
+}
+
+function renumerar(area){
+area.querySelectorAll(".serie").forEach((s,i)=>{
+s.querySelector(".numero-serie").textContent=String(i+1);
+});
+}
+
+function lerFormulario(){
+const alunoId=Number($("aluno").value);
+const nome=$("nome").value.trim();
+
+if(!Number.isSafeInteger(alunoId)||alunoId<=0)
+throw Error("Selecione um aluno.");
+
+if(!nome)throw Error("Informe o nome do treino.");
+
+const blocos=[...document.querySelectorAll(".exercicio")];
+if(!blocos.length)throw Error("Adicione pelo menos um exercício.");
+
+const exercicios=blocos.map((b,ordem)=>{
+const exercicioId=b.querySelector(".seletor-exercicio").value;
+const metodoId=b.querySelector(".seletor-metodo").value;
+const notas=b.querySelector(".notas").value.trim();
+
+const series=[...b.querySelectorAll(".serie")].map((s,i)=>{
+const reps=s.querySelector(".repeticoes").value.trim();
+const cargaTexto=s.querySelector(".carga").value;
+const descansoTexto=s.querySelector(".descanso").value;
+
+if(!reps)throw Error("Informe as repetições de todas as séries.");
+if(!/^\d+$/.test(descansoTexto))
+throw Error("O descanso deve ser um número inteiro.");
+
+const descanso=Number(descansoTexto);
+if(!Number.isSafeInteger(descanso)||descanso<0)
+throw Error("Descanso inválido.");
+
+let carga=null;
+if(cargaTexto!==""){
+carga=Number(cargaTexto);
+if(!Number.isFinite(carga)||carga<0)
+throw Error("Carga inválida.");
+}
+
+return{
+numero_serie:i+1,
+repeticoes:reps,
+carga_kg:carga,
+descanso_segundos:descanso
+};
+});
+
+if(!series.length)throw Error("Cada exercício precisa de uma série.");
+
+return{
+exercicio_id:exercicioId,
+metodo_id:metodoId||null,
+ordem:ordem+1,
+observacoes:notas||null,
+series
+};
+});
+
+return{
+aluno_id:alunoId,
+treinador_id:usuario.id,
+nome,
+objetivo:$("objetivo").value.trim()||null,
+observacoes:$("observacoes").value.trim()||null,
+status:"rascunho",
+exercicios
+};
+}
+
+async function salvarTreino(){
+if(salvando)return;
+
+let dados;
+try{
+dados=lerFormulario();
+}catch(e){
+mensagem(e.message,"erro");
+return;
+}
+
+salvando=true;
+$("salvar").disabled=true;
+mensagem("Salvando treino...");
+
+let treinoId=null;
+
+try{
+const {exercicios,...treino}=dados;
+
+const {data:novo,error:et}=await supabase
+.from("wand_treinos")
+.insert(treino)
+.select("id")
+.single();
+
+if(et)throw et;
+treinoId=novo.id;
+
+for(const item of exercicios){
+const {series,...exercicio}=item;
+
+const {data:novoEx,error:ee}=await supabase
+.from("wand_treino_exercicios")
+.insert({...exercicio,treino_id:treinoId})
+.select("id")
+.single();
+
+if(ee)throw ee;
+
+const registros=series.map(s=>({
+...s,
+treino_exercicio_id:novoEx.id
+}));
+
+const {error:es}=await supabase
+.from("wand_treino_series")
+.insert(registros);
+
+if(es)throw es;
+}
+
+mensagem(
+"Treino salvo como rascunho com sucesso! ID: "+treinoId,
+"sucesso"
+);
+
+}catch(e){
+console.error("Erro ao salvar:",e);
+
+let detalhe="";
+
+if(treinoId){
+const {error:limpeza}=await supabase
+.from("wand_treinos")
+.delete().eq("id",treinoId);
+
+if(limpeza){
+detalhe=" Um rascunho parcial pode ter ficado salvo. ID: "+treinoId;
+}
+}
+
+mensagem("Erro ao salvar: "+e.message+detalhe,"erro");
+}finally{
+salvando=false;
+$("salvar").disabled=false;
+}
+}
+
+$("adicionar").addEventListener("click",adicionarExercicio);
+$("salvar").addEventListener("click",salvarTreino);
+
+iniciar();
+</script>
+</body>
+</html>
