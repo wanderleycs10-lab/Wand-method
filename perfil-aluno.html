@@ -49,6 +49,9 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 .menu-perfil button.ativo{background:#d4af37;color:#080808;border-color:#d4af37}
 .painel-perfil{display:none}
 .painel-perfil.ativo{display:block}
+/* Recursos externos ficam ocultos até serem colocados em sua aba. */
+#wand-fotos{display:none!important}
+#painel-fotos.ativo #wand-fotos{display:block!important}
 @media(max-width:420px){.menu-perfil button{font-size:13px;padding:10px;min-height:70px}}
 </style>
 </head>
@@ -80,6 +83,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <button type="button" data-painel="avaliacao" aria-controls="painel-avaliacao">📏 Avaliação física</button>
 <button type="button" data-painel="evolucao" aria-controls="painel-evolucao">📈 Evolução física</button>
 <button type="button" data-painel="treinos" aria-controls="painel-treinos">🏋️ Treinos</button>
+<button type="button" data-painel="fotos" aria-controls="painel-fotos">📷 Avaliação fotográfica</button>
 </nav>
 <p id="orientacaoPerfil" class="muted">Selecione uma opção acima para visualizar os detalhes.</p>
 
@@ -100,6 +104,12 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <h2>Evolução física</h2>
 <p class="muted">Histórico das avaliações físicas registradas.</p>
 <div id="evolucao">Carregando gráficos...</div>
+</section>
+
+<section id="painel-fotos" class="card painel-perfil">
+<h2>Avaliação fotográfica</h2>
+<p class="muted">Registro fotográfico e acompanhamento corporal e postural.</p>
+<div id="area-fotos"></div>
 </section>
 
 <section id="painel-treinos" class="card painel-perfil">
@@ -659,6 +669,44 @@ mostrarErro($("statusPagina"),erro);
 }
 }
 iniciar();
+
+// Scripts externos acrescentam seções depois do carregamento do perfil.
+// Este organizador preserva seus elementos e eventos, movendo-os
+// para a aba correspondente sem recriar seu conteúdo.
+function organizarRecursosExternos(){
+  const fotos=document.getElementById("wand-fotos");
+  const areaFotos=document.getElementById("area-fotos");
+  if(fotos&&areaFotos&&!areaFotos.contains(fotos))areaFotos.appendChild(fotos);
+
+  const evolucao=document.getElementById("painel-evolucao");
+  const titulos=[
+    "análise da composição corporal",
+    "referência científica de gordura corporal",
+    "evolução da gordura corporal",
+    "gráficos de evolução corporal"
+  ];
+  for(const heading of [...document.querySelectorAll("h2,h3")]){
+    if(evolucao.contains(heading))continue;
+    if(heading.closest(".painel-perfil"))continue;
+    const nome=heading.textContent.trim().toLocaleLowerCase("pt-BR");
+    if(!titulos.some(t=>nome.includes(t)))continue;
+    const bloco=heading.closest("section.card,article.card,div.card,section.subcard,article.subcard,div.subcard") || heading.parentElement;
+    if(!bloco||bloco===document.body||bloco===document.querySelector("main"))continue;
+    if(!evolucao.contains(bloco))evolucao.appendChild(bloco);
+  }
+}
+let organizacaoPendente=false;
+const observadorRecursos=new MutationObserver(()=>{
+  if(organizacaoPendente)return;
+  organizacaoPendente=true;
+  requestAnimationFrame(()=>{
+    organizacaoPendente=false;
+    organizarRecursosExternos();
+  });
+});
+observadorRecursos.observe(document.body,{childList:true,subtree:true});
+organizarRecursosExternos();
+
 </script>
 <script type="module" src="analise-corporal.js"></script>
 
