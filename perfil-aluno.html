@@ -88,7 +88,12 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 
 <section class="card">
 <h2>Treinos</h2>
-<p class="muted">Prescrição e acompanhamento de exercícios.</p>
+<p class="muted">Crie prescrições e consulte os treinos deste aluno.</p>
+<div class="actions">
+<a id="prescreverTreino" class="button" href="#">+ Prescrever treino</a>
+<a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
+</div>
+<p class="muted">Os links levam o identificador deste aluno. A seleção automática nas páginas de destino será configurada na próxima etapa.</p>
 </section>
 </div>
 </main>
@@ -605,6 +610,10 @@ if(!await autenticar())return;
 await carregarAluno();
 $("novaAvaliacao").href=
 "avaliacao-fisica.html?id="+encodeURIComponent(alunoId);
+$("prescreverTreino").href=
+"prescricao-treinos.html?aluno_id="+encodeURIComponent(alunoId);
+$("treinosAluno").href=
+"gerenciar-treinos.html?aluno_id="+encodeURIComponent(alunoId);
 $("conteudo").classList.remove("hidden");
 $("statusPagina").textContent="";
 await Promise.all([
