@@ -227,7 +227,8 @@ const supabase=createClient(
 );
 
 const $=id=>document.getElementById(id);
-const parametroAluno=new URLSearchParams(location.search).get("id");
+const parametros=new URLSearchParams(location.search);
+const parametroAluno=parametros.get("aluno_id") ?? parametros.get("id");
 const alunoFixo=parametroAluno!==null;
 const alunoFixoId=alunoFixo && /^\d+$/.test(parametroAluno) && Number.isSafeInteger(Number(parametroAluno)) && Number(parametroAluno)>0
   ? Number(parametroAluno) : null;
