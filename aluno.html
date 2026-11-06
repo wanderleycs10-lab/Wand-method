@@ -185,6 +185,7 @@ main{max-width:850px;padding:22px 16px 90px}
 .panel-view{margin-top:18px}
 .panel-view[hidden],#homeView[hidden]{display:none!important}
 .back-btn{background:none;border:1px solid #62552d;border-radius:9px;color:var(--gold);font:inherit;font-weight:700;padding:11px 15px;cursor:pointer;margin-bottom:8px}
+.back-bottom{margin-top:24px;padding-top:12px;border-top:1px solid #39332a}
 .module-note{border:1px solid #4c412a;background:#211c13;padding:16px;border-radius:12px;color:#ddd;line-height:1.5}
 #statusPagina:empty{display:none}
 @media(max-width:370px){.nav-grid{gap:9px}.nav-tile{padding:13px 10px}.nav-name{font-size:13px}.nav-desc{font-size:11px}}
@@ -224,13 +225,13 @@ main{max-width:850px;padding:22px 16px 90px}
     </nav>
   </section>
 
-  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="module-note">O módulo de prescrição e acompanhamento de treinos ainda está em desenvolvimento. Seus exercícios, séries e progressões aparecerão aqui quando estiver disponível.</p></div></section>
-  <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div><a class="button secondary" href="anamnese.html">ACESSAR ANAMNESE</a></div></section>
-  <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div></section>
-  <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div></section>
-  <section class="panel-view" id="view-evolucao" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Compare suas avaliações e acompanhe as mudanças nas medidas corporais.</p><div id="graficos">Carregando evolução...</div></div></section>
-  <section class="panel-view" id="view-coins" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>WAND Coins</h2><p class="module-note">O sistema de pontos e recompensas está em desenvolvimento. Sua pontuação será exibida quando o módulo estiver disponível.</p></div></section>
-  <section class="panel-view" id="view-treinador" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu Treinador</h2><p>Precisa de orientação sobre sua avaliação ou treinamento?</p><a class="button" href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o." target="_blank" rel="noopener noreferrer">FALAR PELO WHATSAPP</a></div></section>
+  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="module-note">O módulo de prescrição e acompanhamento de treinos ainda está em desenvolvimento. Seus exercícios, séries e progressões aparecerão aqui quando estiver disponível.</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-evolucao" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Compare suas avaliações e acompanhe as mudanças nas medidas corporais.</p><div id="graficos">Carregando evolução...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-coins" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>WAND Coins</h2><p class="module-note">O sistema de pontos e recompensas está em desenvolvimento. Sua pontuação será exibida quando o módulo estiver disponível.</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-treinador" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu Treinador</h2><p>Precisa de orientação sobre sua avaliação ou treinamento?</p><a class="button" href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o." target="_blank" rel="noopener noreferrer">FALAR PELO WHATSAPP</a></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <div class="actions"><button class="button secondary" id="sair" type="button">SAIR DA MINHA CONTA</button></div>
 </div>
 </main>
@@ -804,6 +805,18 @@ function acomodarFotografias(){
   const destino=$("fotografiaDestino");
   if(modulo&&destino&&modulo.parentElement!==destino) destino.appendChild(modulo);
   $("fotografiaAjuda").hidden=Boolean(modulo);
+  // Mantem as instrucoes antes das imagens e dos botoes de envio.
+  if(modulo){
+    const instrucao=Array.from(modulo.querySelectorAll(".wf-box")).find(el=>
+      el.querySelector("h3")?.textContent?.trim()==="Como tirar suas fotografias"
+    );
+    const guia=Array.from(modulo.querySelectorAll(".wf-box")).find(el=>
+      el.querySelector("h3")?.textContent?.trim()==="Guia visual"
+    );
+    if(instrucao&&guia&&instrucao.nextElementSibling!==guia){
+      modulo.insertBefore(instrucao,guia);
+    }
+  }
 }
 function acomodarAnalise(){
   const modulo=document.getElementById("wandAnaliseCorporal");
