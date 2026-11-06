@@ -50,7 +50,7 @@ button.remover{background:#572323;color:#fff}
 </header>
 
 <main>
-<a href="admin.html">← Voltar ao WandCoach</a>
+<a id="voltar" href="admin.html">← Voltar ao WandCoach</a>
 <p id="status">Verificando acesso...</p>
 
 <div id="app">
@@ -66,6 +66,7 @@ disponível para execução pelo aluno.
 <select id="aluno">
 <option value="">Selecione um aluno</option>
 </select>
+<p id="alunoFixoAviso" class="info" hidden>Aluno definido pelo perfil. Para prescrever para outra pessoa, abra o perfil correspondente.</p>
 
 <label for="nome">Nome do treino</label>
 <input id="nome" placeholder="Ex.: Treino A - Peitoral e Tríceps">
@@ -104,6 +105,8 @@ const supabase=createClient(
 );
 
 const $=id=>document.getElementById(id);
+const parametros=new URLSearchParams(location.search);
+const alunoPerfil=parametros.get("aluno_id")||parametros.get("id");
 let usuario=null;
 let biblioteca=[];
 let metodos=[];
@@ -183,6 +186,21 @@ metodos=rm.data||[];
 (ra.data||[]).forEach(a=>
 opcao($("aluno"),String(a.id),a.nome_completo||"Sem nome")
 );
+
+if(alunoPerfil!==null){
+  if(!/^\d+$/.test(alunoPerfil)||!Number.isSafeInteger(Number(alunoPerfil))||Number(alunoPerfil)<=0){
+    throw Error("Identificador de aluno inválido. Abra a prescrição pelo perfil do aluno.");
+  }
+  const alunoEncontrado=(ra.data||[]).some(a=>String(a.id)===alunoPerfil);
+  if(!alunoEncontrado){
+    throw Error("Aluno não encontrado ou sem acesso. Volte ao perfil e tente novamente.");
+  }
+  $("aluno").value=alunoPerfil;
+  $("aluno").disabled=true;
+  $("alunoFixoAviso").hidden=false;
+  $("voltar").href="perfil-aluno.html?id="+encodeURIComponent(alunoPerfil);
+  $("voltar").textContent="← Voltar ao perfil do aluno";
+}
 
 $("app").style.display="block";
 $("status").textContent="";
@@ -278,6 +296,8 @@ s.querySelector(".numero-serie").textContent=String(i+1);
 function lerFormulario(){
 const alunoId=Number($("aluno").value);
 const nome=$("nome").value.trim();
+if(alunoPerfil!==null&&String(alunoId)!==alunoPerfil)
+throw Error("Aluno selecionado não corresponde ao perfil aberto.");
 
 if(!Number.isSafeInteger(alunoId)||alunoId<=0)
 throw Error("Selecione um aluno.");
