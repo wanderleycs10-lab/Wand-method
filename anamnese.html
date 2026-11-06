@@ -227,6 +227,9 @@
     </section>
 
     <div id="conteudo">
+      <div class="actions" style="margin:0 0 18px">
+        <a class="button secondary" href="aluno.html">← Voltar ao painel</a>
+      </div>
 
       <section class="card">
         <h2>Avaliação inicial</h2>
@@ -302,18 +305,6 @@
              aria-live="polite"></p>
         </form>
       </details>
-
-      <section class="card">
-        <h2>Avaliação fotográfica</h2>
-        <p class="small">
-          As fotografias são opcionais e dependem
-          de sua autorização.
-        </p>
-        <p class="small">
-          O módulo fotográfico será exibido
-          separadamente nesta página.
-        </p>
-      </section>
 
       <div class="actions">
         <a class="button secondary" href="aluno.html">
@@ -1440,32 +1431,6 @@
       }
     );
 
-    function carregarModuloFotografico() {
-      if (
-        document.querySelector(
-          'script[src*="avaliacao-fotografica.js"]'
-        )
-      ) {
-        return;
-      }
-
-      const script = document.createElement("script");
-
-      script.src =
-        "./avaliacao-fotografica.js?v=21";
-
-      script.defer = true;
-
-      script.onerror = () => {
-        console.error(
-          "Não foi possível carregar " +
-          "a avaliação fotográfica."
-        );
-      };
-
-      document.body.appendChild(script);
-    }
-
     async function verificarAcesso() {
       try {
         const autenticacao =
@@ -1516,7 +1481,7 @@
         $("carregamento").classList.add("oculto");
         $("conteudo").style.display = "block";
 
-        carregarModuloFotografico();
+
 
       } catch (erro) {
         console.error(
