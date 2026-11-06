@@ -175,6 +175,7 @@ button:disabled{
     </div>
 
     <p id="avisoDuplicacao" role="status" aria-live="polite"></p>
+    <p id="avisoSituacao" role="status" aria-live="polite"></p>
     <section id="painelDuplicacao" class="card" hidden>
       <h2>Duplicar treino</h2>
       <p id="origemDuplicacao" class="info"></p>
@@ -257,6 +258,7 @@ let nomesExercicios={};
 let salvando=false;
 let treinoParaDuplicar=null;
 let duplicando=false;
+let alterandoSituacao=false;
 
 function criar(tag,classe="",texto=""){
   const el=document.createElement(tag);
@@ -429,9 +431,70 @@ async function carregarTreinos(){
     duplicar.type="button";
     duplicar.onclick=()=>abrirDuplicacao(t.id);
     acoes.append(abrir,duplicar);
+    if(t.status==="rascunho"){
+      const ativar=criar("button","","Ativar treino");
+      ativar.type="button";
+      ativar.onclick=()=>alterarSituacao(t,"ativo");
+      acoes.appendChild(ativar);
+    }else if(t.status==="ativo"){
+      const arquivar=criar("button","secundario","Arquivar treino");
+      arquivar.type="button";
+      arquivar.onclick=()=>alterarSituacao(t,"arquivado");
+      acoes.appendChild(arquivar);
+    }
     item.append(titulo,aluno,detalhes,situacao,acoes);
     lista.appendChild(item);
   });
+}
+
+async function alterarSituacao(t,novoStatus){
+  if(alterandoSituacao)return;
+  const origem=novoStatus==="ativo"?"rascunho":"ativo";
+  if(t.status!==origem)return;
+  const aviso=$("avisoSituacao");
+  aviso.className="";
+  aviso.textContent="";
+  const acao=novoStatus==="ativo"?"ATIVAR":"ARQUIVAR";
+  const explicacao=novoStatus==="ativo"
+    ?"O treino ficará liberado para o aluno assim que a visualização do aluno estiver disponível. Rascunhos podem ser editados; treinos ativos não podem ser editados nesta versão."
+    :"O aluno deixará de visualizar este treino entre os ativos. O registro continuará salvo.";
+  if(!confirm(`${acao} o treino "${t.nome}" de ${nomeAluno(t.aluno_id)}?\n\n${explicacao}`))return;
+  alterandoSituacao=true;
+  aviso.textContent="Atualizando situação do treino...";
+  try{
+    if(novoStatus==="ativo"){
+      const {count,error:erroEx}=await supabase
+        .from("wand_treino_exercicios")
+        .select("id",{count:"exact",head:true})
+        .eq("treino_id",t.id);
+      if(erroEx)throw erroEx;
+      if(!count)throw Error("Este treino não possui exercícios. Adicione exercícios antes de ativá-lo.");
+    }
+    const {data,error}=await supabase
+      .from("wand_treinos")
+      .update({status:novoStatus})
+      .eq("id",t.id)
+      .eq("status",origem)
+      .select("id,status")
+      .maybeSingle();
+    if(error)throw error;
+    if(!data)throw Error("A alteração não foi confirmada. Atualize a lista e confira o status do treino.");
+    aviso.className="sucesso";
+    aviso.textContent=novoStatus==="ativo"
+      ?"Treino ativado! A visualização pelo aluno será disponibilizada na próxima etapa."
+      :"Treino arquivado com sucesso!";
+    if(treinoAtual?.id===t.id){
+      $("editor").style.display="none";
+      treinoAtual=null;
+    }
+    await carregarTreinos();
+  }catch(e){
+    console.error(e);
+    aviso.className="erro";
+    aviso.textContent="Não foi possível alterar a situação: "+e.message;
+  }finally{
+    alterandoSituacao=false;
+  }
 }
 
 function abrirDuplicacao(id){
