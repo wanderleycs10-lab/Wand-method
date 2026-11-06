@@ -5,7 +5,7 @@
   if (window.__wandFotosV2) return;
   window.__wandFotosV2 = true;
 
-  // WAND METHOD - Avaliacao Fotografica 2.2 - guias fotograficos
+  // WAND METHOD - Avaliação Fotográfica 2.2
   const URL_DB = "https://kvxdnreipuahoaostlle.supabase.co";
   const CHAVE_DB = "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo";
   const BUCKET = "avaliacoes-fotograficas";
@@ -13,7 +13,6 @@
 
   const pagina = location.pathname.split("/").pop();
   const paginas = [
-    "anamnese.html",
     "perfil-aluno.html",
     "aluno.html"
   ];
@@ -370,8 +369,7 @@
     return fotos.find(foto => foto.posicao === posicao);
   }
 
-  // Referências fotográficas hospedadas no próprio projeto.
-  // Arquivos: imagens/masculino_frente.jpg, etc.
+  // Imagens de referência na pasta /imagens/
   const GUIAS = {
     masculino: {
       frente: "imagens/masculino_frente.jpg",
@@ -386,12 +384,12 @@
   };
 
   function desenho(posicao) {
-    const modelo = guia === "feminino" ? "feminino" : "masculino";
-    const src = GUIAS[modelo][posicao] || GUIAS[modelo].frente;
-    return `<img src="${src}" alt="Modelo ${modelo}, posição ${posicao}" loading="lazy" decoding="async">`;
+    const modelo = GUIAS[guia] || GUIAS.masculino;
+    const src = modelo[posicao] || modelo.frente;
+    return `<img src="${src}" alt="Modelo ${guia}, vista ${posicao}" loading="lazy" decoding="async">`;
   }
 
-  // TERMOS DE AUTORIZACAO
+  // TERMOS DE AUTORIZAÇÃO
 
   const TERMO_AVALIACAO = `
 TERMO DE REGISTRO FOTOGRÁFICO — VERSÃO ${VERSAO}
@@ -662,7 +660,7 @@ as condições legais aplicáveis.
     }
   }
 
-  // VALIDACAO DE ARQUIVOS
+  // VALIDAÇÃO DE ARQUIVOS
 
   function validarArquivo(arquivo) {
     if (!arquivo) {
@@ -905,7 +903,7 @@ as condições legais aplicáveis.
     }
   }
 
-  // INSTRUCOES PARA O ALUNO
+  // INSTRUÇÕES PARA O ALUNO
 
   function instrucoes(pai) {
     const caixa = adicionar(
@@ -972,7 +970,7 @@ as condições legais aplicáveis.
     );
   }
 
-  // HISTORICO FOTOGRAFICO
+  // HISTÓRICO FOTOGRÁFICO
 
   function historico(pai) {
     if (!fotos.length) return;
@@ -1152,9 +1150,17 @@ as condições legais aplicáveis.
         )
       );
 
-      adicionar(guiaBox, "p", "wf-small", "As imagens são referências de posição, não de biotipo. Mantenha sua postura natural.");
-      cartoes(container);
+      adicionar(
+        guiaBox,
+        "p",
+        "wf-small",
+        "As imagens são referências de posição, " +
+        "não de biotipo. Mantenha sua postura natural."
+      );
+
+      // Primeiro as orientações, depois as imagens.
       instrucoes(container);
+      cartoes(container);
 
       if (
         pagina !== "perfil-aluno.html" &&
@@ -1190,7 +1196,7 @@ as condições legais aplicáveis.
     mensagem.id = "wf-mensagem";
   }
 
-  // INICIALIZACAO E IDENTIFICACAO DO ALUNO
+  // INICIALIZAÇÃO E IDENTIFICAÇÃO DO ALUNO
 
   async function iniciar() {
     try {
