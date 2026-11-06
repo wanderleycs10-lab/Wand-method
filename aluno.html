@@ -225,7 +225,7 @@ main{max-width:850px;padding:22px 16px 90px}
     </nav>
   </section>
 
-  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="module-note">O módulo de prescrição e acompanhamento de treinos ainda está em desenvolvimento. Seus exercícios, séries e progressões aparecerão aqui quando estiver disponível.</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições, registre as séries realizadas e acompanhe seu histórico.</p><p id="wandTreinosMsg" role="status"></p><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
@@ -868,6 +868,74 @@ iniciar();
 
 
 <script defer src="./avaliacao-fotografica.js?v=2"></script>
+
+<style>
+.wt-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.wt-row>*{min-width:0}
+.wt-input{background:#101010;border:1px solid #635326;color:#fff;border-radius:8px;padding:10px;width:100%;font:inherit}
+.wt-serie{display:grid;grid-template-columns:44px minmax(75px,1fr) minmax(75px,1fr) 85px;gap:8px;align-items:end;padding:12px 0;border-bottom:1px solid #37302a}
+.wt-serie label{font-size:12px;color:#bbb;display:block;margin-bottom:5px}.wt-serie input[type=checkbox]{width:20px;height:20px;accent-color:#d4af37}
+.wt-msg{margin:12px 0;color:#83dca1}.wt-timer{font-size:32px;font-weight:700;color:#d4af37;font-variant-numeric:tabular-nums}
+@media(max-width:450px){.wt-serie{grid-template-columns:32px 1fr 1fr 65px;gap:5px}.wt-input{padding:8px 5px;font-size:14px}}
+</style>
+<script type="module">
+import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
+const wt=document.getElementById('wandTreinosArea');
+let wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false;
+const wtEl=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
+const wtAdd=(parent,tag,cls,txt)=>{const e=wtEl(tag,cls,txt);parent.append(e);return e};
+const wtBtn=(parent,txt,fn,secondary=false)=>{const b=wtAdd(parent,'button','button'+(secondary?' secondary':''),txt);b.type='button';b.addEventListener('click',fn);return b};
+const wtData=x=>x?new Date(x).toLocaleString('pt-BR'):'—';
+const wtNum=x=>x==null?'—':String(x);
+function wtMsg(text,isError=false){const e=document.getElementById('wandTreinosMsg');e.textContent=text;e.className=isError?'error':'wt-msg';}
+async function wtRpc(nome,args){const {data,error}=await wandDb.rpc(nome,args);if(error)throw new Error(error.message);return data}
+function wtArea(){wt.replaceChildren();return wt}
+function wtInput(parent,label,value,kind='text'){const box=wtAdd(parent,'div');const l=wtAdd(box,'label',null,label);const input=wtAdd(box,'input','wt-input');input.type=kind;input.value=value??'';if(kind==='number'){input.min='0';input.step='any'}l.append(input);return input}
+async function wtCarregar(){
+ try{
+  wtMsg('Carregando treinos...');
+  [wtTreinos,wtHistorico]=await Promise.all([wtRpc('wand_aluno_treinos'),wtRpc('wand_aluno_historico')]);
+  wtTreinos=wtTreinos||[];wtHistorico=wtHistorico||[];
+  const aberta=wtHistorico.find(x=>!x.finalizada_em);
+  if(aberta){wtSessao=aberta.id;wtTreino=wtTreinos.find(t=>t.id===aberta.treino_id)||null;wtSerieSalva=Object.fromEntries((aberta.series||[]).map(s=>[s.serie_id,s]));wtInicio=Date.parse(aberta.iniciada_em)||Date.now();}
+  else{wtSessao=null;wtTreino=null;wtSerieSalva={};}
+  wtMsg('');wtRender();
+ }catch(e){wtMsg('Não foi possível carregar os treinos: '+e.message,true)}
+}
+function wtRender(){
+ const area=wtArea();
+ if(wtSessao&&!wtTreino){wtAdd(area,'p','notice','Há uma sessão aberta de um treino que não está mais ativo. Entre em contato com seu treinador para reativá-lo ou encerrar essa sessão.');wtBtn(area,'Finalizar sessão aberta',()=>wtFinalizar(),true);return;}
+ if(wtSessao&&wtTreino){wtExecucao(area);return;}
+ const h=wtAdd(area,'h3',null,'Treinos disponíveis');
+ if(!wtTreinos.length)wtAdd(area,'p','notice','Nenhum treino ativo foi liberado pelo treinador.');
+ for(const t of wtTreinos){const c=wtAdd(area,'article','subcard');wtAdd(c,'h3',null,t.nome||'Treino');if(t.objetivo)wtAdd(c,'p','muted','Objetivo: '+t.objetivo);if(t.observacoes)wtAdd(c,'p',null,t.observacoes);wtAdd(c,'p','muted',(t.exercicios||[]).length+' exercício(s)');wtBtn(c,'Ver prescrição',()=>wtVerTreino(t));wtBtn(c,'Iniciar treino',()=>wtIniciar(t),true);}
+ wtAdd(area,'h3',null,'Histórico de sessões');
+ const concluidas=wtHistorico.filter(s=>s.finalizada_em);
+ if(!concluidas.length)wtAdd(area,'p','muted','Nenhuma sessão finalizada ainda.');
+ for(const s of concluidas){const c=wtAdd(area,'article','subcard');wtAdd(c,'strong',null,s.treino||'Treino');wtAdd(c,'p','muted',wtData(s.iniciada_em)+' · '+(s.series||[]).filter(x=>x.concluida).length+' séries concluídas');wtBtn(c,'Ver registros',()=>wtVerHistorico(s),true);}
+}
+function wtVerTreino(t){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,t.nome||'Treino');if(t.observacoes)wtAdd(a,'p','notice',t.observacoes);
+ for(const ex of t.exercicios||[]){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
+ for(const s of ex.series||[])wtAdd(c,'p','muted','Série '+s.numero+': '+wtNum(s.repeticoes)+' repetições · '+wtNum(s.carga)+' kg · descanso '+wtNum(s.descanso)+' s'+(s.observacoes?' · '+s.observacoes:''));}
+ wtBtn(a,'Iniciar treino',()=>wtIniciar(t));}
+async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+function wtExecucao(area){wtAdd(area,'h3',null,wtTreino.nome);wtAdd(area,'p','muted','Sessão iniciada em '+new Date(wtInicio).toLocaleString('pt-BR'));
+ const timer=wtAdd(area,'div','subcard');wtAdd(timer,'strong',null,'Descanso');const clock=wtAdd(timer,'div','wt-timer','00:00');const actions=wtAdd(timer,'div','actions');wtBtn(actions,'Iniciar 60 s',()=>wtComecarTimer(60));wtBtn(actions,'Parar',()=>{wtTimerFim=0;wtAtualizarTimer()},true);
+ function wtAtualizarTimer(){const remain=Math.max(0,Math.ceil((wtTimerFim-Date.now())/1000));clock.textContent=String(Math.floor(remain/60)).padStart(2,'0')+':'+String(remain%60).padStart(2,'0');if(remain===0&&wtTimerId){clearInterval(wtTimerId);wtTimerId=null;}}
+ function wtComecarTimer(sec){wtTimerFim=Date.now()+sec*1000;if(wtTimerId)clearInterval(wtTimerId);wtAtualizarTimer();wtTimerId=setInterval(wtAtualizarTimer,500)}
+ for(const ex of wtTreino.exercicios||[]){const c=wtAdd(area,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
+ for(const s of ex.series||[]){const registro=wtSerieSalva[s.id]||{};const row=wtAdd(c,'div','wt-serie');wtAdd(row,'strong',null,String(s.numero));const reps=wtInput(row,'Reps. (prescritas: '+wtNum(s.repeticoes)+')',registro.repeticoes??s.repeticoes,'number');const carga=wtInput(row,'Carga kg (prescrita: '+wtNum(s.carga)+')',registro.carga??s.carga,'number');const doneBox=wtAdd(row,'div');wtAdd(doneBox,'label',null,'Concluída');const done=wtAdd(doneBox,'input');done.type='checkbox';done.checked=Boolean(registro.concluida);const obs=wtInput(c,'Observações da série '+s.numero,registro.observacoes||'');const btn=wtBtn(c,registro.concluida?'Atualizar série':'Salvar série',async()=>{
+  if(wtBusy)return;const r=reps.value.trim()===''?null:Number(reps.value);const kg=carga.value.trim()===''?null:Number(carga.value.replace(',','.'));
+  if((r!==null&&(!Number.isInteger(r)||r<0))||(kg!==null&&(!Number.isFinite(kg)||kg<0))){wtMsg('Informe repetições inteiras e carga válida.',true);return}
+  wtBusy=true;btn.disabled=true;try{await wtRpc('wand_salvar_serie',{p_sessao_id:wtSessao,p_serie_id:s.id,p_repeticoes:r,p_carga:kg,p_concluida:done.checked,p_observacoes:obs.value});wtSerieSalva[s.id]={serie_id:s.id,repeticoes:r,carga:kg,concluida:done.checked,observacoes:obs.value};btn.textContent='Atualizar série';wtMsg('Série salva com sucesso!');if(done.checked&&Number(s.descanso)>0)wtComecarTimer(Number(s.descanso));}catch(e){wtMsg('Erro ao salvar: '+e.message,true)}finally{wtBusy=false;btn.disabled=false}
+ },true);
+ }}
+ const finish=wtAdd(area,'article','subcard');const obsFinal=wtInput(finish,'Observações gerais da sessão','');wtBtn(finish,'Finalizar treino',()=>wtFinalizar(obsFinal.value));}
+async function wtFinalizar(obs=''){if(wtBusy||!wtSessao)return;if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});if(wtTimerId)clearInterval(wtTimerId);wtTimerId=null;wtTimerFim=0;wtSessao=null;wtTreino=null;wtSerieSalva={};await wtCarregar();wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,s.treino||'Treino');wtAdd(a,'p','muted','Início: '+wtData(s.iniciada_em)+' · Fim: '+wtData(s.finalizada_em));if(s.observacoes)wtAdd(a,'p','notice',s.observacoes);
+ const agrupados={};for(const sr of s.series||[]){(agrupados[sr.exercicio]??=[]).push(sr)}for(const [nome,series] of Object.entries(agrupados)){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,nome);for(const sr of series)wtAdd(c,'p','muted','Série '+sr.numero+': '+wtNum(sr.repeticoes)+' reps · '+wtNum(sr.carga)+' kg · '+(sr.concluida?'Concluída':'Não concluída')+(sr.observacoes?' · '+sr.observacoes:''));}}
+const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListener('click',()=>{if(!wt.dataset.loaded){wt.dataset.loaded='1';wtCarregar()}});
+</script>
 
 </body>
 </html>
