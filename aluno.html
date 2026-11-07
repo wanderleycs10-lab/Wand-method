@@ -226,7 +226,7 @@ main{max-width:850px;padding:22px 16px 90px}
     </nav>
   </section>
 
-  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições, registre as séries realizadas e acompanhe seu histórico.</p><p id="wandTreinosMsg" role="status"></p><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições, registre as séries realizadas e acompanhe seu histórico.</p><p id="wandTreinosMsg" role="status"></p><div id="wandAdaptacaoDia" class="notice" hidden></div><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
@@ -1052,6 +1052,22 @@ function wbRenderHistorico(cycle){const list=(wbData.registros||[]);$w('wbHistor
 async function wbDelete(all){if(!confirm(all?'Excluir permanentemente TODOS os check-ins e preferências?':'Excluir permanentemente dados menstruais e desativar o acompanhamento do ciclo?'))return;try{await wbRpc('wand_bemestar_apagar',{p_apagar_tudo:all,p_apagar_ciclo:!all});await wbLoad();wbStatus('Dados excluídos.')}catch(e){wbStatus(e.message,true)}}
 const wbObserver=new MutationObserver(()=>{if(!document.getElementById('view-bemestar')?.hidden&&wb.dataset.loaded!=='1'){wb.dataset.loaded='1';wbLoad()}});
 wbObserver.observe(document.getElementById('painel'),{subtree:true,attributes:true,attributeFilter:['hidden']});
+</script>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const adDb=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const adEl=document.getElementById('wandAdaptacaoDia');
+async function adConsultar(){
+ const d=new Date(),dia=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+ const {data,error}=await adDb.rpc('wand_aluno_adaptacoes_do_dia',{p_dia:dia});
+ adEl.hidden=false;adEl.replaceChildren();
+ if(error){adEl.textContent='Não foi possível consultar adaptações do dia: '+error.message;return}
+ if(!data?.length){adEl.hidden=true;return}
+ const titulo=document.createElement('strong');titulo.textContent='Adaptação programada para hoje';adEl.appendChild(titulo);
+ const p=document.createElement('p');p.textContent='Seu treinador programou uma alternativa para a sessão de hoje. Antes de iniciar, confirme com ele qual prescrição utilizar. A troca automática de treino ainda não está habilitada.';adEl.appendChild(p);
+ const a=document.createElement('a');a.href='https://wa.me/5521982212876?text=Ol%C3%A1%21%20Vi%20uma%20adapta%C3%A7%C3%A3o%20programada%20no%20WAND%20METHOD.%20Qual%20treino%20devo%20iniciar%3F';a.className='button secondary';a.target='_blank';a.rel='noopener noreferrer';a.textContent='Falar com meu treinador';adEl.appendChild(a);
+}
+document.querySelector('[data-view="treinos"]')?.addEventListener('click',adConsultar);
 </script>
 </body>
 </html>
