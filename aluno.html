@@ -220,7 +220,8 @@ main{max-width:850px;padding:22px 16px 90px}
       <button type="button" class="nav-tile" data-view="avaliacoes"><span class="nav-icon">⌁</span><span class="nav-name">Avaliação Física</span><span class="nav-desc">Medidas corporais</span></button>
       <button type="button" class="nav-tile" data-view="fotografica"><span class="nav-icon">▣</span><span class="nav-name">Avaliação Fotográfica</span><span class="nav-desc">Frente, perfil e costas</span></button>
       <button type="button" class="nav-tile" data-view="evolucao"><span class="nav-icon">↗</span><span class="nav-name">Minha Evolução</span><span class="nav-desc">Gráficos e resultados</span></button>
-      <button type="button" class="nav-tile" data-view="coins"><span class="nav-icon">★</span><span class="nav-name">WAND Coins</span><span class="nav-desc">Conquistas e recompensas</span></button>
+      <button type="button" class="nav-tile" data-view="bemestar"><span class="nav-icon">♡</span><span class="nav-name">Bem-estar</span><span class="nav-desc">Check-in e ciclo opcional</span></button>
+       <button type="button" class="nav-tile" data-view="coins"><span class="nav-icon">★</span><span class="nav-name">WAND Coins</span><span class="nav-desc">Conquistas e recompensas</span></button>
       <button type="button" class="nav-tile" data-view="treinador"><span class="nav-icon">☏</span><span class="nav-name">Meu Treinador</span><span class="nav-desc">Contato e suporte</span></button>
     </nav>
   </section>
@@ -230,6 +231,7 @@ main{max-width:850px;padding:22px 16px 90px}
   <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-evolucao" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Compare suas avaliações e acompanhe as mudanças nas medidas corporais.</p><div id="graficos">Carregando evolução...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-bemestar" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu bem-estar</h2><p id="wbStatus" role="status"></p><div id="wbConteudo"></div></div></section>
   <section class="panel-view" id="view-coins" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>WAND Coins</h2><p class="module-note">O sistema de pontos e recompensas está em desenvolvimento. Sua pontuação será exibida quando o módulo estiver disponível.</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-treinador" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu Treinador</h2><p>Precisa de orientação sobre sua avaliação ou treinamento?</p><a class="button" href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o." target="_blank" rel="noopener noreferrer">FALAR PELO WHATSAPP</a></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <div class="actions"><button class="button secondary" id="sair" type="button">SAIR DA MINHA CONTA</button></div>
@@ -792,7 +794,7 @@ $("statusPagina").textContent=
 
 
 // Navegacao do painel: conserva os IDs e as rotinas de avaliacao originais.
-const VIEWS=["treinos","ficha","avaliacoes","fotografica","evolucao","coins","treinador"];
+const VIEWS=["bemestar","treinos","ficha","avaliacoes","fotografica","evolucao","coins","treinador"];
 function mostrarVista(nome){
   const valido=VIEWS.includes(nome)?nome:null;
   $("homeView").hidden=Boolean(valido);
@@ -1014,5 +1016,42 @@ function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);
 const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListener('click',()=>{if(!wt.dataset.loaded){wt.dataset.loaded='1';wtCarregar()}});
 </script>
 
+<style>
+.wb-panel{margin-top:16px}.wb-panel label{display:block;margin:12px 0 5px;color:#ddd;font-size:14px}.wb-panel input:not([type=checkbox]),.wb-panel select,.wb-panel textarea{width:100%;padding:12px;background:#101010;color:#fff;border:1px solid #62552d;border-radius:8px;font:inherit}.wb-panel input[type=checkbox]{accent-color:#d4af37}.wb-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.wb-muted{font-size:13px;color:#bbb}.wb-note{border-left:3px solid #d4af37;padding:12px;background:#241e12;margin:12px 0}.wb-panel button{margin:8px 8px 4px 0}.wb-danger{border:1px solid #ff9a9a!important;color:#ffb6b6!important}
+</style>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const wbdb=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const wb=document.getElementById('wbConteudo');
+const $w=id=>document.getElementById(id);
+const wbDate=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
+const wbEsc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function wbRpc(n,a){const {data,error}=await wbdb.rpc(n,a);if(error)throw Error(error.message);return data}
+function wbStatus(s,err=false){$w('wbStatus').textContent=s;$w('wbStatus').style.color=err?'#ff9292':'#83dca1'}
+let wbData={preferencias:null,registros:[]};
+async function wbLoad(){try{wbStatus('Carregando...');wbData=await wbRpc('wand_bemestar_meu_painel');wbStatus('');wbRender()}catch(e){wbStatus('Não foi possível carregar: '+e.message,true)}}
+function wbRender(){const p=wbData.preferencias||{},active=!!p.ativo,cycle=!!p.ciclo_ativo;wb.innerHTML=`<div class="subcard wb-panel"><h3>Preferências e privacidade</h3><p class="wb-muted">Check-in opcional. Você decide se ativa o acompanhamento menstrual e se compartilha os dados do ciclo com o treinador. O treinador poderá visualizar seus check-ins gerais quando ativados.</p><label><input id="wbAtivo" type="checkbox" ${active?'checked':''}> Ativar check-in de bem-estar</label><label><input id="wbCiclo" type="checkbox" ${cycle?'checked':''}> Ativar acompanhamento menstrual</label><label><input id="wbCompartilhar" type="checkbox" ${p.compartilhar_ciclo?'checked':''}> Compartilhar informações menstruais com meu treinador</label><label for="wbSituacao">Situação atual do ciclo (opcional)</label><select id="wbSituacao"><option value="">Não informar</option><option value="regular">Menstruação regular</option><option value="irregular">Menstruação irregular</option><option value="sem_menstruacao">Não menstruo atualmente</option><option value="nao_informar">Prefiro não informar</option></select><p class="wb-note">Ao ativar o acompanhamento menstrual, você autoriza o registro desses dados sensíveis. O compartilhamento com o treinador exige uma escolha separada. Você pode desativar e apagar os dados quando desejar.</p><button type="button" class="button" id="wbSalvarPref">Salvar preferências</button><button type="button" class="button secondary wb-danger" id="wbApagarCiclo">Apagar dados menstruais</button><button type="button" class="button secondary wb-danger" id="wbApagarTudo">Apagar todos os registros</button></div><div id="wbCheckin"></div><div id="wbHistorico"></div>`;
+$w('wbSituacao').value=p.situacao_ciclo||'';
+$w('wbSalvarPref').onclick=wbSavePref;
+$w('wbApagarCiclo').onclick=()=>wbDelete(false);
+$w('wbApagarTudo').onclick=()=>wbDelete(true);
+if(active)wbRenderCheckin(cycle);
+wbRenderHistorico(cycle);
+}
+async function wbSavePref(){const active=$w('wbAtivo').checked,cycle=$w('wbCiclo').checked,share=$w('wbCompartilhar').checked;
+if(cycle&&!active){wbStatus('Ative primeiro o check-in geral.',true);return}
+if(share&&!cycle){wbStatus('Ative primeiro o acompanhamento menstrual.',true);return}
+if(cycle&&!wbData.preferencias?.ciclo_ativo&&!confirm('Deseja ativar o registro de informações menstruais sensíveis? Você poderá desativar e apagar os registros depois.'))return;
+try{await wbRpc('wand_bemestar_configurar',{p_ativo:active,p_ciclo_ativo:cycle,p_compartilhar_ciclo:share,p_situacao:$w('wbSituacao').value||null});await wbLoad();wbStatus('Preferências salvas.')}catch(e){wbStatus(e.message,true)}}
+function wbRenderCheckin(cycle){$w('wbCheckin').innerHTML=`<div class="subcard wb-panel"><h3>Check-in do dia</h3><p class="wb-muted">Escalas de 1 (muito baixo) a 5 (muito alto). Dor muscular: 0 (nenhuma) a 5 (intensa).</p><label>Data</label><input id="wbDia" type="date" max="${wbDate()}" value="${wbDate()}"><div class="wb-row"><div><label>Energia</label><select id="wbEnergia">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Qualidade do sono</label><select id="wbSono">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Disposição</label><select id="wbDisposicao">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Dor muscular</label><select id="wbDor">${[0,1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div></div>${cycle?`<div id="wbCicloCampos"><label>Menstruação hoje?</label><select id="wbMenstruando"><option value="">Não informar</option><option value="true">Sim</option><option value="false">Não</option></select><label>Cólicas (0–5)</label><select id="wbColica"><option value="">Não informar</option>${[0,1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select><label>Data do início da menstruação (se desejar)</label><input type="date" id="wbInicio" max="${wbDate()}"></div>`:''}<label>Observações (opcional)</label><textarea id="wbObs" maxlength="1000" rows="3" placeholder="Como você se sentiu hoje?"></textarea><label><input type="checkbox" id="wbAjuste"> Gostaria de conversar sobre uma adaptação no treino</label><p class="wb-muted">Este registro não altera automaticamente seu treino. Se precisar de ajuda imediata, fale com seu treinador.</p><button class="button" type="button" id="wbSalvarDia">Salvar check-in</button></div>`;
+$w('wbSalvarDia').onclick=wbSaveDay;
+$w('wbDia').onchange=wbFillDay;wbFillDay();}
+function wbFillDay(){const r=(wbData.registros||[]).find(x=>x.dia===$w('wbDia').value);for(const [id,key,def] of [['wbEnergia','energia',3],['wbSono','sono',3],['wbDisposicao','disposicao',3],['wbDor','dor_muscular',0]])$w(id).value=r?.[key]??def;$w('wbObs').value=r?.observacoes||'';$w('wbAjuste').checked=!!r?.pedir_ajuste;if($w('wbMenstruando')){$w('wbMenstruando').value=r?.menstruando===null||r?.menstruando===undefined?'':String(r.menstruando);$w('wbColica').value=r?.colica??'';$w('wbInicio').value=r?.inicio_menstruacao||''}}
+async function wbSaveDay(){const val=id=>Number($w(id).value);try{await wbRpc('wand_bemestar_salvar',{p_dia:$w('wbDia').value,p_energia:val('wbEnergia'),p_sono:val('wbSono'),p_disposicao:val('wbDisposicao'),p_dor_muscular:val('wbDor'),p_observacoes:$w('wbObs').value||null,p_menstruando:$w('wbMenstruando')?.value===''||!$w('wbMenstruando')?null:$w('wbMenstruando').value==='true',p_colica:$w('wbColica')?.value?val('wbColica'):($w('wbColica')?.value==='0'?0:null),p_inicio_menstruacao:$w('wbInicio')?.value||null,p_pedir_ajuste:$w('wbAjuste').checked});await wbLoad();wbStatus('Check-in salvo com sucesso.')}catch(e){wbStatus(e.message,true)}}
+function wbRenderHistorico(cycle){const list=(wbData.registros||[]);$w('wbHistorico').innerHTML=`<div class="subcard wb-panel"><h3>Meus registros</h3>${list.length?list.slice(0,30).map(r=>`<div class="subcard"><strong>${wbEsc(r.dia)}</strong><p class="wb-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${cycle&&r.menstruando!==null?`<p class="wb-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!==null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wb-note">Solicitou conversa sobre adaptação</p>':''}${r.observacoes?`<p>${wbEsc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wb-muted">Nenhum registro ainda.</p>'}</div>`}
+async function wbDelete(all){if(!confirm(all?'Excluir permanentemente TODOS os check-ins e preferências?':'Excluir permanentemente dados menstruais e desativar o acompanhamento do ciclo?'))return;try{await wbRpc('wand_bemestar_apagar',{p_apagar_tudo:all,p_apagar_ciclo:!all});await wbLoad();wbStatus('Dados excluídos.')}catch(e){wbStatus(e.message,true)}}
+const wbObserver=new MutationObserver(()=>{if(!document.getElementById('view-bemestar')?.hidden&&wb.dataset.loaded!=='1'){wb.dataset.loaded='1';wbLoad()}});
+wbObserver.observe(document.getElementById('painel'),{subtree:true,attributes:true,attributeFilter:['hidden']});
+</script>
 </body>
 </html>
