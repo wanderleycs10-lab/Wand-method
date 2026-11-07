@@ -127,6 +127,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <a id="prescreverTreino" class="button" href="#">+ Prescrever treino</a>
 <a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
 </div>
+<div class="subcard" id="wandHistoricoCard"><h3>Histórico de execução</h3><p class="muted">Sessões realizadas, séries, cargas e repetições.</p><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Abra Treinos para carregar o histórico.</div></div>
 
 
 </section>
@@ -745,20 +746,24 @@ organizarRecursosExternos();
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const dbw=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
-const out=document.getElementById('wbcArea'),id=new URLSearchParams(location.search).get('id');
+const out=document.getElementById('wbcArea'),historicoOut=document.getElementById('wandHistoricoArea'),id=new URLSearchParams(location.search).get('id');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function carregar(){if(!/^\d+$/.test(id||''))return;out.textContent='Carregando...';try{const [bem,hist]=await Promise.all([dbw.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(id)}),dbw.rpc('wand_coach_historico_aluno',{p_aluno_id:Number(id)})]);if(bem.error)throw Error(bem.error.message);if(hist.error)throw Error(hist.error.message);const b=bem.data||{},s=hist.data||[];
-let html='<h3>Histórico de execução</h3>'+(s.length?s.slice(0,30).map(x=>`<div class="wbc-row"><strong>${esc(x.treino)}</strong><p class="wbc-muted">${esc(new Date(x.iniciada_em).toLocaleString('pt-BR'))} · ${x.finalizada_em?'Finalizado':'Em andamento'}</p><p class="wbc-muted">${(x.series||[]).filter(v=>v.concluida).length} séries concluídas</p>${(x.series||[]).filter(v=>v.concluida).map(v=>`<p class="wbc-muted">${esc(v.exercicio)} · Série ${esc(v.numero)}: ${esc(v.repeticoes)} rep · ${esc(v.carga)} kg</p>`).join('')}${x.observacoes?`<p>${esc(x.observacoes)}</p>`:''}</div>`).join(''):'<p class="wbc-muted">Sem sessões registradas.</p>');
-html+='<h3>Check-ins de bem-estar</h3>';
+async function carregar(){if(!/^\d+$/.test(id||''))return;out.textContent='Carregando...';historicoOut.textContent='Carregando histórico...';try{const [bem,hist]=await Promise.all([dbw.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(id)}),dbw.rpc('wand_coach_historico_aluno',{p_aluno_id:Number(id)})]);if(bem.error)throw Error(bem.error.message);if(hist.error)throw Error(hist.error.message);const b=bem.data||{},s=hist.data||[];
+let histHtml=(s.length?s.slice(0,30).map(x=>`<div class="wbc-row"><strong>${esc(x.treino)}</strong><p class="wbc-muted">${esc(new Date(x.iniciada_em).toLocaleString('pt-BR'))} · ${x.finalizada_em?'Finalizado':'Em andamento'}</p><p class="wbc-muted">${(x.series||[]).filter(v=>v.concluida).length} séries concluídas</p>${(x.series||[]).filter(v=>v.concluida).map(v=>`<p class="wbc-muted">${esc(v.exercicio)} · Série ${esc(v.numero)}: ${esc(v.repeticoes)} rep · ${esc(v.carga)} kg</p>`).join('')}${x.observacoes?`<p>${esc(x.observacoes)}</p>`:''}</div>`).join(''):'<p class="wbc-muted">Sem sessões registradas.</p>');
+historicoOut.innerHTML=histHtml;
+let html='<h3>Check-ins de bem-estar</h3>';
 if(!b.ativo)html+='<p class="wbc-muted">Aluno não ativou o acompanhamento de bem-estar.</p>';
 else {html+=`<p class="wbc-muted">Informações menstruais ${b.ciclo_compartilhado?'compartilhadas voluntariamente':'não compartilhadas'}.</p>`;
 html+=(b.registros||[]).length?(b.registros||[]).slice(0,30).map(r=>`<div class="wbc-row"><strong>${esc(r.dia)}</strong><p class="wbc-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${b.ciclo_compartilhado&&r.menstruando!==null?`<p class="wbc-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!==null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wbc-alert">Aluno solicitou conversar sobre adaptação do treino.</p>':''}${r.observacoes?`<p>${esc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wbc-muted">Sem check-ins.</p>'}
 out.innerHTML=html;
-}catch(e){out.textContent='Não foi possível carregar os registros: '+e.message}}
+}catch(e){out.textContent='Não foi possível carregar os registros: '+e.message;historicoOut.textContent='Não foi possível carregar o histórico: '+e.message}}
 const section=document.getElementById('painel-acompanhamento');
-const obs=new MutationObserver(()=>{if(section.classList.contains('ativo')&&out.dataset.loaded!=='1'){out.dataset.loaded='1';carregar()}});
+const treinoSection=document.getElementById('painel-treinos');
+const obs=new MutationObserver(()=>{if((section.classList.contains('ativo')||treinoSection.classList.contains('ativo'))&&out.dataset.loaded!=='1'){out.dataset.loaded='1';carregar()}});
 obs.observe(section,{attributes:true,attributeFilter:['class']});
+obs.observe(treinoSection,{attributes:true,attributeFilter:['class']});
 document.getElementById('wbcRecarregar').addEventListener('click',carregar);
+document.getElementById('wandHistoricoAtualizar').addEventListener('click',carregar);
 </script>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
