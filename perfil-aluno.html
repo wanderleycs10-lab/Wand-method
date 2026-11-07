@@ -133,7 +133,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <section id="painel-acompanhamento" class="card painel-perfil">
 <h2>Acompanhamento</h2>
 <p class="muted">Solicitações, histórico de execução, check-ins e adaptações de treino.</p>
-<div class="subcard"><h3>Solicitações de ajuste</h3><p id="waMensagem" role="status" class="muted"></p><div id="waSolicitacoes"></div><button type="button" class="button secondary" id="waAtualizar">Atualizar acompanhamento</button></div>
+<div class="subcard"><h3>Solicitações de ajuste</h3><p id="waMensagem" role="status" class="muted"></p><div id="waSolicitacoes"></div><div id="waNotificacoes"></div><button type="button" class="button secondary" id="waAtualizar">Atualizar acompanhamento</button></div>
 <div class="subcard"><h3>Protocolos previamente definidos</h3><p class="muted">Crie primeiro um treino alternativo no Gerenciamento de Treinos. Depois vincule os dois treinos aqui.</p>
 <label for="waOriginal">Treino original</label><select id="waOriginal"></select>
 <label for="waAlternativo">Treino alternativo</label><select id="waAlternativo"></select>
@@ -145,7 +145,8 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <label for="waProtocoloAgenda">Protocolo</label><select id="waProtocoloAgenda"></select>
 <label for="waDiaAgenda">Data da adaptação</label><input id="waDiaAgenda" type="date">
 <label for="waJustificativa">Observação (opcional)</label><textarea id="waJustificativa" maxlength="1000" rows="2"></textarea>
-<button type="button" id="waProgramar" class="button">Programar adaptação</button><p class="muted">A programação será consultada pelo aplicativo do aluno. Esta versão não substitui automaticamente o treino iniciado.</p></div>
+<button type="button" id="waProgramar" class="button">Programar adaptação</button><p class="muted">A programação será consultada pelo aplicativo do aluno. No dia escolhido, o aluno verá a alternativa indicada; sessões já iniciadas não serão modificadas.</p></div>
+<div class="subcard"><h3>Adaptações programadas</h3><div id="waAdaptacoes"></div></div>
 <div class="subcard"><h3>Execução e bem-estar</h3><p class="muted">Registros realizados pelo aluno e dados compartilhados voluntariamente.</p><button type="button" class="button secondary" id="wbcRecarregar">Atualizar registros</button><div id="wbcArea"></div></div>
 </section>
 </div>
@@ -771,12 +772,37 @@ function waStatus(t,erro=false){waEl('waMensagem').textContent=t;waEl('waMensage
 async function waRpc(name,args){const {data,error}=await waDb.rpc(name,args);if(error)throw Error(error.message);return data}
 function waBadge(){const n=waSolicitacoes.length,b=waEl('wandBotaoAcompanhamento'),c=waEl('wandContadorPendencias');b.classList.toggle('tem-pendencia',n>0);c.hidden=n===0;c.textContent=n?`${n} pendente${n>1?'s':''}`:''}
 async function waAtualizarPendencias(){try{waSolicitacoes=await waRpc('wand_coach_solicitacoes_aluno',{p_aluno_id:waId})||[];waBadge();waMostrarSolicitacoes()}catch(e){waStatus('Não foi possível consultar solicitações: '+e.message,true)}}
-function waMostrarSolicitacoes(){const a=waEl('waSolicitacoes');a.replaceChildren();if(!waSolicitacoes.length){a.textContent='Nenhuma solicitação pendente.';return}for(const s of waSolicitacoes){const div=document.createElement('div');div.className='wa-item';const p=document.createElement('p');p.textContent=`Solicitação de ${s.dia} · Recebida em ${new Date(s.criado_em).toLocaleString('pt-BR')}`;div.appendChild(p);const btn=document.createElement('button');btn.type='button';btn.textContent='Marcar como atendida';btn.onclick=async()=>{if(!confirm('Confirmar que você já analisou esta solicitação?'))return;try{await waRpc('wand_coach_atender_solicitacao',{p_solicitacao_id:s.id});waStatus('Solicitação marcada como atendida.');await waAtualizarPendencias()}catch(e){waStatus(e.message,true)}};div.appendChild(btn);a.appendChild(div)}}
+function waMostrarSolicitacoes(){const a=waEl('waSolicitacoes');a.replaceChildren();if(!waSolicitacoes.length){a.textContent='Nenhuma solicitação pendente.';return}for(const s of waSolicitacoes){const div=document.createElement('div');div.className='wa-item';const p=document.createElement('p');p.textContent=`Solicitação de ${s.dia} · Recebida em ${new Date(s.criado_em).toLocaleString('pt-BR')}`;div.appendChild(p);
+ const disponiveis=waProtocolos.filter(x=>x.ativo);
+ if(disponiveis.length){
+  const sel=document.createElement('select');for(const protocolo of disponiveis){const op=document.createElement('option');op.value=protocolo.id;op.textContent=protocolo.titulo+' ('+(protocolo.modo==='pre_autorizado'?'pré-autorizado':'aprovação manual')+')';sel.appendChild(op)}div.appendChild(sel);
+  const dia=document.createElement('input');dia.type='date';dia.min=waToday();dia.value=waToday();div.appendChild(dia);
+  const aprovar=document.createElement('button');aprovar.type='button';aprovar.className='button';aprovar.textContent='Aprovar e programar alternativa';
+  aprovar.onclick=async()=>{if(!confirm('Aprovar a alternativa selecionada para a data escolhida?'))return;
+   aprovar.disabled=true;try{await waRpc('wand_coach_programar_adaptacao',{p_protocolo_id:sel.value,p_dia:dia.value,p_solicitacao_id:s.id,p_justificativa:'Ajuste aprovado pelo treinador'});
+    await waRpc('wand_coach_atender_solicitacao',{p_solicitacao_id:s.id});await waCarregarTudo();waStatus('Adaptação programada e solicitação atendida.');
+   }catch(e){waStatus(e.message,true)}finally{aprovar.disabled=false}};
+  div.appendChild(aprovar);
+ }
+ const btn=document.createElement('button');btn.type='button';btn.textContent='Marcar como atendida';btn.onclick=async()=>{if(!confirm('Confirmar que você já analisou esta solicitação?'))return;try{await waRpc('wand_coach_atender_solicitacao',{p_solicitacao_id:s.id});waStatus('Solicitação marcada como atendida.');await waAtualizarPendencias()}catch(e){waStatus(e.message,true)}};div.appendChild(btn);a.appendChild(div)}}
 async function waCarregarTreinos(){const {data,error}=await waDb.from('wand_treinos').select('id,nome,aluno_id,treinador_id,status').eq('aluno_id',waId).order('nome');if(error)throw Error(error.message);waTreinos=data||[];for(const sel of [waEl('waOriginal'),waEl('waAlternativo')]){sel.replaceChildren();for(const t of waTreinos){const op=document.createElement('option');op.value=t.id;op.textContent=`${t.nome} (${t.status})`;sel.appendChild(op)}}}
 async function waCarregarProtocolos(){waProtocolos=await waRpc('wand_coach_protocolos',{p_aluno_id:waId})||[];const lista=waEl('waProtocolos'),sel=waEl('waProtocoloAgenda');lista.replaceChildren();sel.replaceChildren();for(const p of waProtocolos){const div=document.createElement('div');div.className='wa-item';const label=document.createElement('p');label.textContent=`${p.titulo} · ${p.modo==='pre_autorizado'?'Pré-autorizado':'Aprovação manual'} · ${p.ativo?'Ativo':'Inativo'}`;div.appendChild(label);if(p.descricao){const txt=document.createElement('p');txt.className='muted';txt.textContent=p.descricao;div.appendChild(txt)}const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent=p.ativo?'Desativar protocolo':'Ativar protocolo';btn.onclick=async()=>{try{await waRpc('wand_coach_ativar_protocolo',{p_protocolo_id:p.id,p_ativo:!p.ativo});await waCarregarProtocolos();waStatus('Protocolo atualizado.')}catch(e){waStatus(e.message,true)}};div.appendChild(btn);lista.appendChild(div);if(p.ativo){const op=document.createElement('option');op.value=p.id;op.textContent=p.titulo;sel.appendChild(op)}}if(!waProtocolos.length)lista.textContent='Nenhum protocolo cadastrado.'}
-async function waCarregarTudo(){if(!Number.isSafeInteger(waId)||waId<=0)return;waStatus('Carregando acompanhamento...');try{await Promise.all([waAtualizarPendencias(),waCarregarTreinos(),waCarregarProtocolos()]);waStatus('Acompanhamento atualizado.')}catch(e){waStatus('Não foi possível carregar: '+e.message,true)}}
+async function waCarregarAdaptacoes(){const lista=waEl('waAdaptacoes');lista.replaceChildren();
+ const dados=await waRpc('wand_coach_adaptacoes_aluno',{p_aluno_id:waId})||[];
+ if(!dados.length){lista.textContent='Nenhuma adaptação programada.';return}
+ for(const a of dados){const div=document.createElement('div');div.className='wa-item';div.textContent=`${a.dia} · ${a.treino_original} → ${a.treino_alternativo} · ${a.status}`;lista.appendChild(div)}
+}
+async function waCarregarNotificacoes(){const lista=waEl('waNotificacoes');lista.replaceChildren();
+ const dados=await waRpc('wand_minhas_notificacoes')||[];
+ const relevantes=dados.filter(n=>n.aluno_id===waId&&!n.lida_em);
+ if(!relevantes.length)return;
+ const titulo=document.createElement('h3');titulo.textContent='Avisos internos não lidos';lista.appendChild(titulo);
+ for(const n of relevantes){const div=document.createElement('div');div.className='wa-item';const p=document.createElement('p');p.textContent=n.titulo+' · '+new Date(n.criada_em).toLocaleString('pt-BR');div.appendChild(p);
+  const btn=document.createElement('button');btn.type='button';btn.textContent='Marcar aviso como lido';btn.onclick=async()=>{try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes()}catch(e){waStatus(e.message,true)}};div.appendChild(btn);lista.appendChild(div)}
+}
+async function waCarregarTudo(){if(!Number.isSafeInteger(waId)||waId<=0)return;waStatus('Carregando acompanhamento...');try{await Promise.all([waCarregarTreinos(),waCarregarProtocolos()]);await Promise.all([waAtualizarPendencias(),waCarregarAdaptacoes(),waCarregarNotificacoes()]);waStatus('Acompanhamento atualizado.')}catch(e){waStatus('Não foi possível carregar: '+e.message,true)}}
 waEl('waCriar').onclick=async()=>{const titulo=waEl('waTitulo').value.trim();if(titulo.length<3||waEl('waOriginal').value===waEl('waAlternativo').value){waStatus('Informe um título e selecione dois treinos diferentes.',true);return}try{await waRpc('wand_coach_criar_protocolo',{p_aluno_id:waId,p_treino_original:waEl('waOriginal').value,p_treino_alternativo:waEl('waAlternativo').value,p_titulo:titulo,p_descricao:waEl('waDescricao').value||null,p_modo:waEl('waModo').value});await waCarregarProtocolos();waStatus('Protocolo criado. Ative-o quando estiver revisado.')}catch(e){waStatus(e.message,true)}};
-waEl('waProgramar').onclick=async()=>{const id=waEl('waProtocoloAgenda').value,dia=waEl('waDiaAgenda').value;if(!id||!dia){waStatus('Selecione um protocolo ativo e uma data.',true);return}if(!confirm(`Programar adaptação para ${dia}?`))return;try{await waRpc('wand_coach_programar_adaptacao',{p_protocolo_id:id,p_dia:dia,p_solicitacao_id:null,p_justificativa:waEl('waJustificativa').value||null});waStatus('Adaptação programada. A aluna poderá consultá-la na data selecionada.')}catch(e){waStatus(e.message,true)}};
+waEl('waProgramar').onclick=async()=>{const id=waEl('waProtocoloAgenda').value,dia=waEl('waDiaAgenda').value;if(!id||!dia){waStatus('Selecione um protocolo ativo e uma data.',true);return}if(!confirm(`Programar adaptação para ${dia}?`))return;try{await waRpc('wand_coach_programar_adaptacao',{p_protocolo_id:id,p_dia:dia,p_solicitacao_id:null,p_justificativa:waEl('waJustificativa').value||null});await waCarregarAdaptacoes();waStatus('Adaptação programada para a data selecionada.')}catch(e){waStatus(e.message,true)}};
 waEl('waAtualizar').onclick=waCarregarTudo;
 waEl('waDiaAgenda').min=waToday();waEl('waDiaAgenda').value=waToday();
 const waButton=waEl('wandBotaoAcompanhamento');waButton.addEventListener('click',()=>{waCarregarTudo();document.getElementById('wbcRecarregar')?.click()});
