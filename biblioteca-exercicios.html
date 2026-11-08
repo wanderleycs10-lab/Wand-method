@@ -47,6 +47,19 @@
   .exercicio .acoes{padding-top:9px}
   .navegacao-rodape{padding:12px 8px}
 }
+
+/* Player ampliado: janela independente dos cards */
+body.video-aberto{overflow:hidden}
+.video-fundo{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.96);display:flex;align-items:center;justify-content:center;padding:20px}
+.video-janela{width:min(100%,1080px);max-height:calc(100dvh - 40px);display:flex;flex-direction:column;min-height:0;gap:12px}
+.video-topo{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.video-titulo{margin:0;color:#d4af37;font-size:clamp(17px,3vw,23px);overflow-wrap:anywhere}
+.video-fechar{flex-shrink:0;border:1px solid #d4af37;background:#242424;color:#fff;font-size:20px;min-width:46px;min-height:46px;padding:8px 12px}
+.video-player{display:flex;align-items:center;justify-content:center;min-height:0;flex:1;overflow:hidden;background:#000;border-radius:10px}
+.video-player iframe,.video-player video{display:block;width:100%;height:auto;max-height:calc(100dvh - 140px);aspect-ratio:16/9;border:0;background:#000;object-fit:contain}
+.video-player.vertical iframe,.video-player.vertical video{aspect-ratio:9/16;width:auto;height:min(76dvh,850px);max-width:100%}
+.video-rodape{color:#bbb;font-size:13px;text-align:center}
+@media(max-width:650px){.video-fundo{padding:10px}.video-janela{width:100%;max-height:calc(100dvh - 20px)}.video-player iframe,.video-player video{max-height:calc(100dvh - 120px)}.video-player.vertical iframe,.video-player.vertical video{height:min(78dvh,900px);max-width:100%}.video-rodape{font-size:12px}}
 </style>
 </head>
 <body>
@@ -79,6 +92,13 @@
 <div class="campo oculto" id="campoArquivo"><label for="arquivoVideo">Selecionar vídeo MP4 (até 50 MB)</label><input type="file" id="arquivoVideo" accept="video/mp4"><p class="ajuda">O envio exige configurar o bucket wand-exercicios-videos no Supabase. Vídeos próprios serão exibidos por link temporário. Não envie vídeos sem autorização de uso.</p></div>
 <p class="erro" id="erroFormulario" role="alert"></p><div class="acoes"><button type="button" class="secundario" id="cancelar">Cancelar</button><button type="submit" id="salvar">Salvar exercício</button></div>
 </form></section></div>
+<div id="videoFundo" class="video-fundo oculto" role="presentation">
+ <section class="video-janela" role="dialog" aria-modal="true" aria-labelledby="videoTitulo" tabindex="-1">
+  <div class="video-topo"><h2 id="videoTitulo" class="video-titulo">Vídeo demonstrativo</h2><button id="fecharVideo" class="video-fechar" type="button" aria-label="Fechar vídeo">✕</button></div>
+  <div id="videoPlayer" class="video-player"></div>
+  <div id="videoRodape" class="video-rodape"></div>
+ </section>
+</div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 const supabase=createClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
@@ -99,30 +119,48 @@ function renderizar(){const termo=normal($("pesquisa").value.trim());const filtr
 function youtubeId(link){try{const u=new URL(link);const host=u.hostname.toLowerCase().replace(/^www\./,"");let id="";if(host==="youtu.be")id=u.pathname.split("/")[1];else if(host==="youtube.com"||host==="m.youtube.com"||host==="youtube-nocookie.com"){if(u.pathname==="/watch")id=u.searchParams.get("v");else if(/^\/(shorts|embed|live)\//.test(u.pathname))id=u.pathname.split("/")[2];}return /^[a-zA-Z0-9_-]{11}$/.test(id||"")?id:null;}catch{return null;}}
 function videoTipo(e){return e.video_tipo||"nenhum";}
 async function mostrarVideo(e,alvo){alvo.replaceChildren();if(videoTipo(e)==="youtube"&&e.video_url){const id=youtubeId(e.video_url);if(!id){alvo.textContent="Link do YouTube inválido.";return;}const frame=criar("iframe");frame.src=`https://www.youtube-nocookie.com/embed/${id}`;frame.title="Demonstração: "+e.nome;frame.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";frame.allowFullscreen=true;frame.referrerPolicy="strict-origin-when-cross-origin";alvo.append(frame);return;}if(videoTipo(e)==="proprio"&&e.video_url){const {data,error}=await supabase.storage.from(VIDEO_BUCKET).createSignedUrl(e.video_url,3600);if(error){alvo.textContent="Não foi possível abrir o vídeo. Verifique as permissões do armazenamento.";return;}const v=criar("video");v.controls=true;v.playsInline=true;v.src=data.signedUrl;alvo.append(v);return;}alvo.textContent="Vídeo ainda não cadastrado.";}
+let retornoFocoVideo=null;
+function fecharVideo(){const fundo=$("videoFundo");if(fundo.classList.contains("oculto"))return;fundo.classList.add("oculto");$("videoPlayer").replaceChildren();document.body.classList.remove("video-aberto");if(retornoFocoVideo?.isConnected)retornoFocoVideo.focus();retornoFocoVideo=null;}
+async function abrirVideo(e,origem){
+ retornoFocoVideo=origem;
+ const fundo=$("videoFundo"),player=$("videoPlayer");
+ $("videoTitulo").textContent=e.nome;
+ $("videoRodape").textContent=[mapaGrupoExibicao(e.grupo_muscular),e.categoria].filter(Boolean).join(" · ");
+ player.classList.remove("vertical");
+ // Shorts são normalmente verticais. O MP4 utiliza controles nativos e preserva sua proporção.
+ if(videoTipo(e)==="youtube"&&/\/shorts\//i.test(e.video_url||""))player.classList.add("vertical");
+ player.textContent="Carregando vídeo...";
+ fundo.classList.remove("oculto");document.body.classList.add("video-aberto");$("fecharVideo").focus();
+ await mostrarVideo(e,player);
+ if(fundo.classList.contains("oculto")){player.replaceChildren();return;}
+ const video=player.querySelector("video");
+ if(video)video.addEventListener("loadedmetadata",()=>{player.classList.toggle("vertical",video.videoHeight>video.videoWidth);},{once:true});
+}
 function cardExercicio(e){
  const card=criar("article","exercicio");
  card.append(criar("h3","",e.nome),criar("span","etiqueta",mapaGrupoExibicao(e.grupo_muscular)),criar("span","categoria",e.categoria||"Sem categoria"));
- const info=criar("p","",`Equipamento: ${e.equipamento||"Não informado"}`);card.append(info);
+ card.append(criar("p","",`Equipamento: ${e.equipamento||"Não informado"}`));
  const detalhe=criar("div","detalhes");
  const acoes=criar("div","acoes");
- const ver=criar("button","secundario","▶ Ver vídeo e detalhes");ver.type="button";
- ver.addEventListener("click",async()=>{
+ const ver=criar("button","secundario","▶ Ver vídeo");ver.type="button";
+ ver.addEventListener("click",()=>abrirVideo(e,ver));
+ const gerenciar=criar("button","secundario","Gerenciar exercício");gerenciar.type="button";
+ gerenciar.addEventListener("click",()=>{
   const abrir=!detalhe.classList.contains("aberto");detalhe.classList.toggle("aberto",abrir);
-  ver.textContent=abrir?"Ocultar detalhes":"▶ Ver vídeo e detalhes";
+  gerenciar.textContent=abrir?"Ocultar opções":"Gerenciar exercício";
   detalhe.replaceChildren();if(!abrir)return;
-  const areaVideo=criar("div");detalhe.append(areaVideo);await mostrarVideo(e,areaVideo);
   const gestao=criar("div","acoes");
   const editar=criar("button","secundario","Editar cadastro");editar.type="button";editar.onclick=()=>abrirModal(e);
   const desativar=criar("button","perigo","Desativar exercício");desativar.type="button";desativar.onclick=()=>desativarExercicio(e);
   gestao.append(editar,desativar);detalhe.append(gestao);
  });
- acoes.append(ver);card.append(acoes,detalhe);return card;
+ acoes.append(ver,gerenciar);card.append(acoes,detalhe);return card;
 }
 function ajustarTipo(){const t=$("tipoVideo").value;$("campoYoutube").classList.toggle("oculto",t!=="youtube");$("campoArquivo").classList.toggle("oculto",t!=="proprio");}
 function abrirModal(e=null){editando=e;$("formExercicio").reset();$("erroFormulario").textContent="";$("tituloModal").textContent=e?"Editar exercício":"Cadastrar exercício";$("nome").value=e?.nome||"";$("grupoCadastro").value=mapaGrupoExibicao(e?.grupo_muscular)||"Peitoral";$("equipCadastro").value=e?.equipamento||"";$("categoriaCadastro").value=e?.categoria||"Musculação";$("tipoVideo").value=e?videoTipo(e):"nenhum";$("urlYoutube").value=e?.video_tipo==="youtube"?e.video_url||"":"";ajustarTipo();$("modalFundo").classList.remove("oculto");$("nome").focus();}
 function fecharModal(){$("modalFundo").classList.add("oculto");editando=null;}
 async function salvar(ev){ev.preventDefault();const nome=$("nome").value.trim(),grupo=$("grupoCadastro").value,categoria=$("categoriaCadastro").value,equip=$("equipCadastro").value.trim(),tipo=$("tipoVideo").value;const erro=$("erroFormulario");erro.textContent="";if(!nome||!grupo||!categoria){erro.textContent="Informe nome, grupo muscular e categoria.";return;}let videoUrl=null,novoArquivo=null;const antigo=editando?.video_tipo==="proprio"?editando.video_url:null;if(tipo==="youtube"){videoUrl=$("urlYoutube").value.trim();if(!youtubeId(videoUrl)){erro.textContent="Informe um link válido do YouTube.";return;}}else if(tipo==="proprio"){const file=$("arquivoVideo").files[0];if(file){if(file.type!=="video/mp4"||file.size>50*1024*1024){erro.textContent="Selecione um MP4 de até 50 MB.";return;}novoArquivo=file;}else if(editando?.video_tipo==="proprio"&&antigo){videoUrl=antigo;}else{erro.textContent="Selecione um arquivo MP4.";return;}}$("salvar").disabled=true;$("salvar").textContent="Salvando...";try{if(novoArquivo){const caminho=`${usuario.id}/${crypto.randomUUID()}.mp4`;const {error:up}=await supabase.storage.from(VIDEO_BUCKET).upload(caminho,novoArquivo,{contentType:"video/mp4",upsert:false});if(up)throw new Error("Falha no envio do vídeo: "+up.message);videoUrl=caminho;}const payload={nome,grupo_muscular:grupo,categoria,equipamento:equip||null,video_tipo:tipo,video_url:videoUrl};let resultado;if(editando){resultado=await supabase.from("wand_exercicios").update(payload).eq("id",editando.id).select("id");}else{resultado=await supabase.from("wand_exercicios").insert({...payload,ativo:true}).select("id");}if(resultado.error){if(novoArquivo&&videoUrl)await supabase.storage.from(VIDEO_BUCKET).remove([videoUrl]);throw resultado.error;}fecharModal();pagina=1;await carregar();mensagem("Exercício salvo com sucesso.");}catch(e){console.error(e);erro.textContent="Não foi possível salvar: "+(e.message||"Erro desconhecido")+". Confira as colunas, políticas RLS e o armazenamento no Supabase.";}finally{$("salvar").disabled=false;$("salvar").textContent="Salvar exercício";}}
 async function desativarExercicio(e){if(!confirm(`Desativar "${e.nome}"? Ele deixará de aparecer na biblioteca, mas os históricos não serão apagados.`))return;const {error}=await supabase.from("wand_exercicios").update({ativo:false}).eq("id",e.id);if(error){alert("Não foi possível desativar: "+error.message);return;}await carregar();mensagem("Exercício desativado.");}
-["pesquisa","grupo","categoria","equipamento","porPagina"].forEach(id=>$(id).addEventListener(id==="pesquisa"?"input":"change",()=>{pagina=1;renderizar();}));$("novo").addEventListener("click",()=>abrirModal());$("cancelar").addEventListener("click",fecharModal);$("tipoVideo").addEventListener("change",ajustarTipo);$("formExercicio").addEventListener("submit",salvar);$("modalFundo").addEventListener("click",e=>{if(e.target===$("modalFundo"))fecharModal();});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modalFundo").classList.contains("oculto"))fecharModal();});verificarAcesso();
+["pesquisa","grupo","categoria","equipamento","porPagina"].forEach(id=>$(id).addEventListener(id==="pesquisa"?"input":"change",()=>{pagina=1;renderizar();}));$("novo").addEventListener("click",()=>abrirModal());$("cancelar").addEventListener("click",fecharModal);$("tipoVideo").addEventListener("change",ajustarTipo);$("formExercicio").addEventListener("submit",salvar);$("modalFundo").addEventListener("click",e=>{if(e.target===$("modalFundo"))fecharModal();});document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("videoFundo").classList.contains("oculto"))fecharVideo();else if(!$("modalFundo").classList.contains("oculto"))fecharModal();}});$("fecharVideo").addEventListener("click",fecharVideo);$("videoFundo").addEventListener("click",e=>{if(e.target===$("videoFundo"))fecharVideo();});verificarAcesso();
 </script>
 </body></html>
