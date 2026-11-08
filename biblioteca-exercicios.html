@@ -1,413 +1,63 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
-  <title>Biblioteca de Exercícios | WAND METHOD</title>
-
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: #080808;
-      color: #fff;
-      font-family: Arial, sans-serif;
-    }
-
-    header {
-      text-align: center;
-      padding: 25px 15px;
-      border-bottom: 1px solid #d4af37;
-    }
-
-    header h1 {
-      color: #d4af37;
-      margin: 0 0 8px;
-    }
-
-    header p {
-      color: #aaa;
-      margin: 0;
-      font-size: 13px;
-      letter-spacing: 2px;
-    }
-
-    main {
-      max-width: 1050px;
-      margin: auto;
-      padding: 24px 16px;
-    }
-
-    h2 { color: #d4af37; }
-
-    .voltar {
-      display: inline-block;
-      color: #d4af37;
-      text-decoration: none;
-      margin-bottom: 20px;
-    }
-
-    .painel {
-      background: #171717;
-      border: 1px solid #66551f;
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    .filtros {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    input, select {
-      width: 100%;
-      background: #242424;
-      color: white;
-      border: 1px solid #66551f;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 15px;
-    }
-
-    input:focus, select:focus {
-      outline: 1px solid #d4af37;
-    }
-
-    .contador {
-      margin: 20px 0;
-      color: #bbb;
-    }
-
-    .grade {
-      display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .exercicio {
-      background: #171717;
-      border: 1px solid #4a401f;
-      border-radius: 14px;
-      padding: 20px;
-    }
-
-    .exercicio h3 {
-      color: #d4af37;
-      margin-top: 0;
-    }
-
-    .exercicio p {
-      color: #ccc;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .etiqueta {
-      display: inline-block;
-      background: #302818;
-      color: #f0c65c;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
-
-    button {
-      background: #d4af37;
-      color: #111;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover { background: #f0c65c; }
-
-    .detalhes {
-      display: none;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #444;
-    }
-
-    .detalhes.aberto { display: block; }
-
-    .vazio {
-      color: #bbb;
-      text-align: center;
-      padding: 25px;
-    }
-
-    #conteudo { display: none; }
-
-    @media (max-width: 650px) {
-      .filtros {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biblioteca de Exercícios | WAND METHOD</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif}header{text-align:center;padding:25px 15px;border-bottom:1px solid #d4af37}header h1{color:#d4af37;margin:0 0 8px}header p{color:#aaa;margin:0;font-size:13px;letter-spacing:2px}main{max-width:1050px;margin:auto;padding:24px 16px}h2,h3{color:#d4af37}.voltar{display:inline-block;color:#d4af37;text-decoration:none;margin-bottom:20px}.painel,.exercicio{background:#171717;border:1px solid #66551f;border-radius:14px;padding:20px;margin-bottom:20px}.filtros{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}input,select,textarea{width:100%;background:#242424;color:white;border:1px solid #66551f;border-radius:8px;padding:12px;font-size:15px;font-family:inherit}input:focus,select:focus,textarea:focus{outline:1px solid #d4af37}label{display:block;margin-bottom:7px;color:#ddd;font-size:14px}.campo{margin-bottom:14px}.contador{margin:20px 0;color:#bbb}.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.exercicio{margin:0}.exercicio h3{margin:0 0 12px}.exercicio p{color:#ccc;font-size:14px;line-height:1.5}.etiqueta{display:inline-block;background:#302818;color:#f0c65c;padding:6px 10px;border-radius:6px;font-size:12px;margin:0 0 10px}button{background:#d4af37;color:#111;border:1px solid #d4af37;border-radius:8px;padding:11px 14px;font-weight:bold;cursor:pointer}button:hover{background:#f0c65c}button:disabled{opacity:.4;cursor:not-allowed}.secundario{background:#242424;color:#e7c65b}.perigo{background:#3a1c1c;color:#ffb4b4;border-color:#7b3838}.acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.detalhes{display:none;margin-top:15px;padding-top:15px;border-top:1px solid #444}.detalhes.aberto{display:block}.detalhes iframe,.detalhes video{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;background:#000}.vazio{color:#bbb;text-align:center;padding:25px}.paginacao{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;margin:20px 0}.paginacao button{min-width:39px}.paginacao .ativo{background:#fff0b5}.topo-acoes{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.ajuda{color:#aaa;font-size:13px;line-height:1.5}.aviso{color:#f0c65c;font-size:14px}.erro{color:#ffb4b4}.oculto{display:none!important}.rodape{margin-top:30px}.linha{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.linha select{width:auto;min-width:90px}.modal-fundo{position:fixed;inset:0;background:#000d;display:flex;align-items:center;justify-content:center;padding:16px;z-index:5}.modal{background:#171717;border:1px solid #d4af37;border-radius:14px;padding:20px;width:min(100%,550px);max-height:92vh;overflow:auto}.modal h2{margin-top:0}.modal .acoes{justify-content:flex-end}.status{min-height:20px}@media(max-width:650px){.filtros{grid-template-columns:1fr}.grade{grid-template-columns:1fr}.painel,.exercicio{padding:16px}}
+</style>
 </head>
-
 <body>
-  <header>
-    <h1>WAND METHOD</h1>
-    <p>WAND EXERCISES</p>
-  </header>
-
-  <main>
-    <a href="admin.html" class="voltar">
-      ← Voltar ao WandCoach
-    </a>
-
-    <p id="status">Verificando acesso...</p>
-
-    <div id="conteudo">
-      <h2>Biblioteca de Exercícios</h2>
-
-      <div class="painel">
-        <div class="filtros">
-          <input
-            type="search"
-            id="pesquisa"
-            placeholder="Pesquisar exercício..."
-            aria-label="Pesquisar exercício"
-          >
-
-          <select id="grupo">
-            <option value="">Todos os músculos</option>
-          </select>
-
-          <select id="equipamento">
-            <option value="">Todos os equipamentos</option>
-          </select>
-        </div>
-      </div>
-
-      <p class="contador" id="contador"></p>
-
-      <div id="lista" class="grade"></div>
-    </div>
-  </main>
-
-  <script type="module">
-    import { createClient } from
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-    const supabase = createClient(
-      "https://kvxdnreipuahoaostlle.supabase.co",
-      "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
-    );
-
-    const status = document.getElementById("status");
-    const conteudo = document.getElementById("conteudo");
-    const lista = document.getElementById("lista");
-    const contador = document.getElementById("contador");
-    const pesquisa = document.getElementById("pesquisa");
-    const grupo = document.getElementById("grupo");
-    const equipamento =
-      document.getElementById("equipamento");
-
-    let exercicios = [];
-
-    async function verificarAcesso() {
-      const { data: { user }, error } =
-        await supabase.auth.getUser();
-
-      if (error || !user) {
-        window.location.replace("login.html");
-        return;
-      }
-
-      const { data: perfil, error: erroPerfil } =
-        await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-
-      if (erroPerfil || perfil?.role !== "admin") {
-        status.textContent = "Acesso não autorizado.";
-        return;
-      }
-
-      conteudo.style.display = "block";
-      status.textContent = "";
-
-      await carregarExercicios();
-    }
-
-    async function carregarExercicios() {
-      status.textContent = "Carregando exercícios...";
-
-      const { data, error } = await supabase
-        .from("wand_exercicios")
-        .select("*")
-        .eq("ativo", true)
-        .order("nome", { ascending: true });
-
-      if (error) {
-        console.error(error);
-        status.textContent =
-          "Não foi possível carregar os exercícios.";
-        return;
-      }
-
-      exercicios = data || [];
-
-      preencherFiltros();
-      mostrarExercicios();
-
-      status.textContent = "";
-    }
-
-    function preencherFiltros() {
-      const grupos = [...new Set(
-        exercicios.map(e => e.grupo_muscular)
-          .filter(Boolean)
-      )].sort();
-
-      const equipamentos = [...new Set(
-        exercicios.map(e => e.equipamento)
-          .filter(Boolean)
-      )].sort();
-
-      grupos.forEach(nome => {
-        const opcao = document.createElement("option");
-        opcao.value = nome;
-        opcao.textContent = nome;
-        grupo.appendChild(opcao);
-      });
-
-      equipamentos.forEach(nome => {
-        const opcao = document.createElement("option");
-        opcao.value = nome;
-        opcao.textContent = nome;
-        equipamento.appendChild(opcao);
-      });
-    }
-
-    function mostrarExercicios() {
-      const termo = pesquisa.value
-        .trim()
-        .toLocaleLowerCase("pt-BR");
-
-      const filtrados = exercicios.filter(e => {
-        const nome = (e.nome || "")
-          .toLocaleLowerCase("pt-BR");
-
-        return (
-          nome.includes(termo) &&
-          (!grupo.value ||
-            e.grupo_muscular === grupo.value) &&
-          (!equipamento.value ||
-            e.equipamento === equipamento.value)
-        );
-      });
-
-      lista.replaceChildren();
-
-      contador.textContent =
-        filtrados.length + " exercício(s) encontrado(s)";
-
-      if (filtrados.length === 0) {
-        const vazio = document.createElement("p");
-        vazio.className = "vazio";
-        vazio.textContent =
-          "Nenhum exercício encontrado.";
-        lista.appendChild(vazio);
-        return;
-      }
-
-      filtrados.forEach(exercicio => {
-        const card = document.createElement("article");
-        card.className = "exercicio";
-
-        const titulo = document.createElement("h3");
-        titulo.textContent = exercicio.nome;
-
-        const etiqueta = document.createElement("span");
-        etiqueta.className = "etiqueta";
-        etiqueta.textContent =
-          exercicio.grupo_muscular || "Não informado";
-
-        const info = document.createElement("p");
-        info.textContent =
-          "Equipamento: " +
-          (exercicio.equipamento || "Não informado") +
-          " | Nível: " +
-          (exercicio.dificuldade || "Não informado");
-
-        const botao = document.createElement("button");
-        botao.type = "button";
-        botao.textContent = "Ver detalhes";
-
-        const detalhes = document.createElement("div");
-        detalhes.className = "detalhes";
-
-        const instrucoes = document.createElement("p");
-        instrucoes.textContent =
-          "Execução: " +
-          (exercicio.instrucoes ||
-            "Instruções ainda não cadastradas.");
-
-        const erros = document.createElement("p");
-        erros.textContent =
-          "Erros comuns: " +
-          (exercicio.erros_comuns ||
-            "Não informados.");
-
-        const secundarios = document.createElement("p");
-        secundarios.textContent =
-          "Músculos secundários: " +
-          (exercicio.musculos_secundarios ||
-            "Não informados.");
-
-        detalhes.append(
-          instrucoes,
-          erros,
-          secundarios
-        );
-
-        botao.addEventListener("click", () => {
-          const aberto =
-            detalhes.classList.toggle("aberto");
-
-          botao.textContent =
-            aberto ? "Ocultar detalhes" : "Ver detalhes";
-        });
-
-        card.append(
-          titulo,
-          etiqueta,
-          info,
-          botao,
-          detalhes
-        );
-
-        lista.appendChild(card);
-      });
-    }
-
-    pesquisa.addEventListener(
-      "input", mostrarExercicios
-    );
-
-    grupo.addEventListener(
-      "change", mostrarExercicios
-    );
-
-    equipamento.addEventListener(
-      "change", mostrarExercicios
-    );
-
-    verificarAcesso();
-  </script>
-</body>
-</html>
+<header><h1>WAND METHOD</h1><p>WAND EXERCISES</p></header>
+<main>
+<a href="admin.html" class="voltar">← Voltar ao WandCoach</a>
+<p id="status" class="status" role="status">Verificando acesso...</p>
+<div id="conteudo" class="oculto">
+<div class="topo-acoes"><h2>Biblioteca de Exercícios</h2><button type="button" id="novo">+ Cadastrar exercício</button></div>
+<div class="painel"><div class="filtros">
+<div><label for="pesquisa">Pesquisar pelo nome</label><input type="search" id="pesquisa" placeholder="Pesquisar exercício..."></div>
+<div><label for="grupo">Grupo muscular</label><select id="grupo"><option value="">Todos os grupos</option></select></div>
+<div><label for="equipamento">Equipamento</label><select id="equipamento"><option value="">Todos os equipamentos</option></select></div>
+</div></div>
+<div class="linha" style="justify-content:space-between"><p class="contador" id="contador"></p><div class="linha"><label for="porPagina" style="margin:0">Por página</label><select id="porPagina"><option value="8">8</option><option value="12" selected>12</option><option value="20">20</option></select></div></div>
+<div id="lista" class="grade"></div><nav id="paginacao" class="paginacao" aria-label="Páginas de exercícios"></nav>
+</div>
+<a href="admin.html" class="voltar rodape">← Voltar ao WandCoach</a>
+</main>
+<div id="modalFundo" class="modal-fundo oculto" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+<h2 id="tituloModal">Cadastrar exercício</h2><form id="formExercicio">
+<div class="campo"><label for="nome">Nome do exercício *</label><input id="nome" required maxlength="180"></div>
+<div class="campo"><label for="grupoCadastro">Grupo muscular principal *</label><select id="grupoCadastro" required></select><p class="ajuda">O exercício aparecerá somente neste grupo.</p></div>
+<div class="campo"><label for="equipCadastro">Equipamento (opcional)</label><input id="equipCadastro" maxlength="100" placeholder="Ex.: barra, halteres, máquina"></div>
+<div class="campo"><label for="tipoVideo">Vídeo demonstrativo</label><select id="tipoVideo"><option value="nenhum">Adicionar depois</option><option value="youtube">Link do YouTube</option><option value="proprio">Meu vídeo (MP4)</option></select></div>
+<div class="campo oculto" id="campoYoutube"><label for="urlYoutube">Link do YouTube</label><input type="url" id="urlYoutube" placeholder="https://www.youtube.com/watch?v=..."></div>
+<div class="campo oculto" id="campoArquivo"><label for="arquivoVideo">Selecionar vídeo MP4 (até 50 MB)</label><input type="file" id="arquivoVideo" accept="video/mp4"><p class="ajuda">O envio exige configurar o bucket wand-exercicios-videos no Supabase. Vídeos próprios serão exibidos por link temporário.</p></div>
+<p class="erro" id="erroFormulario" role="alert"></p><div class="acoes"><button type="button" class="secundario" id="cancelar">Cancelar</button><button type="submit" id="salvar">Salvar exercício</button></div>
+</form></section></div>
+<script type="module">
+import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const supabase=createClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
+const $=id=>document.getElementById(id);
+const GRUPOS=["Peitoral","Dorsal","Ombros","Bíceps","Tríceps","Quadríceps","Posterior de coxa","Glúteos","Panturrilhas","Abdominal","Adutores","Abdutores","Lombar","Antebraço","Corpo inteiro"];
+const VIDEO_BUCKET="wand-exercicios-videos";
+let exercicios=[],pagina=1,editando=null,usuario=null;
+const normal=s=>String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR");
+function mensagem(t,erro=false){$("status").textContent=t;$("status").className="status "+(erro?"erro":"");}
+function criar(tag,classe,texto){const e=document.createElement(tag);if(classe)e.className=classe;if(texto!==undefined)e.textContent=texto;return e;}
+function preencherSelect(sel,valores,placeholder){const anterior=sel.value;sel.replaceChildren();if(placeholder!==null){const o=new Option(placeholder,"");sel.add(o);}valores.forEach(v=>sel.add(new Option(v,v)));if([...sel.options].some(o=>o.value===anterior))sel.value=anterior;}
+function atualizarFiltros(){const grupos=[...new Set([...GRUPOS,...exercicios.map(e=>e.grupo_muscular).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"pt-BR"));const equips=[...new Set(exercicios.map(e=>e.equipamento).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));preencherSelect($("grupo"),grupos,"Todos os grupos");preencherSelect($("grupoCadastro"),grupos,null);preencherSelect($("equipamento"),equips,"Todos os equipamentos");}
+async function verificarAcesso(){try{const {data:{user},error}=await supabase.auth.getUser();if(error||!user){location.replace("login.html");return;}const {data:perfil,error:ep}=await supabase.from("profiles").select("role").eq("id",user.id).single();if(ep||perfil?.role!=="admin"){mensagem("Acesso não autorizado.",true);return;}usuario=user;$("conteudo").classList.remove("oculto");await carregar();}catch(e){mensagem("Falha ao verificar acesso.",true);console.error(e);}}
+async function carregar(){mensagem("Carregando exercícios...");let itens=[],offset=0;while(true){const {data,error}=await supabase.from("wand_exercicios").select("*").eq("ativo",true).order("nome",{ascending:true}).range(offset,offset+999);if(error){console.error(error);mensagem("Não foi possível carregar os exercícios: "+error.message,true);return;}itens.push(...(data||[]));if(!data||data.length<1000)break;offset+=1000;}exercicios=itens;atualizarFiltros();renderizar();mensagem("");}
+function renderizar(){const termo=normal($("pesquisa").value.trim());const filtrados=exercicios.filter(e=>normal(e.nome).includes(termo)&&(!$("grupo").value||e.grupo_muscular===$("grupo").value)&&(!$("equipamento").value||e.equipamento===$("equipamento").value));const limite=Number($("porPagina").value);const total=Math.max(1,Math.ceil(filtrados.length/limite));pagina=Math.min(pagina,total);$("contador").textContent=`${filtrados.length} exercício(s) encontrado(s) · Página ${pagina} de ${total}`;$("lista").replaceChildren();if(!filtrados.length)$("lista").append(criar("p","vazio","Nenhum exercício encontrado."));filtrados.slice((pagina-1)*limite,pagina*limite).forEach(e=>$("lista").append(cardExercicio(e)));const nav=$("paginacao");nav.replaceChildren();if(total<=1)return;const bot=(txt,p,ativo=false)=>{const b=criar("button",ativo?"ativo":"",txt);b.type="button";b.disabled=p<1||p>total||p===pagina;b.setAttribute("aria-label",txt==="‹"?"Página anterior":txt==="›"?"Próxima página":`Página ${p}`);if(ativo)b.setAttribute("aria-current","page");b.addEventListener("click",()=>{pagina=p;renderizar();$("contador").scrollIntoView({behavior:"smooth",block:"start"});});nav.append(b);};bot("‹",pagina-1);const inicio=Math.max(1,Math.min(pagina-2,total-4)),fim=Math.min(total,inicio+4);for(let i=inicio;i<=fim;i++)bot(String(i),i,i===pagina);bot("›",pagina+1);}
+function youtubeId(link){try{const u=new URL(link);const host=u.hostname.toLowerCase().replace(/^www\./,"");let id="";if(host==="youtu.be")id=u.pathname.split("/")[1];else if(host==="youtube.com"||host==="m.youtube.com"||host==="youtube-nocookie.com"){if(u.pathname==="/watch")id=u.searchParams.get("v");else if(/^\/(shorts|embed|live)\//.test(u.pathname))id=u.pathname.split("/")[2];}return /^[a-zA-Z0-9_-]{11}$/.test(id||"")?id:null;}catch{return null;}}
+function videoTipo(e){return e.video_tipo||"nenhum";}
+async function mostrarVideo(e,alvo){alvo.replaceChildren();if(videoTipo(e)==="youtube"&&e.video_url){const id=youtubeId(e.video_url);if(!id){alvo.textContent="Link do YouTube inválido.";return;}const frame=criar("iframe");frame.src=`https://www.youtube-nocookie.com/embed/${id}`;frame.title="Demonstração: "+e.nome;frame.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";frame.allowFullscreen=true;frame.referrerPolicy="strict-origin-when-cross-origin";alvo.append(frame);return;}if(videoTipo(e)==="proprio"&&e.video_url){const {data,error}=await supabase.storage.from(VIDEO_BUCKET).createSignedUrl(e.video_url,3600);if(error){alvo.textContent="Não foi possível abrir o vídeo. Verifique as permissões do armazenamento.";return;}const v=criar("video");v.controls=true;v.playsInline=true;v.src=data.signedUrl;alvo.append(v);return;}alvo.textContent="Vídeo ainda não cadastrado.";}
+function cardExercicio(e){const card=criar("article","exercicio");card.append(criar("h3","",e.nome),criar("span","etiqueta",e.grupo_muscular||"Grupo não informado"),criar("p","",`Equipamento: ${e.equipamento||"Não informado"}`));const acoes=criar("div","acoes");const ver=criar("button","secundario","▶ Ver vídeo"),editar=criar("button","secundario","Editar"),desativar=criar("button","perigo","Desativar");[ver,editar,desativar].forEach(b=>b.type="button");const detalhe=criar("div","detalhes");ver.addEventListener("click",async()=>{const abrir=!detalhe.classList.contains("aberto");detalhe.classList.toggle("aberto",abrir);ver.textContent=abrir?"Ocultar vídeo":"▶ Ver vídeo";if(abrir)await mostrarVideo(e,detalhe);else detalhe.replaceChildren();});editar.addEventListener("click",()=>abrirModal(e));desativar.addEventListener("click",()=>desativarExercicio(e));acoes.append(ver,editar,desativar);card.append(acoes,detalhe);return card;}
+function ajustarTipo(){const t=$("tipoVideo").value;$("campoYoutube").classList.toggle("oculto",t!=="youtube");$("campoArquivo").classList.toggle("oculto",t!=="proprio");}
+function abrirModal(e=null){editando=e;$("formExercicio").reset();$("erroFormulario").textContent="";$("tituloModal").textContent=e?"Editar exercício":"Cadastrar exercício";$("nome").value=e?.nome||"";$("grupoCadastro").value=e?.grupo_muscular||"Peitoral";$("equipCadastro").value=e?.equipamento||"";$("tipoVideo").value=e?videoTipo(e):"nenhum";$("urlYoutube").value=e?.video_tipo==="youtube"?e.video_url||"":"";ajustarTipo();$("modalFundo").classList.remove("oculto");$("nome").focus();}
+function fecharModal(){$("modalFundo").classList.add("oculto");editando=null;}
+async function salvar(ev){ev.preventDefault();const nome=$("nome").value.trim(),grupo=$("grupoCadastro").value,equip=$("equipCadastro").value.trim(),tipo=$("tipoVideo").value;const erro=$("erroFormulario");erro.textContent="";if(!nome||!grupo){erro.textContent="Informe o nome e o grupo muscular.";return;}let videoUrl=null,novoArquivo=null;const antigo=editando?.video_tipo==="proprio"?editando.video_url:null;if(tipo==="youtube"){videoUrl=$("urlYoutube").value.trim();if(!youtubeId(videoUrl)){erro.textContent="Informe um link válido do YouTube.";return;}}else if(tipo==="proprio"){const file=$("arquivoVideo").files[0];if(file){if(file.type!=="video/mp4"||file.size>50*1024*1024){erro.textContent="Selecione um MP4 de até 50 MB.";return;}novoArquivo=file;}else if(editando?.video_tipo==="proprio"&&antigo){videoUrl=antigo;}else{erro.textContent="Selecione um arquivo MP4.";return;}}$("salvar").disabled=true;$("salvar").textContent="Salvando...";try{if(novoArquivo){const caminho=`${usuario.id}/${crypto.randomUUID()}.mp4`;const {error:up}=await supabase.storage.from(VIDEO_BUCKET).upload(caminho,novoArquivo,{contentType:"video/mp4",upsert:false});if(up)throw new Error("Falha no envio do vídeo: "+up.message);videoUrl=caminho;}const payload={nome,grupo_muscular:grupo,equipamento:equip||null,video_tipo:tipo,video_url:videoUrl};let resultado;if(editando){resultado=await supabase.from("wand_exercicios").update(payload).eq("id",editando.id).select("id");}else{resultado=await supabase.from("wand_exercicios").insert({...payload,ativo:true}).select("id");}if(resultado.error){if(novoArquivo&&videoUrl)await supabase.storage.from(VIDEO_BUCKET).remove([videoUrl]);throw resultado.error;}fecharModal();pagina=1;await carregar();mensagem("Exercício salvo com sucesso.");}catch(e){console.error(e);erro.textContent="Não foi possível salvar: "+(e.message||"Erro desconhecido")+". Confira as colunas, políticas RLS e o armazenamento no Supabase.";}finally{$("salvar").disabled=false;$("salvar").textContent="Salvar exercício";}}
+async function desativarExercicio(e){if(!confirm(`Desativar "${e.nome}"? Ele deixará de aparecer na biblioteca, mas os históricos não serão apagados.`))return;const {error}=await supabase.from("wand_exercicios").update({ativo:false}).eq("id",e.id);if(error){alert("Não foi possível desativar: "+error.message);return;}await carregar();mensagem("Exercício desativado.");}
+["pesquisa","grupo","equipamento","porPagina"].forEach(id=>$(id).addEventListener(id==="pesquisa"?"input":"change",()=>{pagina=1;renderizar();}));$("novo").addEventListener("click",()=>abrirModal());$("cancelar").addEventListener("click",fecharModal);$("tipoVideo").addEventListener("change",ajustarTipo);$("formExercicio").addEventListener("submit",salvar);$("modalFundo").addEventListener("click",e=>{if(e.target===$("modalFundo"))fecharModal();});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modalFundo").classList.contains("oculto"))fecharModal();});verificarAcesso();
+</script>
+</body></html>
