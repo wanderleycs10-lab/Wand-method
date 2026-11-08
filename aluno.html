@@ -902,7 +902,7 @@ async function wtCarregar(){
  try{
   wtMsg('Carregando treinos...');
   [wtTreinos,wtHistorico]=await Promise.all([wtRpc('wand_aluno_treinos'),wtRpc('wand_aluno_historico')]);
-  wtTreinos=wtTreinos||[];wtHistorico=wtHistorico||[];
+  wtTreinos=(wtTreinos||[]).filter(t=>{const hoje=wtHoje();return (!t.validade_inicio||t.validade_inicio<=hoje)&&(!t.validade_fim||t.validade_fim>=hoje)});wtHistorico=wtHistorico||[];
   // Programacoes de hoje sao apresentadas como a alternativa recomendada.
   try {wtAdaptacoes=await wtRpc('wand_aluno_adaptacoes_do_dia',{p_dia:wtHoje()})||[]}
   catch(e){wtAdaptacoes=[];wtMsg('Treinos carregados; não foi possível consultar adaptações: '+e.message,true)}
@@ -927,7 +927,7 @@ function wtRender(){
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
   wtAdd(area,'h3',null,'Treinos disponíveis');
-  if(!wtTreinos.length)wtAdd(area,'p','notice','Nenhum treino ativo foi liberado pelo treinador.');
+  if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   for(const t of wtTreinos){
    if(wtAdaptacoes.some(a=>a.treino_original_id===t.id))continue;
    const c=wtAdd(area,'article','subcard');
