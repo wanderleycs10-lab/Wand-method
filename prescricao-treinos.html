@@ -40,6 +40,8 @@ button.remover{background:#572323;color:#fff}
 .serie>div:last-child{grid-column:2/4}
 .card{padding:15px}
 }
+
+.etapas{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.etapa{padding:9px 12px;border:1px solid #66551f;border-radius:8px;color:#aaa}.etapa.atual{background:#3c3217;color:#f2ce60;border-color:#d4af37}.oculto{display:none!important}.filtros-bib{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}.item-bib{display:flex;gap:12px;align-items:center;background:#111;border:1px solid #4a401f;border-radius:12px;padding:12px;margin:10px 0}.item-bib .resumo{flex:1;min-width:0}.item-bib strong{color:#eac34a}.item-bib small{color:#aaa;display:block;margin:6px 0}.miniatura{width:90px;min-width:90px;height:80px;background:#252015;border:1px solid #66551f;border-radius:8px;display:grid;place-items:center;color:#d4af37;cursor:pointer}.paginacao{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:15px 0}.paginacao button{padding:8px 12px}.paginacao .atual{background:#fff0b5}.barra-selecao{position:sticky;bottom:0;background:#221d11;border:1px solid #d4af37;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:2}.modal-fundo{position:fixed;inset:0;background:#000d;display:flex;align-items:center;justify-content:center;padding:14px;z-index:20}.modal{width:min(100%,600px);max-height:90vh;overflow:auto;background:#171717;border:1px solid #d4af37;border-radius:14px;padding:20px}.metodo-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px;border:1px solid #4a401f;border-radius:9px;margin:8px 0}.metodo-item strong{color:#eac34a}.video-area iframe,.video-area video{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;background:#000}.selecionado{border:1px solid #66551f;background:#111;padding:12px;border-radius:10px;margin:10px 0}.selecionado strong{color:#d4af37}.selecionado .botoes{margin-top:8px}.avisinho{color:#bfbfbf;font-size:13px}.separador{border:0;border-top:1px solid #4b4026;margin:15px 0}@media(max-width:650px){.filtros-bib{grid-template-columns:1fr}.item-bib{align-items:flex-start}.miniatura{width:76px;min-width:76px;height:76px}.barra-selecao{font-size:13px}.barra-selecao button{padding:10px}}
 </style>
 </head>
 <body>
@@ -55,44 +57,21 @@ button.remover{background:#572323;color:#fff}
 
 <div id="app">
 <h2>Criar treino</h2>
-<p class="info">
-Monte o treino do aluno. Nesta primeira versão,
-ele será salvo como rascunho e ainda não ficará
-disponível para execução pelo aluno.
-</p>
-
-<div class="card">
-<label for="aluno">Aluno</label>
-<select id="aluno">
-<option value="">Selecione um aluno</option>
-</select>
-<p id="alunoFixoAviso" class="info" hidden>Aluno definido pelo perfil. Para prescrever para outra pessoa, abra o perfil correspondente.</p>
-
-<label for="nome">Nome do treino</label>
-<input id="nome" placeholder="Ex.: Treino A - Peitoral e Tríceps">
-
-<label for="objetivo">Objetivo</label>
-<input id="objetivo" placeholder="Ex.: Hipertrofia">
-
-<label for="observacoes">Orientações gerais</label>
-<textarea id="observacoes" rows="3"
-placeholder="Observações para o aluno"></textarea>
+<div class="etapas"><span id="passo1" class="etapa atual">1. Escolher exercícios</span><span id="passo2" class="etapa">2. Configurar</span><span id="passo3" class="etapa">3. Revisar e publicar</span></div>
+<div class="card" id="identificacao">
+<div class="linha"><div><label for="aluno">Aluno</label><select id="aluno"><option value="">Selecione um aluno</option></select><p id="alunoFixoAviso" class="info" hidden>Aluno definido pelo perfil.</p></div><div><label for="nome">Nome do treino</label><input id="nome" placeholder="Ex.: Treino A - Peitoral e Tríceps"></div></div>
+<label for="objetivo">Objetivo</label><input id="objetivo" placeholder="Ex.: Hipertrofia">
+<label for="observacoes">Observações gerais (opcional)</label><textarea id="observacoes" rows="2"></textarea>
 </div>
-
-<h2>Exercícios prescritos</h2>
-<div id="exercicios"></div>
-
-<div class="botoes">
-<button type="button" id="adicionar">
-+ Adicionar exercício
-</button>
-<button type="button" id="salvar">
-Salvar treino como rascunho
-</button>
-</div>
-
+<section id="telaBiblioteca"><h2>Selecionar exercícios</h2>
+<div class="card"><div class="filtros-bib"><div><label for="pesquisaBib">Pesquisar exercício</label><input id="pesquisaBib" type="search" placeholder="Nome do exercício..."></div><div><label for="grupoBib">Grupo muscular</label><select id="grupoBib"><option value="">Todos os grupos</option></select></div><div><label for="categoriaBib">Categoria</label><select id="categoriaBib"><option value="">Todas as categorias</option></select></div></div><p class="info" id="totalBib"></p><div id="listaBib"></div><div id="pagBib" class="paginacao"></div></div>
+<div class="barra-selecao"><strong id="quantidade">0 exercícios adicionados</strong><button type="button" id="concluirSelecao">Concluir seleção →</button></div></section>
+<section id="telaConfig" class="oculto"><h2>Configurar exercícios</h2><p class="info">Ajuste séries, repetições, cargas e descansos. Você também pode trocar o método de cada exercício.</p><div id="exercicios"></div><div class="botoes"><button class="secundario" type="button" id="voltarBib">← Voltar à biblioteca</button><button type="button" id="irRevisao">Revisar treino →</button></div></section>
+<section id="telaRevisao" class="oculto"><h2>Revisar e publicar</h2><div class="card" id="resumoTreino"></div><div class="botoes"><button type="button" class="secundario" id="voltarConfig">← Ajustar treino</button><button type="button" class="secundario" id="salvarRascunho">Salvar rascunho</button><button type="button" id="publicar">Concluir e publicar treino</button></div></section>
 <p id="mensagem" role="status" aria-live="polite"></p>
 </div>
+<div id="modalMetodo" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloMetodo"><div class="modal"><h2 id="tituloMetodo">Escolha um método</h2><p id="exercicioModal" class="info"></p><button id="semMetodo" type="button">+ Adicionar sem método</button><label for="buscarMetodo">Pesquisar método</label><input id="buscarMetodo" placeholder="Pesquisar..." type="search"><div id="listaMetodos"></div><hr class="separador"><h3>Criar método personalizado</h3><p class="avisinho">O método criado aqui será salvo na biblioteca de métodos do treinador. A configuração detalhada de regras depende do cadastro avançado de métodos.</p><label for="nomeNovoMetodo">Nome do método</label><input id="nomeNovoMetodo" placeholder="Ex.: Drop + Isometria"><div class="botoes"><button id="criarMetodo" type="button" class="secundario">Criar e selecionar</button><button id="fecharMetodo" type="button" class="secundario">Cancelar</button></div><p id="erroMetodo" class="erro"></p></div></div>
+<div id="modalVideo" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-label="Vídeo demonstrativo"><div class="modal"><h2 id="nomeVideo">Vídeo do exercício</h2><div id="areaVideo" class="video-area"></div><div class="botoes"><button id="fecharVideo" type="button" class="secundario">Fechar vídeo</button></div></div></div>
 </main>
 
 <script type="module">
@@ -107,343 +86,48 @@ const supabase=createClient(
 const $=id=>document.getElementById(id);
 const parametros=new URLSearchParams(location.search);
 const alunoPerfil=parametros.get("aluno_id")||parametros.get("id");
-let usuario=null;
-let biblioteca=[];
-let metodos=[];
-let contador=0;
-let salvando=false;
-
-function mensagem(texto,tipo=""){
-$("mensagem").textContent=texto;
-$("mensagem").className=tipo;
-}
-
-function criar(tag,classe="",texto=""){
-const el=document.createElement(tag);
-if(classe)el.className=classe;
-if(texto)el.textContent=texto;
-return el;
-}
-
-function opcao(select,valor,texto){
-const o=document.createElement("option");
-o.value=valor;
-o.textContent=texto;
-select.appendChild(o);
-}
-
-function campo(rotulo,tipo,valor){
-const div=criar("div");
-const label=criar("label","",rotulo);
-const input=criar("input");
-input.type=tipo;
-input.value=valor;
-if(tipo==="number"){
-input.min="0";
-input.step="any";
-}
-div.append(label,input);
-return {div,input};
-}
-
-async function iniciar(){
-try{
-const {data:{user},error}=await supabase.auth.getUser();
-if(error||!user){
-location.replace("login.html");
-return;
-}
-usuario=user;
-
-const {data:perfil,error:ep}=await supabase
-.from("profiles").select("role")
-.eq("id",user.id).single();
-
-if(ep||perfil?.role!=="admin"){
-$("status").textContent="Acesso não autorizado.";
-return;
-}
-
-const [ra,re,rm]=await Promise.all([
-supabase.from("alunos")
-.select("id,nome_completo")
-.order("nome_completo"),
-supabase.from("wand_exercicios")
-.select("id,nome,grupo_muscular")
-.eq("ativo",true).order("nome"),
-supabase.from("wand_metodos")
-.select("id,nome")
-.eq("ativo",true).order("nome")
-]);
-
-if(ra.error)throw ra.error;
-if(re.error)throw re.error;
-if(rm.error)throw rm.error;
-
-biblioteca=re.data||[];
-metodos=rm.data||[];
-
-(ra.data||[]).forEach(a=>
-opcao($("aluno"),String(a.id),a.nome_completo||"Sem nome")
-);
-
-if(alunoPerfil!==null){
-  if(!/^\d+$/.test(alunoPerfil)||!Number.isSafeInteger(Number(alunoPerfil))||Number(alunoPerfil)<=0){
-    throw Error("Identificador de aluno inválido. Abra a prescrição pelo perfil do aluno.");
-  }
-  const alunoEncontrado=(ra.data||[]).some(a=>String(a.id)===alunoPerfil);
-  if(!alunoEncontrado){
-    throw Error("Aluno não encontrado ou sem acesso. Volte ao perfil e tente novamente.");
-  }
-  $("aluno").value=alunoPerfil;
-  $("aluno").disabled=true;
-  $("alunoFixoAviso").hidden=false;
-  $("voltar").href="perfil-aluno.html?id="+encodeURIComponent(alunoPerfil);
-  $("voltar").textContent="← Voltar ao perfil do aluno";
-}
-
-$("app").style.display="block";
-$("status").textContent="";
-adicionarExercicio();
-}catch(e){
-console.error(e);
-$("status").textContent="Erro ao carregar dados: "+e.message;
-}
-}
-
-function adicionarExercicio(){
-if(!biblioteca.length){
-mensagem("Nenhum exercício disponível na biblioteca.","erro");
-return;
-}
-
-contador++;
-const numero=contador;
-const bloco=criar("div","exercicio");
-bloco.dataset.numero=String(numero);
-
-const topo=criar("div","exercicio-topo");
-const titulo=criar("h3","","Exercício "+numero);
-const remover=criar("button","remover","Remover");
-remover.type="button";
-remover.onclick=()=>bloco.remove();
-topo.append(titulo,remover);
-
-const labelEx=criar("label","","Exercício da biblioteca");
-const seletor=criar("select","seletor-exercicio");
-biblioteca.forEach(e=>
-opcao(seletor,e.id,e.nome+" — "+e.grupo_muscular)
-);
-
-const labelMetodo=criar("label","","Método de treinamento");
-const metodo=criar("select","seletor-metodo");
-opcao(metodo,"","Sem método específico");
-metodos.forEach(m=>opcao(metodo,m.id,m.nome));
-
-const labelNotas=criar("label","","Dicas do treinador");
-const notas=criar("textarea","notas");
-notas.rows=2;
-notas.placeholder="Orientações para este exercício";
-
-const tituloSeries=criar("h4","","Séries");
-const areaSeries=criar("div","area-series");
-
-const botaoSerie=criar("button","secundario","+ Adicionar série");
-botaoSerie.type="button";
-botaoSerie.onclick=()=>adicionarSerie(areaSeries);
-
-bloco.append(
-topo,labelEx,seletor,labelMetodo,metodo,
-labelNotas,notas,tituloSeries,areaSeries,botaoSerie
-);
-
-$("exercicios").appendChild(bloco);
-
-for(let i=0;i<3;i++)adicionarSerie(areaSeries);
-}
-
-function adicionarSerie(area){
-const linha=criar("div","serie");
-
-const numero=criar("div");
-numero.append(criar("label","","Série"));
-const indicador=criar("strong","numero-serie","");
-numero.append(indicador);
-
-const reps=campo("Repetições","text","12");
-reps.input.className="repeticoes";
-reps.input.maxLength=40;
-
-const carga=campo("Carga (kg)","number","");
-carga.input.className="carga";
-carga.input.placeholder="Opcional";
-
-const descanso=campo("Descanso (seg)","number","60");
-descanso.input.className="descanso";
-descanso.input.step="1";
-
-linha.append(numero,reps.div,carga.div,descanso.div);
-area.appendChild(linha);
-renumerar(area);
-}
-
-function renumerar(area){
-area.querySelectorAll(".serie").forEach((s,i)=>{
-s.querySelector(".numero-serie").textContent=String(i+1);
-});
-}
-
-function lerFormulario(){
-const alunoId=Number($("aluno").value);
-const nome=$("nome").value.trim();
-if(alunoPerfil!==null&&String(alunoId)!==alunoPerfil)
-throw Error("Aluno selecionado não corresponde ao perfil aberto.");
-
-if(!Number.isSafeInteger(alunoId)||alunoId<=0)
-throw Error("Selecione um aluno.");
-
-if(!nome)throw Error("Informe o nome do treino.");
-
-const blocos=[...document.querySelectorAll(".exercicio")];
-if(!blocos.length)throw Error("Adicione pelo menos um exercício.");
-
-const exercicios=blocos.map((b,ordem)=>{
-const exercicioId=b.querySelector(".seletor-exercicio").value;
-const metodoId=b.querySelector(".seletor-metodo").value;
-const notas=b.querySelector(".notas").value.trim();
-
-const series=[...b.querySelectorAll(".serie")].map((s,i)=>{
-const reps=s.querySelector(".repeticoes").value.trim();
-const cargaTexto=s.querySelector(".carga").value;
-const descansoTexto=s.querySelector(".descanso").value;
-
-if(!reps)throw Error("Informe as repetições de todas as séries.");
-if(!/^\d+$/.test(descansoTexto))
-throw Error("O descanso deve ser um número inteiro.");
-
-const descanso=Number(descansoTexto);
-if(!Number.isSafeInteger(descanso)||descanso<0)
-throw Error("Descanso inválido.");
-
-let carga=null;
-if(cargaTexto!==""){
-carga=Number(cargaTexto);
-if(!Number.isFinite(carga)||carga<0)
-throw Error("Carga inválida.");
-}
-
-return{
-numero_serie:i+1,
-repeticoes:reps,
-carga_kg:carga,
-descanso_segundos:descanso
-};
-});
-
-if(!series.length)throw Error("Cada exercício precisa de uma série.");
-
-return{
-exercicio_id:exercicioId,
-metodo_id:metodoId||null,
-ordem:ordem+1,
-observacoes:notas||null,
-series
-};
-});
-
-return{
-aluno_id:alunoId,
-treinador_id:usuario.id,
-nome,
-objetivo:$("objetivo").value.trim()||null,
-observacoes:$("observacoes").value.trim()||null,
-status:"rascunho",
-exercicios
-};
-}
-
-async function salvarTreino(){
-if(salvando)return;
-
-let dados;
-try{
-dados=lerFormulario();
-}catch(e){
-mensagem(e.message,"erro");
-return;
-}
-
-salvando=true;
-$("salvar").disabled=true;
-mensagem("Salvando treino...");
-
-let treinoId=null;
-
-try{
-const {exercicios,...treino}=dados;
-
-const {data:novo,error:et}=await supabase
-.from("wand_treinos")
-.insert(treino)
-.select("id")
-.single();
-
-if(et)throw et;
-treinoId=novo.id;
-
-for(const item of exercicios){
-const {series,...exercicio}=item;
-
-const {data:novoEx,error:ee}=await supabase
-.from("wand_treino_exercicios")
-.insert({...exercicio,treino_id:treinoId})
-.select("id")
-.single();
-
-if(ee)throw ee;
-
-const registros=series.map(s=>({
-...s,
-treino_exercicio_id:novoEx.id
-}));
-
-const {error:es}=await supabase
-.from("wand_treino_series")
-.insert(registros);
-
-if(es)throw es;
-}
-
-mensagem(
-"Treino salvo como rascunho com sucesso! ID: "+treinoId,
-"sucesso"
-);
-
-}catch(e){
-console.error("Erro ao salvar:",e);
-
-let detalhe="";
-
-if(treinoId){
-const {error:limpeza}=await supabase
-.from("wand_treinos")
-.delete().eq("id",treinoId);
-
-if(limpeza){
-detalhe=" Um rascunho parcial pode ter ficado salvo. ID: "+treinoId;
-}
-}
-
-mensagem("Erro ao salvar: "+e.message+detalhe,"erro");
-}finally{
-salvando=false;
-$("salvar").disabled=false;
-}
-}
-
-$("adicionar").addEventListener("click",adicionarExercicio);
-$("salvar").addEventListener("click",salvarTreino);
-
+const VIDEO_BUCKET="wand-exercicios-videos";
+let usuario=null,biblioteca=[],metodos=[],selecionados=[],pagina=1,passo=1,salvando=false,modalExercicio=null,editandoIndice=null;
+const porPagina=12;
+function mensagem(texto,tipo=""){$("mensagem").textContent=texto;$('mensagem').className=tipo;}
+function criar(tag,classe="",texto=""){const e=document.createElement(tag);if(classe)e.className=classe;if(texto)e.textContent=texto;return e;}
+function opcao(sel,valor,texto){const e=criar('option');e.value=valor;e.textContent=texto;sel.append(e);}
+function campo(rotulo,tipo,valor){const div=criar('div'),label=criar('label','',rotulo),input=criar('input');input.type=tipo;input.value=valor;if(tipo==='number'){input.min='0';input.step='any';}div.append(label,input);return {div,input};}
+function mudarPasso(n){passo=n;for(let i=1;i<=3;i++){$('passo'+i).classList.toggle('atual',i===n);}for(const [id,i] of [['telaBiblioteca',1],['telaConfig',2],['telaRevisao',3]])$(id).classList.toggle('oculto',i!==n);window.scrollTo({top:0,behavior:'smooth'});mensagem('');}
+async function iniciar(){try{
+const {data:{user},error}=await supabase.auth.getUser();if(error||!user){location.replace('login.html');return;}usuario=user;
+const {data:perfil,error:ep}=await supabase.from('profiles').select('role').eq('id',user.id).single();if(ep||perfil?.role!=='admin'){$('status').textContent='Acesso não autorizado.';return;}
+const [ra,re,rm]=await Promise.all([supabase.from('alunos').select('id,nome_completo').order('nome_completo'),supabase.from('wand_exercicios').select('*').eq('ativo',true).order('nome'),supabase.from('wand_metodos').select('id,nome').eq('ativo',true).order('nome')]);
+if(ra.error)throw ra.error;if(re.error)throw re.error;if(rm.error)throw rm.error;
+biblioteca=re.data||[];metodos=rm.data||[];(ra.data||[]).forEach(a=>opcao($('aluno'),String(a.id),a.nome_completo||'Sem nome'));
+if(alunoPerfil!==null){if(!/^\d+$/.test(alunoPerfil)||!Number.isSafeInteger(Number(alunoPerfil))||Number(alunoPerfil)<=0)throw Error('Identificador de aluno inválido.');if(!(ra.data||[]).some(a=>String(a.id)===alunoPerfil))throw Error('Aluno não encontrado ou sem acesso.');$('aluno').value=alunoPerfil;$('aluno').disabled=true;$('alunoFixoAviso').hidden=false;$('voltar').href='perfil-aluno.html?id='+encodeURIComponent(alunoPerfil);$('voltar').textContent='← Voltar ao perfil do aluno';}
+for(const g of [...new Set(biblioteca.map(e=>e.grupo_muscular).filter(Boolean))].sort())opcao($('grupoBib'),g,g);
+for(const c of [...new Set(biblioteca.map(e=>e.categoria).filter(Boolean))].sort())opcao($('categoriaBib'),c,c);
+if(!$('categoriaBib').options.length||$('categoriaBib').options.length===1){$('categoriaBib').disabled=true;$('categoriaBib').title='Categorias ainda não cadastradas na biblioteca';}
+$('app').style.display='block';$('status').textContent='';renderBiblioteca();
+}catch(e){console.error(e);$('status').textContent='Erro ao carregar dados: '+e.message;}}
+function normal(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
+function renderBiblioteca(){const q=normal($('pesquisaBib').value.trim()),g=$('grupoBib').value,c=$('categoriaBib').value;const filtrados=biblioteca.filter(e=>normal(e.nome).includes(q)&&(!g||e.grupo_muscular===g)&&(!c||e.categoria===c));const paginas=Math.max(1,Math.ceil(filtrados.length/porPagina));pagina=Math.min(pagina,paginas);$('totalBib').textContent=filtrados.length+' exercício(s) encontrado(s) · Página '+pagina+' de '+paginas;const area=$('listaBib');area.replaceChildren();
+for(const e of filtrados.slice((pagina-1)*porPagina,pagina*porPagina)){const linha=criar('article','item-bib');const mini=criar('button','miniatura','▶');mini.type='button';mini.title='Ver demonstração';mini.onclick=()=>abrirVideo(e);const resumo=criar('div','resumo');resumo.append(criar('strong','',e.nome),criar('small','',(e.grupo_muscular||'Sem grupo')+' · '+(e.categoria||'Musculação')));const adicionar=criar('button','','+ Adicionar');adicionar.type='button';adicionar.onclick=()=>abrirMetodos(e);resumo.append(adicionar);linha.append(mini,resumo);area.append(linha);}
+if(!filtrados.length)area.append(criar('p','info','Nenhum exercício encontrado.'));
+const nav=$('pagBib');nav.replaceChildren();function botao(txt,n,ativo=false){const b=criar('button',ativo?'atual':'secundario',txt);b.type='button';b.disabled=n<1||n>paginas;b.onclick=()=>{pagina=n;renderBiblioteca();};nav.append(b);}if(paginas>1){botao('‹',pagina-1);for(let i=1;i<=paginas;i++){if(paginas>9&&Math.abs(i-pagina)>2&&i!==1&&i!==paginas)continue;botao(String(i),i,i===pagina);}botao('›',pagina+1);}
+$('quantidade').textContent=selecionados.length+' exercício(s) adicionado(s)';}
+function youtubeId(url){try{const u=new URL(url);if(['youtu.be','www.youtu.be'].includes(u.hostname))return u.pathname.slice(1).split('/')[0];if(['youtube.com','www.youtube.com','m.youtube.com','www.youtube-nocookie.com'].includes(u.hostname)){if(u.pathname.startsWith('/shorts/')||u.pathname.startsWith('/embed/'))return u.pathname.split('/')[2];return u.searchParams.get('v');}}catch{}return null;}
+async function abrirVideo(e){$('nomeVideo').textContent=e.nome;const area=$('areaVideo');area.replaceChildren();$('modalVideo').classList.remove('oculto');if(e.video_tipo==='youtube'&&e.video_url){const id=youtubeId(e.video_url);if(!id||!/^[A-Za-z0-9_-]{11}$/.test(id)){area.textContent='Link do YouTube inválido.';return;}const frame=criar('iframe');frame.src='https://www.youtube-nocookie.com/embed/'+id;frame.title=e.nome;frame.allow='accelerometer; autoplay; encrypted-media; picture-in-picture';frame.allowFullscreen=true;area.append(frame);}else if(e.video_tipo==='proprio'&&e.video_url){const {data,error}=await supabase.storage.from(VIDEO_BUCKET).createSignedUrl(e.video_url,3600);if(error){area.textContent='Não foi possível abrir o vídeo: '+error.message;return;}const v=criar('video');v.controls=true;v.playsInline=true;v.src=data.signedUrl;area.append(v);}else area.textContent='Vídeo ainda não cadastrado.';}
+function fecharVideo(){$('modalVideo').classList.add('oculto');$('areaVideo').replaceChildren();}
+function abrirMetodos(e,indice=null){modalExercicio=e;editandoIndice=indice;$('exercicioModal').textContent=e.nome;$('buscarMetodo').value='';$('nomeNovoMetodo').value='';$('erroMetodo').textContent='';$('modalMetodo').classList.remove('oculto');renderMetodos();}
+function renderMetodos(){const area=$('listaMetodos');area.replaceChildren();for(const m of metodos.filter(m=>normal(m.nome).includes(normal($('buscarMetodo').value)))){const linha=criar('div','metodo-item');linha.append(criar('strong','',m.nome));const b=criar('button','','+ Selecionar');b.type='button';b.onclick=()=>confirmarMetodo(m.id,m.nome);linha.append(b);area.append(linha);}if(!area.children.length)area.append(criar('p','info','Nenhum método encontrado.'));}
+function confirmarMetodo(id,nome){if(editandoIndice!==null){selecionados[editandoIndice].metodo_id=id;selecionados[editandoIndice].metodo_nome=nome;}else{selecionados.push({exercicio:modalExercicio,metodo_id:id,metodo_nome:nome,series:[{repeticoes:'12',carga_kg:null,descanso_segundos:60},{repeticoes:'12',carga_kg:null,descanso_segundos:60},{repeticoes:'12',carga_kg:null,descanso_segundos:60}],observacoes:''});}$('modalMetodo').classList.add('oculto');renderBiblioteca();if(passo===2)renderConfig();mensagem('Exercício/método incluído na seleção.','sucesso');}
+async function criarMetodo(){const nome=$('nomeNovoMetodo').value.trim();if(!nome){$('erroMetodo').textContent='Informe o nome do método.';return;}if(metodos.some(m=>normal(m.nome)===normal(nome))){$('erroMetodo').textContent='Este método já existe. Selecione-o na lista.';return;}$('criarMetodo').disabled=true;try{const {data,error}=await supabase.from('wand_metodos').insert({nome,ativo:true}).select('id,nome').single();if(error)throw error;metodos.push(data);metodos.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));confirmarMetodo(data.id,data.nome);}catch(e){$('erroMetodo').textContent='Não foi possível criar o método: '+e.message+'; utilize o cadastro de métodos do WandCoach para configurar regras avançadas.';}finally{$('criarMetodo').disabled=false;}}
+function concluirSelecao(){if(!selecionados.length){mensagem('Adicione pelo menos um exercício.','erro');return;}renderConfig();mudarPasso(2);}
+function renderConfig(){const area=$('exercicios');area.replaceChildren();selecionados.forEach((item,i)=>{const bloco=criar('div','exercicio');bloco.dataset.indice=String(i);const topo=criar('div','exercicio-topo');topo.append(criar('h3','',(i+1)+'. '+item.exercicio.nome));const remover=criar('button','remover','Remover');remover.type='button';remover.onclick=()=>{selecionados.splice(i,1);renderConfig();renderBiblioteca();};topo.append(remover);bloco.append(topo,criar('p','info',(item.exercicio.grupo_muscular||'')+' · Método: '+item.metodo_nome));const trocar=criar('button','secundario','Trocar método');trocar.type='button';trocar.onclick=()=>abrirMetodos(item.exercicio,i);bloco.append(trocar);const notas=criar('textarea','notas');notas.rows=2;notas.placeholder='Observação opcional para este exercício';notas.value=item.observacoes;notas.oninput=()=>item.observacoes=notas.value;bloco.append(notas,criar('h4','','Séries'));const series=criar('div','area-series');function desenharSeries(){series.replaceChildren();item.series.forEach((s,j)=>{const linha=criar('div','serie');const n=criar('div');n.append(criar('label','','Série'),criar('strong','',String(j+1)));const reps=campo('Repetições','text',s.repeticoes);reps.input.maxLength=40;reps.input.oninput=()=>s.repeticoes=reps.input.value;const carga=campo('Carga (kg)','number',s.carga_kg??'');carga.input.placeholder='Opcional';carga.input.oninput=()=>s.carga_kg=carga.input.value===''?null:carga.input.value;const descanso=campo('Descanso (seg)','number',s.descanso_segundos);descanso.input.step='1';descanso.input.oninput=()=>s.descanso_segundos=descanso.input.value;linha.append(n,reps.div,carga.div,descanso.div);const del=criar('button','remover','− Série');del.type='button';del.onclick=()=>{item.series.splice(j,1);desenharSeries();};linha.append(del);series.append(linha);});}desenharSeries();bloco.append(series);const mais=criar('button','secundario','+ Adicionar série');mais.type='button';mais.onclick=()=>{item.series.push({repeticoes:'12',carga_kg:null,descanso_segundos:60});desenharSeries();};bloco.append(mais);const mover=criar('div','botoes');for(const [texto,d] of [['↑ Subir',-1],['↓ Descer',1]]){const b=criar('button','secundario',texto);b.type='button';b.disabled=i+d<0||i+d>=selecionados.length;b.onclick=()=>{[selecionados[i],selecionados[i+d]]=[selecionados[i+d],selecionados[i]];renderConfig();};mover.append(b);}bloco.append(mover);area.append(bloco);});}
+function validar(){const alunoId=Number($('aluno').value),nome=$('nome').value.trim();if(alunoPerfil!==null&&String(alunoId)!==alunoPerfil)throw Error('Aluno não corresponde ao perfil aberto.');if(!Number.isSafeInteger(alunoId)||alunoId<=0)throw Error('Selecione um aluno.');if(!nome)throw Error('Informe o nome do treino.');if(!selecionados.length)throw Error('Adicione pelo menos um exercício.');const exercicios=selecionados.map((item,i)=>{if(!item.series.length)throw Error(item.exercicio.nome+': adicione ao menos uma série.');return {exercicio_id:item.exercicio.id,metodo_id:item.metodo_id||null,ordem:i+1,observacoes:item.observacoes.trim()||null,series:item.series.map((s,j)=>{if(!String(s.repeticoes).trim())throw Error(item.exercicio.nome+': informe repetições da série '+(j+1));if(!/^\d+$/.test(String(s.descanso_segundos)))throw Error(item.exercicio.nome+': descanso inválido na série '+(j+1));const descanso=Number(s.descanso_segundos);if(!Number.isSafeInteger(descanso)||descanso<0)throw Error('Descanso inválido.');const carga=s.carga_kg===null||s.carga_kg===''?null:Number(s.carga_kg);if(carga!==null&&(!Number.isFinite(carga)||carga<0))throw Error('Carga inválida.');return {numero_serie:j+1,repeticoes:String(s.repeticoes).trim(),carga_kg:carga,descanso_segundos:descanso};})};});return {aluno_id:alunoId,treinador_id:usuario.id,nome,objetivo:$('objetivo').value.trim()||null,observacoes:$('observacoes').value.trim()||null,exercicios};}
+function revisar(){try{const dados=validar();const area=$('resumoTreino');area.replaceChildren();area.append(criar('h3','',dados.nome),criar('p','info','Aluno: '+$('aluno').selectedOptions[0].textContent+' · Objetivo: '+(dados.objetivo||'Não informado')));selecionados.forEach((s,i)=>{const d=criar('div','selecionado');d.append(criar('strong','',(i+1)+'. '+s.exercicio.nome),criar('p','info','Método: '+s.metodo_nome+' · '+s.series.length+' série(s)'));s.series.forEach((serie,j)=>d.append(criar('p','avisinho','Série '+(j+1)+': '+serie.repeticoes+' rep. · '+(serie.carga_kg??'—')+' kg · '+serie.descanso_segundos+' s')));area.append(d);});mudarPasso(3);}catch(e){mensagem(e.message,'erro');}}
+async function salvarTreino(status){if(salvando)return;let dados;try{dados=validar();}catch(e){mensagem(e.message,'erro');return;}if(status==='ativo'&&!confirm('Publicar este treino agora para o aluno?'))return;salvando=true;$('publicar').disabled=true;$('salvarRascunho').disabled=true;mensagem('Salvando treino...');let treinoId=null;try{const {exercicios,...treino}=dados;const {data:novo,error:et}=await supabase.from('wand_treinos').insert({...treino,status:'rascunho'}).select('id').single();if(et)throw et;treinoId=novo.id;for(const item of exercicios){const {series,...exercicio}=item;const {data:novoEx,error:ee}=await supabase.from('wand_treino_exercicios').insert({...exercicio,treino_id:treinoId}).select('id').single();if(ee)throw ee;const {error:es}=await supabase.from('wand_treino_series').insert(series.map(s=>({...s,treino_exercicio_id:novoEx.id})));if(es)throw es;}
+if(status==='ativo'){const {data:publicado,error:ep}=await supabase.from('wand_treinos').update({status:'ativo'}).eq('id',treinoId).eq('status','rascunho').select('id,status').single();if(ep||publicado?.status!=='ativo')throw Error('O treino foi salvo, mas não foi possível confirmar a publicação: '+(ep?.message||'status não confirmado'));}
+mensagem(status==='ativo'?'Treino publicado com sucesso para o aluno! ID: '+treinoId:'Treino salvo como rascunho! ID: '+treinoId,'sucesso');$('publicar').disabled=true;$('salvarRascunho').disabled=true;
+}catch(e){console.error(e);let detalhe='';if(treinoId){const {data:registro}=await supabase.from('wand_treinos').select('status').eq('id',treinoId).maybeSingle();if(registro?.status==='rascunho'){detalhe=' O treino '+treinoId+' pode ter ficado como rascunho. Confira em Gerenciar Treinos antes de tentar novamente.';}else detalhe=' Confira o treino ID '+treinoId+' em Gerenciar Treinos.';}mensagem('Erro ao salvar/publicar: '+e.message+detalhe,'erro');}finally{salvando=false;if(!$('mensagem').classList.contains('sucesso')){$('publicar').disabled=false;$('salvarRascunho').disabled=false;}}}
+$('pesquisaBib').addEventListener('input',()=>{pagina=1;renderBiblioteca();});$('grupoBib').addEventListener('change',()=>{pagina=1;renderBiblioteca();});$('categoriaBib').addEventListener('change',()=>{pagina=1;renderBiblioteca();});$('concluirSelecao').onclick=concluirSelecao;$('voltarBib').onclick=()=>mudarPasso(1);$('irRevisao').onclick=revisar;$('voltarConfig').onclick=()=>{renderConfig();mudarPasso(2);};$('salvarRascunho').onclick=()=>salvarTreino('rascunho');$('publicar').onclick=()=>salvarTreino('ativo');$('semMetodo').onclick=()=>confirmarMetodo(null,'Sem método');$('fecharMetodo').onclick=()=>$('modalMetodo').classList.add('oculto');$('buscarMetodo').oninput=renderMetodos;$('criarMetodo').onclick=criarMetodo;$('fecharVideo').onclick=fecharVideo;
 iniciar();
 </script>
 </body>
