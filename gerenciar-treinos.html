@@ -163,10 +163,6 @@ button:disabled{
       </select>
       </div>
 
-      <div class="linha">
-        <div><label for="filtroStatus">Situação do treino</label><select id="filtroStatus"><option value="">Todas as situações</option><option value="rascunho">Rascunhos</option><option value="ativo">Ativos</option><option value="arquivado">Arquivados</option></select></div>
-        <div><label for="buscaTreino">Pesquisar pelo nome</label><input id="buscaTreino" type="search" placeholder="Digite o nome do treino"></div>
-      </div>
       <div class="acoes">
         <button id="atualizar" type="button">
           Atualizar lista
@@ -263,7 +259,6 @@ let salvando=false;
 let treinoParaDuplicar=null;
 let duplicando=false;
 let alterandoSituacao=false;
-let excluindo=false;
 
 function criar(tag,classe="",texto=""){
   const el=document.createElement(tag);
@@ -389,20 +384,18 @@ async function carregarTreinos(){
   }
 
   treinos=data||[];
-  const statusFiltro=$("filtroStatus").value;
-  const busca=$("buscaTreino").value.trim().toLocaleLowerCase("pt-BR");
-  const visiveis=treinos.filter(t=>(!statusFiltro||t.status===statusFiltro)&&(!busca||(t.nome||"").toLocaleLowerCase("pt-BR").includes(busca)));
-  $("contador").textContent=visiveis.length+" treino(s) encontrado(s) com os filtros atuais.";
+  $("contador").textContent=
+    treinos.length+" treino(s) encontrado(s).";
 
   const lista=$("listaTreinos");
   lista.replaceChildren();
 
-  if(!visiveis.length){
+  if(!treinos.length){
     lista.textContent="Nenhum treino encontrado.";
     return;
   }
 
-  visiveis.forEach(t=>{
+  treinos.forEach(t=>{
     const item=criar("div","treino-item");
 
     const titulo=criar("h3","",t.nome);
@@ -439,28 +432,20 @@ async function carregarTreinos(){
     duplicar.onclick=()=>abrirDuplicacao(t.id);
     acoes.append(abrir,duplicar);
     if(t.status==="rascunho"){
+      const continuar=criar("a","botao","Continuar montagem");
+      continuar.href="prescricao-treinos.html?treino_id="+encodeURIComponent(t.id)+"&aluno_id="+encodeURIComponent(t.aluno_id);
+      acoes.appendChild(continuar);
+    }
+    if(t.status==="rascunho"){
       const ativar=criar("button","","Ativar treino");
       ativar.type="button";
       ativar.onclick=()=>alterarSituacao(t,"ativo");
       acoes.appendChild(ativar);
-      const excluir=criar("button","secundario","Excluir rascunho");
-      excluir.type="button";
-      excluir.onclick=()=>excluirRascunho(t);
-      acoes.appendChild(excluir);
     }else if(t.status==="ativo"){
-      const desativar=criar("button","secundario","Desativar para rascunho");
-      desativar.type="button";
-      desativar.onclick=()=>alterarSituacao(t,"rascunho");
-      acoes.appendChild(desativar);
       const arquivar=criar("button","secundario","Arquivar treino");
       arquivar.type="button";
       arquivar.onclick=()=>alterarSituacao(t,"arquivado");
       acoes.appendChild(arquivar);
-    }else if(t.status==="arquivado"){
-      const restaurar=criar("button","secundario","Restaurar como rascunho");
-      restaurar.type="button";
-      restaurar.onclick=()=>alterarSituacao(t,"rascunho");
-      acoes.appendChild(restaurar);
     }
     item.append(titulo,aluno,detalhes,situacao,acoes);
     lista.appendChild(item);
@@ -468,58 +453,53 @@ async function carregarTreinos(){
 }
 
 async function alterarSituacao(t,novoStatus){
-  if(alterandoSituacao||excluindo)return;
-  const origem=t.status;
-  const permitidas={rascunho:["ativo"],ativo:["rascunho","arquivado"],arquivado:["rascunho"]};
-  if(!permitidas[origem]?.includes(novoStatus))return;
+  if(alterandoSituacao)return;
+  const origem=novoStatus==="ativo"?"rascunho":"ativo";
+  if(t.status!==origem)return;
   const aviso=$("avisoSituacao");
-  aviso.className="";aviso.textContent="";
-  const verbo=novoStatus==="ativo"?"Ativar":novoStatus==="arquivado"?"Arquivar":origem==="ativo"?"Desativar":"Restaurar";
+  aviso.className="";
+  aviso.textContent="";
+  const acao=novoStatus==="ativo"?"ATIVAR":"ARQUIVAR";
   const explicacao=novoStatus==="ativo"
-    ?"O treino será liberado para o aluno quando a tela do aluno estiver implementada. Para editar novamente, desative-o."
-    :novoStatus==="arquivado"?"O treino deixará de constar entre os ativos, mas será preservado."
-    :"O treino voltará a ser um rascunho editável e não ficará disponível ao aluno.";
-  if(!confirm(`${verbo} o treino "${t.nome}" de ${nomeAluno(t.aluno_id)}?\n\n${explicacao}`))return;
+    ?"O treino ficará liberado para o aluno assim que a visualização do aluno estiver disponível. Rascunhos podem ser editados; treinos ativos não podem ser editados nesta versão."
+    :"O aluno deixará de visualizar este treino entre os ativos. O registro continuará salvo.";
+  if(!confirm(`${acao} o treino "${t.nome}" de ${nomeAluno(t.aluno_id)}?\n\n${explicacao}`))return;
   alterandoSituacao=true;
   aviso.textContent="Atualizando situação do treino...";
   try{
     if(novoStatus==="ativo"){
-      const {count,error:erroEx}=await supabase.from("wand_treino_exercicios")
-        .select("id",{count:"exact",head:true}).eq("treino_id",t.id);
+      const {count,error:erroEx}=await supabase
+        .from("wand_treino_exercicios")
+        .select("id",{count:"exact",head:true})
+        .eq("treino_id",t.id);
       if(erroEx)throw erroEx;
       if(!count)throw Error("Este treino não possui exercícios. Adicione exercícios antes de ativá-lo.");
     }
-    const {data,error}=await supabase.from("wand_treinos")
-      .update({status:novoStatus}).eq("id",t.id).eq("status",origem)
-      .select("id,status").maybeSingle();
+    const {data,error}=await supabase
+      .from("wand_treinos")
+      .update({status:novoStatus})
+      .eq("id",t.id)
+      .eq("status",origem)
+      .select("id,status")
+      .maybeSingle();
     if(error)throw error;
-    if(!data)throw Error("A alteração não foi confirmada. Atualize a lista e confira o status.");
+    if(!data)throw Error("A alteração não foi confirmada. Atualize a lista e confira o status do treino.");
     aviso.className="sucesso";
-    aviso.textContent=`Treino ${novoStatus==="ativo"?"ativado":novoStatus==="arquivado"?"arquivado":"convertido em rascunho"} com sucesso!`;
-    if(treinoAtual?.id===t.id){$("editor").style.display="none";treinoAtual=null;}
+    aviso.textContent=novoStatus==="ativo"
+      ?"Treino ativado! A visualização pelo aluno será disponibilizada na próxima etapa."
+      :"Treino arquivado com sucesso!";
+    if(treinoAtual?.id===t.id){
+      $("editor").style.display="none";
+      treinoAtual=null;
+    }
     await carregarTreinos();
   }catch(e){
-    console.error(e);aviso.className="erro";
+    console.error(e);
+    aviso.className="erro";
     aviso.textContent="Não foi possível alterar a situação: "+e.message;
-  }finally{alterandoSituacao=false;}
-}
-
-async function excluirRascunho(t){
-  if(excluindo||alterandoSituacao||t.status!=="rascunho")return;
-  const aviso=$("avisoSituacao");
-  if(!confirm(`Excluir DEFINITIVAMENTE o rascunho "${t.nome}" de ${nomeAluno(t.aluno_id)}?\n\nTodos os exercícios e séries dessa prescrição serão excluídos. Essa ação não pode ser desfeita.`))return;
-  const digitado=prompt('Para confirmar a exclusão, digite EXCLUIR:');
-  if(digitado!=="EXCLUIR"){aviso.textContent="Exclusão cancelada.";return;}
-  excluindo=true;aviso.className="";aviso.textContent="Excluindo rascunho...";
-  try{
-    const {data,error}=await supabase.rpc("wand_excluir_rascunho",{p_treino_id:t.id});
-    if(error)throw error;
-    if(data!==true)throw Error("O banco não confirmou a exclusão.");
-    aviso.className="sucesso";aviso.textContent="Rascunho excluído definitivamente.";
-    if(treinoAtual?.id===t.id){$("editor").style.display="none";treinoAtual=null;}
-    await carregarTreinos();
-  }catch(e){console.error(e);aviso.className="erro";aviso.textContent="Falha na exclusão: "+e.message+". Verifique se a função SQL wand_excluir_rascunho foi instalada.";}
-  finally{excluindo=false;}
+  }finally{
+    alterandoSituacao=false;
+  }
 }
 
 function abrirDuplicacao(id){
@@ -925,9 +905,6 @@ async function salvarAlteracoes(){
 }
 
 $("atualizar").onclick=carregarTreinos;
-$("filtroStatus").onchange=carregarTreinos;
-let temporizadorBusca;
-$("buscaTreino").oninput=()=>{clearTimeout(temporizadorBusca);temporizadorBusca=setTimeout(carregarTreinos,250);};
 
 $("filtroAluno").onchange=()=>{
   if(alunoFixo)return;
