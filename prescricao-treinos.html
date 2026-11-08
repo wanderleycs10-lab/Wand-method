@@ -112,6 +112,8 @@ const supabase=createClient(
 const $=id=>document.getElementById(id);
 const parametros=new URLSearchParams(location.search);
 const alunoPerfil=parametros.get("aluno_id")||parametros.get("id");
+const rascunhoId=parametros.get("treino_id");
+let idTreinoEmEdicao=null;
 const VIDEO_BUCKET="wand-exercicios-videos";
 let usuario=null,biblioteca=[],metodos=[],selecionados=[],pagina=1,passo=1,salvando=false,modalExercicio=null,editandoIndice=null,metodoDetalhado=null,expandidos=new Set(),conjugacao=null;
 const porPagina=12;
@@ -131,7 +133,37 @@ for(const g of [...new Set(biblioteca.map(e=>e.grupo_muscular).filter(Boolean))]
 for(const c of [...new Set(biblioteca.map(e=>e.categoria).filter(Boolean))].sort())opcao($('categoriaBib'),c,c);
 if(!$('categoriaBib').options.length||$('categoriaBib').options.length===1){$('categoriaBib').disabled=true;$('categoriaBib').title='Categorias ainda não cadastradas na biblioteca';}
 $('app').style.display='block';$('status').textContent='';renderBiblioteca();
+if(rascunhoId)await carregarRascunho(rascunhoId);
 }catch(e){console.error(e);$('status').textContent='Erro ao carregar dados: '+e.message;}}
+
+async function carregarRascunho(id){
+ if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id))throw Error('Identificador de rascunho inválido.');
+ const {data:t,error:et}=await supabase.from('wand_treinos').select('*').eq('id',id).eq('status','rascunho').eq('treinador_id',usuario.id).single();
+ if(et||!t)throw Error('Rascunho não encontrado ou sem permissão de edição. '+(et?.message||''));
+ if(alunoPerfil!==null&&String(t.aluno_id)!==alunoPerfil)throw Error('Este rascunho pertence a outro aluno.');
+ if(![...$('aluno').options].some(o=>o.value===String(t.aluno_id)))throw Error('Aluno do rascunho não encontrado.');
+ const {data:itens,error:ei}=await supabase.from('wand_treino_exercicios').select('*').eq('treino_id',id).order('ordem');
+ if(ei)throw ei;
+ const ids=(itens||[]).map(x=>x.id);
+ let series=[];
+ if(ids.length){const {data,error}=await supabase.from('wand_treino_series').select('*').in('treino_exercicio_id',ids).order('numero_serie');if(error)throw error;series=data||[];}
+ const restaurados=[];
+ for(const x of itens||[]){
+  const exercicio=biblioteca.find(e=>e.id===x.exercicio_id);
+  if(!exercicio)throw Error('Exercício do rascunho não está ativo na biblioteca: '+x.exercicio_id+'. Nenhuma alteração foi feita.');
+  const metodo=metodos.find(m=>m.id===x.metodo_id);
+  const config=x.configuracao_metodo||{};
+  const salvas=series.filter(a=>a.treino_exercicio_id===x.id).sort((a,b)=>a.numero_serie-b.numero_serie);
+  const extras=config.series_prescritas||[];
+  restaurados.push({registro_id:x.id,exercicio,metodo_id:x.metodo_id,metodo_nome:metodo?.nome||config.grupo_metodo_nome||'Método',observacoes:x.observacoes||config.observacoes_prescricao||'',configuracao_metodo:structuredClone(config),series:salvas.map((a,i)=>({repeticoes:a.repeticoes,carga_kg:a.carga_kg??'',descanso_segundos:a.descanso_segundos??0,cadencia:a.cadencia||extras[i]?.cadencia||null,observacoes:extras[i]?.observacoes||a.observacoes||null,etapa:extras[i]?.etapa||null,reducao_percentual:extras[i]?.reducao_percentual??null,pausa_interna_segundos:extras[i]?.pausa_interna_segundos??null}))});
+ }
+ idTreinoEmEdicao=id;selecionados=restaurados;
+ $('aluno').value=String(t.aluno_id);$('aluno').disabled=true;
+ $('nome').value=t.nome||'';$('objetivo').value=t.objetivo||'';$('observacoes').value=t.observacoes||'';
+ renderBiblioteca();renderSelecionados();mudarPasso(1);
+ mensagem('Rascunho carregado. Adicione exercícios na biblioteca ou avance para Montagem e revisão.','sucesso');
+}
+
 function normal(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
 function renderBiblioteca(){const q=normal($('pesquisaBib').value.trim()),g=$('grupoBib').value,c=$('categoriaBib').value;const filtrados=biblioteca.filter(e=>normal(e.nome).includes(q)&&(!g||e.grupo_muscular===g)&&(!c||e.categoria===c));const paginas=Math.max(1,Math.ceil(filtrados.length/porPagina));pagina=Math.min(pagina,paginas);$('totalBib').textContent=filtrados.length+' exercício(s) encontrado(s) · Página '+pagina+' de '+paginas;const area=$('listaBib');area.replaceChildren();
 for(const e of filtrados.slice((pagina-1)*porPagina,pagina*porPagina)){const linha=criar('article','item-bib');const mini=criar('button','miniatura','▶');mini.type='button';mini.title='Ver demonstração';mini.onclick=()=>abrirVideo(e);const resumo=criar('div','resumo');resumo.append(criar('strong','',e.nome),criar('small','',(e.grupo_muscular||'Sem grupo')+' · '+(e.categoria||'Musculação')));const adicionar=criar('button','','+ Adicionar');adicionar.type='button';adicionar.onclick=()=>abrirMetodos(e);resumo.append(adicionar);linha.append(mini,resumo);area.append(linha);}
@@ -257,10 +289,50 @@ function renderConfig(){
 function validar(){const alunoId=Number($('aluno').value),nome=$('nome').value.trim();if(alunoPerfil!==null&&String(alunoId)!==alunoPerfil)throw Error('Aluno não corresponde ao perfil aberto.');if(!Number.isSafeInteger(alunoId)||alunoId<=0)throw Error('Selecione um aluno.');if(!nome)throw Error('Informe o nome do treino.');if(!selecionados.length)throw Error('Adicione pelo menos um exercício.');
  const grupos=new Map();for(const item of selecionados){const c=item.configuracao_metodo||{};if(c.tipo==='exercicios_vinculados'){if(!c.grupo_prescricao_id)throw Error('Combinação sem vínculo. Selecione novamente os exercícios na biblioteca.');if(!grupos.has(c.grupo_prescricao_id))grupos.set(c.grupo_prescricao_id,[]);grupos.get(c.grupo_prescricao_id).push(item);}}for(const [id,itens] of grupos){const total=itens[0].configuracao_metodo.grupo_total;if(itens.length!==total||itens.some((x,i)=>x.configuracao_metodo.grupo_posicao!==i+1))throw Error('Combinação incompleta ou fora de ordem. Refaça a seleção do método combinado.');const indices=itens.map(x=>selecionados.indexOf(x));if(indices.some((n,i)=>i&&n!==indices[0]+i))throw Error('Mantenha os exercícios da combinação juntos.');}
  const exercicios=selecionados.map((item,i)=>{if(!item.series.length)throw Error(item.exercicio.nome+': adicione ao menos uma série.');return {exercicio_id:item.exercicio.id,metodo_id:item.metodo_id||null,ordem:i+1,observacoes:item.observacoes.trim()||null,configuracao_metodo:{...structuredClone(item.configuracao_metodo||{}),versao_prescricao:1,series_prescritas:item.series.map(s=>({...s})),observacoes_prescricao:item.observacoes},series:item.series.map((s,j)=>{if(!String(s.repeticoes).trim())throw Error(item.exercicio.nome+': informe repetições da série '+(j+1));if(!/^\d+$/.test(String(s.descanso_segundos)))throw Error(item.exercicio.nome+': descanso inválido na série '+(j+1));const descanso=Number(s.descanso_segundos);if(!Number.isSafeInteger(descanso)||descanso<0)throw Error('Descanso inválido.');const carga=s.carga_kg===null||s.carga_kg===''?null:Number(s.carga_kg);if(carga!==null&&(!Number.isFinite(carga)||carga<0))throw Error('Carga inválida.');return {numero_serie:j+1,repeticoes:String(s.repeticoes).trim(),carga_kg:carga,descanso_segundos:descanso,cadencia:s.cadencia||null,observacoes:[s.observacoes,s.etapa?`Etapa: ${s.etapa}`:null,s.reducao_percentual!=null?`Redução de carga: ${s.reducao_percentual}%`:null,s.pausa_interna_segundos!=null?`Pausa interna: ${s.pausa_interna_segundos}s`:null].filter(Boolean).join(' | ')||null};})};});return {aluno_id:alunoId,treinador_id:usuario.id,nome,objetivo:$('objetivo').value.trim()||null,observacoes:$('observacoes').value.trim()||null,exercicios};}
-async function salvarTreino(status){if(salvando)return;let dados;try{dados=validar();}catch(e){mensagem(e.message,'erro');return;}if(status==='ativo'&&!confirm('Publicar este treino agora para o aluno?'))return;salvando=true;$('publicar').disabled=true;$('salvarRascunho').disabled=true;mensagem('Salvando treino...');let treinoId=null;try{const {exercicios,...treino}=dados;const {data:novo,error:et}=await supabase.from('wand_treinos').insert({...treino,status:'rascunho'}).select('id').single();if(et)throw et;treinoId=novo.id;for(const item of exercicios){const {series,...exercicio}=item;const {data:novoEx,error:ee}=await supabase.from('wand_treino_exercicios').insert({...exercicio,treino_id:treinoId}).select('id').single();if(ee)throw ee;const {error:es}=await supabase.from('wand_treino_series').insert(series.map(s=>({...s,treino_exercicio_id:novoEx.id})));if(es)throw es;}
-if(status==='ativo'){const {data:publicado,error:ep}=await supabase.from('wand_treinos').update({status:'ativo'}).eq('id',treinoId).eq('status','rascunho').select('id,status').single();if(ep||publicado?.status!=='ativo')throw Error('O treino foi salvo, mas não foi possível confirmar a publicação: '+(ep?.message||'status não confirmado'));}
-mensagem(status==='ativo'?'Treino publicado com sucesso para o aluno! ID: '+treinoId:'Treino salvo como rascunho! ID: '+treinoId,'sucesso');$('publicar').disabled=true;$('salvarRascunho').disabled=true;
-}catch(e){console.error(e);let detalhe='';if(treinoId){const {data:registro}=await supabase.from('wand_treinos').select('status').eq('id',treinoId).maybeSingle();if(registro?.status==='rascunho'){detalhe=' O treino '+treinoId+' pode ter ficado como rascunho. Confira em Gerenciar Treinos antes de tentar novamente.';}else detalhe=' Confira o treino ID '+treinoId+' em Gerenciar Treinos.';}mensagem('Erro ao salvar/publicar: '+e.message+detalhe,'erro');}finally{salvando=false;if(!$('mensagem').classList.contains('sucesso')){$('publicar').disabled=false;$('salvarRascunho').disabled=false;}}}
+async function salvarTreino(status){
+ if(salvando)return;
+ let dados;try{dados=validar();}catch(e){mensagem(e.message,'erro');return;}
+ if(status==='ativo'&&!confirm('Concluir e publicar este treino para o aluno?'))return;
+ salvando=true;$('publicar').disabled=true;$('salvarRascunho').disabled=true;mensagem('Salvando treino...');
+ let treinoId=idTreinoEmEdicao;
+ try{
+  const {exercicios,...treino}=dados;
+  if(treinoId){
+   const {data:original,error:eo}=await supabase.from('wand_treinos').select('id,status,aluno_id').eq('id',treinoId).eq('treinador_id',usuario.id).eq('status','rascunho').single();
+   if(eo||!original||String(original.aluno_id)!==String(treino.aluno_id))throw Error('Rascunho não autorizado ou já publicado.');
+   const {error:eu}=await supabase.from('wand_treinos').update({...treino}).eq('id',treinoId).eq('treinador_id',usuario.id).eq('status','rascunho');if(eu)throw eu;
+  }else{
+   const {data:novo,error:et}=await supabase.from('wand_treinos').insert({...treino,status:'rascunho'}).select('id').single();if(et)throw et;
+   treinoId=novo.id;idTreinoEmEdicao=treinoId;
+   history.replaceState(null,'',location.pathname+'?treino_id='+encodeURIComponent(treinoId)+(alunoPerfil?'&aluno_id='+encodeURIComponent(alunoPerfil):''));
+  }
+  const {data:antigos,error:ea}=await supabase.from('wand_treino_exercicios').select('id').eq('treino_id',treinoId);if(ea)throw ea;
+  const idsAntigos=new Set((antigos||[]).map(x=>x.id));
+  for(let i=0;i<exercicios.length;i++){
+   const item=exercicios[i],original=selecionados[i];const {series,...exercicio}=item;
+   let idEx=original.registro_id;
+   if(idEx&&idsAntigos.has(idEx)){
+    const {error:ee}=await supabase.from('wand_treino_exercicios').update(exercicio).eq('id',idEx).eq('treino_id',treinoId);if(ee)throw ee;
+    const {error:ed}=await supabase.from('wand_treino_series').delete().eq('treino_exercicio_id',idEx);if(ed)throw ed;
+   }else{
+    const {data:novoEx,error:ee}=await supabase.from('wand_treino_exercicios').insert({...exercicio,treino_id:treinoId}).select('id').single();if(ee)throw ee;idEx=novoEx.id;original.registro_id=idEx;
+   }
+   const {error:es}=await supabase.from('wand_treino_series').insert(series.map(z=>({...z,treino_exercicio_id:idEx})));if(es)throw es;
+   idsAntigos.delete(idEx);
+  }
+  for(const idEx of idsAntigos){
+   const {error:ed}=await supabase.from('wand_treino_series').delete().eq('treino_exercicio_id',idEx);if(ed)throw ed;
+   const {error:ee}=await supabase.from('wand_treino_exercicios').delete().eq('id',idEx).eq('treino_id',treinoId);if(ee)throw ee;
+  }
+  if(status==='ativo'){
+   const {data:publicado,error:ep}=await supabase.from('wand_treinos').update({status:'ativo'}).eq('id',treinoId).eq('status','rascunho').eq('treinador_id',usuario.id).select('id,status').single();
+   if(ep||publicado?.status!=='ativo')throw Error('Não foi possível confirmar a publicação: '+(ep?.message||'status não confirmado'));
+  }
+  mensagem(status==='ativo'?'Treino concluído e publicado com sucesso!':'Rascunho atualizado com sucesso! Você pode continuar editando depois.','sucesso');
+  if(status==='ativo'){$('publicar').disabled=true;$('salvarRascunho').disabled=true;}
+ }catch(e){console.error(e);mensagem('Não foi possível concluir o salvamento: '+e.message+'. Confira o rascunho em Treinos do aluno antes de tentar novamente.','erro');}
+ finally{salvando=false;if(status!=='ativo'||!$('mensagem').classList.contains('sucesso')){$('publicar').disabled=false;$('salvarRascunho').disabled=false;}}
+}
 $('pesquisaBib').addEventListener('input',()=>{pagina=1;renderBiblioteca();});$('grupoBib').addEventListener('change',()=>{pagina=1;renderBiblioteca();});$('categoriaBib').addEventListener('change',()=>{pagina=1;renderBiblioteca();});$('concluirSelecao').onclick=concluirSelecao;$('voltarBib').onclick=()=>mudarPasso(1);$('salvarRascunho').onclick=()=>salvarTreino('rascunho');$('publicar').onclick=()=>salvarTreino('ativo');$('semMetodo').onclick=()=>confirmarMetodo(null,'Sem método');$('fecharMetodo').onclick=()=>$('modalMetodo').classList.add('oculto');$('buscarMetodo').oninput=renderMetodos;$('criarMetodo').onclick=criarMetodo;$('fecharVideo').onclick=fecharVideo;$('verSelecionados').onclick=()=>{$('painelSelecionados').classList.toggle('oculto');renderSelecionados();$('painelSelecionados').scrollIntoView({behavior:'smooth',block:'nearest'});};$('fecharSelecionados').onclick=()=>$('painelSelecionados').classList.add('oculto');$('voltarDetalheMetodo').onclick=()=>{$('modalDetalheMetodo').classList.add('oculto');$('modalMetodo').classList.remove('oculto');};$('aplicarDetalheMetodo').onclick=()=>{if(metodoDetalhado)confirmarMetodo(metodoDetalhado.id,metodoDetalhado.nome);};$('buscaConjugado').oninput=renderConjugado;$('grupoConjugado').onchange=renderConjugado;$('cancelarConjugado').onclick=fecharConjugado;$('confirmarConjugado').onclick=confirmarConjugado;$('expandirTodos').onclick=()=>{const todos=selecionados.every(x=>expandidos.has(x));expandidos=todos?new Set():new Set(selecionados);renderConfig();};
 
 iniciar();
