@@ -119,6 +119,19 @@ button:disabled{
   padding:16px;
   margin:14px 0;
 }
+/* Blocos conjugados compartilhados na visualização e edição */
+.grupo-conjugado{background:#17150e;border:1px solid #a18428;border-radius:14px;padding:16px;margin:16px 0}
+.grupo-conjugado>h3{margin:0 0 7px;font-size:19px}
+.grupo-resumo{color:#e6d39a;margin:0 0 14px;line-height:1.5}
+.grupo-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grupo-grade.tres{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grupo-grade .exercicio{margin:0;min-width:0}
+.grupo-grade .serie{grid-template-columns:38px minmax(0,1fr);gap:7px;align-items:end}
+.grupo-grade .serie>div:nth-child(4){grid-column:2}
+.grupo-grade .serie input{min-width:0}
+.grupo-grade .exercicio h3{font-size:16px;margin-top:0}
+.grupo-grade .exercicio textarea{font-size:13px}
+@media(max-width:800px){.grupo-grade,.grupo-grade.tres{grid-template-columns:1fr}}
 .status{
   display:inline-block;
   padding:5px 10px;
@@ -582,7 +595,7 @@ async function abrirTreino(id){
     const {data:exs,error:ee}=await supabase
       .from("wand_treino_exercicios")
       .select(
-        "id,exercicio_id,ordem,observacoes,metodo_id"
+        "id,exercicio_id,ordem,observacoes,metodo_id,configuracao_metodo"
       )
       .eq("treino_id",id)
       .order("ordem");
@@ -649,7 +662,7 @@ function renderizarEditor(){
   const area=$("exercicios");
   area.replaceChildren();
 
-  exerciciosAtuais.forEach(ex=>{
+  function criarCardExercicio(ex){
     const card=criar("div","exercicio");
 
     const titulo=criar(
@@ -713,7 +726,51 @@ function renderizarEditor(){
       card.appendChild(linha);
     });
 
-    area.appendChild(card);
+    return card;
+  }
+
+
+  // O identificador persistido liga os exercícios de um mesmo método.
+  // Não agrupar apenas pelo nome: podem existir dois Bi-sets diferentes no treino.
+  const agrupados=new Map();
+  exerciciosAtuais.forEach(ex=>{
+    const config=ex.configuracao_metodo||{};
+    const chave=config.tipo==="exercicios_vinculados" && config.grupo_prescricao_id
+      ? String(config.grupo_prescricao_id) : null;
+    if(chave){
+      if(!agrupados.has(chave))agrupados.set(chave,[]);
+      agrupados.get(chave).push(ex);
+    }
+  });
+  const processados=new Set();
+  let numeroGrupo=0;
+  exerciciosAtuais.forEach(ex=>{
+    if(processados.has(ex.id))return;
+    const config=ex.configuracao_metodo||{};
+    const chave=config.tipo==="exercicios_vinculados" && config.grupo_prescricao_id
+      ? String(config.grupo_prescricao_id) : null;
+    const membros=chave?(agrupados.get(chave)||[]):[];
+    if(membros.length<2){
+      processados.add(ex.id);
+      area.appendChild(criarCardExercicio(ex));
+      return;
+    }
+    numeroGrupo++;
+    membros.sort((a,b)=>Number(a.configuracao_metodo?.grupo_posicao||a.ordem)-Number(b.configuracao_metodo?.grupo_posicao||b.ordem));
+    const grupo=criar("section","grupo-conjugado");
+    const metodo=String(config.grupo_metodo_nome||"Método conjugado");
+    grupo.appendChild(criar("h3","",metodo.toUpperCase()+" · GRUPO "+String(numeroGrupo).padStart(2,"0")));
+    grupo.appendChild(criar("p","grupo-resumo",membros.map((m,i)=>String.fromCharCode(65+i)+". "+(nomesExercicios[m.exercicio_id]||"Exercício cadastrado")).join(" → ")));
+    const grade=criar("div","grupo-grade"+(membros.length>=3?" tres":""));
+    membros.forEach((m,i)=>{
+      processados.add(m.id);
+      const card=criarCardExercicio(m);
+      const titulo=card.querySelector("h3");
+      if(titulo)titulo.textContent=String.fromCharCode(65+i)+". "+(nomesExercicios[m.exercicio_id]||"Exercício cadastrado");
+      grade.appendChild(card);
+    });
+    grupo.appendChild(grade);
+    area.appendChild(grupo);
   });
 
   if(!editavel){
