@@ -190,6 +190,14 @@ main{max-width:850px;padding:22px 16px 90px}
 #statusPagina:empty{display:none}
 @media(max-width:370px){.nav-grid{gap:9px}.nav-tile{padding:13px 10px}.nav-name{font-size:13px}.nav-desc{font-size:11px}}
 
+
+/* Separação visual dos botões em Treinos disponíveis */
+.wand-acoes-treino{display:flex!important;align-items:stretch;flex-wrap:wrap;gap:14px!important;margin-top:18px!important}
+.wand-acoes-treino > button{margin:0!important;max-width:100%;white-space:normal;flex:0 1 auto}
+@media(max-width:600px){
+  .wand-acoes-treino{flex-direction:column!important;align-items:stretch!important;gap:14px!important}
+  .wand-acoes-treino > button{display:block!important;width:100%!important;flex:none!important;margin:0!important;min-height:46px}
+}
 </style>
 </head>
 
@@ -936,7 +944,7 @@ function wtRender(){
    if(t.objetivo)wtAdd(c,'p','muted','Objetivo: '+t.objetivo);
    if(t.observacoes)wtAdd(c,'p',null,t.observacoes);
    wtAdd(c,'p','muted',(t.exercicios||[]).length+' exercício(s)');
-   wtBtn(c,'Ver prescrição',()=>wtVerTreino(t));wtBtn(c,'Iniciar treino',()=>wtIniciar(t),true);
+   const acoes=wtAdd(c,'div','wand-acoes-treino');wtBtn(acoes,'Ver prescrição',()=>wtVerTreino(t));wtBtn(acoes,'Iniciar treino',()=>wtIniciar(t),true);
   }
  }else if(wtVista==='historico'){
   wtAdd(area,'h3',null,'Histórico de treinos');
