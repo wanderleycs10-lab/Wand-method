@@ -127,7 +127,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <a id="prescreverTreino" class="button" href="#">+ Prescrever treino</a>
 <a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
 </div>
-<div class="subcard" id="wandHistoricoCard"><h3>Histórico de execução</h3><p class="muted">Sessões realizadas, séries, cargas e repetições.</p><button type="button" class="button secondary" id="wandHistoricoAlternar" aria-expanded="false" aria-controls="wandHistoricoConteudo">Visualizar histórico</button><div id="wandHistoricoConteudo" hidden style="margin-top:16px"><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Abra Treinos para carregar o histórico.</div></div></div>
+<div class="actions"><button type="button" class="button secondary" id="wandHistoricoAlternar" aria-expanded="false" aria-controls="wandHistoricoCard">Histórico de execução</button></div><div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico de execução</h3><p class="muted">Sessões realizadas, séries, cargas e repetições.</p><div id="wandHistoricoConteudo"><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Clique em Atualizar histórico para consultar as sessões.</div></div></div>
 
 
 </section>
@@ -765,8 +765,8 @@ obs.observe(treinoSection,{attributes:true,attributeFilter:['class']});
 document.getElementById('wbcRecarregar').addEventListener('click',carregar);
 document.getElementById('wandHistoricoAtualizar').addEventListener('click',carregar);
 const histToggle=document.getElementById('wandHistoricoAlternar');
-const histConteudo=document.getElementById('wandHistoricoConteudo');
-histToggle.addEventListener('click',()=>{const abrir=histConteudo.hidden;histConteudo.hidden=!abrir;histToggle.setAttribute('aria-expanded',String(abrir));histToggle.textContent=abrir?'Ocultar histórico':'Visualizar histórico';});
+const histCard=document.getElementById('wandHistoricoCard');
+histToggle.addEventListener('click',()=>{const abrir=histCard.hidden;histCard.hidden=!abrir;histToggle.setAttribute('aria-expanded',String(abrir));histToggle.textContent=abrir?'Ocultar histórico':'Histórico de execução';});
 </script>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
