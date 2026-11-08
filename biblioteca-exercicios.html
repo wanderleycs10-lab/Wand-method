@@ -16,6 +16,37 @@
 .por-pagina{justify-content:flex-end;margin:16px 0 18px}.por-pagina label{white-space:nowrap}
 .por-pagina label{margin:0}
 @media(max-width:650px){.exercicio{padding:20px 20px 26px}.navegacao-rodape{padding:20px 12px;gap:16px}.paginacao button{min-width:42px;min-height:42px}.por-pagina{width:100%;justify-content:flex-end}.por-pagina select{min-width:80px}}
+
+/* Refinamento compacto: distancia entre cabecalho e filtros; cards menores */
+.topo-acoes{margin-bottom:16px;gap:12px}
+.topo-acoes h2{font-size:26px;line-height:1.2}
+.painel{margin-bottom:12px;padding:16px}
+.filtros{gap:10px}
+.grade{gap:10px;align-items:stretch}
+.exercicio{padding:16px 17px 17px;min-height:0}
+.exercicio h3{font-size:19px;line-height:1.25;margin:0 0 8px}
+.exercicio p{margin:7px 0;font-size:13px;line-height:1.35}
+.exercicio .etiqueta{padding:5px 8px;margin-bottom:5px}
+.exercicio .categoria{margin-bottom:5px}
+.exercicio .acoes{padding-top:10px;margin-top:auto;margin-bottom:0;gap:6px}
+.exercicio .acoes button{padding:9px 11px;font-size:13px;line-height:1.3}
+.exercicio .detalhes{margin-top:10px;padding-top:10px}
+.por-pagina{margin:10px 0 12px}
+.navegacao-rodape{margin:14px 0 8px;padding:12px;gap:8px}
+.rodape{margin-top:20px}
+@media(max-width:650px){
+  main{padding:16px 12px}
+  .topo-acoes{align-items:flex-start;margin-bottom:14px}
+  .topo-acoes h2{font-size:23px}
+  .topo-acoes #novo{padding:10px 12px}
+  .painel{padding:14px}
+  .filtros{gap:10px}
+  .grade{gap:9px}
+  .exercicio{padding:14px 15px 16px}
+  .exercicio h3{font-size:18px}
+  .exercicio .acoes{padding-top:9px}
+  .navegacao-rodape{padding:12px 8px}
+}
 </style>
 </head>
 <body>
