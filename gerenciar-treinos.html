@@ -378,7 +378,7 @@ async function carregarTreinos(){
   let consulta=supabase
     .from("wand_treinos")
     .select(
-      "id,aluno_id,nome,objetivo,observacoes,status,created_at"
+      "id,aluno_id,nome,objetivo,observacoes,status,created_at,validade_inicio,validade_fim"
     )
     .order("created_at",{ascending:false});
 
@@ -979,6 +979,13 @@ $("fechar").onclick=()=>{
 $("salvar").onclick=salvarAlteracoes;
 
 iniciar();
+</script>
+<section id="wandValidadeAvisos" class="card" style="margin:18px auto;max-width:1080px;padding:18px"><h2>🔔 Vencimentos de treinos</h2><p id="wandAvisosStatus">Consultando treinos próximos do vencimento...</p><div id="wandAvisosLista"></div><p style="font-size:12px;opacity:.75">Avisos dentro do WandCoach. Notificações push com o aplicativo fechado exigem configuração adicional de servidor e permissões.</p></section>
+<script type="module">
+import {createClient as wandCreateClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const wandAvisosDB=wandCreateClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+async function wandAvisosCarregar(){const status=document.getElementById('wandAvisosStatus'),lista=document.getElementById('wandAvisosLista');try{const {data:{user}}=await wandAvisosDB.auth.getUser();if(!user){status.textContent='Faça login para consultar os avisos.';return;}const {data,error}=await wandAvisosDB.from('wand_treinos').select('id,nome,aluno_id,validade_fim,status').eq('treinador_id',user.id).eq('status','ativo').not('validade_fim','is',null).order('validade_fim');if(error)throw error;const hoje=new Date();hoje.setHours(0,0,0,0);const itens=(data||[]).map(t=>({...t,dias:Math.round((new Date(t.validade_fim+'T00:00:00')-hoje)/86400000)})).filter(t=>t.dias<=7);lista.replaceChildren();status.textContent=itens.length?itens.length+' treino(s) exigem atenção.':'Nenhum treino vence nos próximos 7 dias.';for(const t of itens){const d=document.createElement('div');d.style.cssText='border:1px solid #9b7c35;border-radius:10px;padding:12px;margin:8px 0';const nome=document.createElement('strong');nome.textContent=t.nome;const msg=document.createElement('p');msg.textContent=t.dias<0?'Vencido há '+(-t.dias)+' dia(s)':t.dias===0?'Último dia de validade':'Faltam '+t.dias+' dia(s)';const a=document.createElement('a');a.href='gerenciar-treinos.html?aluno_id='+encodeURIComponent(t.aluno_id);a.textContent='Abrir treinos do aluno';d.append(nome,msg,a);lista.append(d);}}catch(e){status.textContent='Não foi possível consultar vencimentos: '+e.message;}}
+wandAvisosCarregar();
 </script>
 </body>
 </html>
