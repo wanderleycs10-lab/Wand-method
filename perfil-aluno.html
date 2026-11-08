@@ -4,165 +4,261 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Perfil do Aluno | WAND METHOD</title>
+<title>Meu Painel | WAND METHOD</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
-header{padding:22px;text-align:center;border-bottom:1px solid #6b5722}
-header img{width:65px;height:65px;object-fit:contain}
-h1,h2,h3{color:#d4af37}
-h1{font-size:25px;margin:8px 0}
-h2{font-size:20px}
-h3{font-size:16px}
+:root{
+  --bg:#080808;
+  --card:#171717;
+  --gold:#d4af37;
+  --line:#393126;
+  --text:#f5f5f5;
+  --muted:#aaa;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+header{
+  padding:20px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+header img{
+  width:55px;
+  height:55px;
+  object-fit:contain;
+}
+.brand{
+  font-size:20px;
+  font-weight:bold;
+}
+.gold{color:var(--gold)}
+.silver{color:#c0c0c0}
+main{
+  max-width:850px;
+  margin:auto;
+  padding:24px 16px 75px;
+}
+h1{font-size:25px}
+h2{
+  font-size:20px;
+  color:var(--gold);
+}
+h3{
+  font-size:16px;
+  color:var(--gold);
+}
 p{line-height:1.55}
-main{max-width:950px;margin:auto;padding:22px 15px 70px}
-.card{background:#171717;border:1px solid #3c3321;border-radius:15px;padding:20px;margin:16px 0}
-.subcard{background:#101010;border:1px solid #393126;border-radius:12px;padding:16px;margin:12px 0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-.metric{background:#101010;border:1px solid #333;border-radius:10px;padding:14px}
-.metric strong{display:block;color:#d4af37;font-size:13px;margin-bottom:7px}
-.metric span{font-size:19px;font-weight:bold}
-.muted{color:#aaa;font-size:13px}
-.gold{color:#d4af37}
-.green{color:#80d9a0}
-.red{color:#f28d8d}
-button,.button{display:inline-block;background:#d4af37;color:#080808;border:0;border-radius:9px;padding:13px 17px;font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px}
-button:disabled{opacity:.55;cursor:wait}
-.secondary{background:transparent;color:#d4af37;border:1px solid #d4af37}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}
-input,textarea{display:block;width:100%;padding:11px;background:#090909;color:#fff;border:1px solid #655321;border-radius:8px;margin:7px 0 13px;font:inherit}
-label{font-size:14px;color:#ddd}
-details{border-top:1px solid #3a3328;padding-top:12px;margin-top:14px}
-summary{color:#d4af37;cursor:pointer;font-weight:bold}
-.status{font-size:12px;padding:5px 9px;border:1px solid #665321;border-radius:20px;display:inline-block}
-.chart{width:100%;height:145px;display:block}
-.chart-label{color:#aaa;font-size:12px}
-.notice{padding:12px;border-left:3px solid #d4af37;background:#201b11;border-radius:5px}
-.error{color:#ff9292}
-.success{color:#86dca6}
+.muted{
+  color:var(--muted);
+  font-size:14px;
+}
+.tag{
+  color:var(--gold);
+  font-size:12px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  margin-top:16px;
+}
+.highlight{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,#29210f,#171717);
+}
+.button{
+  display:inline-block;
+  background:var(--gold);
+  color:#080808;
+  padding:13px 18px;
+  text-align:center;
+  text-decoration:none;
+  border:0;
+  border-radius:9px;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:14px;
+}
+.secondary{
+  background:transparent;
+  color:var(--gold);
+  border:1px solid var(--gold);
+}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:16px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:12px;
+}
+.metric{
+  background:#101010;
+  border:1px solid #333;
+  border-radius:11px;
+  padding:15px;
+}
+.metric strong{
+  display:block;
+  color:var(--gold);
+  font-size:13px;
+  margin-bottom:9px;
+}
+.metric span{
+  display:block;
+  font-size:20px;
+  font-weight:bold;
+}
+.metric small{
+  display:block;
+  color:#aaa;
+  margin-top:7px;
+}
+.subcard{
+  background:#101010;
+  border:1px solid #393126;
+  border-radius:12px;
+  padding:16px;
+  margin:13px 0;
+}
+.status{
+  display:inline-block;
+  padding:6px 10px;
+  border:1px solid #665321;
+  border-radius:20px;
+  font-size:12px;
+  color:var(--gold);
+}
+.notice{
+  background:#211b10;
+  border-left:3px solid var(--gold);
+  padding:12px;
+  border-radius:6px;
+}
+.chart{
+  display:block;
+  width:100%;
+  height:145px;
+}
+.green{color:#83dca1}
+.red{color:#f28b8b}
 .hidden{display:none!important}
-@media(max-width:600px){.card{padding:15px}.metric span{font-size:16px}}
+.error{color:#ff9292}
+footer{
+  text-align:center;
+  color:#888;
+  font-size:12px;
+  padding:24px;
+}
+@media(max-width:600px){
+  .card{padding:16px}
+  .metric span{font-size:17px}
+}
 
-/* Navegação compacta do perfil */
-.menu-perfil{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
-.menu-perfil button{background:#191919;color:#f5f5f5;border:1px solid #665321;min-height:82px;padding:15px;text-align:center;font-size:15px}
-.menu-perfil button.ativo{background:#d4af37;color:#080808;border-color:#d4af37}
-.painel-perfil{display:none}
-.painel-perfil.ativo{display:block}
-/* Recursos externos ficam ocultos até serem colocados em sua aba. */
-#wand-fotos{display:none!important}
-#painel-fotos.ativo #wand-fotos{display:block!important}
-@media(max-width:420px){.menu-perfil button{font-size:13px;padding:10px;min-height:70px}}
-#wandBotaoAcompanhamento.tem-pendencia{background:#352a0c;border:2px solid #e9bb32;color:#ffdc68;box-shadow:0 0 0 2px #5a451a}
-#wandContadorPendencias{display:inline-block;background:#d4af37;color:#111;padding:3px 7px;border-radius:14px;font-size:12px;margin-left:4px}
-#wandContadorPendencias[hidden]{display:none}
-#painel-acompanhamento select{display:block;width:100%;padding:11px;background:#090909;color:#fff;border:1px solid #655321;border-radius:8px;margin:7px 0 13px;font:inherit}
-.wa-item{padding:12px;border:1px solid #524424;border-radius:10px;margin:10px 0}
-.wa-item button{margin:6px 6px 0 0}
+/* Painel de navegacao WAND METHOD */
+:root{color-scheme:dark}
+header{max-width:100%;padding:16px max(18px,calc((100vw - 850px)/2));}
+main{max-width:850px;padding:22px 16px 90px}
+.dashboard-title{margin:5px 0 4px;font-size:26px}
+.dashboard-subtitle{color:var(--muted);font-size:14px;margin:0 0 18px}
+.welcome{background:#1c1c1c;border:1px solid #34302a;border-radius:15px;padding:18px;margin:16px 0 20px}
+.welcome strong{display:block;font-size:19px;margin-bottom:6px}
+.welcome p{margin:0;color:#bbb;font-size:14px}
+.nav-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.nav-tile{background:#202020;border:1px solid #3c3832;border-radius:14px;padding:17px 14px;min-height:123px;color:#fff;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:9px;text-decoration:none;cursor:pointer;font:inherit;transition:border-color .15s,background .15s}
+.nav-tile:hover,.nav-tile:focus-visible{border-color:var(--gold);background:#28231b;outline-offset:2px}
+.nav-icon{font-size:24px;line-height:1;color:var(--gold)}
+.nav-name{font-weight:700;font-size:15px}
+.nav-desc{font-size:12px;color:#b8b8b8;line-height:1.35}
+.panel-view{margin-top:18px}
+.panel-view[hidden],#homeView[hidden]{display:none!important}
+.back-btn{background:none;border:1px solid #62552d;border-radius:9px;color:var(--gold);font:inherit;font-weight:700;padding:11px 15px;cursor:pointer;margin-bottom:8px}
+.back-bottom{margin-top:24px;padding-top:12px;border-top:1px solid #39332a}
+.module-note{border:1px solid #4c412a;background:#211c13;padding:16px;border-radius:12px;color:#ddd;line-height:1.5}
+#statusPagina:empty{display:none}
+@media(max-width:370px){.nav-grid{gap:9px}.nav-tile{padding:13px 10px}.nav-name{font-size:13px}.nav-desc{font-size:11px}}
 
+
+/* Separação visual dos botões em Treinos disponíveis */
+.wand-acoes-treino{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:12px}
+.wand-acoes-treino button{margin:0!important;max-width:100%;white-space:normal}
+@media(max-width:380px){.wand-acoes-treino{gap:9px}.wand-acoes-treino button{flex:1 1 100%}}
 </style>
 </head>
+
 <body>
+
 <header>
 <img src="LogoNova.png" alt="Logo WAND METHOD">
-<h1>WAND METHOD</h1>
-<div class="muted">WANDCOACH · PERFIL DO ALUNO</div>
+<div class="brand">
+<span class="gold">WAND</span>
+<span class="silver">METHOD</span>
+</div>
 </header>
 
 <main>
-<div class="actions">
-<a class="button secondary" href="admin.html">← Voltar ao painel</a>
-</div>
-<p id="statusPagina">Carregando perfil...</p>
 
-<div id="conteudo" class="hidden">
-<section class="card">
-<h2>Dados do aluno</h2>
-<div class="grid">
-<div class="metric"><strong>Nome</strong><span id="nome">—</span></div>
-<div class="metric"><strong>Modalidade</strong><span id="modalidade">—</span></div>
-<div class="metric"><strong>Status</strong><span id="statusAluno">—</span></div>
-</div>
-</section>
+<div class="tag">Área do aluno</div>
+<h1 id="saudacao" class="dashboard-title">Bem-vindo ao WAND METHOD!</h1>
+<p class="dashboard-subtitle">Sua evolução em um só lugar.</p>
+<p id="statusPagina" role="status">Carregando seus dados...</p>
 
-<nav class="menu-perfil" aria-label="Seções do perfil do aluno">
-<button type="button" data-painel="anamnese" aria-controls="painel-anamnese">📋 Anamnese</button>
-<button type="button" data-painel="avaliacao" aria-controls="painel-avaliacao">📏 Avaliação física</button>
-<button type="button" data-painel="evolucao" aria-controls="painel-evolucao">📈 Evolução física</button>
-<button type="button" data-painel="treinos" aria-controls="painel-treinos">🏋️ Treinos</button>
-<button type="button" data-painel="fotos" aria-controls="painel-fotos">📷 Avaliação fotográfica</button>
-<button type="button" id="wandBotaoAcompanhamento" data-painel="acompanhamento" aria-controls="painel-acompanhamento">♡ Acompanhamento <span id="wandContadorPendencias" hidden></span></button>
-</nav>
-<p id="orientacaoPerfil" class="muted">Selecione uma opção acima para visualizar os detalhes.</p>
+<div id="painel" class="hidden">
+  <section id="homeView" aria-label="Menu do aluno">
+    <div class="welcome"><strong>Meu acompanhamento</strong><p>Acesse seus dados, avaliações e evolução física.</p></div>
+    <nav class="nav-grid" aria-label="Áreas do aluno">
+      <button type="button" class="nav-tile" data-view="treinos"><span class="nav-icon">🏋</span><span class="nav-name">Meus Treinos</span><span class="nav-desc">Exercícios e séries</span></button>
+      <button type="button" class="nav-tile" data-view="ficha"><span class="nav-icon">▤</span><span class="nav-name">Minha Ficha</span><span class="nav-desc">Dados e saúde</span></button>
+      <a class="nav-tile" href="anamnese.html"><span class="nav-icon">♡</span><span class="nav-name">Anamnese</span><span class="nav-desc">Histórico e rotina</span></a>
+      <button type="button" class="nav-tile" data-view="avaliacoes"><span class="nav-icon">⌁</span><span class="nav-name">Avaliação Física</span><span class="nav-desc">Medidas corporais</span></button>
+      <button type="button" class="nav-tile" data-view="fotografica"><span class="nav-icon">▣</span><span class="nav-name">Avaliação Fotográfica</span><span class="nav-desc">Frente, perfil e costas</span></button>
+      <button type="button" class="nav-tile" data-view="evolucao"><span class="nav-icon">↗</span><span class="nav-name">Minha Evolução</span><span class="nav-desc">Gráficos e resultados</span></button>
+      <button type="button" class="nav-tile" data-view="bemestar"><span class="nav-icon">♡</span><span class="nav-name">Bem-estar</span><span class="nav-desc">Check-in e ciclo opcional</span></button>
+       <button type="button" class="nav-tile" data-view="coins"><span class="nav-icon">★</span><span class="nav-name">WAND Coins</span><span class="nav-desc">Conquistas e recompensas</span></button>
+      <button type="button" class="nav-tile" data-view="treinador"><span class="nav-icon">☏</span><span class="nav-name">Meu Treinador</span><span class="nav-desc">Contato e suporte</span></button>
+    </nav>
+  </section>
 
-<section id="painel-anamnese" class="card painel-perfil">
-<h2>Anamnese</h2>
-<p class="muted">Triagem de saúde e respostas do aluno.</p>
-<div id="anamneses">Carregando anamnese...</div>
-</section>
-
-<section id="painel-avaliacao" class="card painel-perfil">
-<h2>Avaliação física</h2>
-<p>Cadastre avaliações, acompanhe os resultados e libere o parecer profissional.</p>
-<a id="novaAvaliacao" class="button" href="#">+ Nova avaliação física</a>
-<div id="avaliacoes">Carregando avaliações...</div>
-</section>
-
-<section id="painel-evolucao" class="card painel-perfil">
-<h2>Evolução física</h2>
-<p class="muted">Histórico das avaliações físicas registradas.</p>
-<div id="evolucao">Carregando gráficos...</div>
-</section>
-
-<section id="painel-fotos" class="card painel-perfil">
-<h2>Avaliação fotográfica</h2>
-<p class="muted">Registro fotográfico e acompanhamento corporal e postural.</p>
-<div id="area-fotos"></div>
-</section>
-
-<section id="painel-treinos" class="card painel-perfil">
-<h2>Treinos</h2>
-<p class="muted">Monte um treino com exercícios da biblioteca, escolha os métodos e configure as séries antes de publicar para este aluno.</p>
-<div class="actions">
-<a id="prescreverTreino" class="button" href="#">+ Criar treino</a>
-<a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
-</div>
-<div class="actions"><button type="button" class="button secondary" id="wandHistoricoAlternar" aria-expanded="false" aria-controls="wandHistoricoCard">Histórico de execução</button></div><div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico de execução</h3><p class="muted">Sessões realizadas, séries, cargas e repetições.</p><div id="wandHistoricoConteudo"><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Clique em Atualizar histórico para consultar as sessões.</div></div></div>
-
-
-</section>
-<section id="painel-acompanhamento" class="card painel-perfil">
-<h2>Acompanhamento</h2>
-<p class="muted">Solicitações, histórico de execução, check-ins e adaptações de treino.</p>
-<div class="subcard"><h3>Solicitações de ajuste</h3><p id="waMensagem" role="status" class="muted"></p><div id="waSolicitacoes"></div><div id="waNotificacoes"></div><button type="button" class="button secondary" id="waAtualizar">Atualizar acompanhamento</button></div>
-<div class="subcard"><h3>Protocolos previamente definidos</h3><p class="muted">Crie primeiro um treino alternativo no Gerenciamento de Treinos. Depois vincule os dois treinos aqui.</p>
-<label for="waOriginal">Treino original</label><select id="waOriginal"></select>
-<label for="waAlternativo">Treino alternativo</label><select id="waAlternativo"></select>
-<label for="waTitulo">Nome do protocolo</label><input id="waTitulo" maxlength="100" placeholder="Ex.: Sessão com menor volume">
-<label for="waDescricao">Orientação do treinador</label><textarea id="waDescricao" maxlength="1000" rows="3" placeholder="Quando usar e quais cuidados observar"></textarea>
-<label for="waModo">Tipo de autorização</label><select id="waModo"><option value="aprovacao">Exige minha aprovação</option><option value="pre_autorizado">Alternativa previamente autorizada</option></select>
-<button type="button" id="waCriar" class="button">Criar protocolo</button><div id="waProtocolos"></div></div>
-<div class="subcard"><h3>Programar adaptação</h3><p class="muted">Selecione um protocolo ativo para uma data. A prescrição original não será alterada.</p>
-<label for="waProtocoloAgenda">Protocolo</label><select id="waProtocoloAgenda"></select>
-<label for="waDiaAgenda">Data da adaptação</label><input id="waDiaAgenda" type="date">
-<label for="waJustificativa">Observação (opcional)</label><textarea id="waJustificativa" maxlength="1000" rows="2"></textarea>
-<button type="button" id="waProgramar" class="button">Programar adaptação</button><p class="muted">A programação será consultada pelo aplicativo do aluno. No dia escolhido, o aluno verá a alternativa indicada; sessões já iniciadas não serão modificadas.</p></div>
-<div class="subcard"><h3>Adaptações programadas</h3><div id="waAdaptacoes"></div></div>
-<div class="subcard"><h3>Execução e bem-estar</h3><p class="muted">Registros realizados pelo aluno e dados compartilhados voluntariamente.</p><button type="button" class="button secondary" id="wbcRecarregar">Atualizar registros</button><div id="wbcArea"></div></div>
-</section>
+  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições, registre as séries realizadas e acompanhe seu histórico.</p><p id="wandTreinosMsg" role="status"></p><div id="wandAdaptacaoDia" class="notice" hidden></div><div id="wandProtocolosDisponiveis" class="subcard" hidden></div><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-evolucao" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Compare suas avaliações e acompanhe as mudanças nas medidas corporais.</p><div id="graficos">Carregando evolução...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-bemestar" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu bem-estar</h2><p id="wbStatus" role="status"></p><div id="wbConteudo"></div></div></section>
+  <section class="panel-view" id="view-coins" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>WAND Coins</h2><p class="module-note">O sistema de pontos e recompensas está em desenvolvimento. Sua pontuação será exibida quando o módulo estiver disponível.</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-treinador" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu Treinador</h2><p>Precisa de orientação sobre sua avaliação ou treinamento?</p><a class="button" href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o." target="_blank" rel="noopener noreferrer">FALAR PELO WHATSAPP</a></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <div class="actions"><button class="button secondary" id="sair" type="button">SAIR DA MINHA CONTA</button></div>
 </div>
 </main>
 
-<script type="module">
-import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+<footer>
+WAND METHOD © 2026
+</footer>
 
-const db=createClient(
+<script type="module">
+
+import {createClient} from
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const supabase=createClient(
 "https://kvxdnreipuahoaostlle.supabase.co",
 "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
 );
 
 const $=id=>document.getElementById(id);
-const alunoId=new URLSearchParams(location.search).get("id");
+
 const CAMPOS=[
 ["peso","Peso","kg"],
 ["cintura","Cintura","cm"],
@@ -175,6 +271,7 @@ const CAMPOS=[
 ["massa_gordura_kg","Massa de gordura","kg"],
 ["massa_livre_gordura_kg","Massa livre de gordura","kg"]
 ];
+
 const DOBRAS=[
 ["dobra_peitoral","Peitoral"],
 ["dobra_axilar_media","Axilar média"],
@@ -184,10 +281,8 @@ const DOBRAS=[
 ["dobra_suprailiaca","Suprailíaca"],
 ["dobra_coxa","Coxa"]
 ];
-const CAMPOS_EDITAVEIS=[
-...CAMPOS.slice(0,7),
-...DOBRAS
-];
+
+let alunoAtual=null;
 let avaliacoes=[];
 
 function elemento(tag,classe,texto){
@@ -196,402 +291,289 @@ if(classe)e.className=classe;
 if(texto!==undefined)e.textContent=texto;
 return e;
 }
-function valor(v,casas=2){
-return v===null||v===undefined||v===""
-?"—"
-:Number(v).toLocaleString("pt-BR",{maximumFractionDigits:casas});
-}
-function dataBR(d){
-if(!d)return "—";
-const p=String(d).slice(0,10).split("-");
-return p.length===3?p.reverse().join("/"):"—";
-}
-function adicionarTexto(pai,tag,texto,classe){
+
+function adicionar(pai,tag,texto,classe){
 const e=elemento(tag,classe,texto);
 pai.appendChild(e);
 return e;
 }
-function mostrarErro(destino,erro){
-destino.textContent="Erro: "+(erro?.message||String(erro));
-destino.className="error";
+
+function formatarNumero(v,casas=2){
+if(v===null||v===undefined||v==="")return "—";
+const numero=Number(v);
+if(!Number.isFinite(numero))return "—";
+return numero.toLocaleString("pt-BR",{
+maximumFractionDigits:casas
+});
 }
-function gradeMedidas(destino,registro,campos=CAMPOS){
+
+function dataBR(data){
+if(!data)return "—";
+const partes=String(data).slice(0,10).split("-");
+if(partes.length!==3)return "—";
+return partes.reverse().join("/");
+}
+
+function criarGrade(destino,registro,campos){
 const grade=elemento("div","grid");
-for(const [chave,nome,unidade] of campos){
-if(registro[chave]===null||registro[chave]===undefined||registro[chave]==="")continue;
+
+for(const [campo,nome,unidade] of campos){
+const valor=registro[campo];
+
+if(valor===null||valor===undefined||valor==="")
+continue;
+
 const item=elemento("div","metric");
-adicionarTexto(item,"strong",nome);
-adicionarTexto(item,"span",valor(registro[chave])+" "+unidade);
+
+adicionar(item,"strong",nome);
+
+adicionar(
+item,
+"span",
+formatarNumero(valor)+" "+unidade
+);
+
 grade.appendChild(item);
 }
+
 if(!grade.children.length){
-adicionarTexto(destino,"p","Nenhuma medida disponível.","muted");
-}else destino.appendChild(grade);
-}
-function criarBotao(texto,funcao,classe=""){
-const b=elemento("button",classe,texto);
-b.type="button";
-b.addEventListener("click",funcao);
-return b;
-}
-
-async function autenticar(){
-const {data:{user},error}=await db.auth.getUser();
-if(error||!user){
-location.replace("login.html");
-return false;
-}
-const {data:perfil,error:erro}=await db.from("profiles")
-.select("role").eq("id",user.id).single();
-if(erro||perfil?.role!=="admin")
-throw Error("Acesso restrito ao treinador.");
-return true;
-}
-
-async function carregarAluno(){
-const {data,error}=await db.from("alunos")
-.select("nome_completo,modalidade,Status")
-.eq("id",Number(alunoId)).single();
-if(error)throw error;
-$("nome").textContent=data.nome_completo||"—";
-$("modalidade").textContent=data.modalidade||"—";
-$("statusAluno").textContent=data.Status||"—";
-}
-
-function exibirRespostas(destino,objeto){
-if(!objeto||typeof objeto!=="object"){
-adicionarTexto(destino,"p","Sem respostas registradas.","muted");
+adicionar(destino,"p",
+"Nenhuma medida disponível.","muted");
 return;
 }
-for(const [secao,conteudo] of Object.entries(objeto)){
-const bloco=elemento("div","subcard");
-adicionarTexto(bloco,"h3",secao.replaceAll("_"," "));
-if(conteudo&&typeof conteudo==="object"){
-const grade=elemento("div","grid");
-for(const [chave,resposta] of Object.entries(conteudo)){
-const item=elemento("div","metric");
-adicionarTexto(item,"strong",chave.replaceAll("_"," "));
-let texto;
-if(resposta&&typeof resposta==="object"){
-texto="resposta" in resposta
-?String(resposta.resposta??"—")+
-(resposta.descricao?" — "+resposta.descricao:"")
-:JSON.stringify(resposta);
-}else texto=String(resposta??"—");
-adicionarTexto(item,"div",texto);
-grade.appendChild(item);
-}
-bloco.appendChild(grade);
-}else adicionarTexto(bloco,"p",String(conteudo??"—"));
-destino.appendChild(bloco);
-}
+
+destino.appendChild(grade);
 }
 
-async function carregarAnamneses(){
-const area=$("anamneses");
-const {data,error}=await db.from("anamneses")
-.select("created_at,status,respostas")
-.eq("aluno_id",Number(alunoId))
-.order("created_at",{ascending:false});
-area.replaceChildren();
-if(error){mostrarErro(area,error);return;}
-if(!data?.length){
-adicionarTexto(area,"p","Este aluno ainda não possui anamnese.","muted");
-return;
-}
-for(const [i,a] of data.entries()){
-const detalhe=elemento("details");
-const resumo=elemento("summary",null,
-"Anamnese "+(i+1)+" · "+dataBR(a.created_at)+" · "+(a.status||"—"));
-detalhe.appendChild(resumo);
-exibirRespostas(detalhe,a.respostas);
-area.appendChild(detalhe);
-}
-}
-
-function criarCampoFormulario(nome,titulo,valorInicial,tipo="number"){
-const label=elemento("label");
-label.textContent=titulo;
-const input=elemento("input");
-input.name=nome;
-input.type=tipo;
-if(tipo==="number"){
-input.step="0.01";
-input.min="0.01";
-}
-input.value=valorInicial??"";
-label.appendChild(input);
-return label;
-}
-
-function criarRetificacao(avaliacao){
-const detalhe=elemento("details");
-detalhe.appendChild(elemento("summary",null,
-"Retificar avaliação liberada"));
-adicionarTexto(detalhe,"p",
-"A retificação exige justificativa e fica registrada na auditoria.",
-"notice");
-
-const formulario=elemento("div");
-const grade=elemento("div","grid");
-for(const [campo,titulo] of CAMPOS_EDITAVEIS){
-grade.appendChild(criarCampoFormulario(
-campo,titulo,avaliacao[campo]
-));
-}
-formulario.appendChild(grade);
-
-const label=elemento("label");
-label.textContent="Parecer profissional corrigido";
-const parecer=elemento("textarea");
-parecer.rows=5;
-parecer.value=avaliacao.parecer_profissional||"";
-label.appendChild(parecer);
-formulario.appendChild(label);
-
-const justificativaLabel=elemento("label");
-justificativaLabel.textContent="Justificativa obrigatória";
-const justificativa=elemento("textarea");
-justificativa.rows=3;
-justificativa.placeholder="Explique o motivo da correção...";
-justificativaLabel.appendChild(justificativa);
-formulario.appendChild(justificativaLabel);
-
-const feedback=elemento("p","muted");
-const salvar=criarBotao("Salvar retificação",async()=>{
-const motivo=justificativa.value.trim();
-if(motivo.length<10){
-feedback.textContent="Informe uma justificativa com pelo menos 10 caracteres.";
-return;
-}
-const alteracoes={};
-for(const [campo] of CAMPOS_EDITAVEIS){
-const input=formulario.querySelector(`[name="${campo}"]`);
-const texto=input.value.trim();
-const novo=texto===""?null:Number(texto);
-if(texto!==""&&(!Number.isFinite(novo)||novo<=0)){
-feedback.textContent="Valor inválido: "+campo;
-return;
-}
-const antigo=avaliacao[campo]===null||
-avaliacao[campo]===undefined?null:Number(avaliacao[campo]);
-if(novo!==antigo)alteracoes[campo]=novo;
-}
-const novoParecer=parecer.value.trim();
-if(novoParecer!==(avaliacao.parecer_profissional||"").trim()){
-if(!novoParecer){
-feedback.textContent="O parecer profissional não pode ficar vazio.";
-return;
-}
-alteracoes.parecer_profissional=novoParecer;
-}
-if(!Object.keys(alteracoes).length){
-feedback.textContent="Nenhuma alteração identificada.";
-return;
-}
-if(!confirm("Confirmar retificação auditada desta avaliação?"))return;
-salvar.disabled=true;
-feedback.textContent="Registrando retificação...";
-const {error}=await db.rpc("retificar_avaliacao_fisica",{
-p_avaliacao_id:avaliacao.id,
-p_justificativa:motivo,
-p_alteracoes:alteracoes
-});
-if(error){
-mostrarErro(feedback,error);
-salvar.disabled=false;
-return;
-}
-feedback.className="success";
-feedback.textContent="Retificação registrada com sucesso.";
-await carregarAvaliacoes();
-await carregarEvolucao();
-});
-formulario.append(salvar,feedback);
-detalhe.appendChild(formulario);
-return detalhe;
-}
-
-function alertaAssimetria(destino,a){
-for(const [direito,esquerdo,nome] of [
+function criarAvisoAssimetria(destino,avaliacao){
+const pares=[
 ["braco_direito","braco_esquerdo","braços"],
 ["coxa_direita","coxa_esquerda","coxas"]
-]){
-const d=Number(a[direito]),e=Number(a[esquerdo]);
-if(d>0&&e>0&&Math.abs(d-e)>=2.5){
-adicionarTexto(destino,"p",
-"Atenção: diferença entre "+nome+" de "+
-valor(Math.abs(d-e))+" cm.","notice");
+];
+
+for(const [direito,esquerdo,nome] of pares){
+const d=Number(avaliacao[direito]);
+const e=Number(avaliacao[esquerdo]);
+
+if(d>0&&e>0){
+const diferenca=Math.abs(d-e);
+
+if(diferenca>=2.5){
+adicionar(
+destino,
+"p",
+"Observação: diferença entre "+nome+
+" de "+formatarNumero(diferenca)+" cm.",
+"notice"
+);
+}
 }
 }
 }
 
-async function aprovarAvaliacao(a,botao,feedback){
-const parecerCampo=feedback.parentElement.querySelector("textarea");
-const parecer=parecerCampo?.value.trim()||
-a.parecer_profissional?.trim()||"";
-if(!parecer){
-feedback.className="error";
-feedback.textContent="Preencha o parecer profissional antes de liberar.";
-return;
-}
-if(!confirm("Liberar avaliação #"+a.id+
-" ao aluno? Esta ação não poderá ser desfeita normalmente."))return;
-botao.disabled=true;
-feedback.textContent="Liberando avaliação...";
-const {error}=await db.rpc("aprovar_avaliacao_fisica",{
-p_avaliacao_id:a.id,
-p_parecer:parecer
-});
-if(error){
-mostrarErro(feedback,error);
-botao.disabled=false;
-return;
-}
-feedback.className="success";
-feedback.textContent="Avaliação liberada com sucesso!";
-await carregarAvaliacoes();
-await carregarEvolucao();
-}
-
-function montarAvaliacao(a){
+function criarAvaliacao(avaliacao){
 const card=elemento("article","subcard");
-adicionarTexto(card,"h3",
-"Avaliação #"+a.id+" · "+dataBR(a.data_avaliacao));
 
-const situacao=a.status_avaliacao||"rascunho";
-adicionarTexto(card,"span",
-situacao==="liberada"?"Liberada ao aluno":
-situacao==="pendente"?"Pendente de aprovação":"Rascunho",
-"status");
+adicionar(
+card,
+"h3",
+"Avaliação física · "+
+dataBR(avaliacao.data_avaliacao)
+);
 
-if(a.liberada_em){
-adicionarTexto(card,"p",
-"Liberada em "+dataBR(a.liberada_em),"muted");
+adicionar(
+card,
+"span",
+"Avaliação liberada",
+"status"
+);
+
+if(avaliacao.liberada_em){
+adicionar(
+card,
+"p",
+"Disponibilizada em "+
+dataBR(avaliacao.liberada_em),
+"muted"
+);
 }
 
-adicionarTexto(card,"h3","Resultados");
-gradeMedidas(card,a);
-alertaAssimetria(card,a);
+adicionar(card,"h3","Resultados");
+criarGrade(card,avaliacao,CAMPOS);
+criarAvisoAssimetria(card,avaliacao);
 
-const dobras=DOBRAS.filter(([campo])=>a[campo]!=null);
-if(dobras.length){
+const possuiDobras=DOBRAS.some(
+([campo])=>avaliacao[campo]!=null
+);
+
+if(possuiDobras){
 const detalhe=elemento("details");
-detalhe.appendChild(elemento("summary",null,
-"Dobras cutâneas registradas"));
-gradeMedidas(detalhe,a,DOBRAS.map(
-([campo,nome])=>[campo,nome,"mm"]
-));
+const resumo=elemento("summary",null,
+"Ver dobras cutâneas");
+resumo.style.color="#d4af37";
+resumo.style.cursor="pointer";
+resumo.style.padding="12px 0";
+detalhe.appendChild(resumo);
+
+criarGrade(
+detalhe,
+avaliacao,
+DOBRAS.map(([campo,nome])=>[
+campo,nome,"mm"
+])
+);
+
 card.appendChild(detalhe);
 }
 
-if(a.observacoes){
-adicionarTexto(card,"h3","Observações");
-adicionarTexto(card,"p",a.observacoes);
+if(avaliacao.observacoes){
+adicionar(card,"h3","Observações");
+adicionar(card,"p",avaliacao.observacoes);
 }
 
-adicionarTexto(card,"h3","Parecer profissional");
-if(a.parecer_profissional){
-adicionarTexto(card,"p",a.parecer_profissional);
+adicionar(card,"h3","Parecer do treinador");
+
+if(avaliacao.parecer_profissional){
+adicionar(
+card,
+"p",
+avaliacao.parecer_profissional
+);
 }else{
-adicionarTexto(card,"p","Parecer ainda não preenchido.","muted");
+adicionar(
+card,
+"p",
+"Parecer profissional não disponível.",
+"muted"
+);
 }
 
-if(situacao!=="liberada"){
-const label=elemento("label");
-label.textContent="Parecer para liberação";
-const textarea=elemento("textarea");
-textarea.rows=4;
-textarea.value=a.parecer_profissional||"";
-label.appendChild(textarea);
-card.appendChild(label);
-const feedback=elemento("p","muted");
-const botao=criarBotao("Finalizar e liberar ao aluno",
-()=>aprovarAvaliacao(a,botao,feedback));
-card.append(botao,feedback);
+const acoes=elemento("div","actions");
+
+const botaoCompartilhar=elemento(
+"button",
+"button secondary",
+"COMPARTILHAR AVALIAÇÃO"
+);
+
+botaoCompartilhar.type="button";
+
+botaoCompartilhar.addEventListener("click",()=>{
+const texto=
+"Minha avaliação física WAND METHOD\n"+
+"Data: "+dataBR(avaliacao.data_avaliacao)+"\n"+
+"Clique para acessar meu painel:\n"+
+location.origin+
+location.pathname.replace(/[^/]+$/,"")+
+"aluno.html";
+
+if(navigator.share){
+navigator.share({
+title:"Minha avaliação física",
+text:texto
+}).catch(()=>{});
+}else if(navigator.clipboard){
+navigator.clipboard.writeText(texto)
+.then(()=>alert("Informações copiadas!"))
+.catch(()=>alert("Não foi possível copiar."));
 }else{
-card.appendChild(criarRetificacao(a));
+alert("Compartilhamento não disponível.");
 }
+});
+
+acoes.appendChild(botaoCompartilhar);
+card.appendChild(acoes);
+
 return card;
 }
 
-async function carregarAvaliacoes(){
-const area=$("avaliacoes");
-area.textContent="Carregando avaliações...";
-const {data,error}=await db.from("avaliacoes_fisicas")
-.select("*")
-.eq("aluno_id",Number(alunoId))
-.order("data_avaliacao",{ascending:false})
-.order("id",{ascending:false});
-
-area.replaceChildren();
-if(error){mostrarErro(area,error);return;}
-avaliacoes=data||[];
-if(!avaliacoes.length){
-adicionarTexto(area,"p","Nenhuma avaliação física cadastrada.","muted");
-return;
-}
-adicionarTexto(area,"p",
-avaliacoes.length+" avaliação(ões) cadastrada(s).","muted");
-for(const a of avaliacoes){
-area.appendChild(montarAvaliacao(a));
-}
-}
-
 function desenharGrafico(destino,registros,campo,titulo,unidade){
+
 const pontos=registros
-.filter(a=>a[campo]!==null&&a[campo]!==undefined&&
-Number.isFinite(Number(a[campo])))
-.map(a=>({data:a.data_avaliacao,valor:Number(a[campo])}));
+.filter(a=>
+a[campo]!==null&&
+a[campo]!==undefined&&
+Number.isFinite(Number(a[campo]))
+)
+.map(a=>({
+data:a.data_avaliacao,
+valor:Number(a[campo])
+}));
 
 const card=elemento("div","subcard");
-adicionarTexto(card,"h3",titulo);
+adicionar(card,"h3",titulo);
+
 if(!pontos.length){
-adicionarTexto(card,"p","Sem medidas disponíveis.","muted");
+adicionar(card,"p",
+"Sem medidas disponíveis.","muted");
 destino.appendChild(card);
 return;
 }
 
-const primeiro=pontos[0].valor;
-const ultimo=pontos[pontos.length-1].valor;
-const diferenca=ultimo-primeiro;
-const linha=elemento("p","muted",
-"Inicial: "+valor(primeiro)+" "+unidade+
-" · Atual: "+valor(ultimo)+" "+unidade);
-card.appendChild(linha);
+const inicial=pontos[0].valor;
+const atual=pontos[pontos.length-1].valor;
+const diferenca=atual-inicial;
+
+adicionar(
+card,
+"p",
+"Inicial: "+formatarNumero(inicial)+" "+unidade+
+" · Atual: "+formatarNumero(atual)+" "+unidade,
+"muted"
+);
 
 if(pontos.length>1){
-const tendencia=elemento("p");
+const variacao=elemento("p");
+
 const sinal=diferenca>0?"+":"";
-tendencia.textContent="Variação: "+sinal+
-valor(diferenca)+" "+(unidade==="%"?"p.p.":unidade);
+
+variacao.textContent=
+"Variação: "+sinal+
+formatarNumero(diferenca)+" "+
+(unidade==="%"?"p.p.":unidade);
+
 const menorMelhor=[
-"percentual_gordura","massa_gordura_kg"
+"percentual_gordura",
+"massa_gordura_kg"
 ].includes(campo);
-if(diferenca===0)tendencia.className="gold";
-else if(menorMelhor){
-tendencia.className=diferenca<0?"green":"red";
-}else tendencia.className="gold";
-card.appendChild(tendencia);
+
+if(diferenca===0){
+variacao.className="gold";
+}else if(menorMelhor){
+variacao.className=diferenca<0
+?"green":"red";
+}else{
+variacao.className="gold";
+}
+
+card.appendChild(variacao);
 }
 
 const ns="http://www.w3.org/2000/svg";
 const svg=document.createElementNS(ns,"svg");
+
 svg.setAttribute("viewBox","0 0 320 145");
 svg.setAttribute("class","chart");
 svg.setAttribute("role","img");
 svg.setAttribute("aria-label","Gráfico de "+titulo);
 
-let min=Math.min(...pontos.map(p=>p.valor));
-let max=Math.max(...pontos.map(p=>p.valor));
-let amplitude=max-min;
-if(amplitude===0)amplitude=Math.max(1,max*.1);
-min-=amplitude*.15;
-max+=amplitude*.15;
+let minimo=Math.min(...pontos.map(p=>p.valor));
+let maximo=Math.max(...pontos.map(p=>p.valor));
 
-const coords=pontos.map((p,i)=>({
-x:pontos.length===1?160:20+i*280/(pontos.length-1),
-y:125-(p.valor-min)/(max-min)*105
+let amplitude=maximo-minimo;
+
+if(amplitude===0){
+amplitude=Math.max(1,maximo*.1);
+}
+
+minimo-=amplitude*.15;
+maximo+=amplitude*.15;
+
+const coordenadas=pontos.map((p,i)=>({
+x:pontos.length===1
+?160
+:20+i*280/(pontos.length-1),
+y:125-(p.valor-minimo)/(maximo-minimo)*105
 }));
 
 const eixo=document.createElementNS(ns,"line");
@@ -602,221 +584,546 @@ eixo.setAttribute("y2","125");
 eixo.setAttribute("stroke","#555");
 svg.appendChild(eixo);
 
-if(coords.length>1){
-const poly=document.createElementNS(ns,"polyline");
-poly.setAttribute("points",coords.map(p=>p.x+","+p.y).join(" "));
-poly.setAttribute("fill","none");
-poly.setAttribute("stroke","#d4af37");
-poly.setAttribute("stroke-width","3");
-poly.setAttribute("stroke-linejoin","round");
-svg.appendChild(poly);
+if(coordenadas.length>1){
+const linha=document.createElementNS(ns,"polyline");
+
+linha.setAttribute(
+"points",
+coordenadas.map(p=>p.x+","+p.y).join(" ")
+);
+
+linha.setAttribute("fill","none");
+linha.setAttribute("stroke","#d4af37");
+linha.setAttribute("stroke-width","3");
+linha.setAttribute("stroke-linejoin","round");
+
+svg.appendChild(linha);
 }
 
-for(let i=0;i<coords.length;i++){
-const c=coords[i];
-const circle=document.createElementNS(ns,"circle");
-circle.setAttribute("cx",c.x);
-circle.setAttribute("cy",c.y);
-circle.setAttribute("r","4.5");
-circle.setAttribute("fill","#d4af37");
-const title=document.createElementNS(ns,"title");
-title.textContent=dataBR(pontos[i].data)+": "+
-valor(pontos[i].valor)+" "+unidade;
-circle.appendChild(title);
-svg.appendChild(circle);
+for(let i=0;i<coordenadas.length;i++){
+const ponto=coordenadas[i];
+
+const circulo=document.createElementNS(ns,"circle");
+
+circulo.setAttribute("cx",ponto.x);
+circulo.setAttribute("cy",ponto.y);
+circulo.setAttribute("r","4.5");
+circulo.setAttribute("fill","#d4af37");
+
+const descricao=document.createElementNS(ns,"title");
+
+descricao.textContent=
+dataBR(pontos[i].data)+": "+
+formatarNumero(pontos[i].valor)+" "+unidade;
+
+circulo.appendChild(descricao);
+svg.appendChild(circulo);
 }
+
 card.appendChild(svg);
 
 const datas=elemento("div","muted");
 datas.style.display="flex";
 datas.style.justifyContent="space-between";
-datas.append(
-elemento("span",null,dataBR(pontos[0].data)),
-elemento("span",null,dataBR(pontos[pontos.length-1].data))
+
+adicionar(datas,"span",dataBR(pontos[0].data));
+adicionar(
+datas,
+"span",
+dataBR(pontos[pontos.length-1].data)
 );
+
 card.appendChild(datas);
 destino.appendChild(card);
 }
 
-async function carregarEvolucao(){
-const area=$("evolucao");
-area.textContent="Carregando evolução...";
-const {data,error}=await db.from("avaliacoes_fisicas")
-.select("id,data_avaliacao,peso,cintura,quadril,braco_direito,braco_esquerdo,coxa_direita,coxa_esquerda,percentual_gordura,massa_gordura_kg,massa_livre_gordura_kg")
-.eq("aluno_id",Number(alunoId))
-.order("data_avaliacao",{ascending:true})
-.order("id",{ascending:true});
+async function verificarSessao(){
+const {data:{user},error}=await supabase.auth.getUser();
+
+if(error||!user){
+location.replace("login.html");
+return null;
+}
+
+return user;
+}
+
+async function identificarAluno(user){
+const {data,error}=await supabase
+.from("alunos")
+.select("id,nome_completo,user_id")
+.eq("user_id",user.id)
+.single();
+
+if(error||!data){
+throw new Error(
+"Não foi encontrado um cadastro de aluno vinculado a esta conta. Solicite ao treinador que verifique seu acesso."
+);
+}
+
+return data;
+}
+
+async function carregarAvaliacoes(){
+const area=$("listaAvaliacoes");
+
+area.textContent="Carregando avaliações...";
+
+const {data,error}=await supabase
+.from("avaliacoes_fisicas")
+.select("*")
+.eq("aluno_id",alunoAtual.id)
+.eq("status_avaliacao","liberada")
+.order("data_avaliacao",{ascending:false})
+.order("id",{ascending:false});
+
 area.replaceChildren();
-if(error){mostrarErro(area,error);return;}
-if(!data?.length){
-adicionarTexto(area,"p","Nenhuma avaliação registrada.","muted");
+
+if(error){
+area.className="error";
+area.textContent=
+"Não foi possível carregar suas avaliações: "+
+error.message;
 return;
 }
-for(const [campo,nome,unidade] of CAMPOS){
-desenharGrafico(area,data,campo,nome,unidade);
+
+avaliacoes=data||[];
+
+if(!avaliacoes.length){
+adicionar(
+area,
+"p",
+"Você ainda não possui avaliações físicas liberadas pelo treinador.",
+"notice"
+);
+return;
+}
+
+adicionar(
+area,
+"p",
+"Você possui "+avaliacoes.length+
+" avaliação(ões) disponível(is).",
+"muted"
+);
+
+for(const avaliacao of avaliacoes){
+area.appendChild(criarAvaliacao(avaliacao));
 }
 }
 
-function configurarMenuPerfil(){
-const botoes=[...document.querySelectorAll(".menu-perfil button")];
-const paineis=[...document.querySelectorAll(".painel-perfil")];
-function abrirPainel(nome){
-  botoes.forEach(botao=>{
-    const ativo=botao.dataset.painel===nome;
-    botao.classList.toggle("ativo",ativo);
-    botao.setAttribute("aria-expanded",String(ativo));
-  });
-  paineis.forEach(painel=>painel.classList.toggle("ativo",painel.id==="painel-"+nome));
-  $("orientacaoPerfil").classList.add("hidden");
+function carregarEvolucao(){
+const area=$("graficos");
+area.replaceChildren();
+
+if(!avaliacoes.length){
+adicionar(
+area,
+"p",
+"Os gráficos aparecerão quando houver avaliações liberadas.",
+"muted"
+);
+return;
 }
-botoes.forEach(botao=>botao.addEventListener("click",()=>abrirPainel(botao.dataset.painel)));
+
+const ordenadas=[...avaliacoes].sort((a,b)=>{
+const dataA=String(a.data_avaliacao||"");
+const dataB=String(b.data_avaliacao||"");
+
+const comparacao=dataA.localeCompare(dataB);
+
+return comparacao||
+Number(a.id)-Number(b.id);
+});
+
+for(const [campo,titulo,unidade] of CAMPOS){
+desenharGrafico(
+area,
+ordenadas,
+campo,
+titulo,
+unidade
+);
+}
+}
+
+async function sair(){
+const {error}=await supabase.auth.signOut();
+
+if(error){
+alert("Não foi possível sair: "+error.message);
+return;
+}
+
+location.replace("login.html");
 }
 
 async function iniciar(){
 try{
-if(!alunoId||!/^\d+$/.test(alunoId))
-throw Error("Aluno não selecionado. Abra o perfil pelo painel.");
-if(!await autenticar())return;
-await carregarAluno();
-$("novaAvaliacao").href=
-"avaliacao-fisica.html?id="+encodeURIComponent(alunoId);
-$("prescreverTreino").href=
-"prescricao-treinos.html?aluno_id="+encodeURIComponent(alunoId);
-$("treinosAluno").href=
-"gerenciar-treinos.html?aluno_id="+encodeURIComponent(alunoId);
-$("conteudo").classList.remove("hidden");
-configurarMenuPerfil();
+const user=await verificarSessao();
+
+if(!user)return;
+
+alunoAtual=await identificarAluno(user);
+
+const primeiroNome=
+String(alunoAtual.nome_completo||"aluno")
+.trim()
+.split(/\s+/)[0];
+
+$("saudacao").textContent=
+"Olá, "+primeiroNome+"! 👋";
+
+$("painel").classList.remove("hidden");
+
+const ficha=$("dadosFicha");
+ficha.replaceChildren();
+adicionar(ficha,"strong",alunoAtual.nome_completo||"Aluno");
+adicionar(ficha,"p","Cadastro vinculado à sua conta WAND METHOD.","muted");
 $("statusPagina").textContent="";
-await Promise.all([
-carregarAnamneses(),
-carregarAvaliacoes(),
-carregarEvolucao()
-]);
+
+await carregarAvaliacoes();
+
+carregarEvolucao();
+
 }catch(erro){
 console.error(erro);
-mostrarErro($("statusPagina"),erro);
+
+$("statusPagina").className="error";
+
+$("statusPagina").textContent=
+"Não foi possível carregar seu painel: "+
+(erro.message||String(erro));
 }
 }
-iniciar();
 
-// Scripts externos acrescentam seções depois do carregamento do perfil.
-// Este organizador preserva seus elementos e eventos, movendo-os
-// para a aba correspondente sem recriar seu conteúdo.
-function organizarRecursosExternos(){
-  const fotos=document.getElementById("wand-fotos");
-  const areaFotos=document.getElementById("area-fotos");
-  if(fotos&&areaFotos&&!areaFotos.contains(fotos))areaFotos.appendChild(fotos);
 
-  const evolucao=document.getElementById("painel-evolucao");
-  const titulos=[
-    "análise da composição corporal",
-    "referência científica de gordura corporal",
-    "evolução da gordura corporal",
-    "gráficos de evolução corporal"
-  ];
-  for(const heading of [...document.querySelectorAll("h2,h3")]){
-    if(evolucao.contains(heading))continue;
-    if(heading.closest(".painel-perfil"))continue;
-    const nome=heading.textContent.trim().toLocaleLowerCase("pt-BR");
-    if(!titulos.some(t=>nome.includes(t)))continue;
-    const bloco=heading.closest("section.card,article.card,div.card,section.subcard,article.subcard,div.subcard") || heading.parentElement;
-    if(!bloco||bloco===document.body||bloco===document.querySelector("main"))continue;
-    if(!evolucao.contains(bloco))evolucao.appendChild(bloco);
+// Navegacao do painel: conserva os IDs e as rotinas de avaliacao originais.
+const VIEWS=["bemestar","treinos","ficha","avaliacoes","fotografica","evolucao","coins","treinador"];
+function mostrarVista(nome){
+  const valido=VIEWS.includes(nome)?nome:null;
+  $("homeView").hidden=Boolean(valido);
+  for(const id of VIEWS) $("view-"+id).hidden=id!==valido;
+  acomodarModulos();
+  window.scrollTo({top:0,behavior:"instant"});
+}
+function acomodarFotografias(){
+  const modulo=document.getElementById("wand-fotos");
+  const destino=$("fotografiaDestino");
+  if(modulo&&destino&&modulo.parentElement!==destino) destino.appendChild(modulo);
+  $("fotografiaAjuda").hidden=Boolean(modulo);
+  // Mantem as instrucoes antes das imagens e dos botoes de envio.
+  if(modulo){
+    const instrucao=Array.from(modulo.querySelectorAll(".wf-box")).find(el=>
+      el.querySelector("h3")?.textContent?.trim()==="Como tirar suas fotografias"
+    );
+    const guia=Array.from(modulo.querySelectorAll(".wf-box")).find(el=>
+      el.querySelector("h3")?.textContent?.trim()==="Guia visual"
+    );
+    if(instrucao&&guia&&instrucao.nextElementSibling!==guia){
+      modulo.insertBefore(instrucao,guia);
+    }
   }
 }
-let organizacaoPendente=false;
-const observadorRecursos=new MutationObserver(()=>{
-  if(organizacaoPendente)return;
-  organizacaoPendente=true;
-  requestAnimationFrame(()=>{
-    organizacaoPendente=false;
-    organizarRecursosExternos();
-  });
+function acomodarAnalise(){
+  const modulo=document.getElementById("wandAnaliseCorporal");
+  const destino=$("view-avaliacoes");
+  const evolucao=$("view-evolucao");
+  if(!modulo||!destino||!evolucao) return;
+  if(modulo.parentElement!==destino) destino.appendChild(modulo);
+  // O modulo original gera os graficos dentro do mesmo painel.
+  // Movemos somente a secao de graficos para Minha Evolucao.
+  const historico=Array.from(modulo.children).find(el=>
+    el.classList.contains("wa-painel") &&
+    el.querySelector("h2")?.textContent?.trim()==="Gráficos de evolução corporal"
+  );
+  if(historico&&historico.parentElement!==evolucao) evolucao.appendChild(historico);
+}
+function acomodarModulos(){
+  acomodarFotografias();
+  acomodarAnalise();
+}
+for(const btn of document.querySelectorAll("[data-view]")){
+  btn.addEventListener("click",()=>mostrarVista(btn.dataset.view));
+}
+for(const btn of document.querySelectorAll("[data-home]")){
+  btn.addEventListener("click",()=>mostrarVista(null));
+}
+// Os modulos podem carregar depois da tela principal e atualizar seus dados.
+// Observamos inclusoes sem recriar os componentes ou modificar o Supabase.
+let ajustando=false;
+const observadorModulos=new MutationObserver(()=>{
+  if(ajustando) return;
+  ajustando=true;
+  observadorModulos.disconnect();
+  try { acomodarModulos(); }
+  finally {
+    observadorModulos.observe(document.body,{childList:true,subtree:true});
+    ajustando=false;
+  }
 });
-observadorRecursos.observe(document.body,{childList:true,subtree:true});
-organizarRecursosExternos();
+observadorModulos.observe(document.body,{childList:true,subtree:true});
+acomodarModulos();
+
+$("sair").addEventListener("click",sair);
+
+iniciar();
 
 </script>
+
 <script type="module" src="analise-corporal.js"></script>
 
 
 <script defer src="./avaliacao-fotografica.js?v=2"></script>
 
-<style>.wbc-row{border-bottom:1px solid #393126;padding:12px 0}.wbc-tag{color:#d4af37;font-weight:bold}.wbc-muted{color:#bbb;font-size:13px}.wbc-alert{border-left:3px solid #d4af37;background:#272015;padding:10px}</style>
+<style>
+.wt-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.wt-row>*{min-width:0}
+.wt-input{background:#101010;border:1px solid #635326;color:#fff;border-radius:8px;padding:10px;width:100%;font:inherit}
+.wt-serie{display:grid;grid-template-columns:44px minmax(75px,1fr) minmax(75px,1fr) 85px;gap:8px;align-items:end;padding:12px 0;border-bottom:1px solid #37302a}
+.wt-serie label{font-size:12px;color:#bbb;display:block;margin-bottom:5px}.wt-serie input[type=checkbox]{width:20px;height:20px;accent-color:#d4af37}
+.wt-msg{margin:12px 0;color:#83dca1}.wt-alarm{border:2px solid #d4af37!important;background:#30220b!important}.wt-alarm-message{color:#ffd966;font-weight:bold;margin-top:10px}.wt-timer{font-size:32px;font-weight:700;color:#d4af37;font-variant-numeric:tabular-nums}
+@media(max-width:450px){.wt-serie{grid-template-columns:32px 1fr 1fr 65px;gap:5px}.wt-input{padding:8px 5px;font-size:14px}}
+ .wt-menu-clean{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+ .wt-menu-clean .wt-menu-btn{width:100%;min-height:76px;margin:0;white-space:normal;text-align:center;border-radius:12px;font-weight:700}
+ .wt-menu-clean .wt-menu-selected{border:2px solid #d4af37}
+ @media(max-width:520px){.wt-menu-clean{grid-template-columns:1fr}.wt-menu-clean .wt-menu-btn{min-height:56px}}
+</style>
+<script type="module">
+import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
+const wt=document.getElementById('wandTreinosArea');
+let wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
+const wtEl=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
+const wtAdd=(parent,tag,cls,txt)=>{const e=wtEl(tag,cls,txt);parent.append(e);return e};
+const wtBtn=(parent,txt,fn,secondary=false)=>{const b=wtAdd(parent,'button','button'+(secondary?' secondary':''),txt);b.type='button';b.addEventListener('click',fn);return b};
+const wtData=x=>x?new Date(x).toLocaleString('pt-BR'):'—';
+const wtHoje=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const wtNum=x=>x==null?'—':String(x);
+function wtMsg(text,isError=false){const e=document.getElementById('wandTreinosMsg');e.textContent=text;e.className=isError?'error':'wt-msg';}
+async function wtRpc(nome,args){const {data,error}=await wandDb.rpc(nome,args);if(error)throw new Error(error.message);return data}
+function wtArea(){wt.replaceChildren();return wt}
+function wtInput(parent,label,value,kind='text'){const box=wtAdd(parent,'div');const l=wtAdd(box,'label',null,label);const input=wtAdd(box,'input','wt-input');input.type=kind;input.value=value??'';if(kind==='number'){input.min='0';input.step='any'}l.append(input);return input}
+async function wtCarregar(){
+ try{
+  wtMsg('Carregando treinos...');
+  [wtTreinos,wtHistorico]=await Promise.all([wtRpc('wand_aluno_treinos'),wtRpc('wand_aluno_historico')]);
+  wtTreinos=(wtTreinos||[]).filter(t=>{const hoje=wtHoje();return (!t.validade_inicio||t.validade_inicio<=hoje)&&(!t.validade_fim||t.validade_fim>=hoje)});wtHistorico=wtHistorico||[];
+  // Programacoes de hoje sao apresentadas como a alternativa recomendada.
+  try {wtAdaptacoes=await wtRpc('wand_aluno_adaptacoes_do_dia',{p_dia:wtHoje()})||[]}
+  catch(e){wtAdaptacoes=[];wtMsg('Treinos carregados; não foi possível consultar adaptações: '+e.message,true)}
+  const aberta=wtHistorico.find(x=>!x.finalizada_em);
+  if(aberta){wtSessao=aberta.id;wtTreino=wtTreinos.find(t=>t.id===aberta.treino_id)||null;wtSerieSalva=Object.fromEntries((aberta.series||[]).map(s=>[s.serie_id,s]));wtInicio=Date.parse(aberta.iniciada_em)||Date.now();}
+  else{wtSessao=null;wtTreino=null;wtSerieSalva={};}
+  wtMsg('');wtRender();
+ }catch(e){wtMsg('Não foi possível carregar os treinos: '+e.message,true)}
+}
+function wtRender(){
+ if(!wtSessao)wtPararDescanso();
+ const area=wtArea();
+ if(wtSessao&&!wtTreino){wtAdd(area,'p','notice','Há uma sessão aberta de um treino que não está mais ativo. Entre em contato com seu treinador para reativá-lo ou encerrar essa sessão.');wtBtn(area,'Finalizar sessão aberta',()=>wtFinalizar(),true);return;}
+ if(wtSessao&&wtTreino){wtExecucao(area);return;}
+ const menu=wtAdd(area,'div','wt-menu-clean');
+ const opcoes=[['disponiveis','🏋 Treinos disponíveis'],['historico','◷ Histórico de treinos']];
+ for(const [id,rotulo] of opcoes){
+  const b=wtBtn(menu,rotulo,()=>{wtVista=wtVista===id?'nenhuma':id;wtRender()},wtVista!==id);
+  b.classList.add('wt-menu-btn');b.setAttribute('aria-expanded',String(wtVista===id));
+  if(wtVista===id)b.classList.add('wt-menu-selected');
+ }
+ if(wtVista==='nenhuma')return;
+ if(wtVista==='disponiveis'){
+  wtAdd(area,'h3',null,'Treinos disponíveis');
+  if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
+  for(const t of wtTreinos){
+   if(wtAdaptacoes.some(a=>a.treino_original_id===t.id))continue;
+   const c=wtAdd(area,'article','subcard');
+   if(wtAdaptacoes.some(a=>a.treino_alternativo_id===t.id))wtAdd(c,'p','notice','✓ Alternativa autorizada para a sessão de hoje');
+   wtAdd(c,'h3',null,t.nome||'Treino');
+   if(t.objetivo)wtAdd(c,'p','muted','Objetivo: '+t.objetivo);
+   if(t.observacoes)wtAdd(c,'p',null,t.observacoes);
+   wtAdd(c,'p','muted',(t.exercicios||[]).length+' exercício(s)');
+   const acoes=wtAdd(c,'div','wand-acoes-treino');wtBtn(acoes,'Ver prescrição',()=>wtVerTreino(t));wtBtn(acoes,'Iniciar treino',()=>wtIniciar(t),true);
+  }
+ }else if(wtVista==='historico'){
+  wtAdd(area,'h3',null,'Histórico de treinos');
+  const concluidas=wtHistorico.filter(s=>s.finalizada_em);
+  if(!concluidas.length)wtAdd(area,'p','muted','Nenhuma sessão finalizada ainda.');
+  for(const s of concluidas){
+   const c=wtAdd(area,'article','subcard');wtAdd(c,'strong',null,s.treino||'Treino');
+   wtAdd(c,'p','muted',wtData(s.iniciada_em)+' · '+(s.series||[]).filter(x=>x.concluida).length+' séries concluídas');
+   wtBtn(c,'Ver detalhes',()=>wtVerHistorico(s),true);
+  }
+ }
+}
+function wtVerTreino(t){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,t.nome||'Treino');if(t.observacoes)wtAdd(a,'p','notice',t.observacoes);
+ for(const ex of t.exercicios||[]){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
+ for(const s of ex.series||[])wtAdd(c,'p','muted','Série '+s.numero+': '+wtNum(s.repeticoes)+' repetições · '+wtNum(s.carga)+' kg · descanso '+wtNum(s.descanso)+' s'+(s.observacoes?' · '+s.observacoes:''));}
+ wtBtn(a,'Iniciar treino',()=>wtIniciar(t));}
+async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+// O alarme usa recursos permitidos pelo navegador. Em segundo plano ou tela bloqueada
+// o sistema operacional pode suspender audio, vibracao e temporizadores.
+function wtPrepararAudio(){
+ try{const AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)return;
+  if(!wtAudio)wtAudio=new AudioCtor();if(wtAudio.state==='suspended')wtAudio.resume().catch(()=>{});
+ }catch(e){console.warn('Audio indisponivel',e)}
+}
+// Sirene de dois tons "PEM PEM", com ataque rápido e timbre encorpado.
+// O volume final depende do volume de mídia configurado no dispositivo.
+function wtBip(){
+ try{
+  if(!wtAudio||wtAudio.state!=='running')return;
+  const now=wtAudio.currentTime;
+  const compressor=wtAudio.createDynamicsCompressor();
+  compressor.threshold.value=-16;compressor.knee.value=8;
+  compressor.ratio.value=8;compressor.attack.value=0.003;compressor.release.value=0.13;
+  compressor.connect(wtAudio.destination);
+  for(const [offset,freq] of [[0,690],[0.33,860],[0.72,690],[1.05,860]]){
+   const start=now+offset;
+   const gain=wtAudio.createGain();
+   gain.gain.setValueAtTime(0.0001,start);
+   gain.gain.linearRampToValueAtTime(0.62,start+0.018);
+   gain.gain.setValueAtTime(0.62,start+0.19);
+   gain.gain.exponentialRampToValueAtTime(0.0001,start+0.29);
+   gain.connect(compressor);
+   for(const [type,mult,level] of [['sawtooth',1,0.68],['square',0.5,0.22]]){
+    const osc=wtAudio.createOscillator(),mix=wtAudio.createGain();
+    osc.type=type;osc.frequency.setValueAtTime(freq*mult,start);
+    mix.gain.value=level;osc.connect(mix);mix.connect(gain);
+    osc.start(start);osc.stop(start+0.31);
+   }
+  }
+  // Libera os nós de áudio após a sequência.
+  setTimeout(()=>{try{compressor.disconnect()}catch(e){}},1800);
+ }catch(e){console.warn('Som indisponível',e)}
+}
+function wtVibrar(){
+ try{
+  if(typeof navigator.vibrate!=='function')return false;
+  // O navegador pode recusar a vibração mesmo quando a API existe.
+  return navigator.vibrate([700,150,700,150,700,350,700,150,700]);
+ }catch(e){return false}
+}
+function wtAtualizarTimer(){
+ if(!wtClock)return;
+ const remain=wtTimerFim>0?Math.max(0,Math.ceil((wtTimerFim-Date.now())/1000)):0;
+ wtClock.textContent=String(Math.floor(remain/60)).padStart(2,'0')+':'+String(remain%60).padStart(2,'0');
+ if(wtTimerFim>0&&remain===0&&!wtAlarmAtivo)wtDispararAlarme();
+}
+function wtDispararAlarme(){
+ if(wtAlarmAtivo||!wtTimerFim)return;
+ wtAlarmAtivo=true;if(wtTimerId){clearInterval(wtTimerId);wtTimerId=null;}
+ if(wtAlarmArea)wtAlarmArea.classList.add('wt-alarm');
+ if(wtAlarmTexto)wtAlarmTexto.textContent='⏰ DESCANSO FINALIZADO! Hora da próxima série. Toque em PARAR ALARME.';
+ if(wtPararBotao){wtPararBotao.textContent='🔕 PARAR ALARME';wtPararBotao.focus({preventScroll:true});}
+ wtBip();wtVibrar();
+ wtAlarmId=setInterval(()=>{if(!wtAlarmAtivo)return;wtBip();wtVibrar();},2300);
+}
+function wtPararDescanso(){
+ wtTimerFim=0;wtAlarmAtivo=false;
+ if(wtTimerId){clearInterval(wtTimerId);wtTimerId=null;}
+ if(wtAlarmId){clearInterval(wtAlarmId);wtAlarmId=null;}
+ try{navigator.vibrate?.(0)}catch(e){}
+ wtAlarmArea?.classList.remove('wt-alarm');
+ if(wtAlarmTexto)wtAlarmTexto.textContent='';
+ if(wtPararBotao)wtPararBotao.textContent='Parar descanso / alarme';
+ wtAtualizarTimer();
+}
+function wtComecarTimer(sec){
+ wtPararDescanso();wtPrepararAudio();
+ const segundos=Number(sec);if(!Number.isFinite(segundos)||segundos<=0)return;
+ wtTimerFim=Date.now()+segundos*1000;
+ wtAtualizarTimer();wtTimerId=setInterval(wtAtualizarTimer,250);
+ if(wtAlarmTexto)wtAlarmTexto.textContent='Sirene de descanso e vibração ao terminar (se o navegador permitir).';
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)wtAtualizarTimer()});
+window.addEventListener('pagehide',()=>{wtPararDescanso()});
+function wtExecucao(area){wtAdd(area,'h3',null,wtTreino.nome);wtAdd(area,'p','muted','Sessão iniciada em '+new Date(wtInicio).toLocaleString('pt-BR'));
+ const timer=wtAdd(area,'div','subcard');wtAlarmArea=timer;wtAdd(timer,'strong',null,'Descanso');wtClock=wtAdd(timer,'div','wt-timer','00:00');wtClock.setAttribute('role','timer');wtAlarmTexto=wtAdd(timer,'div','wt-alarm-message','');wtAlarmTexto.setAttribute('role','status');wtAlarmTexto.setAttribute('aria-live','assertive');const actions=wtAdd(timer,'div','actions');wtBtn(actions,'Iniciar 60 s',()=>wtComecarTimer(60));wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);
+ wtAtualizarTimer();
+ for(const ex of wtTreino.exercicios||[]){const c=wtAdd(area,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
+ for(const s of ex.series||[]){const registro=wtSerieSalva[s.id]||{};const row=wtAdd(c,'div','wt-serie');wtAdd(row,'strong',null,String(s.numero));const reps=wtInput(row,'Reps. (prescritas: '+wtNum(s.repeticoes)+')',registro.repeticoes??s.repeticoes,'number');const carga=wtInput(row,'Carga kg (prescrita: '+wtNum(s.carga)+')',registro.carga??s.carga,'number');const doneBox=wtAdd(row,'div');wtAdd(doneBox,'label',null,'Concluída');const done=wtAdd(doneBox,'input');done.type='checkbox';done.checked=Boolean(registro.concluida);const obs=wtInput(c,'Observações da série '+s.numero,registro.observacoes||'');const btn=wtBtn(c,registro.concluida?'Atualizar série':'Salvar série',async()=>{
+  if(wtBusy)return;const r=reps.value.trim()===''?null:Number(reps.value);const kg=carga.value.trim()===''?null:Number(carga.value.replace(',','.'));
+  if((r!==null&&(!Number.isInteger(r)||r<0))||(kg!==null&&(!Number.isFinite(kg)||kg<0))){wtMsg('Informe repetições inteiras e carga válida.',true);return}
+  wtPrepararAudio();wtBusy=true;btn.disabled=true;try{await wtRpc('wand_salvar_serie',{p_sessao_id:wtSessao,p_serie_id:s.id,p_repeticoes:r,p_carga:kg,p_concluida:done.checked,p_observacoes:obs.value});wtSerieSalva[s.id]={serie_id:s.id,repeticoes:r,carga:kg,concluida:done.checked,observacoes:obs.value};btn.textContent='Atualizar série';wtMsg('Série salva com sucesso!');if(done.checked&&Number(s.descanso)>0)wtComecarTimer(Number(s.descanso));}catch(e){wtMsg('Erro ao salvar: '+e.message,true)}finally{wtBusy=false;btn.disabled=false}
+ },true);
+ }}
+ const finish=wtAdd(area,'article','subcard');const obsFinal=wtInput(finish,'Observações gerais da sessão','');wtBtn(finish,'Finalizar treino',()=>wtFinalizar(obsFinal.value));}
+async function wtFinalizar(obs=''){if(wtBusy||!wtSessao)return;if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};await wtCarregar();wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,s.treino||'Treino');wtAdd(a,'p','muted','Início: '+wtData(s.iniciada_em)+' · Fim: '+wtData(s.finalizada_em));if(s.observacoes)wtAdd(a,'p','notice',s.observacoes);
+ const agrupados={};for(const sr of s.series||[]){(agrupados[sr.exercicio]??=[]).push(sr)}for(const [nome,series] of Object.entries(agrupados)){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,nome);for(const sr of series)wtAdd(c,'p','muted','Série '+sr.numero+': '+wtNum(sr.repeticoes)+' reps · '+wtNum(sr.carga)+' kg · '+(sr.concluida?'Concluída':'Não concluída')+(sr.observacoes?' · '+sr.observacoes:''));}}
+const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListener('click',()=>{if(!wt.dataset.loaded){wt.dataset.loaded='1';wtCarregar()}});
+</script>
+
+<style>
+.wb-panel{margin-top:16px}.wb-panel label{display:block;margin:12px 0 5px;color:#ddd;font-size:14px}.wb-panel input:not([type=checkbox]),.wb-panel select,.wb-panel textarea{width:100%;padding:12px;background:#101010;color:#fff;border:1px solid #62552d;border-radius:8px;font:inherit}.wb-panel input[type=checkbox]{accent-color:#d4af37}.wb-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.wb-muted{font-size:13px;color:#bbb}.wb-note{border-left:3px solid #d4af37;padding:12px;background:#241e12;margin:12px 0}.wb-panel button{margin:8px 8px 4px 0}.wb-danger{border:1px solid #ff9a9a!important;color:#ffb6b6!important}
+</style>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const dbw=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
-const out=document.getElementById('wbcArea'),historicoOut=document.getElementById('wandHistoricoArea'),id=new URLSearchParams(location.search).get('id');
-const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function carregar(){if(!/^\d+$/.test(id||''))return;out.textContent='Carregando...';historicoOut.textContent='Carregando histórico...';try{const [bem,hist]=await Promise.all([dbw.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(id)}),dbw.rpc('wand_coach_historico_aluno',{p_aluno_id:Number(id)})]);if(bem.error)throw Error(bem.error.message);if(hist.error)throw Error(hist.error.message);const b=bem.data||{},s=hist.data||[];
-let histHtml=(s.length?s.slice(0,30).map(x=>`<div class="wbc-row"><strong>${esc(x.treino)}</strong><p class="wbc-muted">${esc(new Date(x.iniciada_em).toLocaleString('pt-BR'))} · ${x.finalizada_em?'Finalizado':'Em andamento'}</p><p class="wbc-muted">${(x.series||[]).filter(v=>v.concluida).length} séries concluídas</p>${x.finalizada_em&&!(x.series||[]).some(v=>v.concluida)?'<p class="wbc-alert">Sessão finalizada sem séries registradas.</p>':''}${(x.series||[]).filter(v=>v.concluida).map(v=>`<p class="wbc-muted">${esc(v.exercicio)} · Série ${esc(v.numero)}: ${esc(v.repeticoes)} rep · ${esc(v.carga)} kg</p>`).join('')}${x.observacoes?`<p>${esc(x.observacoes)}</p>`:''}</div>`).join(''):'<p class="wbc-muted">Sem sessões registradas.</p>');
-historicoOut.innerHTML=histHtml;
-let html='<h3>Check-ins de bem-estar</h3>';
-if(!b.ativo)html+='<p class="wbc-muted">Aluno não ativou o acompanhamento de bem-estar.</p>';
-else {html+=`<p class="wbc-muted">Informações menstruais ${b.ciclo_compartilhado?'compartilhadas voluntariamente':'não compartilhadas'}.</p>`;
-html+=(b.registros||[]).length?(b.registros||[]).slice(0,30).map(r=>`<div class="wbc-row"><strong>${esc(r.dia)}</strong><p class="wbc-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${b.ciclo_compartilhado&&r.menstruando!==null?`<p class="wbc-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!==null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wbc-alert">Aluno solicitou conversar sobre adaptação do treino.</p>':''}${r.observacoes?`<p>${esc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wbc-muted">Sem check-ins.</p>'}
-out.innerHTML=html;
-}catch(e){out.textContent='Não foi possível carregar os registros: '+e.message;historicoOut.textContent='Não foi possível carregar o histórico: '+e.message}}
-const section=document.getElementById('painel-acompanhamento');
-const treinoSection=document.getElementById('painel-treinos');
-const obs=new MutationObserver(()=>{if((section.classList.contains('ativo')||treinoSection.classList.contains('ativo'))&&out.dataset.loaded!=='1'){out.dataset.loaded='1';carregar()}});
-obs.observe(section,{attributes:true,attributeFilter:['class']});
-obs.observe(treinoSection,{attributes:true,attributeFilter:['class']});
-document.getElementById('wbcRecarregar').addEventListener('click',carregar);
-document.getElementById('wandHistoricoAtualizar').addEventListener('click',carregar);
-const histToggle=document.getElementById('wandHistoricoAlternar');
-const histCard=document.getElementById('wandHistoricoCard');
-histToggle.addEventListener('click',()=>{const abrir=histCard.hidden;histCard.hidden=!abrir;histToggle.setAttribute('aria-expanded',String(abrir));histToggle.textContent=abrir?'Ocultar histórico':'Histórico de execução';});
+const wbdb=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const wb=document.getElementById('wbConteudo');
+const $w=id=>document.getElementById(id);
+const wbDate=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
+const wbEsc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function wbRpc(n,a){const {data,error}=await wbdb.rpc(n,a);if(error)throw Error(error.message);return data}
+function wbStatus(s,err=false){$w('wbStatus').textContent=s;$w('wbStatus').style.color=err?'#ff9292':'#83dca1'}
+let wbData={preferencias:null,registros:[]};
+async function wbLoad(){try{wbStatus('Carregando...');wbData=await wbRpc('wand_bemestar_meu_painel');wbStatus('');wbRender()}catch(e){wbStatus('Não foi possível carregar: '+e.message,true)}}
+function wbRender(){const p=wbData.preferencias||{},active=!!p.ativo,cycle=!!p.ciclo_ativo;wb.innerHTML=`<div class="subcard wb-panel"><h3>Preferências e privacidade</h3><p class="wb-muted">Check-in opcional. Você decide se ativa o acompanhamento menstrual e se compartilha os dados do ciclo com o treinador. O treinador poderá visualizar seus check-ins gerais quando ativados.</p><label><input id="wbAtivo" type="checkbox" ${active?'checked':''}> Ativar check-in de bem-estar</label><label><input id="wbCiclo" type="checkbox" ${cycle?'checked':''}> Ativar acompanhamento menstrual</label><label><input id="wbCompartilhar" type="checkbox" ${p.compartilhar_ciclo?'checked':''}> Compartilhar informações menstruais com meu treinador</label><label for="wbSituacao">Situação atual do ciclo (opcional)</label><select id="wbSituacao"><option value="">Não informar</option><option value="regular">Menstruação regular</option><option value="irregular">Menstruação irregular</option><option value="sem_menstruacao">Não menstruo atualmente</option><option value="nao_informar">Prefiro não informar</option></select><p class="wb-note">Ao ativar o acompanhamento menstrual, você autoriza o registro desses dados sensíveis. O compartilhamento com o treinador exige uma escolha separada. Você pode desativar e apagar os dados quando desejar.</p><button type="button" class="button" id="wbSalvarPref">Salvar preferências</button><button type="button" class="button secondary wb-danger" id="wbApagarCiclo">Apagar dados menstruais</button><button type="button" class="button secondary wb-danger" id="wbApagarTudo">Apagar todos os registros</button></div><div id="wbCheckin"></div><div id="wbHistorico"></div>`;
+$w('wbSituacao').value=p.situacao_ciclo||'';
+$w('wbSalvarPref').onclick=wbSavePref;
+$w('wbApagarCiclo').onclick=()=>wbDelete(false);
+$w('wbApagarTudo').onclick=()=>wbDelete(true);
+if(active)wbRenderCheckin(cycle);
+wbRenderHistorico(cycle);
+}
+async function wbSavePref(){const active=$w('wbAtivo').checked,cycle=$w('wbCiclo').checked,share=$w('wbCompartilhar').checked;
+if(cycle&&!active){wbStatus('Ative primeiro o check-in geral.',true);return}
+if(share&&!cycle){wbStatus('Ative primeiro o acompanhamento menstrual.',true);return}
+if(cycle&&!wbData.preferencias?.ciclo_ativo&&!confirm('Deseja ativar o registro de informações menstruais sensíveis? Você poderá desativar e apagar os registros depois.'))return;
+try{await wbRpc('wand_bemestar_configurar',{p_ativo:active,p_ciclo_ativo:cycle,p_compartilhar_ciclo:share,p_situacao:$w('wbSituacao').value||null});await wbLoad();wbStatus('Preferências salvas.')}catch(e){wbStatus(e.message,true)}}
+function wbRenderCheckin(cycle){$w('wbCheckin').innerHTML=`<div class="subcard wb-panel"><h3>Check-in do dia</h3><p class="wb-muted">Escalas de 1 (muito baixo) a 5 (muito alto). Dor muscular: 0 (nenhuma) a 5 (intensa).</p><label>Data</label><input id="wbDia" type="date" max="${wbDate()}" value="${wbDate()}"><div class="wb-row"><div><label>Energia</label><select id="wbEnergia">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Qualidade do sono</label><select id="wbSono">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Disposição</label><select id="wbDisposicao">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Dor muscular</label><select id="wbDor">${[0,1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div></div>${cycle?`<div id="wbCicloCampos"><label>Menstruação hoje?</label><select id="wbMenstruando"><option value="">Não informar</option><option value="true">Sim</option><option value="false">Não</option></select><label>Cólicas (0–5)</label><select id="wbColica"><option value="">Não informar</option>${[0,1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select><label>Data do início da menstruação (se desejar)</label><input type="date" id="wbInicio" max="${wbDate()}"></div>`:''}<label>Observações (opcional)</label><textarea id="wbObs" maxlength="1000" rows="3" placeholder="Como você se sentiu hoje?"></textarea><label><input type="checkbox" id="wbAjuste"> Gostaria de conversar sobre uma adaptação no treino</label><p class="wb-muted">Este registro não altera automaticamente seu treino. Se precisar de ajuda imediata, fale com seu treinador.</p><button class="button" type="button" id="wbSalvarDia">Salvar check-in</button></div>`;
+$w('wbSalvarDia').onclick=wbSaveDay;
+$w('wbDia').onchange=wbFillDay;wbFillDay();}
+function wbFillDay(){const r=(wbData.registros||[]).find(x=>x.dia===$w('wbDia').value);for(const [id,key,def] of [['wbEnergia','energia',3],['wbSono','sono',3],['wbDisposicao','disposicao',3],['wbDor','dor_muscular',0]])$w(id).value=r?.[key]??def;$w('wbObs').value=r?.observacoes||'';$w('wbAjuste').checked=!!r?.pedir_ajuste;if($w('wbMenstruando')){$w('wbMenstruando').value=r?.menstruando===null||r?.menstruando===undefined?'':String(r.menstruando);$w('wbColica').value=r?.colica??'';$w('wbInicio').value=r?.inicio_menstruacao||''}}
+async function wbSaveDay(){const val=id=>Number($w(id).value);try{await wbRpc('wand_bemestar_salvar',{p_dia:$w('wbDia').value,p_energia:val('wbEnergia'),p_sono:val('wbSono'),p_disposicao:val('wbDisposicao'),p_dor_muscular:val('wbDor'),p_observacoes:$w('wbObs').value||null,p_menstruando:$w('wbMenstruando')?.value===''||!$w('wbMenstruando')?null:$w('wbMenstruando').value==='true',p_colica:$w('wbColica')?.value?val('wbColica'):($w('wbColica')?.value==='0'?0:null),p_inicio_menstruacao:$w('wbInicio')?.value||null,p_pedir_ajuste:$w('wbAjuste').checked});await wbLoad();wbStatus('Check-in salvo com sucesso.')}catch(e){wbStatus(e.message,true)}}
+function wbRenderHistorico(cycle){const list=(wbData.registros||[]);$w('wbHistorico').innerHTML=`<div class="subcard wb-panel"><h3>Meus registros</h3>${list.length?list.slice(0,30).map(r=>`<div class="subcard"><strong>${wbEsc(r.dia)}</strong><p class="wb-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${cycle&&r.menstruando!==null?`<p class="wb-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!==null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wb-note">Solicitou conversa sobre adaptação</p>':''}${r.observacoes?`<p>${wbEsc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wb-muted">Nenhum registro ainda.</p>'}</div>`}
+async function wbDelete(all){if(!confirm(all?'Excluir permanentemente TODOS os check-ins e preferências?':'Excluir permanentemente dados menstruais e desativar o acompanhamento do ciclo?'))return;try{await wbRpc('wand_bemestar_apagar',{p_apagar_tudo:all,p_apagar_ciclo:!all});await wbLoad();wbStatus('Dados excluídos.')}catch(e){wbStatus(e.message,true)}}
+const wbObserver=new MutationObserver(()=>{if(!document.getElementById('view-bemestar')?.hidden&&wb.dataset.loaded!=='1'){wb.dataset.loaded='1';wbLoad()}});
+wbObserver.observe(document.getElementById('painel'),{subtree:true,attributes:true,attributeFilter:['hidden']});
 </script>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const waDb=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
-const waId=Number(new URLSearchParams(location.search).get('id'));
-const waEl=id=>document.getElementById(id);
-const waEsc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const waToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-let waSolicitacoes=[],waProtocolos=[],waTreinos=[];
-function waStatus(t,erro=false){waEl('waMensagem').textContent=t;waEl('waMensagem').style.color=erro?'#ff9292':'#80d9a0'}
-async function waRpc(name,args){const {data,error}=await waDb.rpc(name,args);if(error)throw Error(error.message);return data}
-function waBadge(){const n=waSolicitacoes.length,b=waEl('wandBotaoAcompanhamento'),c=waEl('wandContadorPendencias');b.classList.toggle('tem-pendencia',n>0);c.hidden=n===0;c.textContent=n?`${n} pendente${n>1?'s':''}`:''}
-async function waAtualizarPendencias(){try{waSolicitacoes=await waRpc('wand_coach_solicitacoes_aluno',{p_aluno_id:waId})||[];waBadge();waMostrarSolicitacoes()}catch(e){waStatus('Não foi possível consultar solicitações: '+e.message,true)}}
-function waMostrarSolicitacoes(){const a=waEl('waSolicitacoes');a.replaceChildren();if(!waSolicitacoes.length){a.textContent='Nenhuma solicitação pendente.';return}for(const s of waSolicitacoes){const div=document.createElement('div');div.className='wa-item';const p=document.createElement('p');p.textContent=`Solicitação de ${s.dia} · Recebida em ${new Date(s.criado_em).toLocaleString('pt-BR')}`;div.appendChild(p);
- const disponiveis=waProtocolos.filter(x=>x.ativo);
- if(disponiveis.length){
-  const sel=document.createElement('select');for(const protocolo of disponiveis){const op=document.createElement('option');op.value=protocolo.id;op.textContent=protocolo.titulo+' ('+(protocolo.modo==='pre_autorizado'?'pré-autorizado':'aprovação manual')+')';sel.appendChild(op)}div.appendChild(sel);
-  const dia=document.createElement('input');dia.type='date';dia.min=waToday();dia.value=waToday();div.appendChild(dia);
-  const aprovar=document.createElement('button');aprovar.type='button';aprovar.className='button';aprovar.textContent='Aprovar e programar alternativa';
-  aprovar.onclick=async()=>{if(!confirm('Aprovar a alternativa selecionada para a data escolhida?'))return;
-   aprovar.disabled=true;try{await waRpc('wand_coach_programar_adaptacao',{p_protocolo_id:sel.value,p_dia:dia.value,p_solicitacao_id:s.id,p_justificativa:'Ajuste aprovado pelo treinador'});
-    await waRpc('wand_coach_atender_solicitacao',{p_solicitacao_id:s.id});await waCarregarTudo();waStatus('Adaptação programada e solicitação atendida.');
-   }catch(e){waStatus(e.message,true)}finally{aprovar.disabled=false}};
-  div.appendChild(aprovar);
+const adDb=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const adEl=document.getElementById('wandAdaptacaoDia');
+async function adConsultar(){
+ const dia=adDia();const protocolos=document.getElementById('wandProtocolosDisponiveis');
+ adEl.hidden=true;adEl.replaceChildren();protocolos.hidden=true;protocolos.replaceChildren();
+ const [rAdapt,rProtocolos]=await Promise.all([
+  adDb.rpc('wand_aluno_adaptacoes_do_dia',{p_dia:dia}),
+  adDb.rpc('wand_aluno_protocolos_disponiveis')
+ ]);
+ if(rAdapt.error||rProtocolos.error){adEl.hidden=false;adEl.textContent='Não foi possível consultar as adaptações: '+(rAdapt.error?.message||rProtocolos.error?.message);return}
+ const adaptacoes=rAdapt.data||[],lista=rProtocolos.data||[];
+ if(adaptacoes.length){adEl.hidden=false;adEl.appendChild(adText('strong','Adaptação autorizada para hoje'));
+  adEl.appendChild(adText('p','O treino alternativo está destacado em Meus Treinos. Execute a alternativa autorizada; a prescrição original permanece salva.'));
+  const btn=adText('button','Atualizar treinos');btn.type='button';btn.className='button secondary';btn.onclick=()=>{document.getElementById('wandTreinosArea')?.scrollIntoView({behavior:'smooth'});document.querySelector('[data-view="treinos"]')?.click()};adEl.appendChild(btn);
  }
- const btn=document.createElement('button');btn.type='button';btn.textContent='Marcar como atendida';btn.onclick=async()=>{if(!confirm('Confirmar que você já analisou esta solicitação?'))return;try{await waRpc('wand_coach_atender_solicitacao',{p_solicitacao_id:s.id});waStatus('Solicitação marcada como atendida.');await waAtualizarPendencias()}catch(e){waStatus(e.message,true)}};div.appendChild(btn);a.appendChild(div)}}
-async function waCarregarTreinos(){const {data,error}=await waDb.from('wand_treinos').select('id,nome,aluno_id,treinador_id,status').eq('aluno_id',waId).order('nome');if(error)throw Error(error.message);waTreinos=data||[];for(const sel of [waEl('waOriginal'),waEl('waAlternativo')]){sel.replaceChildren();for(const t of waTreinos){const op=document.createElement('option');op.value=t.id;op.textContent=`${t.nome} (${t.status})`;sel.appendChild(op)}}}
-async function waCarregarProtocolos(){waProtocolos=await waRpc('wand_coach_protocolos',{p_aluno_id:waId})||[];const lista=waEl('waProtocolos'),sel=waEl('waProtocoloAgenda');lista.replaceChildren();sel.replaceChildren();for(const p of waProtocolos){const div=document.createElement('div');div.className='wa-item';const label=document.createElement('p');label.textContent=`${p.titulo} · ${p.modo==='pre_autorizado'?'Pré-autorizado':'Aprovação manual'} · ${p.ativo?'Ativo':'Inativo'}`;div.appendChild(label);if(p.descricao){const txt=document.createElement('p');txt.className='muted';txt.textContent=p.descricao;div.appendChild(txt)}const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent=p.ativo?'Desativar protocolo':'Ativar protocolo';btn.onclick=async()=>{try{await waRpc('wand_coach_ativar_protocolo',{p_protocolo_id:p.id,p_ativo:!p.ativo});await waCarregarProtocolos();waStatus('Protocolo atualizado.')}catch(e){waStatus(e.message,true)}};div.appendChild(btn);lista.appendChild(div);if(p.ativo){const op=document.createElement('option');op.value=p.id;op.textContent=p.titulo;sel.appendChild(op)}}if(!waProtocolos.length)lista.textContent='Nenhum protocolo cadastrado.'}
-async function waCarregarAdaptacoes(){const lista=waEl('waAdaptacoes');lista.replaceChildren();
- const dados=await waRpc('wand_coach_adaptacoes_aluno',{p_aluno_id:waId})||[];
- if(!dados.length){lista.textContent='Nenhuma adaptação programada.';return}
- for(const a of dados){const div=document.createElement('div');div.className='wa-item';div.textContent=`${a.dia} · ${a.treino_original} → ${a.treino_alternativo} · ${a.status}`;lista.appendChild(div)}
+ if(lista.length){protocolos.hidden=false;protocolos.appendChild(adText('h3','Alternativas previamente autorizadas'));
+  protocolos.appendChild(adText('p','Para usar uma alternativa hoje, primeiro faça o check-in de hoje e marque “Gostaria de conversar sobre uma adaptação”. Depois escolha a alternativa. Isso não altera a prescrição original.'));
+  for(const p of lista){const item=adText('div');item.className='subcard';item.appendChild(adText('strong',p.titulo));item.appendChild(adText('p',p.treino_original+' → '+p.treino_alternativo));
+   if(p.descricao)item.appendChild(adText('p',p.descricao));
+   const btn=adText('button','Usar esta alternativa hoje');btn.className='button';btn.type='button';
+   btn.disabled=adaptacoes.some(a=>a.treino_original_id===p.treino_original_id);
+   btn.onclick=async()=>{if(!confirm('Usar a alternativa autorizada somente no treino de hoje?'))return;
+    btn.disabled=true;const r=await adDb.rpc('wand_aluno_usar_protocolo',{p_protocolo_id:p.id});
+    if(r.error){alert(r.error.message);btn.disabled=false;return}
+    alert('Alternativa autorizada para hoje. A lista de treinos será atualizada.');
+    await adConsultar();window.location.reload();
+   };item.appendChild(btn);protocolos.appendChild(item)}
+ }
 }
-async function waCarregarNotificacoes(){const lista=waEl('waNotificacoes');lista.replaceChildren();
- const dados=await waRpc('wand_minhas_notificacoes')||[];
- const relevantes=dados.filter(n=>n.aluno_id===waId&&!n.lida_em);
- if(!relevantes.length)return;
- const titulo=document.createElement('h3');titulo.textContent='Avisos internos não lidos';lista.appendChild(titulo);
- for(const n of relevantes){const div=document.createElement('div');div.className='wa-item';const p=document.createElement('p');p.textContent=n.titulo+' · '+new Date(n.criada_em).toLocaleString('pt-BR');div.appendChild(p);
-  const btn=document.createElement('button');btn.type='button';btn.textContent='Marcar aviso como lido';btn.onclick=async()=>{try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes()}catch(e){waStatus(e.message,true)}};div.appendChild(btn);lista.appendChild(div)}
-}
-async function waCarregarTudo(){if(!Number.isSafeInteger(waId)||waId<=0)return;waStatus('Carregando acompanhamento...');try{await Promise.all([waCarregarTreinos(),waCarregarProtocolos()]);await Promise.all([waAtualizarPendencias(),waCarregarAdaptacoes(),waCarregarNotificacoes()]);waStatus('Acompanhamento atualizado.')}catch(e){waStatus('Não foi possível carregar: '+e.message,true)}}
-waEl('waCriar').onclick=async()=>{const titulo=waEl('waTitulo').value.trim();if(titulo.length<3||waEl('waOriginal').value===waEl('waAlternativo').value){waStatus('Informe um título e selecione dois treinos diferentes.',true);return}try{await waRpc('wand_coach_criar_protocolo',{p_aluno_id:waId,p_treino_original:waEl('waOriginal').value,p_treino_alternativo:waEl('waAlternativo').value,p_titulo:titulo,p_descricao:waEl('waDescricao').value||null,p_modo:waEl('waModo').value});await waCarregarProtocolos();waStatus('Protocolo criado. Ative-o quando estiver revisado.')}catch(e){waStatus(e.message,true)}};
-waEl('waProgramar').onclick=async()=>{const id=waEl('waProtocoloAgenda').value,dia=waEl('waDiaAgenda').value;if(!id||!dia){waStatus('Selecione um protocolo ativo e uma data.',true);return}if(!confirm(`Programar adaptação para ${dia}?`))return;try{await waRpc('wand_coach_programar_adaptacao',{p_protocolo_id:id,p_dia:dia,p_solicitacao_id:null,p_justificativa:waEl('waJustificativa').value||null});await waCarregarAdaptacoes();waStatus('Adaptação programada para a data selecionada.')}catch(e){waStatus(e.message,true)}};
-waEl('waAtualizar').onclick=waCarregarTudo;
-waEl('waDiaAgenda').min=waToday();waEl('waDiaAgenda').value=waToday();
-const waButton=waEl('wandBotaoAcompanhamento');waButton.addEventListener('click',()=>{waCarregarTudo();document.getElementById('wbcRecarregar')?.click()});
-// Atualiza o indicador quando a página volta ao primeiro plano, sem leitura contínua de dados sensíveis.
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)waAtualizarPendencias()});
-const waReady=setInterval(()=>{if(!waEl('conteudo').classList.contains('hidden')){clearInterval(waReady);waAtualizarPendencias()}},600);
+const adDia=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const adText=(tag,txt)=>{const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;return e};
+document.querySelector('[data-view="treinos"]')?.addEventListener('click',adConsultar);
 </script>
 </body>
 </html>
