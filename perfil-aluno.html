@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perfil do Aluno | WAND METHOD</title>
-<meta name="wand-versao" content="perfil-admin-historico-compacto-20261109">
+<meta name="wand-versao" content="perfil-admin-historico-metodos-alertas-20261109">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
@@ -747,6 +747,7 @@ organizarRecursosExternos();
 .wbc-row{border-bottom:1px solid #393126;padding:12px 0}.wbc-tag{color:#d4af37;font-weight:bold}.wbc-muted{color:#bbb;font-size:13px}.wbc-alert{border-left:3px solid #d4af37;background:#272015;padding:10px}
 .wand-hist-list{display:grid;gap:8px;margin-top:12px}.wand-hist-item{border:1px solid #393126;background:#101010;border-radius:10px;overflow:hidden}.wand-hist-item summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;color:#f5f5f5}.wand-hist-item summary::-webkit-details-marker{display:none}.wand-hist-item summary::after{content:'Ver detalhes ▾';color:#d4af37;font-size:12px;white-space:nowrap;margin-left:auto}.wand-hist-item[open] summary::after{content:'Fechar ▴'}.wand-hist-name{font-weight:700;font-size:14px;min-width:0;overflow-wrap:anywhere}.wand-hist-date{font-size:12px;color:#aaa;margin-top:4px}.wand-hist-detail{padding:4px 12px 14px;border-top:1px solid #393126}.wand-hist-detail p{margin:9px 0}.wand-hist-ex{border-top:1px solid #292929;padding-top:9px;margin-top:10px}.wand-hist-ex strong{color:#d4af37}.wand-hist-series{font-size:13px;color:#ccc;line-height:1.5;margin:5px 0}.wand-hist-status{font-size:12px;color:#bbb}
 @media(max-width:480px){.wand-hist-item summary{padding:11px 9px}.wand-hist-name{font-size:13px}.wand-hist-item summary::after{font-size:11px}}
+.wand-metodo{border-top:1px solid #393126;padding:12px 0 3px;margin-top:10px}.wand-metodo-titulo{font-weight:bold;color:#d4af37;font-size:13px;letter-spacing:.4px}.wand-metodo .wand-hist-ex{border-top:0;margin-top:7px;padding-top:3px}.wand-metodo .wand-hist-ex strong{color:#f0e3b8}.wand-tempo-alerta{border-left:3px solid #d4af37;background:#2a2110;padding:11px;border-radius:7px;color:#f6df9d;font-size:13px;line-height:1.5;margin:10px 0}.wand-hist-flag{font-size:12px;color:#f3ca6a;margin-top:5px}
 </style>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -757,30 +758,56 @@ const dataHora=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.
 const soData=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString('pt-BR')};
 const soHora=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleTimeString('pt-BR')};
 function duracao(inicio,fim){if(!inicio||!fim)return null;const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return null;const min=Math.floor(ms/60000),h=Math.floor(min/60),m=min%60;return h?`${h}h ${String(m).padStart(2,'0')}min`:`${min} min`;}
+function duracaoSeg(seg){if(seg===null||seg===undefined||!Number.isFinite(Number(seg)))return null;const min=Math.floor(Math.max(0,Number(seg))/60);const h=Math.floor(min/60);return h?`${h}h ${String(min%60).padStart(2,'0')}min`:`${min} min`;}
+function nomeMetodo(serie){const bruto=String(serie.metodo||serie.configuracao_metodo?.grupo_metodo_nome||serie.configuracao_metodo?.tipo||'Tradicional');if(bruto==='series')return 'TRADICIONAL';if(bruto==='exercicios_vinculados')return 'MÉTODO COMBINADO';return bruto.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()==='SUPERSERIE'?'SUPERSÉRIE':bruto.toUpperCase();}
 function desenharHistorico(s){
- if(!s.length){historicoOut.innerHTML='<p class="wbc-muted">Sem sessões registradas.</p>';return;}
+ if(!Array.isArray(s)||!s.length){historicoOut.innerHTML='<p class="wbc-muted">Sem sessões registradas.</p>';return;}
  const lista=document.createElement('div');lista.className='wand-hist-list';
  for(const x of s.slice(0,30)){
   const series=Array.isArray(x.series)?x.series:[];
   const feitas=series.filter(v=>v.concluida);
   const tempo=duracao(x.iniciada_em,x.finalizada_em);
+  const durSeg=Number.isFinite(Number(x.duracao_sessao_segundos))&&x.duracao_sessao_segundos!=null?Number(x.duracao_sessao_segundos):(x.finalizada_em&&x.iniciada_em?(new Date(x.finalizada_em)-new Date(x.iniciada_em))/1000:null);
+  const alerta=Boolean(x.finalizada_em&&durSeg!==null&&Number.isFinite(durSeg)&&durSeg>150*60);
   const item=document.createElement('details');item.className='wand-hist-item';
-  const summary=document.createElement('summary');
-  const info=document.createElement('div');info.style.minWidth='0';
+  const summary=document.createElement('summary');const info=document.createElement('div');info.style.minWidth='0';
   const nome=document.createElement('div');nome.className='wand-hist-name';nome.textContent=x.treino||'Treino';
-  const meta=document.createElement('div');meta.className='wand-hist-date';meta.textContent=[soData(x.iniciada_em),tempo|| (x.finalizada_em?'Duração indisponível':'Em andamento')].join(' · ');
-  info.append(nome,meta);summary.appendChild(info);item.appendChild(summary);
+  const meta=document.createElement('div');meta.className='wand-hist-date';meta.textContent=[soData(x.iniciada_em),tempo||(x.finalizada_em?'Duração indisponível':'Em andamento')].join(' · ');
+  info.append(nome,meta);
+  if(alerta){const aviso=document.createElement('div');aviso.className='wand-hist-flag';aviso.textContent='⚠ Verificar duração';info.appendChild(aviso);}
+  summary.appendChild(info);item.appendChild(summary);
   const detail=document.createElement('div');detail.className='wand-hist-detail';
   const add=(texto,classe='wbc-muted')=>{const p=document.createElement('p');p.className=classe;p.textContent=texto;detail.appendChild(p)};
   add('Situação: '+(x.finalizada_em?'Finalizado':'Em andamento'));
   add('Início: '+dataHora(x.iniciada_em));
-  add('Término: '+dataHora(x.finalizada_em));
-  add('Duração: '+(tempo||'Indisponível'));
+  add('Última série concluída registrada: '+dataHora(x.ultima_serie_em));
+  add('Finalização manual: '+dataHora(x.finalizada_em));
+  add('Tempo total com sessão aberta: '+(tempo||'Indisponível'));
+  if(x.tempo_ate_ultima_serie_segundos!=null)add('Tempo até o registro da última série: '+duracaoSeg(x.tempo_ate_ultima_serie_segundos));
+  if(x.intervalo_apos_ultima_serie_segundos!=null)add('Intervalo entre última série e finalização: '+duracaoSeg(x.intervalo_apos_ultima_serie_segundos));
   add(feitas.length+' séries concluídas');
+  if(alerta){const aviso=document.createElement('div');aviso.className='wand-tempo-alerta';aviso.textContent='⚠ Sessão superior a 2h30. Verifique com o aluno se houve pausa prolongada ou esquecimento ao finalizar. O tempo até a última série é uma referência, não uma medida exata de treino ativo.';detail.appendChild(aviso);}
   if(x.finalizada_em&&!feitas.length)add('Sessão finalizada sem séries concluídas.','wbc-alert');
-  const grupos=new Map();for(const serie of series){const chave=serie.exercicio||'Exercício';if(!grupos.has(chave))grupos.set(chave,[]);grupos.get(chave).push(serie)}
-  for(const [exercicio,registros] of grupos){const bloco=document.createElement('div');bloco.className='wand-hist-ex';const titulo=document.createElement('strong');titulo.textContent=exercicio;bloco.appendChild(titulo);
-   for(const r of registros){const p=document.createElement('p');p.className='wand-hist-series';p.textContent=`Série ${r.numero??'—'} · ${r.repeticoes??'—'} rep · ${r.carga??'—'} kg · ${r.concluida?'Concluída':'Não concluída'}${r.observacoes?' · '+r.observacoes:''}`;bloco.appendChild(p)}detail.appendChild(bloco)}
+  // A chave do grupo é o identificador da prescrição, nunca apenas o nome do método.
+  const grupos=new Map();
+  for(const serie of series){
+   const gid=serie.grupo_prescricao_id||serie.configuracao_metodo?.grupo_prescricao_id;
+   const chave=gid?'grupo:'+gid:'exercicio:'+(serie.treino_exercicio_id||serie.exercicio_id||serie.exercicio||'Exercício');
+   if(!grupos.has(chave))grupos.set(chave,{ordem:Number(serie.ordem??999999),metodo:nomeMetodo(serie),registros:[]});
+   const g=grupos.get(chave);g.ordem=Math.min(g.ordem,Number(serie.ordem??999999));g.registros.push(serie);
+  }
+  for(const g of [...grupos.values()].sort((a,b)=>a.ordem-b.ordem)){
+   const bloco=document.createElement('div');bloco.className='wand-metodo';
+   const titulo=document.createElement('div');titulo.className='wand-metodo-titulo';titulo.textContent=g.metodo;bloco.appendChild(titulo);
+   const exercicios=new Map();
+   for(const r of g.registros){const chave=r.treino_exercicio_id||r.exercicio_id||r.exercicio||'Exercício';if(!exercicios.has(chave))exercicios.set(chave,{nome:r.exercicio||'Exercício',pos:Number(r.grupo_posicao??r.ordem??999999),series:[]});exercicios.get(chave).series.push(r);}
+   for(const ex of [...exercicios.values()].sort((a,b)=>a.pos-b.pos)){
+    const linha=document.createElement('div');linha.className='wand-hist-ex';const t=document.createElement('strong');t.textContent=ex.nome;linha.appendChild(t);
+    for(const r of ex.series.sort((a,b)=>Number(a.numero??0)-Number(b.numero??0))){const p=document.createElement('p');p.className='wand-hist-series';p.textContent=`Série ${r.numero??'—'} · ${r.repeticoes??'—'} rep · ${r.carga??'—'} kg · ${r.concluida?'Concluída':'Não concluída'}${r.observacoes?' · '+r.observacoes:''}`;linha.appendChild(p);}
+    bloco.appendChild(linha);
+   }
+   detail.appendChild(bloco);
+  }
   if(x.observacoes)add('Observações: '+x.observacoes);
   item.appendChild(detail);lista.appendChild(item);
  }
