@@ -890,12 +890,27 @@ iniciar();
  .wt-menu-clean .wt-menu-btn{width:100%;min-height:76px;margin:0;white-space:normal;text-align:center;border-radius:12px;font-weight:700}
  .wt-menu-clean .wt-menu-selected{border:2px solid #d4af37}
  @media(max-width:520px){.wt-menu-clean{grid-template-columns:1fr}.wt-menu-clean .wt-menu-btn{min-height:56px}}
+
+/* Séries recolhíveis: preserva registro e edição durante o treino */
+.wt-serie-detalhe{border:1px solid #51452e;border-radius:11px;margin:12px 0;background:#151515;overflow:hidden}
+.wt-serie-resumo{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 12px;cursor:pointer;list-style:none;font-weight:bold}
+.wt-serie-resumo::-webkit-details-marker{display:none}
+.wt-serie-resumo::marker{content:''}
+.wt-serie-ok{color:#83dca1;font-size:13px}
+.wt-serie-pendente{color:#bcbcbc;font-size:13px}
+.wt-serie-editar{margin-left:auto;color:#d4af37;font-size:12px;font-weight:normal}
+.wt-serie-conteudo{padding:0 12px 14px;border-top:1px solid #383027}
+.wt-serie-conteudo>.button{margin-top:12px}
+</style>
+<style>
+/* WAND METHOD — execução compacta e agrupada */
+.wt-progress-card{background:#161410;border:1px solid #65552a;border-radius:15px;padding:16px;margin:14px 0}.wt-progress-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.wt-progress-track{height:12px;background:#36312a;border-radius:20px;overflow:hidden;margin-bottom:8px}.wt-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#aa8121,#e8c75a);transition:width .3s}.wt-rest-dock{position:sticky;top:8px;z-index:4;background:#17140e;border:1px solid #75612d;border-radius:13px;padding:12px;margin:12px 0;box-shadow:0 4px 18px #0009}.wt-rest-dock .wt-timer{font-size:27px}.wt-exercise-card{border:1px solid #4b412f;background:#141414;border-radius:14px;margin:12px 0;overflow:hidden}.wt-exercise-head{width:100%;background:transparent!important;border:0!important;color:#f4e9cb!important;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:17px!important;text-align:left!important;cursor:pointer}.wt-exercise-heading{display:flex;flex-direction:column;gap:5px;min-width:0}.wt-exercise-heading strong{line-height:1.35}.wt-exercise-heading small{font-size:12px}.wt-status-done{color:#83dca1;white-space:nowrap}.wt-status-open{color:#d4af37}.wt-exercise-body{padding:0 12px 14px;border-top:1px solid #3c352a}.wt-exercise-body[hidden]{display:none!important}.wt-conjugate-rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 0}.wt-conjugate-member{min-width:min(260px,85%);flex:1 0 min(260px,85%);scroll-snap-align:start;background:#1d1b18;border:1px solid #54462c;border-radius:12px;padding:12px}.wt-conjugate-member label{font-size:12px;display:block;margin:9px 0 3px}.wt-conjugate-member .wt-input{width:100%;box-sizing:border-box}.wt-conjugate-member strong{display:block;min-height:36px}.wt-conjugate-member small{display:block}.wt-save-feedback{color:#83dca1;min-height:18px}.wt-extra-info{margin:12px 0;color:#d4af37}.wt-extra-info p{color:#ccc}.wt-exercise-body .wt-serie-detalhe{margin:8px 0}.wt-exercise-body .wt-serie-conteudo{padding-bottom:14px}.wt-exercise-body .wt-serie-conteudo>.button{width:100%;margin-top:8px}.wt-exercise-body .wt-serie-resumo{gap:7px}.wt-exercise-body .wt-serie-editar{margin-left:auto}.wt-exercise-body .wt-serie-conteudo input{max-width:100%}#wtConcluirTreino:disabled{opacity:.45;cursor:not-allowed}
 </style>
 <script type="module">
 import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
-let wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
+let wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
 const wtEl=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
 const wtAdd=(parent,tag,cls,txt)=>{const e=wtEl(tag,cls,txt);parent.append(e);return e};
 const wtBtn=(parent,txt,fn,secondary=false)=>{const b=wtAdd(parent,'button','button'+(secondary?' secondary':''),txt);b.type='button';b.addEventListener('click',fn);return b};
@@ -911,6 +926,7 @@ async function wtCarregar(){
   wtMsg('Carregando treinos...');
   [wtTreinos,wtHistorico]=await Promise.all([wtRpc('wand_aluno_treinos'),wtRpc('wand_aluno_historico')]);
   wtTreinos=(wtTreinos||[]).filter(t=>{const hoje=wtHoje();return (!t.validade_inicio||t.validade_inicio<=hoje)&&(!t.validade_fim||t.validade_fim>=hoje)});wtHistorico=wtHistorico||[];
+  try {wtGruposMeta=await wtRpc('wand_aluno_grupos_execucao')||{}}catch(e){wtGruposMeta={};wtMsg('Agrupamento indisponível: execute o SQL complementar antes de testar métodos conjugados. '+e.message,true)}
   // Programacoes de hoje sao apresentadas como a alternativa recomendada.
   try {wtAdaptacoes=await wtRpc('wand_aluno_adaptacoes_do_dia',{p_dia:wtHoje()})||[]}
   catch(e){wtAdaptacoes=[];wtMsg('Treinos carregados; não foi possível consultar adaptações: '+e.message,true)}
@@ -961,7 +977,7 @@ function wtVerTreino(t){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtA
  for(const ex of t.exercicios||[]){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
  for(const s of ex.series||[])wtAdd(c,'p','muted','Série '+s.numero+': '+wtNum(s.repeticoes)+' repetições · '+wtNum(s.carga)+' kg · descanso '+wtNum(s.descanso)+' s'+(s.observacoes?' · '+s.observacoes:''));}
  wtBtn(a,'Iniciar treino',()=>wtIniciar(t));}
-async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtBlocoAberto=0;wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
 // O alarme usa recursos permitidos pelo navegador. Em segundo plano ou tela bloqueada
 // o sistema operacional pode suspender audio, vibracao e temporizadores.
 function wtPrepararAudio(){
@@ -1039,18 +1055,136 @@ function wtComecarTimer(sec){
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)wtAtualizarTimer()});
 window.addEventListener('pagehide',()=>{wtPararDescanso()});
-function wtExecucao(area){wtAdd(area,'h3',null,wtTreino.nome);wtAdd(area,'p','muted','Sessão iniciada em '+new Date(wtInicio).toLocaleString('pt-BR'));
- const timer=wtAdd(area,'div','subcard');wtAlarmArea=timer;wtAdd(timer,'strong',null,'Descanso');wtClock=wtAdd(timer,'div','wt-timer','00:00');wtClock.setAttribute('role','timer');wtAlarmTexto=wtAdd(timer,'div','wt-alarm-message','');wtAlarmTexto.setAttribute('role','status');wtAlarmTexto.setAttribute('aria-live','assertive');const actions=wtAdd(timer,'div','actions');wtBtn(actions,'Iniciar 60 s',()=>wtComecarTimer(60));wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);
- wtAtualizarTimer();
- for(const ex of wtTreino.exercicios||[]){const c=wtAdd(area,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
- for(const s of ex.series||[]){const registro=wtSerieSalva[s.id]||{};const row=wtAdd(c,'div','wt-serie');wtAdd(row,'strong',null,String(s.numero));const reps=wtInput(row,'Reps. (prescritas: '+wtNum(s.repeticoes)+')',registro.repeticoes??s.repeticoes,'number');const carga=wtInput(row,'Carga kg (prescrita: '+wtNum(s.carga)+')',registro.carga??s.carga,'number');const doneBox=wtAdd(row,'div');wtAdd(doneBox,'label',null,'Concluída');const done=wtAdd(doneBox,'input');done.type='checkbox';done.checked=Boolean(registro.concluida);const obs=wtInput(c,'Observações da série '+s.numero,registro.observacoes||'');const btn=wtBtn(c,registro.concluida?'Atualizar série':'Salvar série',async()=>{
-  if(wtBusy)return;const r=reps.value.trim()===''?null:Number(reps.value);const kg=carga.value.trim()===''?null:Number(carga.value.replace(',','.'));
-  if((r!==null&&(!Number.isInteger(r)||r<0))||(kg!==null&&(!Number.isFinite(kg)||kg<0))){wtMsg('Informe repetições inteiras e carga válida.',true);return}
-  wtPrepararAudio();wtBusy=true;btn.disabled=true;try{await wtRpc('wand_salvar_serie',{p_sessao_id:wtSessao,p_serie_id:s.id,p_repeticoes:r,p_carga:kg,p_concluida:done.checked,p_observacoes:obs.value});wtSerieSalva[s.id]={serie_id:s.id,repeticoes:r,carga:kg,concluida:done.checked,observacoes:obs.value};btn.textContent='Atualizar série';wtMsg('Série salva com sucesso!');if(done.checked&&Number(s.descanso)>0)wtComecarTimer(Number(s.descanso));}catch(e){wtMsg('Erro ao salvar: '+e.message,true)}finally{wtBusy=false;btn.disabled=false}
- },true);
- }}
- const finish=wtAdd(area,'article','subcard');const obsFinal=wtInput(finish,'Observações gerais da sessão','');wtBtn(finish,'Finalizar treino',()=>wtFinalizar(obsFinal.value));}
-async function wtFinalizar(obs=''){if(wtBusy||!wtSessao)return;if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};await wtCarregar();wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+// Agrupamento pelo identificador de prescrição: não agrupar apenas por nome do método.
+function wtBlocos(){
+ const blocos=[],map=new Map();
+ for(const ex of wtTreino.exercicios||[]){
+  const meta=wtGruposMeta[String(ex.id)]||{};
+  const id=meta.grupo_prescricao_id;
+  if(id){
+   let bloco=map.get(id);
+   if(!bloco){bloco={id,metodo:meta.grupo_metodo_nome||ex.metodo||'Conjugado',exercicios:[]};map.set(id,bloco);blocos.push(bloco)}
+   bloco.exercicios.push({ex,pos:Number(meta.grupo_posicao)||bloco.exercicios.length+1});
+  }else blocos.push({id:String(ex.id),metodo:ex.metodo||'Tradicional',exercicios:[{ex,pos:1}]});
+ }
+ for(const b of blocos)b.exercicios.sort((x,y)=>x.pos-y.pos);
+ return blocos;
+}
+function wtCompleto(b){return b.exercicios.every(({ex})=>(ex.series||[]).length>0&&(ex.series||[]).every(s=>wtSerieSalva[s.id]?.concluida===true))}
+function wtProximaRodada(b){
+ const total=Math.max(...b.exercicios.map(({ex})=>(ex.series||[]).length),0);
+ for(let i=0;i<total;i++)if(b.exercicios.some(({ex})=>ex.series?.[i]&&!wtSerieSalva[ex.series[i].id]?.concluida))return i;
+ return total;
+}
+function wtDescansoRodada(b,i){
+ // Descanso do último exercício da combinação, não a transição entre membros.
+ const ultimo=b.exercicios.at(-1)?.ex;
+ return Number(ultimo?.series?.[i]?.descanso||0);
+}
+function wtAtualizarProgresso(){
+ const blocos=wtBlocos(),total=blocos.length,feitos=blocos.filter(wtCompleto).length;
+ const txt=document.getElementById('wtProgressoTexto'),bar=document.getElementById('wtProgressoBar'),pct=document.getElementById('wtProgressoPct');
+ if(txt)txt.textContent=feitos+' / '+total+' exercícios';
+ if(bar)bar.style.width=(total?feitos/total*100:0)+'%';
+ if(pct)pct.textContent=(total?Math.round(feitos/total*100):0)+'% concluído';
+ const concluir=document.getElementById('wtConcluirTreino');if(concluir)concluir.disabled=feitos!==total||wtAlteracoesPendentes>0;
+}
+function wtExecucao(area){
+ const blocos=wtBlocos();
+ wtAdd(area,'h3',null,wtTreino.nome);
+ wtAdd(area,'p','muted','Sessão iniciada em '+new Date(wtInicio).toLocaleString('pt-BR'));
+ const cab=wtAdd(area,'section','wt-progress-card');
+ const top=wtAdd(cab,'div','wt-progress-top');wtAdd(top,'strong',null,'Progresso do treino');wtAdd(top,'strong',null,'0 / '+blocos.length+' exercícios').id='wtProgressoTexto';
+ const track=wtAdd(cab,'div','wt-progress-track');wtAdd(track,'div','wt-progress-fill').id='wtProgressoBar';
+ wtAdd(cab,'small','muted','0% concluído').id='wtProgressoPct';
+ const timer=wtAdd(area,'div','wt-rest-dock');wtAlarmArea=timer;
+ wtAdd(timer,'strong',null,'⏱ Descanso automático');wtClock=wtAdd(timer,'div','wt-timer','00:00');wtClock.setAttribute('role','timer');
+ wtAlarmTexto=wtAdd(timer,'div','wt-alarm-message','');wtAlarmTexto.setAttribute('role','status');wtAlarmTexto.setAttribute('aria-live','assertive');
+ const actions=wtAdd(timer,'div','actions');wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);wtAtualizarTimer();
+ blocos.forEach((bloco,indice)=>{
+  const total=Math.max(...bloco.exercicios.map(({ex})=>(ex.series||[]).length),0);
+  const concluido=wtCompleto(bloco),nRodadas=wtProximaRodada(bloco);
+  const card=wtAdd(area,'article','wt-exercise-card');
+  const head=wtAdd(card,'button','wt-exercise-head');head.type='button';
+  const tit=wtAdd(head,'div','wt-exercise-heading');wtAdd(tit,'strong',null,bloco.exercicios.map(({ex})=>ex.nome).join(' + '));
+  wtAdd(tit,'small','muted',bloco.metodo+' · '+Math.min(nRodadas,total)+'/'+total+(bloco.exercicios.length>1?' rodadas':' séries'));
+  const status=wtAdd(head,'span',concluido?'wt-status-done':'wt-status-open',concluido?'✓ Concluído':indice===wtBlocoAberto?'▴':'▾');
+  const content=wtAdd(card,'div','wt-exercise-body');content.hidden=indice!==wtBlocoAberto;
+  head.setAttribute('aria-expanded',String(!content.hidden));
+  head.onclick=()=>{const open=content.hidden;for(const e of area.querySelectorAll('.wt-exercise-body'))e.hidden=true;for(const h of area.querySelectorAll('.wt-exercise-head'))h.setAttribute('aria-expanded','false');content.hidden=!open;head.setAttribute('aria-expanded',String(open));wtBlocoAberto=open?indice:-1;status.textContent=concluido?'✓ Concluído':open?'▴':'▾'};
+  if(bloco.exercicios.length>1)wtAdd(content,'p','muted','Complete os movimentos da rodada e toque em Concluir rodada. Deslize lateralmente para visualizar todos.');
+  if(bloco.exercicios.some(({ex})=>ex.observacoes)){
+   const d=wtAdd(content,'details','wt-extra-info');wtAdd(d,'summary',null,'Ver instruções e método');
+   bloco.exercicios.forEach(({ex})=>{wtAdd(d,'strong',null,ex.nome);if(ex.observacoes)wtAdd(d,'p','muted',ex.observacoes)});
+  }
+  for(let i=0;i<total;i++){
+   const completa=bloco.exercicios.every(({ex})=>!ex.series?.[i]||wtSerieSalva[ex.series[i].id]?.concluida);
+   const details=wtAdd(content,'details','wt-serie-detalhe');details.open=!completa&&i===nRodadas;
+   const sum=wtAdd(details,'summary','wt-serie-resumo');wtAdd(sum,'strong',null,(bloco.exercicios.length>1?'Rodada ':'Série ')+(i+1));
+   wtAdd(sum,'span',completa?'wt-serie-ok':'wt-serie-pendente',completa?'✓ Concluída':'Pendente');
+   wtAdd(sum,'span','wt-serie-editar',completa?'Abrir / editar':'▾');
+   const inside=wtAdd(details,'div','wt-serie-conteudo');const rail=wtAdd(inside,'div','wt-conjugate-rail');
+   const inputs=[];
+   for(const {ex,pos} of bloco.exercicios){
+    const serie=ex.series?.[i];if(!serie)continue;
+    const reg=wtSerieSalva[serie.id]||{};
+    const panel=wtAdd(rail,'div','wt-conjugate-member');wtAdd(panel,'strong',null,(bloco.exercicios.length>1?String.fromCharCode(64+pos)+' · ':'')+ex.nome);
+    wtAdd(panel,'small','muted','Prescrito: '+wtNum(serie.repeticoes)+' reps · '+wtNum(serie.carga)+' kg');
+    const reps=wtInput(panel,'Repetições realizadas',reg.repeticoes??(Number.isInteger(Number(serie.repeticoes))?serie.repeticoes:''),'number');
+    const carga=wtInput(panel,'Carga realizada (kg)',reg.carga??serie.carga,'number');
+    const obs=wtInput(panel,'Observações',reg.observacoes||'');
+    const feedback=wtAdd(panel,'small','wt-save-feedback',reg.concluida?'✓ Registrada':'');
+    const obj={serie,reps,carga,obs,feedback,reg};inputs.push(obj);
+    let seq=0,timeout=null;
+    const salvarEdicao=async()=>{
+     if(!wtSerieSalva[serie.id]?.concluida)return;
+     if(timeout){clearTimeout(timeout);wtAlteracoesPendentes=Math.max(0,wtAlteracoesPendentes-1)}
+     const n=++seq;wtAlteracoesPendentes++;wtAtualizarProgresso();
+     timeout=setTimeout(async()=>{
+      const r=reps.value.trim()===''?null:Number(reps.value),kg=carga.value.trim()===''?null:Number(carga.value.replace(',','.'));
+      if((r!==null&&(!Number.isInteger(r)||r<0))||(kg!==null&&(!Number.isFinite(kg)||kg<0))){feedback.textContent='Confira os valores';return}
+      feedback.textContent='Salvando alteração…';
+      try{await wtRpc('wand_salvar_serie',{p_sessao_id:wtSessao,p_serie_id:serie.id,p_repeticoes:r,p_carga:kg,p_concluida:true,p_observacoes:obs.value});
+       wtSerieSalva[serie.id]={serie_id:serie.id,repeticoes:r,carga:kg,concluida:true,observacoes:obs.value};
+       feedback.textContent=n===seq?'✓ Alteração salva':'✓ Salvo';
+      }catch(e){feedback.textContent='⚠ Falha ao salvar. Edite novamente ou saia e volte ao campo.';wtMsg('Alteração não salva: '+e.message,true)}
+      finally{wtAlteracoesPendentes--;wtAtualizarProgresso()}
+     },550);
+    };
+    for(const el of [reps,carga,obs]){el.addEventListener('input',salvarEdicao);el.addEventListener('change',salvarEdicao)}
+   }
+   if(!completa){
+    const btn=wtBtn(inside,bloco.exercicios.length>1?'Concluir rodada '+(i+1):'Concluir série '+(i+1),async()=>{
+     if(wtBusy)return;
+     const valores=[];
+     for(const o of inputs){const r=o.reps.value.trim()===''?null:Number(o.reps.value),kg=o.carga.value.trim()===''?null:Number(o.carga.value.replace(',','.'));
+      if((r!==null&&(!Number.isInteger(r)||r<0))||(kg!==null&&(!Number.isFinite(kg)||kg<0))){wtMsg('Informe repetições e cargas válidas.',true);return}
+      valores.push({o,r,kg});
+     }
+     wtPrepararAudio();wtBusy=true;btn.disabled=true;btn.textContent='Registrando…';
+     try{
+      for(const {o,r,kg} of valores){await wtRpc('wand_salvar_serie',{p_sessao_id:wtSessao,p_serie_id:o.serie.id,p_repeticoes:r,p_carga:kg,p_concluida:true,p_observacoes:o.obs.value});
+       wtSerieSalva[o.serie.id]={serie_id:o.serie.id,repeticoes:r,carga:kg,concluida:true,observacoes:o.obs.value};
+      }
+      const terminou=wtCompleto(bloco);
+      if(terminou)wtBlocoAberto=indice<blocos.length-1?indice+1:-1;else wtBlocoAberto=indice;
+      const temProxima=i<total-1;
+      const pausa=temProxima?wtDescansoRodada(bloco,i):0;
+      wtMsg('✓ '+(bloco.exercicios.length>1?'Rodada':'Série')+' registrada automaticamente.');
+      wtRender();if(pausa>0)wtComecarTimer(pausa);
+     }catch(e){wtMsg('Falha ao concluir: '+e.message+'. Os registros confirmados foram mantidos. Tente novamente.',true);wtRender()}
+     finally{wtBusy=false}
+    });
+   }else wtAdd(inside,'p','wt-save-feedback','✓ Concluída. Corrija os campos acima; a edição será salva automaticamente.');
+  }
+ });
+ const finish=wtAdd(area,'article','subcard');
+ const obsFinal=wtInput(finish,'Observações gerais da sessão','');
+ const botao=wtBtn(finish,'Concluir treino',()=>wtFinalizar(obsFinal.value));botao.id='wtConcluirTreino';
+ wtAdd(finish,'p','muted','O histórico será marcado como finalizado após concluir todos os exercícios.');
+ wtAtualizarProgresso();
+}
+async function wtFinalizar(obs=''){if(wtBusy||!wtSessao||wtAlteracoesPendentes)return;if(wtTreino&&wtBlocos().some(b=>!wtCompleto(b))){wtMsg('Conclua todos os exercícios antes de finalizar.',true);return;}if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};await wtCarregar();wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
 function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,s.treino||'Treino');wtAdd(a,'p','muted','Início: '+wtData(s.iniciada_em)+' · Fim: '+wtData(s.finalizada_em));if(s.observacoes)wtAdd(a,'p','notice',s.observacoes);
  const agrupados={};for(const sr of s.series||[]){(agrupados[sr.exercicio]??=[]).push(sr)}for(const [nome,series] of Object.entries(agrupados)){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,nome);for(const sr of series)wtAdd(c,'p','muted','Série '+sr.numero+': '+wtNum(sr.repeticoes)+' reps · '+wtNum(sr.carga)+' kg · '+(sr.concluida?'Concluída':'Não concluída')+(sr.observacoes?' · '+sr.observacoes:''));}}
 const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListener('click',()=>{if(!wt.dataset.loaded){wt.dataset.loaded='1';wtCarregar()}});
