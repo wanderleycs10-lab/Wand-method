@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perfil do Aluno | WAND METHOD</title>
-<meta name="wand-versao" content="perfil-admin-20261109">
+<meta name="wand-versao" content="perfil-admin-historico-compacto-20261109">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
@@ -128,7 +128,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <a id="prescreverTreino" class="button" href="#">+ Criar treino</a>
 <a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
 </div>
-<div class="actions"><button type="button" class="button secondary" id="wandHistoricoAlternar" aria-expanded="false" aria-controls="wandHistoricoCard">Histórico de execução</button></div><div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico de execução</h3><p class="muted">Sessões realizadas, séries, cargas e repetições.</p><div id="wandHistoricoConteudo"><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Clique em Atualizar histórico para consultar as sessões.</div></div></div>
+<div class="actions"><button type="button" class="button secondary" id="wandHistoricoAlternar" aria-expanded="false" aria-controls="wandHistoricoCard">Histórico de execução</button></div><div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico de execução</h3><p class="muted">Consulte as sessões em formato compacto. Toque em um treino para ver todos os detalhes.</p><div id="wandHistoricoConteudo"><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Abra o histórico para consultar as sessões.</div></div></div>
 
 
 </section>
@@ -743,31 +743,74 @@ organizarRecursosExternos();
 
 <script defer src="./avaliacao-fotografica.js?v=2"></script>
 
-<style>.wbc-row{border-bottom:1px solid #393126;padding:12px 0}.wbc-tag{color:#d4af37;font-weight:bold}.wbc-muted{color:#bbb;font-size:13px}.wbc-alert{border-left:3px solid #d4af37;background:#272015;padding:10px}</style>
+<style>
+.wbc-row{border-bottom:1px solid #393126;padding:12px 0}.wbc-tag{color:#d4af37;font-weight:bold}.wbc-muted{color:#bbb;font-size:13px}.wbc-alert{border-left:3px solid #d4af37;background:#272015;padding:10px}
+.wand-hist-list{display:grid;gap:8px;margin-top:12px}.wand-hist-item{border:1px solid #393126;background:#101010;border-radius:10px;overflow:hidden}.wand-hist-item summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;color:#f5f5f5}.wand-hist-item summary::-webkit-details-marker{display:none}.wand-hist-item summary::after{content:'Ver detalhes ▾';color:#d4af37;font-size:12px;white-space:nowrap;margin-left:auto}.wand-hist-item[open] summary::after{content:'Fechar ▴'}.wand-hist-name{font-weight:700;font-size:14px;min-width:0;overflow-wrap:anywhere}.wand-hist-date{font-size:12px;color:#aaa;margin-top:4px}.wand-hist-detail{padding:4px 12px 14px;border-top:1px solid #393126}.wand-hist-detail p{margin:9px 0}.wand-hist-ex{border-top:1px solid #292929;padding-top:9px;margin-top:10px}.wand-hist-ex strong{color:#d4af37}.wand-hist-series{font-size:13px;color:#ccc;line-height:1.5;margin:5px 0}.wand-hist-status{font-size:12px;color:#bbb}
+@media(max-width:480px){.wand-hist-item summary{padding:11px 9px}.wand-hist-name{font-size:13px}.wand-hist-item summary::after{font-size:11px}}
+</style>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const dbw=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
 const out=document.getElementById('wbcArea'),historicoOut=document.getElementById('wandHistoricoArea'),id=new URLSearchParams(location.search).get('id');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function carregar(){if(!/^\d+$/.test(id||''))return;out.textContent='Carregando...';historicoOut.textContent='Carregando histórico...';try{const [bem,hist]=await Promise.all([dbw.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(id)}),dbw.rpc('wand_coach_historico_aluno',{p_aluno_id:Number(id)})]);if(bem.error)throw Error(bem.error.message);if(hist.error)throw Error(hist.error.message);const b=bem.data||{},s=hist.data||[];
-let histHtml=(s.length?s.slice(0,30).map(x=>`<div class="wbc-row"><strong>${esc(x.treino)}</strong><p class="wbc-muted">${esc(new Date(x.iniciada_em).toLocaleString('pt-BR'))} · ${x.finalizada_em?'Finalizado':'Em andamento'}</p><p class="wbc-muted">${(x.series||[]).filter(v=>v.concluida).length} séries concluídas</p>${x.finalizada_em&&!(x.series||[]).some(v=>v.concluida)?'<p class="wbc-alert">Sessão finalizada sem séries registradas.</p>':''}${(x.series||[]).filter(v=>v.concluida).map(v=>`<p class="wbc-muted">${esc(v.exercicio)} · Série ${esc(v.numero)}: ${esc(v.repeticoes)} rep · ${esc(v.carga)} kg</p>`).join('')}${x.observacoes?`<p>${esc(x.observacoes)}</p>`:''}</div>`).join(''):'<p class="wbc-muted">Sem sessões registradas.</p>');
-historicoOut.innerHTML=histHtml;
-let html='<h3>Check-ins de bem-estar</h3>';
-if(!b.ativo)html+='<p class="wbc-muted">Aluno não ativou o acompanhamento de bem-estar.</p>';
-else {html+=`<p class="wbc-muted">Informações menstruais ${b.ciclo_compartilhado?'compartilhadas voluntariamente':'não compartilhadas'}.</p>`;
-html+=(b.registros||[]).length?(b.registros||[]).slice(0,30).map(r=>`<div class="wbc-row"><strong>${esc(r.dia)}</strong><p class="wbc-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${b.ciclo_compartilhado&&r.menstruando!==null?`<p class="wbc-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!==null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wbc-alert">Aluno solicitou conversar sobre adaptação do treino.</p>':''}${r.observacoes?`<p>${esc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wbc-muted">Sem check-ins.</p>'}
-out.innerHTML=html;
-}catch(e){out.textContent='Não foi possível carregar os registros: '+e.message;historicoOut.textContent='Não foi possível carregar o histórico: '+e.message}}
+const dataHora=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('pt-BR')};
+const soData=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString('pt-BR')};
+const soHora=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleTimeString('pt-BR')};
+function duracao(inicio,fim){if(!inicio||!fim)return null;const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return null;const min=Math.floor(ms/60000),h=Math.floor(min/60),m=min%60;return h?`${h}h ${String(m).padStart(2,'0')}min`:`${min} min`;}
+function desenharHistorico(s){
+ if(!s.length){historicoOut.innerHTML='<p class="wbc-muted">Sem sessões registradas.</p>';return;}
+ const lista=document.createElement('div');lista.className='wand-hist-list';
+ for(const x of s.slice(0,30)){
+  const series=Array.isArray(x.series)?x.series:[];
+  const feitas=series.filter(v=>v.concluida);
+  const tempo=duracao(x.iniciada_em,x.finalizada_em);
+  const item=document.createElement('details');item.className='wand-hist-item';
+  const summary=document.createElement('summary');
+  const info=document.createElement('div');info.style.minWidth='0';
+  const nome=document.createElement('div');nome.className='wand-hist-name';nome.textContent=x.treino||'Treino';
+  const meta=document.createElement('div');meta.className='wand-hist-date';meta.textContent=[soData(x.iniciada_em),tempo|| (x.finalizada_em?'Duração indisponível':'Em andamento')].join(' · ');
+  info.append(nome,meta);summary.appendChild(info);item.appendChild(summary);
+  const detail=document.createElement('div');detail.className='wand-hist-detail';
+  const add=(texto,classe='wbc-muted')=>{const p=document.createElement('p');p.className=classe;p.textContent=texto;detail.appendChild(p)};
+  add('Situação: '+(x.finalizada_em?'Finalizado':'Em andamento'));
+  add('Início: '+dataHora(x.iniciada_em));
+  add('Término: '+dataHora(x.finalizada_em));
+  add('Duração: '+(tempo||'Indisponível'));
+  add(feitas.length+' séries concluídas');
+  if(x.finalizada_em&&!feitas.length)add('Sessão finalizada sem séries concluídas.','wbc-alert');
+  const grupos=new Map();for(const serie of series){const chave=serie.exercicio||'Exercício';if(!grupos.has(chave))grupos.set(chave,[]);grupos.get(chave).push(serie)}
+  for(const [exercicio,registros] of grupos){const bloco=document.createElement('div');bloco.className='wand-hist-ex';const titulo=document.createElement('strong');titulo.textContent=exercicio;bloco.appendChild(titulo);
+   for(const r of registros){const p=document.createElement('p');p.className='wand-hist-series';p.textContent=`Série ${r.numero??'—'} · ${r.repeticoes??'—'} rep · ${r.carga??'—'} kg · ${r.concluida?'Concluída':'Não concluída'}${r.observacoes?' · '+r.observacoes:''}`;bloco.appendChild(p)}detail.appendChild(bloco)}
+  if(x.observacoes)add('Observações: '+x.observacoes);
+  item.appendChild(detail);lista.appendChild(item);
+ }
+ historicoOut.replaceChildren(lista);
+}
+async function carregarHistorico(){
+ if(!/^\d+$/.test(id||''))return;
+ historicoOut.textContent='Carregando histórico...';
+ try{const {data,error}=await dbw.rpc('wand_coach_historico_aluno',{p_aluno_id:Number(id)});if(error)throw Error(error.message);desenharHistorico(data||[])}
+ catch(e){historicoOut.textContent='Não foi possível carregar o histórico: '+e.message}
+}
+async function carregarBemEstar(){
+ if(!/^\d+$/.test(id||''))return;
+ out.textContent='Carregando...';
+ try{const {data:b,error}=await dbw.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(id)});if(error)throw Error(error.message);const bem=b||{};
+ let html='<h3>Check-ins de bem-estar</h3>';
+ if(!bem.ativo)html+='<p class="wbc-muted">Aluno não ativou o acompanhamento de bem-estar.</p>';
+ else {html+=`<p class="wbc-muted">Informações menstruais ${bem.ciclo_compartilhado?'compartilhadas voluntariamente':'não compartilhadas'}.</p>`;
+ html+=(bem.registros||[]).length?(bem.registros||[]).slice(0,30).map(r=>`<div class="wbc-row"><strong>${esc(r.dia)}</strong><p class="wbc-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${bem.ciclo_compartilhado&&r.menstruando!==null?`<p class="wbc-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!==null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wbc-alert">Aluno solicitou conversar sobre adaptação do treino.</p>':''}${r.observacoes?`<p>${esc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wbc-muted">Sem check-ins.</p>'}
+ out.innerHTML=html;
+ }catch(e){out.textContent='Não foi possível carregar os registros: '+e.message}
+}
 const section=document.getElementById('painel-acompanhamento');
-const treinoSection=document.getElementById('painel-treinos');
-const obs=new MutationObserver(()=>{if((section.classList.contains('ativo')||treinoSection.classList.contains('ativo'))&&out.dataset.loaded!=='1'){out.dataset.loaded='1';carregar()}});
+const obs=new MutationObserver(()=>{if(section.classList.contains('ativo')&&out.dataset.loaded!=='1'){out.dataset.loaded='1';carregarBemEstar()}});
 obs.observe(section,{attributes:true,attributeFilter:['class']});
-obs.observe(treinoSection,{attributes:true,attributeFilter:['class']});
-document.getElementById('wbcRecarregar').addEventListener('click',carregar);
-document.getElementById('wandHistoricoAtualizar').addEventListener('click',carregar);
+document.getElementById('wbcRecarregar').addEventListener('click',carregarBemEstar);
+document.getElementById('wandHistoricoAtualizar').addEventListener('click',carregarHistorico);
 const histToggle=document.getElementById('wandHistoricoAlternar');
 const histCard=document.getElementById('wandHistoricoCard');
-histToggle.addEventListener('click',()=>{const abrir=histCard.hidden;histCard.hidden=!abrir;histToggle.setAttribute('aria-expanded',String(abrir));histToggle.textContent=abrir?'Ocultar histórico':'Histórico de execução';});
+histToggle.addEventListener('click',()=>{const abrir=histCard.hidden;histCard.hidden=!abrir;histToggle.setAttribute('aria-expanded',String(abrir));histToggle.textContent=abrir?'Ocultar histórico':'Histórico de execução';if(abrir)carregarHistorico()});
 </script>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
