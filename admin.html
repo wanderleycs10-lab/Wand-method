@@ -1,314 +1,58 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel Administrativo | WAND METHOD</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: #080808;
-      color: #fff;
-      font-family: Arial, sans-serif;
-    }
-
-    header {
-      padding: 24px;
-      border-bottom: 1px solid #d4af37;
-      text-align: center;
-    }
-
-    h1, h2 {
-      color: #d4af37;
-    }
-
-    main {
-      max-width: 900px;
-      margin: auto;
-      padding: 24px;
-    }
-
-    .card {
-      background: #171717;
-      border: 1px solid #66551f;
-      border-radius: 12px;
-      padding: 22px;
-      margin: 16px 0;
-    }
-
-    button,
-    .botao-link {
-      display: inline-block;
-      background: #d4af37;
-      color: #111;
-      border: 0;
-      border-radius: 8px;
-      padding: 12px 20px;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      font-weight: bold;
-      text-decoration: none;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    button:hover,
-    .botao-link:hover {
-      background: #f0c65c;
-    }
-
-    .acoes-treino {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .descricao {
-      color: #bbb;
-      line-height: 1.5;
-    }
-
-    #painel {
-      display: none;
-    }
-
-    @media (max-width: 600px) {
-      main {
-        padding: 16px;
-      }
-
-      .card {
-        padding: 18px;
-      }
-
-      .acoes-treino {
-        flex-direction: column;
-      }
-
-      .acoes-treino .botao-link {
-        width: 100%;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080808">
+<title>WandCoach | WAND METHOD</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif;line-height:1.5}header{border-bottom:1px solid #66551f;padding:22px 16px;text-align:center}header img{width:96px;max-width:35%;height:auto}h1{color:#d4af37;letter-spacing:2px;margin:4px 0}header p{margin:0;color:#bbb;letter-spacing:2px;font-size:12px}main{max-width:950px;margin:auto;padding:20px 16px 48px}h2{color:#d4af37;margin:0 0 10px;font-size:21px}.intro{color:#c8c8c8;margin:12px 0 20px}.card{background:#171717;border:1px solid #66551f;border-radius:14px;padding:22px;margin:16px 0}.descricao{color:#bbb;margin:8px 0 16px}.acoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}.botao-link,button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;background:#d4af37;color:#080808;border:0;border-radius:9px;padding:12px 16px;font:700 14px Arial,sans-serif;text-align:center;text-decoration:none;cursor:pointer}.botao-link:hover,button:hover{background:#f0c65c}.botao-link.secundario{background:#242424;border:1px solid #9b812d;color:#f0cf68}.botao-link.secundario:hover{background:#303030}.aluno{padding:14px;border:1px solid #66551f;border-radius:10px;margin:10px 0}.aluno a{color:#d4af37;font-weight:bold}.aluno p{margin:6px 0 0;color:#ccc;font-size:14px}#painel{display:none}#status{color:#d4af37}#sair{background:#262626;color:#fff;border:1px solid #777;margin-top:12px;width:100%}footer{text-align:center;color:#777;font-size:12px;padding:0 12px 24px}@media(max-width:600px){.card{padding:17px}.acoes{grid-template-columns:1fr}}
+</style>
 </head>
-
 <body>
-
-  <header>
-    <h1>WAND METHOD</h1>
-    <p>PAINEL ADMINISTRATIVO</p>
-  </header>
-
-  <main>
-
-    <p id="status">Verificando acesso...</p>
-
-    <section id="painel">
-
-      <h2>Bem-vindo, administrador!</h2>
-
-      <!-- ALUNOS -->
-      <div class="card">
-
-        <h2>Alunos</h2>
-
-        <p>Alunos cadastrados no WAND METHOD:</p>
-
-        <div id="listaAlunos">
-          <p>Carregando alunos...</p>
-        </div>
-
-        <button
-          type="button"
-          id="cadastrarAluno"
-          onclick="window.location.href='cadastro-aluno.html'"
-        >
-          + Cadastrar aluno
-        </button>
-
-      </div>
-
-      <!-- TREINOS -->
-      <div class="card">
-
-        <h2>Treinos</h2>
-
-        <p class="descricao">
-          Gerencie sua biblioteca de exercícios
-          e prepare a prescrição dos treinos
-          dos seus alunos.
-        </p>
-
-        <div class="acoes-treino">
-
-          <a
-            href="biblioteca-exercicios.html"
-            class="botao-link"
-          >
-            Biblioteca de Exercícios
-          </a>
-
-        </div>
-
-        <p class="descricao">
-          Prescrição de treinos e acompanhamento
-          de evolução serão adicionados
-          nas próximas etapas.
-        </p>
-
-      </div>
-
-      <!-- AVALIACOES -->
-      <div class="card">
-
-        <h2>Avaliações</h2>
-
-        <p>Avaliações físicas em construção.</p>
-
-      </div>
-
-      <button id="sair" type="button">
-        Sair da conta
-      </button>
-
-    </section>
-
-  </main>
-
-  <script type="module">
-
-    import { createClient } from
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-    const supabase = createClient(
-      "https://kvxdnreipuahoaostlle.supabase.co",
-      "sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo"
-    );
-
-    const status = document.getElementById("status");
-    const painel = document.getElementById("painel");
-
-    async function verificarAcesso() {
-
-      const { data: { user }, error } =
-        await supabase.auth.getUser();
-
-      if (error || !user) {
-        window.location.replace("login.html");
-        return;
-      }
-
-      const { data, error: erroPerfil } =
-        await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-
-      if (erroPerfil || data?.role !== "admin") {
-        status.textContent = "Acesso não autorizado.";
-        return;
-      }
-
-      status.textContent = "";
-      painel.style.display = "block";
-
-      await carregarAlunos();
-    }
-
-    async function carregarAlunos() {
-
-      const lista =
-        document.getElementById("listaAlunos");
-
-      lista.textContent = "Carregando alunos...";
-
-      const { data: alunos, error } =
-        await supabase
-          .from("alunos")
-          .select("id, nome_completo, modalidade, Status")
-          .order("nome_completo", {
-            ascending: true
-          });
-
-      if (error) {
-        console.error(
-          "Erro ao buscar alunos:",
-          error
-        );
-
-        lista.textContent =
-          "Não foi possível carregar os alunos.";
-
-        return;
-      }
-
-      if (!alunos || alunos.length === 0) {
-        lista.textContent =
-          "Nenhum aluno cadastrado.";
-        return;
-      }
-
-      lista.replaceChildren();
-
-      alunos.forEach((aluno) => {
-
-        const item =
-          document.createElement("div");
-
-        item.style.padding = "12px";
-        item.style.marginBottom = "10px";
-        item.style.border = "1px solid #66551f";
-        item.style.borderRadius = "8px";
-
-        const nome =
-          document.createElement("a");
-
-        nome.textContent =
-          aluno.nome_completo || "Sem nome";
-
-        nome.href =
-          "perfil-aluno.html?id=" +
-          encodeURIComponent(aluno.id);
-
-        nome.style.color = "#d4af37";
-        nome.style.fontWeight = "bold";
-        nome.style.textDecoration = "underline";
-
-        const detalhes =
-          document.createElement("p");
-
-        detalhes.textContent =
-          "Modalidade: " +
-          (aluno.modalidade || "Não informada") +
-          " | Status: " +
-          (aluno.Status || "Não informado");
-
-        item.append(nome, detalhes);
-        lista.appendChild(item);
-
-      });
-    }
-
-    document.getElementById("sair")
-      .addEventListener("click", async () => {
-
-        await supabase.auth.signOut();
-
-        window.location.replace("login.html");
-
-      });
-
-    verificarAcesso();
-
-  </script>
-
-</body>
-</html>
+<header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><p>WANDCOACH · PAINEL DO TREINADOR</p></header>
+<main>
+<p id="status" role="status">Verificando acesso...</p>
+<section id="painel">
+<p class="intro">Gerencie seus alunos, acompanhe os treinos e acesse as ferramentas do WandCoach em um só painel.</p>
+<div class="card"><h2>Meus alunos</h2><p class="descricao">Selecione um aluno para abrir seu perfil, avaliações e prescrição individual.</p><div id="listaAlunos"><p>Carregando alunos...</p></div><div class="acoes"><a class="botao-link" href="cadastro-aluno.html">+ Cadastrar aluno</a></div></div>
+<div class="card"><h2>Treinos</h2><p class="descricao">Biblioteca de exercícios e gerenciamento geral das prescrições.</p><div class="acoes"><a class="botao-link" href="gerenciar-treinos.html">Gerenciar treinos</a><a class="botao-link secundario" href="biblioteca-exercicios.html">Biblioteca de exercícios</a></div><p class="descricao">Para prescrever um treino individual, abra o perfil do aluno acima.</p></div>
+<div class="card"><h2>Avaliações e acompanhamento</h2><p class="descricao">Acesse os dados e avaliações de cada aluno pelo respectivo perfil. As ferramentas permanecem nas páginas já existentes.</p></div>
+<button id="sair" type="button">Sair da conta</button>
+</section>
+</main><footer>WAND METHOD · WandCoach</footer>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const supabase=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const status=document.getElementById('status');const painel=document.getElementById('painel');
+async function verificarAcesso(){
+ try{
+ const {data:{user},error}=await supabase.auth.getUser();
+ if(error||!user){window.location.replace('login.html');return;}
+ const {data,error:erroPerfil}=await supabase.from('profiles').select('role').eq('id',user.id).single();
+ if(erroPerfil||data?.role!=='admin'){status.textContent='Acesso não autorizado.';return;}
+ status.textContent='';painel.style.display='block';await carregarAlunos();
+ }catch(e){console.error(e);status.textContent='Não foi possível verificar o acesso. Tente atualizar a página.';}
+}
+async function carregarAlunos(){
+ const lista=document.getElementById('listaAlunos');lista.textContent='Carregando alunos...';
+ const {data:alunos,error}=await supabase.from('alunos').select('id, nome_completo, modalidade, Status').order('nome_completo',{ascending:true});
+ if(error){console.error('Erro ao buscar alunos:',error);lista.textContent='Não foi possível carregar os alunos.';return;}
+ if(!alunos?.length){lista.textContent='Nenhum aluno cadastrado.';return;}
+ lista.replaceChildren();
+ alunos.forEach(aluno=>{
+ const item=document.createElement('div');item.className='aluno';
+ const nome=document.createElement('a');nome.textContent=aluno.nome_completo||'Sem nome';nome.href='perfil-aluno.html?id='+encodeURIComponent(aluno.id);
+ const detalhes=document.createElement('p');detalhes.textContent='Modalidade: '+(aluno.modalidade||'Não informada')+' | Status: '+(aluno.Status||'Não informado');
+ item.append(nome,detalhes);lista.appendChild(item);
+ });
+}
+document.getElementById('sair').addEventListener('click',async()=>{
+ const botao=document.getElementById('sair');botao.disabled=true;botao.textContent='Saindo...';
+ const {error}=await supabase.auth.signOut();
+ if(error){status.textContent='Não foi possível sair da conta. Tente novamente.';botao.disabled=false;botao.textContent='Sair da conta';return;}
+ window.location.replace('login.html');
+});
+verificarAcesso();
+</script>
+</body></html>
