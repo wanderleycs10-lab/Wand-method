@@ -989,7 +989,7 @@ async function wtCarregar(){
   const aberta=wtHistorico.find(x=>!x.finalizada_em);
   if(aberta){wtSessao=aberta.id;wtTreino=wtTreinos.find(t=>t.id===aberta.treino_id)||null;wtSerieSalva=Object.fromEntries((aberta.series||[]).map(s=>[s.serie_id,s]));wtInicio=Date.parse(aberta.iniciada_em)||Date.now();
     const saved=wtEstadoLocal();if(saved?.sessao===wtSessao){wtBlocoAberto=Number.isInteger(saved.bloco)?saved.bloco:0;if(!wtTimerRestaurado){wtTimerFim=Number(saved.timerFim)||0;wtAlarmAtivo=false;wtTimerRestaurado=true;}}
-    if(!wtRestauroFeito){wtRestauroFeito=true;mostrarVista('treinos');}
+    if(!wtRestauroFeito){wtRestauroFeito=true;const botaoTreinos=document.querySelector('[data-view="treinos"]');if(botaoTreinos)botaoTreinos.click();}
    }
   else{wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();}
   wtMsg('');wtRender();if(wtSessao){wtRestaurarCampos();wtAtualizarTimer();if(wtTimerFim>Date.now()&&!wtTimerId)wtTimerId=setInterval(wtAtualizarTimer,250);}
