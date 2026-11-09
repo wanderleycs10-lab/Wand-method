@@ -909,14 +909,13 @@ iniciar();
 .wt-progress-card{background:#161410;border:1px solid #65552a;border-radius:15px;padding:16px;margin:14px 0}.wt-progress-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.wt-progress-track{height:12px;background:#36312a;border-radius:20px;overflow:hidden;margin-bottom:8px}.wt-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#aa8121,#e8c75a);transition:width .3s}.wt-rest-dock{position:sticky;top:8px;z-index:4;background:#17140e;border:1px solid #75612d;border-radius:13px;padding:12px;margin:12px 0;box-shadow:0 4px 18px #0009}.wt-rest-dock .wt-timer{font-size:27px}.wt-exercise-card{border:1px solid #4b412f;background:#141414;border-radius:14px;margin:12px 0;overflow:hidden}.wt-exercise-head{width:100%;background:transparent!important;border:0!important;color:#f4e9cb!important;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:17px!important;text-align:left!important;cursor:pointer}.wt-exercise-heading{display:flex;flex-direction:column;gap:5px;min-width:0}.wt-exercise-heading strong{line-height:1.35}.wt-exercise-heading small{font-size:12px}.wt-status-done{color:#83dca1;white-space:nowrap}.wt-status-open{color:#d4af37}.wt-exercise-body{padding:0 12px 14px;border-top:1px solid #3c352a}.wt-exercise-body[hidden]{display:none!important}.wt-conjugate-rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 0}.wt-conjugate-member{min-width:min(260px,85%);flex:1 0 min(260px,85%);scroll-snap-align:start;background:#1d1b18;border:1px solid #54462c;border-radius:12px;padding:12px}.wt-conjugate-member label{font-size:12px;display:block;margin:9px 0 3px}.wt-conjugate-member .wt-input{width:100%;box-sizing:border-box}.wt-conjugate-member strong{display:block;min-height:36px}.wt-conjugate-member small{display:block}.wt-save-feedback{color:#83dca1;min-height:18px}.wt-extra-info{margin:12px 0;color:#d4af37}.wt-extra-info p{color:#ccc}.wt-exercise-body .wt-serie-detalhe{margin:8px 0}.wt-exercise-body .wt-serie-conteudo{padding-bottom:14px}.wt-exercise-body .wt-serie-conteudo>.button{width:100%;margin-top:8px}.wt-exercise-body .wt-serie-resumo{gap:7px}.wt-exercise-body .wt-serie-editar{margin-left:auto}.wt-exercise-body .wt-serie-conteudo input{max-width:100%}#wtConcluirTreino:disabled{opacity:.45;cursor:not-allowed}
 </style>
 <style>
-/* Dock acessível durante a rolagem em desktop e mobile. */
-.wt-rest-dock{position:sticky!important;top:8px!important;bottom:auto;z-index:100!important}
+/* Cronômetro acima dos exercícios, acompanhando a rolagem no topo em todas as telas. */
+.wt-rest-dock{position:sticky!important;top:8px!important;bottom:auto!important;left:auto!important;right:auto!important;z-index:100!important;margin:12px 0!important;box-shadow:0 4px 18px #0009!important}
 @media(max-width:700px){
- .wt-rest-dock{position:fixed!important;top:auto!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;left:10px!important;right:10px!important;margin:0!important;padding:9px 12px!important;box-shadow:0 4px 30px #000d!important}
- .wt-rest-dock .wt-timer{font-size:23px!important}
- .wt-rest-dock .actions{margin-top:5px!important}
- .wt-rest-dock .actions button{padding:9px!important;width:100%}
- body:has(.wt-rest-dock) main{padding-bottom:185px!important}
+ .wt-rest-dock{position:sticky!important;top:8px!important;bottom:auto!important;left:auto!important;right:auto!important;padding:10px 12px!important}
+ .wt-rest-dock .wt-timer{font-size:27px!important}
+ .wt-rest-dock .actions{margin-top:8px!important}
+ .wt-rest-dock .actions button{width:100%}
 }
 .wt-update-banner{position:fixed;z-index:110;left:12px;right:12px;top:10px;max-width:540px;margin:auto;background:#242014;border:1px solid #d4af37;color:#fff;padding:12px;border-radius:12px;box-shadow:0 6px 30px #000c}
 .wt-update-banner button{margin:6px 6px 0 0}
