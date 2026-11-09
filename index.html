@@ -2,60 +2,40 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WAND METHOD</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="WAND METHOD — Consultoria online e acompanhamento profissional.">
+  <title>WAND METHOD | Sua evolução</title>
   <style>
-    body {
-      background-color: #080808;
-      color: #d4af37;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px 20px;
-    }
-
-    h1 {
-      font-size: 36px;
-    }
-
-    p {
-      color: white;
-      font-size: 18px;
-    }
-
-    button {
-      background-color: #d4af37;
-      color: black;
-      border: none;
-      padding: 15px 30px;
-      border-radius: 8px;
-      font-weight: bold;
-    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100svh;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;padding:30px 20px}
+    main{width:100%;max-width:510px;text-align:center}
+    .logo{display:block;width:210px;max-width:75%;height:auto;margin:0 auto 16px}
+    h1{font-size:clamp(27px,6vw,36px);letter-spacing:3px;margin:0 0 8px}
+    .gold{color:#d4af37}.silver{color:#c0c0c0}
+    .tag{color:#d4af37;letter-spacing:4px;font-size:12px;margin-bottom:28px}
+    .lead{font-size:20px;font-weight:700;margin:0 0 20px}
+    .description{font-size:16px;line-height:1.6;color:#d0d0d0;margin:0 auto 32px;max-width:420px}
+    .actions{display:grid;gap:13px}
+    .button{display:block;padding:16px 18px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;line-height:1.35}
+    .primary{background:#d4af37;color:#080808}
+    .secondary{border:1px solid #d4af37;color:#d4af37;background:#141414}
+    .button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+    .note{color:#999;font-size:12px;margin-top:27px}
   </style>
 </head>
 <body>
-<img src="LogoNova.png"
-     alt="Logo WAND METHOD"
-     style="width: 220px; max-width: 80%; height: auto; display: block; margin: 0 auto 15px;">
-
-<h1 style="font-size: 34px; letter-spacing: 3px; margin-bottom: 8px;">
-  <span style="color: #d4af37;">WAND</span>
-  <span style="color: #c0c0c0;">METHOD</span>
-</h1>
-
-<div style="color: #d4af37; letter-spacing: 5px; font-size: 12px; margin-bottom: 30px;">
-  CONSULTORIA ONLINE
-</div>
-
-  <p>Seu treino. Sua evolução. Seu método.</p>
-
-  
-
-  <p>
-    Treinamento personalizado,
-    acompanhamento profissional
-    e resultados com estratégia.
-  </p>
-
-  <a href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Conheci%20o%20WAND%20METHOD%20e%20gostaria%20de%20saber%20mais%20sobre%20a%20consultoria%20fitness%20online."><button>COMECE SUA EVOLUÇÃO</button></a>
+  <main>
+    <img class="logo" src="LogoNova.png" alt="Logo WAND METHOD">
+    <h1><span class="gold">WAND</span> <span class="silver">METHOD</span></h1>
+    <div class="tag">CONSULTORIA ONLINE</div>
+    <p class="lead">Seu treino. Sua evolução. Seu método.</p>
+    <p class="description">Treinamento personalizado, acompanhamento profissional e resultados com estratégia.</p>
+    <nav class="actions" aria-label="Acesso ao WAND METHOD">
+      <a class="button primary" href="login.html">ENTRAR NO WAND METHOD</a>
+      <a class="button secondary" href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Conheci%20o%20WAND%20METHOD%20e%20gostaria%20de%20saber%20mais%20sobre%20a%20consultoria%20fitness%20online." target="_blank" rel="noopener noreferrer">CONHECER A CONSULTORIA</a>
+    </nav>
+    <p class="note">Acesso de alunos e treinador pela mesma entrada.</p>
+  </main>
 </body>
 </html>
