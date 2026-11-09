@@ -999,7 +999,17 @@ function wtRender(){
  if(!wtSessao)wtPararDescanso();
  const area=wtArea();
  if(wtSessao&&!wtTreino){wtAdd(area,'p','notice','Há uma sessão aberta de um treino que não está mais ativo. Entre em contato com seu treinador para reativá-lo ou encerrar essa sessão.');wtBtn(area,'Finalizar sessão aberta',()=>wtFinalizar(),true);return;}
- if(wtSessao&&wtTreino){wtExecucao(area);return;}
+ if(wtSessao&&wtTreino){
+  // Ao reconstruir a tela, nao manter automaticamente expandido um bloco ja concluido.
+  // Seleciona o primeiro bloco pendente, preservando a escolha de outro bloco pendente.
+  const blocosAtuais=wtBlocos();
+  if(wtBlocoAberto>=0 && (wtBlocoAberto>=blocosAtuais.length || wtCompleto(blocosAtuais[wtBlocoAberto]))) {
+    const proximo=blocosAtuais.findIndex(b=>!wtCompleto(b));
+    wtBlocoAberto=proximo;
+    wtPersistir();
+  }
+  wtExecucao(area);return;
+ }
  const menu=wtAdd(area,'div','wt-menu-clean');
  const opcoes=[['disponiveis','🏋 Treinos disponíveis'],['historico','◷ Histórico de treinos']];
  for(const [id,rotulo] of opcoes){
