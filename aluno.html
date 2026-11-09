@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Meu Painel | WAND METHOD</title>
+<title>Meu Painel | WAND METHOD — correção 3</title>
 <meta name="wand-build" content="2026.11.09.3">
 <style>
 *{box-sizing:border-box}
@@ -811,6 +811,7 @@ function mostrarVista(nome){
   acomodarModulos();
   window.scrollTo({top:0,behavior:"instant"});
 }
+window.wandMostrarVista = mostrarVista;
 function acomodarFotografias(){
   const modulo=document.getElementById("wand-fotos");
   const destino=$("fotografiaDestino");
@@ -989,7 +990,7 @@ async function wtCarregar(){
   const aberta=wtHistorico.find(x=>!x.finalizada_em);
   if(aberta){wtSessao=aberta.id;wtTreino=wtTreinos.find(t=>t.id===aberta.treino_id)||null;wtSerieSalva=Object.fromEntries((aberta.series||[]).map(s=>[s.serie_id,s]));wtInicio=Date.parse(aberta.iniciada_em)||Date.now();
     const saved=wtEstadoLocal();if(saved?.sessao===wtSessao){wtBlocoAberto=Number.isInteger(saved.bloco)?saved.bloco:0;if(!wtTimerRestaurado){wtTimerFim=Number(saved.timerFim)||0;wtAlarmAtivo=false;wtTimerRestaurado=true;}}
-    if(!wtRestauroFeito){wtRestauroFeito=true;const botaoTreinos=document.querySelector('[data-view="treinos"]');if(botaoTreinos)botaoTreinos.click();}
+    if(!wtRestauroFeito){wtRestauroFeito=true;window.wandMostrarVista?.('treinos');}
    }
   else{wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();}
   wtMsg('');wtRender();if(wtSessao){wtRestaurarCampos();wtAtualizarTimer();if(wtTimerFim>Date.now()&&!wtTimerId)wtTimerId=setInterval(wtAtualizarTimer,250);}
