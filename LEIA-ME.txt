@@ -1,0 +1,15 @@
+WAND METHOD — pacote inicial PWA (09/11/2026)
+
+1. Faça backup do aluno.html atual no GitHub.
+2. Envie à RAIZ do repositório os arquivos: manifest.webmanifest, sw.js, pwa-init.js e a pasta icons com ambos os PNGs.
+3. Substitua o aluno.html pelo arquivo deste pacote. Os demais arquivos existentes ficam inalterados.
+4. Para o botão de instalação funcionar desde a página inicial, acrescente ao <head> do index.html e login.html:
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#080808">
+E antes de </body>:
+<script src="./pwa-init.js" defer></script>
+5. Para que todas as demais páginas também se abram dentro do app, repita as mesmas três linhas em cada HTML do repositório. Sem os arquivos originais, não foram modificadas aqui.
+6. Publique no GitHub Pages, feche o atalho antigo, abra o endereço principal no Chrome e use menu > Instalar app ou Adicionar à tela inicial.
+
+ATENÇÃO: os ícones W dourados são PROVISÓRIOS. Substitua depois pelos PNGs 192 e 512 feitos com a LogoNova.png oficial.
+Este pacote prepara instalação e cache de navegação network-first. NÃO unifica integralmente todos os módulos: isso requer os HTMLs atuais (index, login, admin, perfil etc.). Não é um APK; é um PWA via Chrome.
