@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
+<meta name="wand-build" content="2026.11.09.3">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -906,11 +907,66 @@ iniciar();
 /* WAND METHOD — execução compacta e agrupada */
 .wt-progress-card{background:#161410;border:1px solid #65552a;border-radius:15px;padding:16px;margin:14px 0}.wt-progress-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.wt-progress-track{height:12px;background:#36312a;border-radius:20px;overflow:hidden;margin-bottom:8px}.wt-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#aa8121,#e8c75a);transition:width .3s}.wt-rest-dock{position:sticky;top:8px;z-index:4;background:#17140e;border:1px solid #75612d;border-radius:13px;padding:12px;margin:12px 0;box-shadow:0 4px 18px #0009}.wt-rest-dock .wt-timer{font-size:27px}.wt-exercise-card{border:1px solid #4b412f;background:#141414;border-radius:14px;margin:12px 0;overflow:hidden}.wt-exercise-head{width:100%;background:transparent!important;border:0!important;color:#f4e9cb!important;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:17px!important;text-align:left!important;cursor:pointer}.wt-exercise-heading{display:flex;flex-direction:column;gap:5px;min-width:0}.wt-exercise-heading strong{line-height:1.35}.wt-exercise-heading small{font-size:12px}.wt-status-done{color:#83dca1;white-space:nowrap}.wt-status-open{color:#d4af37}.wt-exercise-body{padding:0 12px 14px;border-top:1px solid #3c352a}.wt-exercise-body[hidden]{display:none!important}.wt-conjugate-rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 0}.wt-conjugate-member{min-width:min(260px,85%);flex:1 0 min(260px,85%);scroll-snap-align:start;background:#1d1b18;border:1px solid #54462c;border-radius:12px;padding:12px}.wt-conjugate-member label{font-size:12px;display:block;margin:9px 0 3px}.wt-conjugate-member .wt-input{width:100%;box-sizing:border-box}.wt-conjugate-member strong{display:block;min-height:36px}.wt-conjugate-member small{display:block}.wt-save-feedback{color:#83dca1;min-height:18px}.wt-extra-info{margin:12px 0;color:#d4af37}.wt-extra-info p{color:#ccc}.wt-exercise-body .wt-serie-detalhe{margin:8px 0}.wt-exercise-body .wt-serie-conteudo{padding-bottom:14px}.wt-exercise-body .wt-serie-conteudo>.button{width:100%;margin-top:8px}.wt-exercise-body .wt-serie-resumo{gap:7px}.wt-exercise-body .wt-serie-editar{margin-left:auto}.wt-exercise-body .wt-serie-conteudo input{max-width:100%}#wtConcluirTreino:disabled{opacity:.45;cursor:not-allowed}
 </style>
+<style>
+/* Dock acessível durante a rolagem em desktop e mobile. */
+.wt-rest-dock{position:sticky!important;top:8px!important;bottom:auto;z-index:100!important}
+@media(max-width:700px){
+ .wt-rest-dock{position:fixed!important;top:auto!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;left:10px!important;right:10px!important;margin:0!important;padding:9px 12px!important;box-shadow:0 4px 30px #000d!important}
+ .wt-rest-dock .wt-timer{font-size:23px!important}
+ .wt-rest-dock .actions{margin-top:5px!important}
+ .wt-rest-dock .actions button{padding:9px!important;width:100%}
+ body:has(.wt-rest-dock) main{padding-bottom:185px!important}
+}
+.wt-update-banner{position:fixed;z-index:110;left:12px;right:12px;top:10px;max-width:540px;margin:auto;background:#242014;border:1px solid #d4af37;color:#fff;padding:12px;border-radius:12px;box-shadow:0 6px 30px #000c}
+.wt-update-banner button{margin:6px 6px 0 0}
+</style>
 <script type="module">
 import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
+const WT_BUILD='2026.11.09.3';
+const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
+let wtAlunoUserId=null;
+let wtRestauroFeito=false;
+let wtTimerRestaurado=false;
+function wtPersistir(){
+ try{
+  if(!wtAlunoUserId)return;
+  if(!wtSessao){localStorage.removeItem(wtStoreKey());return}
+  const drafts={};
+  document.querySelectorAll('[data-wt-serie-id]').forEach(el=>{
+   const id=el.dataset.wtSerieId;
+   const campo=el.dataset.wtCampo;
+   if(id&&campo)(drafts[id]??={})[campo]=el.value;
+  });
+  localStorage.setItem(wtStoreKey(),JSON.stringify({sessao:wtSessao,treino:wtTreino?.id,bloco:wtBlocoAberto,timerFim:wtTimerFim,alarme:wtAlarmAtivo,drafts,updated:Date.now()}));
+ }catch(e){console.warn('Não foi possível guardar estado local',e)}
+}
+function wtEstadoLocal(){try{return JSON.parse(localStorage.getItem(wtStoreKey())||'null')}catch{return null}}
+function wtRestaurarCampos(){
+ const saved=wtEstadoLocal();if(!saved||saved.sessao!==wtSessao)return;
+ for(const el of document.querySelectorAll('[data-wt-serie-id]')){
+  const v=saved.drafts?.[el.dataset.wtSerieId]?.[el.dataset.wtCampo];
+  if(v!==undefined && !wtSerieSalva[el.dataset.wtSerieId]?.concluida)el.value=v;
+ }
+}
+function wtBannerAtualizacao(){
+ if(document.getElementById('wtUpdateBanner'))return;
+ const box=document.createElement('div');box.id='wtUpdateBanner';box.className='wt-update-banner';box.setAttribute('role','status');
+ box.append(document.createTextNode('Nova versão do WAND METHOD disponível. '));
+ const button=document.createElement('button');button.className='button';button.textContent='Atualizar agora';
+ button.onclick=()=>{if(wtSessao&&!confirm('Seu treino está em andamento. Atualizar a página agora? Seus registros concluídos serão mantidos.'))return;wtPersistir();location.reload()};
+ const later=document.createElement('button');later.className='button secondary';later.textContent='Depois';later.onclick=()=>box.remove();box.append(button,later);document.body.append(box);
+}
+async function wtVerificarVersao(){
+ try{
+  const url=new URL(location.href);url.searchParams.set('_wand_check',String(Date.now()));
+  const response=await fetch(url.toString(),{cache:'no-store'});if(!response.ok)return;
+  const html=await response.text();const latest=html.match(/<meta name="wand-build" content="([^"]+)"/i)?.[1];
+  if(latest&&latest!==WT_BUILD){if(wtSessao)wtBannerAtualizacao();else{wtPersistir();location.reload()}}
+ }catch(e){console.warn('Verificação de atualização indisponível',e)}
+}
 const wtEl=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
 const wtAdd=(parent,tag,cls,txt)=>{const e=wtEl(tag,cls,txt);parent.append(e);return e};
 const wtBtn=(parent,txt,fn,secondary=false)=>{const b=wtAdd(parent,'button','button'+(secondary?' secondary':''),txt);b.type='button';b.addEventListener('click',fn);return b};
@@ -931,9 +987,12 @@ async function wtCarregar(){
   try {wtAdaptacoes=await wtRpc('wand_aluno_adaptacoes_do_dia',{p_dia:wtHoje()})||[]}
   catch(e){wtAdaptacoes=[];wtMsg('Treinos carregados; não foi possível consultar adaptações: '+e.message,true)}
   const aberta=wtHistorico.find(x=>!x.finalizada_em);
-  if(aberta){wtSessao=aberta.id;wtTreino=wtTreinos.find(t=>t.id===aberta.treino_id)||null;wtSerieSalva=Object.fromEntries((aberta.series||[]).map(s=>[s.serie_id,s]));wtInicio=Date.parse(aberta.iniciada_em)||Date.now();}
-  else{wtSessao=null;wtTreino=null;wtSerieSalva={};}
-  wtMsg('');wtRender();
+  if(aberta){wtSessao=aberta.id;wtTreino=wtTreinos.find(t=>t.id===aberta.treino_id)||null;wtSerieSalva=Object.fromEntries((aberta.series||[]).map(s=>[s.serie_id,s]));wtInicio=Date.parse(aberta.iniciada_em)||Date.now();
+    const saved=wtEstadoLocal();if(saved?.sessao===wtSessao){wtBlocoAberto=Number.isInteger(saved.bloco)?saved.bloco:0;if(!wtTimerRestaurado){wtTimerFim=Number(saved.timerFim)||0;wtAlarmAtivo=false;wtTimerRestaurado=true;}}
+    if(!wtRestauroFeito){wtRestauroFeito=true;mostrarVista('treinos');}
+   }
+  else{wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();}
+  wtMsg('');wtRender();if(wtSessao){wtRestaurarCampos();wtAtualizarTimer();if(wtTimerFim>Date.now()&&!wtTimerId)wtTimerId=setInterval(wtAtualizarTimer,250);}
  }catch(e){wtMsg('Não foi possível carregar os treinos: '+e.message,true)}
 }
 function wtRender(){
@@ -977,7 +1036,7 @@ function wtVerTreino(t){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtA
  for(const ex of t.exercicios||[]){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
  for(const s of ex.series||[])wtAdd(c,'p','muted','Série '+s.numero+': '+wtNum(s.repeticoes)+' repetições · '+wtNum(s.carga)+' kg · descanso '+wtNum(s.descanso)+' s'+(s.observacoes?' · '+s.observacoes:''));}
  wtBtn(a,'Iniciar treino',()=>wtIniciar(t));}
-async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtBlocoAberto=0;wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtBlocoAberto=0;wtPersistir();wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
 // O alarme usa recursos permitidos pelo navegador. Em segundo plano ou tela bloqueada
 // o sistema operacional pode suspender audio, vibracao e temporizadores.
 function wtPrepararAudio(){
@@ -1054,7 +1113,7 @@ function wtComecarTimer(sec){
  if(wtAlarmTexto)wtAlarmTexto.textContent='Sirene de descanso e vibração ao terminar (se o navegador permitir).';
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)wtAtualizarTimer()});
-window.addEventListener('pagehide',()=>{wtPararDescanso()});
+window.addEventListener('pagehide',()=>{wtPersistir()});
 // Agrupamento pelo identificador de prescrição: não agrupar apenas por nome do método.
 function wtBlocos(){
  const blocos=[],map=new Map();
@@ -1111,7 +1170,7 @@ function wtExecucao(area){
   const status=wtAdd(head,'span',concluido?'wt-status-done':'wt-status-open',concluido?'✓ Concluído':indice===wtBlocoAberto?'▴':'▾');
   const content=wtAdd(card,'div','wt-exercise-body');content.hidden=indice!==wtBlocoAberto;
   head.setAttribute('aria-expanded',String(!content.hidden));
-  head.onclick=()=>{const open=content.hidden;for(const e of area.querySelectorAll('.wt-exercise-body'))e.hidden=true;for(const h of area.querySelectorAll('.wt-exercise-head'))h.setAttribute('aria-expanded','false');content.hidden=!open;head.setAttribute('aria-expanded',String(open));wtBlocoAberto=open?indice:-1;status.textContent=concluido?'✓ Concluído':open?'▴':'▾'};
+  head.onclick=()=>{const open=content.hidden;for(const e of area.querySelectorAll('.wt-exercise-body'))e.hidden=true;for(const h of area.querySelectorAll('.wt-exercise-head'))h.setAttribute('aria-expanded','false');content.hidden=!open;head.setAttribute('aria-expanded',String(open));wtBlocoAberto=open?indice:-1;wtPersistir();status.textContent=concluido?'✓ Concluído':open?'▴':'▾'};
   if(bloco.exercicios.length>1)wtAdd(content,'p','muted','Complete os movimentos da rodada e toque em Concluir rodada. Deslize lateralmente para visualizar todos.');
   if(bloco.exercicios.some(({ex})=>ex.observacoes)){
    const d=wtAdd(content,'details','wt-extra-info');wtAdd(d,'summary',null,'Ver instruções e método');
@@ -1134,7 +1193,8 @@ function wtExecucao(area){
     const carga=wtInput(panel,'Carga realizada (kg)',reg.carga??serie.carga,'number');
     const obs=wtInput(panel,'Observações',reg.observacoes||'');
     const feedback=wtAdd(panel,'small','wt-save-feedback',reg.concluida?'✓ Registrada':'');
-    const obj={serie,reps,carga,obs,feedback,reg};inputs.push(obj);
+    for(const [el,campo] of [[reps,'reps'],[carga,'carga'],[obs,'obs']]){el.dataset.wtSerieId=serie.id;el.dataset.wtCampo=campo;el.addEventListener('input',wtPersistir)}
+     const obj={serie,reps,carga,obs,feedback,reg};inputs.push(obj);
     let seq=0,timeout=null;
     const salvarEdicao=async()=>{
      if(!wtSerieSalva[serie.id]?.concluida)return;
@@ -1169,9 +1229,10 @@ function wtExecucao(area){
       const terminou=wtCompleto(bloco);
       if(terminou)wtBlocoAberto=indice<blocos.length-1?indice+1:-1;else wtBlocoAberto=indice;
       const temProxima=i<total-1;
-      const pausa=temProxima?wtDescansoRodada(bloco,i):0;
+      const pausa=(temProxima||indice<blocos.length-1)?wtDescansoRodada(bloco,i):0;
       wtMsg('✓ '+(bloco.exercicios.length>1?'Rodada':'Série')+' registrada automaticamente.');
-      wtRender();if(pausa>0)wtComecarTimer(pausa);
+      // Preserva rascunhos dos demais exercícios antes de reconstruir a interface.
+      wtPersistir();wtRender();wtRestaurarCampos();if(pausa>0)wtComecarTimer(pausa);wtPersistir();
      }catch(e){wtMsg('Falha ao concluir: '+e.message+'. Os registros confirmados foram mantidos. Tente novamente.',true);wtRender()}
      finally{wtBusy=false}
     });
@@ -1184,10 +1245,15 @@ function wtExecucao(area){
  wtAdd(finish,'p','muted','O histórico será marcado como finalizado após concluir todos os exercícios.');
  wtAtualizarProgresso();
 }
-async function wtFinalizar(obs=''){if(wtBusy||!wtSessao||wtAlteracoesPendentes)return;if(wtTreino&&wtBlocos().some(b=>!wtCompleto(b))){wtMsg('Conclua todos os exercícios antes de finalizar.',true);return;}if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};await wtCarregar();wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+async function wtFinalizar(obs=''){if(wtBusy||!wtSessao||wtAlteracoesPendentes)return;if(wtTreino&&wtBlocos().some(b=>!wtCompleto(b))){wtMsg('Conclua todos os exercícios antes de finalizar.',true);return;}if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();await wtCarregar();wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
 function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,s.treino||'Treino');wtAdd(a,'p','muted','Início: '+wtData(s.iniciada_em)+' · Fim: '+wtData(s.finalizada_em));if(s.observacoes)wtAdd(a,'p','notice',s.observacoes);
  const agrupados={};for(const sr of s.series||[]){(agrupados[sr.exercicio]??=[]).push(sr)}for(const [nome,series] of Object.entries(agrupados)){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,nome);for(const sr of series)wtAdd(c,'p','muted','Série '+sr.numero+': '+wtNum(sr.repeticoes)+' reps · '+wtNum(sr.carga)+' kg · '+(sr.concluida?'Concluída':'Não concluída')+(sr.observacoes?' · '+sr.observacoes:''));}}
 const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListener('click',()=>{if(!wt.dataset.loaded){wt.dataset.loaded='1';wtCarregar()}});
+// Após autenticação, retoma a sessão aberta diretamente na execução.
+(async()=>{try{const {data:{user}}=await wandDb.auth.getUser();if(!user)return;wtAlunoUserId=user.id;
+ if(!wt.dataset.loaded){wt.dataset.loaded='1';await wtCarregar();}
+ wtVerificarVersao();setInterval(wtVerificarVersao,5*60*1000);
+}catch(e){console.warn('Retomada de treino indisponível',e)}})();
 </script>
 
 <style>
