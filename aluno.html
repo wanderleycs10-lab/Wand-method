@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD — correção 3</title>
-<meta name="wand-build" content="2026.11.09.3">
+<meta name="wand-build" content="2026.11.10.1">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -891,6 +891,11 @@ iniciar();
 .wt-serie label{font-size:12px;color:#bbb;display:block;margin-bottom:5px}.wt-serie input[type=checkbox]{width:20px;height:20px;accent-color:#d4af37}
 .wt-msg{margin:12px 0;color:#83dca1}.wt-alarm{border:2px solid #d4af37!important;background:#30220b!important}.wt-alarm-message{color:#ffd966;font-weight:bold;margin-top:10px}.wt-timer{font-size:32px;font-weight:700;color:#d4af37;font-variant-numeric:tabular-nums}
 @media(max-width:450px){.wt-serie{grid-template-columns:32px 1fr 1fr 65px;gap:5px}.wt-input{padding:8px 5px;font-size:14px}}
+ .wt-interrupt-box{margin-top:16px;border:1px solid #8e5e39;background:#211711;border-radius:12px;padding:15px}
+ .wt-interrupt-btn{background:transparent;color:#ffbe91;border:1px solid #bb7951}
+ .wt-interrupt-box select,.wt-interrupt-box textarea{width:100%;padding:11px;background:#101010;color:#fff;border:1px solid #665321;border-radius:8px;margin:8px 0 12px;font:inherit}
+ .wt-interrupt-box label{display:block;color:#ddd;font-size:13px;margin-top:10px}
+ .wt-hist-interrupted{color:#ffbe91;font-weight:bold}
  .wt-menu-clean{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
  .wt-menu-clean .wt-menu-btn{width:100%;min-height:76px;margin:0;white-space:normal;text-align:center;border-radius:12px;font-weight:700}
  .wt-menu-clean .wt-menu-selected{border:2px solid #d4af37}
@@ -928,7 +933,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.09.3';
+const WT_BUILD='2026.11.10.1';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 let wtRestauroFeito=false;
@@ -976,6 +981,19 @@ const wtBtn=(parent,txt,fn,secondary=false)=>{const b=wtAdd(parent,'button','but
 const wtData=x=>x?new Date(x).toLocaleString('pt-BR'):'—';
 const wtHoje=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const wtNum=x=>x==null?'—':String(x);
+const wtSituacao=s=>s.situacao==='interrompido'?'Interrompido':s.situacao==='concluido'?'Concluído':s.finalizada_em?'Encerrado':'Em andamento';
+const wtMotivos={dor_desconforto:'Dor ou desconforto',indisposicao:'Indisposição',falta_tempo:'Falta de tempo',outro:'Outro',prefiro_nao_informar:'Prefiro não informar'};
+async function wtComplementarHistorico(){
+ const ids=wtHistorico.filter(s=>s.finalizada_em).map(s=>s.id);
+ if(!ids.length)return;
+ try{
+  const {data,error}=await wandDb.from('wand_sessoes_treino').select('id,situacao,motivo_interrupcao,observacao_interrupcao').in('id',ids);
+  if(error)throw error;
+  const mapa=new Map((data||[]).map(s=>[s.id,s]));
+  wtHistorico=wtHistorico.map(s=>({...s,...(mapa.get(s.id)||{})}));
+ }catch(e){console.warn('Status detalhado do histórico indisponível; RPC deve ser ampliada.',e)}
+}
+
 function wtMsg(text,isError=false){const e=document.getElementById('wandTreinosMsg');e.textContent=text;e.className=isError?'error':'wt-msg';}
 async function wtRpc(nome,args){const {data,error}=await wandDb.rpc(nome,args);if(error)throw new Error(error.message);return data}
 function wtArea(){wt.replaceChildren();return wt}
@@ -984,7 +1002,8 @@ async function wtCarregar(){
  try{
   wtMsg('Carregando treinos...');
   [wtTreinos,wtHistorico]=await Promise.all([wtRpc('wand_aluno_treinos'),wtRpc('wand_aluno_historico')]);
-  wtTreinos=(wtTreinos||[]).filter(t=>{const hoje=wtHoje();return (!t.validade_inicio||t.validade_inicio<=hoje)&&(!t.validade_fim||t.validade_fim>=hoje)});wtHistorico=wtHistorico||[];
+  await wtComplementarHistorico();
+   wtTreinos=(wtTreinos||[]).filter(t=>{const hoje=wtHoje();return (!t.validade_inicio||t.validade_inicio<=hoje)&&(!t.validade_fim||t.validade_fim>=hoje)});wtHistorico=wtHistorico||[];
   try {wtGruposMeta=await wtRpc('wand_aluno_grupos_execucao')||{}}catch(e){wtGruposMeta={};wtMsg('Agrupamento indisponível: execute o SQL complementar antes de testar métodos conjugados. '+e.message,true)}
   // Programacoes de hoje sao apresentadas como a alternativa recomendada.
   try {wtAdaptacoes=await wtRpc('wand_aluno_adaptacoes_do_dia',{p_dia:wtHoje()})||[]}
@@ -1001,7 +1020,7 @@ async function wtCarregar(){
 function wtRender(){
  if(!wtSessao)wtPararDescanso();
  const area=wtArea();
- if(wtSessao&&!wtTreino){wtAdd(area,'p','notice','Há uma sessão aberta de um treino que não está mais ativo. Entre em contato com seu treinador para reativá-lo ou encerrar essa sessão.');wtBtn(area,'Finalizar sessão aberta',()=>wtFinalizar(),true);return;}
+ if(wtSessao&&!wtTreino){wtAdd(area,'p','notice','Há uma sessão aberta de um treino que não está mais ativo. Entre em contato com seu treinador para reativá-lo ou encerrar essa sessão.');wtBtn(area,'Finalizar sessão aberta',()=>wtFinalizar(),true);wtCriarInterrupcao(area);return;}
  if(wtSessao&&wtTreino){
   // Ao reconstruir a tela, nao manter automaticamente expandido um bloco ja concluido.
   // Seleciona o primeiro bloco pendente, preservando a escolha de outro bloco pendente.
@@ -1040,7 +1059,7 @@ function wtRender(){
   if(!concluidas.length)wtAdd(area,'p','muted','Nenhuma sessão finalizada ainda.');
   for(const s of concluidas){
    const c=wtAdd(area,'article','subcard');wtAdd(c,'strong',null,s.treino||'Treino');
-   wtAdd(c,'p','muted',wtData(s.iniciada_em)+' · '+(s.series||[]).filter(x=>x.concluida).length+' séries concluídas');
+   wtAdd(c,'p',s.situacao==='interrompido'?'wt-hist-interrupted':'muted',wtData(s.iniciada_em)+' · '+wtSituacao(s)+' · '+(s.series||[]).filter(x=>x.concluida).length+' séries concluídas');
    wtBtn(c,'Ver detalhes',()=>wtVerHistorico(s),true);
   }
  }
@@ -1255,11 +1274,41 @@ function wtExecucao(area){
  const finish=wtAdd(area,'article','subcard');
  const obsFinal=wtInput(finish,'Observações gerais da sessão','');
  const botao=wtBtn(finish,'Concluir treino',()=>wtFinalizar(obsFinal.value));botao.id='wtConcluirTreino';
- wtAdd(finish,'p','muted','O histórico será marcado como finalizado após concluir todos os exercícios.');
+ wtAdd(finish,'p','muted','O histórico será marcado como concluído após realizar todos os exercícios.');
+ wtCriarInterrupcao(area);
  wtAtualizarProgresso();
 }
+function wtCriarInterrupcao(area){
+ const box=wtAdd(area,'section','wt-interrupt-box');
+ wtAdd(box,'h3',null,'Precisa encerrar antes de concluir?');
+ wtAdd(box,'p','muted','Você pode interromper o treino. As séries já registradas serão preservadas e seu treinador receberá um aviso.');
+ const toggle=wtBtn(box,'Interromper treino',()=>{const aberto=form.hidden;form.hidden=!aberto;toggle.setAttribute('aria-expanded',String(aberto));},true);
+ toggle.classList.add('wt-interrupt-btn');toggle.setAttribute('aria-expanded','false');
+ const form=wtAdd(box,'div');form.hidden=true;
+ const label=wtAdd(form,'label',null,'Motivo (opcional)');
+ const select=wtAdd(label,'select');
+ for(const [value,texto] of [['','Não informar motivo'],...Object.entries(wtMotivos)]){const op=wtAdd(select,'option',null,texto);op.value=value;}
+ const obsLabel=wtAdd(form,'label',null,'Observações (opcional)');
+ const obs=wtAdd(obsLabel,'textarea');obs.rows=3;obs.maxLength=1000;obs.placeholder='Conte ao treinador o que aconteceu, se desejar.';
+ const acoes=wtAdd(form,'div','actions');
+ const confirmar=wtBtn(acoes,'Confirmar interrupção',async()=>{
+  if(wtBusy||!wtSessao)return;
+  if(wtAlteracoesPendentes>0){wtMsg('Aguarde o salvamento das alterações antes de interromper.',true);return;}
+  if(!confirm('Interromper este treino agora? Os registros já salvos serão mantidos, e esta sessão não contará como concluída.'))return;
+  wtBusy=true;confirmar.disabled=true;
+  try{
+   wtPersistir();
+   await wtRpc('wand_interromper_sessao',{p_sessao_id:wtSessao,p_motivo:select.value||null,p_observacao:obs.value.trim()||null});
+   wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};wtTimerFim=0;wtVista='historico';wtPersistir();
+   await wtCarregar();wtMsg('Treino interrompido. Os registros foram preservados e o treinador foi notificado.');
+  }catch(e){wtMsg('Não foi possível interromper: '+e.message,true);confirmar.disabled=false}
+  finally{wtBusy=false}
+ });
+ confirmar.classList.add('wt-interrupt-btn');
+ wtBtn(acoes,'Continuar treinando',()=>{form.hidden=true;toggle.setAttribute('aria-expanded','false')},true);
+}
 async function wtFinalizar(obs=''){if(wtBusy||!wtSessao||wtAlteracoesPendentes)return;if(wtTreino&&wtBlocos().some(b=>!wtCompleto(b))){wtMsg('Conclua todos os exercícios antes de finalizar.',true);return;}if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();await wtCarregar();wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
-function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,s.treino||'Treino');wtAdd(a,'p','muted','Início: '+wtData(s.iniciada_em)+' · Fim: '+wtData(s.finalizada_em));if(s.observacoes)wtAdd(a,'p','notice',s.observacoes);
+function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,s.treino||'Treino');wtAdd(a,'p',s.situacao==='interrompido'?'wt-hist-interrupted':'muted','Situação: '+wtSituacao(s));wtAdd(a,'p','muted','Início: '+wtData(s.iniciada_em)+' · Fim: '+wtData(s.finalizada_em));if(s.situacao==='interrompido'){if(s.motivo_interrupcao)wtAdd(a,'p','muted','Motivo: '+(wtMotivos[s.motivo_interrupcao]||s.motivo_interrupcao));if(s.observacao_interrupcao)wtAdd(a,'p','notice','Observações da interrupção: '+s.observacao_interrupcao)}if(s.observacoes)wtAdd(a,'p','notice',s.observacoes);
  const agrupados={};for(const sr of s.series||[]){(agrupados[sr.exercicio]??=[]).push(sr)}for(const [nome,series] of Object.entries(agrupados)){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,nome);for(const sr of series)wtAdd(c,'p','muted','Série '+sr.numero+': '+wtNum(sr.repeticoes)+' reps · '+wtNum(sr.carga)+' kg · '+(sr.concluida?'Concluída':'Não concluída')+(sr.observacoes?' · '+sr.observacoes:''));}}
 const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListener('click',()=>{if(!wt.dataset.loaded){wt.dataset.loaded='1';wtCarregar()}});
 // Após autenticação, retoma a sessão aberta diretamente na execução.
