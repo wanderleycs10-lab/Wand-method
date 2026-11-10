@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perfil do Aluno | WAND METHOD</title>
-<meta name="wand-versao" content="perfil-admin-historico-metodos-alertas-20261109">
+<meta name="wand-versao" content="perfil-admin-interrupcoes-20261110">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
@@ -60,6 +60,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 #painel-acompanhamento select{display:block;width:100%;padding:11px;background:#090909;color:#fff;border:1px solid #655321;border-radius:8px;margin:7px 0 13px;font:inherit}
 .wa-item{padding:12px;border:1px solid #524424;border-radius:10px;margin:10px 0}
 .wa-item button{margin:6px 6px 0 0}
+.wa-interrupcao{border-left:4px solid #d4af37;background:#211b10}.wa-interrupcao-lida{border-left-color:#777;background:#151515}.wa-interrupcao p{margin:7px 0;overflow-wrap:anywhere}.wa-notificacao-titulo{font-weight:bold;color:#e8c55c}.wa-etiqueta{font-size:12px;color:#e8c55c;font-weight:bold}
 
 </style>
 </head>
@@ -135,7 +136,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <section id="painel-acompanhamento" class="card painel-perfil">
 <h2>Acompanhamento</h2>
 <p class="muted">Solicitações, histórico de execução, check-ins e adaptações de treino.</p>
-<div class="subcard"><h3>Solicitações de ajuste</h3><p id="waMensagem" role="status" class="muted"></p><div id="waSolicitacoes"></div><div id="waNotificacoes"></div><button type="button" class="button secondary" id="waAtualizar">Atualizar acompanhamento</button></div>
+<div class="subcard"><h3>Solicitações de ajuste</h3><p id="waMensagem" role="status" class="muted"></p><div id="waSolicitacoes"></div><div id="waNotificacoes" aria-live="polite"></div><button type="button" class="button secondary" id="waAtualizar">Atualizar acompanhamento</button></div>
 <div class="subcard"><h3>Protocolos previamente definidos</h3><p class="muted">Crie primeiro um treino alternativo no Gerenciamento de Treinos. Depois vincule os dois treinos aqui.</p>
 <label for="waOriginal">Treino original</label><select id="waOriginal"></select>
 <label for="waAlternativo">Treino alternativo</label><select id="waAlternativo"></select>
@@ -846,10 +847,10 @@ const waId=Number(new URLSearchParams(location.search).get('id'));
 const waEl=id=>document.getElementById(id);
 const waEsc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const waToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-let waSolicitacoes=[],waProtocolos=[],waTreinos=[];
+let waSolicitacoes=[],waProtocolos=[],waTreinos=[],waNotificacoes=[];
 function waStatus(t,erro=false){waEl('waMensagem').textContent=t;waEl('waMensagem').style.color=erro?'#ff9292':'#80d9a0'}
 async function waRpc(name,args){const {data,error}=await waDb.rpc(name,args);if(error)throw Error(error.message);return data}
-function waBadge(){const n=waSolicitacoes.length,b=waEl('wandBotaoAcompanhamento'),c=waEl('wandContadorPendencias');b.classList.toggle('tem-pendencia',n>0);c.hidden=n===0;c.textContent=n?`${n} pendente${n>1?'s':''}`:''}
+function waBadge(){const n=waSolicitacoes.length+waNotificacoes.filter(x=>x.aluno_id===waId&&!x.lida_em).length,b=waEl('wandBotaoAcompanhamento'),c=waEl('wandContadorPendencias');b.classList.toggle('tem-pendencia',n>0);c.hidden=n===0;c.textContent=n?`${n} aviso${n>1?'s':''}`:''}
 async function waAtualizarPendencias(){try{waSolicitacoes=await waRpc('wand_coach_solicitacoes_aluno',{p_aluno_id:waId})||[];waBadge();waMostrarSolicitacoes()}catch(e){waStatus('Não foi possível consultar solicitações: '+e.message,true)}}
 function waMostrarSolicitacoes(){const a=waEl('waSolicitacoes');a.replaceChildren();if(!waSolicitacoes.length){a.textContent='Nenhuma solicitação pendente.';return}for(const s of waSolicitacoes){const div=document.createElement('div');div.className='wa-item';const p=document.createElement('p');p.textContent=`Solicitação de ${s.dia} · Recebida em ${new Date(s.criado_em).toLocaleString('pt-BR')}`;div.appendChild(p);
  const disponiveis=waProtocolos.filter(x=>x.ativo);
@@ -871,13 +872,37 @@ async function waCarregarAdaptacoes(){const lista=waEl('waAdaptacoes');lista.rep
  if(!dados.length){lista.textContent='Nenhuma adaptação programada.';return}
  for(const a of dados){const div=document.createElement('div');div.className='wa-item';div.textContent=`${a.dia} · ${a.treino_original} → ${a.treino_alternativo} · ${a.status}`;lista.appendChild(div)}
 }
-async function waCarregarNotificacoes(){const lista=waEl('waNotificacoes');lista.replaceChildren();
- const dados=await waRpc('wand_minhas_notificacoes')||[];
- const relevantes=dados.filter(n=>n.aluno_id===waId&&!n.lida_em);
- if(!relevantes.length)return;
- const titulo=document.createElement('h3');titulo.textContent='Avisos internos não lidos';lista.appendChild(titulo);
- for(const n of relevantes){const div=document.createElement('div');div.className='wa-item';const p=document.createElement('p');p.textContent=n.titulo+' · '+new Date(n.criada_em).toLocaleString('pt-BR');div.appendChild(p);
-  const btn=document.createElement('button');btn.type='button';btn.textContent='Marcar aviso como lido';btn.onclick=async()=>{try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes()}catch(e){waStatus(e.message,true)}};div.appendChild(btn);lista.appendChild(div)}
+const waMotivos={dor_desconforto:'Dor ou desconforto',indisposicao:'Indisposição',falta_tempo:'Falta de tempo',outro:'Outro motivo',prefiro_nao_informar:'Preferiu não informar'};
+function waDataHora(valor){if(!valor)return '—';const d=new Date(valor);return Number.isNaN(d.getTime())?'—':d.toLocaleString('pt-BR')}
+function waParagrafo(pai,rotulo,valor,classe){const p=document.createElement('p');if(classe)p.className=classe;p.textContent=rotulo+valor;pai.appendChild(p);return p}
+async function waCarregarNotificacoes(){
+ const lista=waEl('waNotificacoes');lista.replaceChildren();
+ waNotificacoes=await waRpc('wand_minhas_notificacoes')||[];
+ const relevantes=waNotificacoes.filter(n=>n.aluno_id===waId&&(!n.lida_em||n.tipo==='treino_interrompido'));
+ waBadge();
+ if(!relevantes.length){waParagrafo(lista,'','Nenhum aviso interno para este aluno.','muted');return}
+ const titulo=document.createElement('h3');titulo.textContent='Avisos internos e interrupções de treino';lista.appendChild(titulo);
+ for(const n of relevantes){
+  const interrupcao=n.tipo==='treino_interrompido';
+  const div=document.createElement('div');div.className='wa-item'+(interrupcao?' wa-interrupcao':'')+(n.lida_em?' wa-interrupcao-lida':'');
+  waParagrafo(div,'',n.titulo||'Aviso interno','wa-notificacao-titulo');
+  waParagrafo(div,'Recebido em: ',waDataHora(n.criada_em),'muted');
+  if(interrupcao){
+   waParagrafo(div,'Treino: ',n.treino||'Não identificado');
+   waParagrafo(div,'Interrompido em: ',waDataHora(n.interrompida_em));
+   waParagrafo(div,'Motivo: ',waMotivos[n.motivo_interrupcao]||'Não informado');
+   if(n.observacao_interrupcao)waParagrafo(div,'Observações do aluno: ',n.observacao_interrupcao);
+   waParagrafo(div,'Situação da sessão: ',n.situacao_treino==='interrompido'?'Interrompida':n.situacao_treino||'Não identificada');
+   waParagrafo(div,'Aviso: ',n.lida_em?'Lido':'Não lido','wa-etiqueta');
+   waParagrafo(div,'','A leitura do aviso não confirma que o acompanhamento técnico foi resolvido.','muted');
+  }
+  if(!n.lida_em){
+   const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent='Marcar aviso como lido';
+   btn.onclick=async()=>{btn.disabled=true;try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes();waStatus('Aviso marcado como lido. Isso não encerra o acompanhamento técnico.')}catch(e){waStatus(e.message,true);btn.disabled=false}};
+   div.appendChild(btn);
+  }
+  lista.appendChild(div);
+ }
 }
 async function waCarregarTudo(){if(!Number.isSafeInteger(waId)||waId<=0)return;waStatus('Carregando acompanhamento...');try{await Promise.all([waCarregarTreinos(),waCarregarProtocolos()]);await Promise.all([waAtualizarPendencias(),waCarregarAdaptacoes(),waCarregarNotificacoes()]);waStatus('Acompanhamento atualizado.')}catch(e){waStatus('Não foi possível carregar: '+e.message,true)}}
 waEl('waCriar').onclick=async()=>{const titulo=waEl('waTitulo').value.trim();if(titulo.length<3||waEl('waOriginal').value===waEl('waAlternativo').value){waStatus('Informe um título e selecione dois treinos diferentes.',true);return}try{await waRpc('wand_coach_criar_protocolo',{p_aluno_id:waId,p_treino_original:waEl('waOriginal').value,p_treino_alternativo:waEl('waAlternativo').value,p_titulo:titulo,p_descricao:waEl('waDescricao').value||null,p_modo:waEl('waModo').value});await waCarregarProtocolos();waStatus('Protocolo criado. Ative-o quando estiver revisado.')}catch(e){waStatus(e.message,true)}};
@@ -886,8 +911,8 @@ waEl('waAtualizar').onclick=waCarregarTudo;
 waEl('waDiaAgenda').min=waToday();waEl('waDiaAgenda').value=waToday();
 const waButton=waEl('wandBotaoAcompanhamento');waButton.addEventListener('click',()=>{waCarregarTudo();document.getElementById('wbcRecarregar')?.click()});
 // Atualiza o indicador quando a página volta ao primeiro plano, sem leitura contínua de dados sensíveis.
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)waAtualizarPendencias()});
-const waReady=setInterval(()=>{if(!waEl('conteudo').classList.contains('hidden')){clearInterval(waReady);waAtualizarPendencias()}},600);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){waAtualizarPendencias();waCarregarNotificacoes().catch(e=>waStatus('Não foi possível atualizar os avisos: '+e.message,true))}});
+const waReady=setInterval(()=>{if(!waEl('conteudo').classList.contains('hidden')){clearInterval(waReady);waAtualizarPendencias();waCarregarNotificacoes().catch(e=>waStatus('Não foi possível atualizar os avisos: '+e.message,true))}},600);
 </script>
 </body>
 </html>
