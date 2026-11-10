@@ -63,6 +63,19 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 .wa-interrupcao{border-left:4px solid #d4af37;background:#211b10}.wa-interrupcao-lida{border-left-color:#777;background:#151515}.wa-interrupcao p{margin:7px 0;overflow-wrap:anywhere}.wa-notificacao-titulo{font-weight:bold;color:#e8c55c}.wa-etiqueta{font-size:12px;color:#e8c55c;font-weight:bold}
 
 </style>
+<style>
+/* WAND METHOD: secoes compactas e recolhiveis no acompanhamento */
+#painel-acompanhamento .wand-fold{padding:0;overflow:hidden;margin:12px 0;border-radius:13px}
+#painel-acompanhamento .wand-fold>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:18px 17px;color:var(--gold);font-weight:700;font-size:17px;line-height:1.35}
+#painel-acompanhamento .wand-fold>summary::-webkit-details-marker{display:none}
+#painel-acompanhamento .wand-fold>summary:after{content:'+';font-size:26px;font-weight:400;line-height:1;color:var(--gold)}
+#painel-acompanhamento .wand-fold[open]>summary:after{content:'−'}
+#painel-acompanhamento .wand-fold[open]>summary{border-bottom:1px solid var(--line);background:#211c13}
+#painel-acompanhamento .wand-fold>summary:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}
+#painel-acompanhamento .wand-fold-body{padding:16px 17px 19px}
+#painel-acompanhamento .wand-fold-body>:first-child{margin-top:0}
+#painel-acompanhamento .wand-fold-body .subcard{max-width:100%}
+</style>
 </head>
 <body>
 <header>
@@ -913,6 +926,41 @@ const waButton=waEl('wandBotaoAcompanhamento');waButton.addEventListener('click'
 // Atualiza o indicador quando a página volta ao primeiro plano, sem leitura contínua de dados sensíveis.
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){waAtualizarPendencias();waCarregarNotificacoes().catch(e=>waStatus('Não foi possível atualizar os avisos: '+e.message,true))}});
 const waReady=setInterval(()=>{if(!waEl('conteudo').classList.contains('hidden')){clearInterval(waReady);waAtualizarPendencias();waCarregarNotificacoes().catch(e=>waStatus('Não foi possível atualizar os avisos: '+e.message,true))}},600);
+</script>
+
+<script>
+// Recolhe somente os paineis internos do acompanhamento; mantem os IDs,
+// botoes, formularios, listeners e carregamento de dados originais.
+(function(){
+  function preparar(){
+    const painel=document.getElementById('painel-acompanhamento');
+    if(!painel)return;
+    const secoes=Array.from(painel.children).filter(el=>el.classList.contains('subcard'));
+    for(const secao of secoes){
+      if(secao.dataset.wandFoldReady)return;
+      const titulo=secao.querySelector(':scope > h3');
+      if(!titulo)continue;
+      const rotulo=titulo.textContent.trim();
+      const detalhes=document.createElement('details');
+      detalhes.className=secao.className+' wand-fold';
+      detalhes.dataset.wandFoldReady='1';
+      const resumo=document.createElement('summary');
+      resumo.textContent=rotulo;
+      resumo.setAttribute('aria-label','Abrir ou fechar '+rotulo);
+      const corpo=document.createElement('div');
+      corpo.className='wand-fold-body';
+      while(secao.firstChild){
+        const filho=secao.firstChild;
+        if(filho===titulo){titulo.remove();continue;}
+        corpo.appendChild(filho);
+      }
+      detalhes.append(resumo,corpo);
+      secao.replaceWith(detalhes);
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',preparar);
+  else preparar();
+})();
 </script>
 </body>
 </html>
