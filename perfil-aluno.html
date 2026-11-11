@@ -792,7 +792,7 @@ organizarRecursosExternos();
 
 <style>
 .wbc-row{border-bottom:1px solid #393126;padding:12px 0}.wbc-tag{color:#d4af37;font-weight:bold}.wbc-muted{color:#bbb;font-size:13px}.wbc-alert{border-left:3px solid #d4af37;background:#272015;padding:10px}
-.wand-hist-list{display:grid;gap:8px;margin-top:12px}.wand-hist-item{border:1px solid #393126;background:#101010;border-radius:10px;overflow:hidden}.wand-hist-item summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;color:#f5f5f5}.wand-hist-item summary::-webkit-details-marker{display:none}.wand-hist-item summary::after{content:'Ver detalhes ▾';color:#d4af37;font-size:12px;white-space:nowrap;margin-left:auto}.wand-hist-item[open] summary::after{content:'Fechar ▴'}.wand-hist-name{font-weight:700;font-size:14px;min-width:0;overflow-wrap:anywhere}.wand-hist-date{font-size:12px;color:#aaa;margin-top:4px}.wand-hist-detail{padding:4px 12px 14px;border-top:1px solid #393126}.wand-hist-detail p{margin:9px 0}.wand-hist-ex{border-top:1px solid #292929;padding-top:9px;margin-top:10px}.wand-hist-ex strong{color:#d4af37}.wand-hist-series{font-size:13px;color:#ccc;line-height:1.5;margin:5px 0}.wand-hist-status{font-size:12px;color:#bbb}
+.wand-hist-list{display:grid;gap:8px;margin-top:12px}.wand-hist-item{border:1px solid #393126;background:#101010;border-radius:10px;overflow:hidden}.wand-hist-item summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;color:#f5f5f5}.wand-hist-item summary::-webkit-details-marker{display:none}.wand-hist-item summary::after{content:'Ver detalhes ▾';color:#d4af37;font-size:12px;white-space:nowrap;margin-left:auto}.wand-hist-item[open] summary::after{content:'Fechar ▴'}.wand-hist-name{font-weight:700;font-size:14px;min-width:0;overflow-wrap:anywhere}.wand-hist-date{font-size:12px;color:#aaa;margin-top:4px}.wand-hist-detail{padding:4px 12px 14px;border-top:1px solid #393126}.wand-hist-detail p{margin:9px 0}.wand-hist-ex{border-top:1px solid #292929;padding-top:9px;margin-top:10px}.wand-hist-ex strong{color:#d4af37}.wand-hist-series{font-size:13px;color:#ccc;line-height:1.5;margin:5px 0}.wand-hist-status{font-size:12px;color:#bbb}.wand-hist-estado{display:inline-block;margin-top:5px;padding:3px 8px;border:1px solid #54644b;border-radius:14px;color:#9ddd9e;font-size:11px}.wand-hist-estado.interrompido{border-color:#a98030;color:#f5c85e}
 @media(max-width:480px){.wand-hist-item summary{padding:11px 9px}.wand-hist-name{font-size:13px}.wand-hist-item summary::after{font-size:11px}}
 .wand-metodo{border-top:1px solid #393126;padding:12px 0 3px;margin-top:10px}.wand-metodo-titulo{font-weight:bold;color:#d4af37;font-size:13px;letter-spacing:.4px}.wand-metodo .wand-hist-ex{border-top:0;margin-top:7px;padding-top:3px}.wand-metodo .wand-hist-ex strong{color:#f0e3b8}.wand-tempo-alerta{border-left:3px solid #d4af37;background:#2a2110;padding:11px;border-radius:7px;color:#f6df9d;font-size:13px;line-height:1.5;margin:10px 0}.wand-hist-flag{font-size:12px;color:#f3ca6a;margin-top:5px}
 </style>
@@ -807,10 +807,12 @@ const soHora=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.ge
 function duracao(inicio,fim){if(!inicio||!fim)return null;const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return null;const min=Math.floor(ms/60000),h=Math.floor(min/60),m=min%60;return h?`${h}h ${String(m).padStart(2,'0')}min`:`${min} min`;}
 function duracaoSeg(seg){if(seg===null||seg===undefined||!Number.isFinite(Number(seg)))return null;const min=Math.floor(Math.max(0,Number(seg))/60);const h=Math.floor(min/60);return h?`${h}h ${String(min%60).padStart(2,'0')}min`:`${min} min`;}
 function nomeMetodo(serie){const bruto=String(serie.metodo||serie.configuracao_metodo?.grupo_metodo_nome||serie.configuracao_metodo?.tipo||'Tradicional');if(bruto==='series')return 'TRADICIONAL';if(bruto==='exercicios_vinculados')return 'MÉTODO COMBINADO';return bruto.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()==='SUPERSERIE'?'SUPERSÉRIE':bruto.toUpperCase();}
-function desenharHistorico(s){
+function desenharHistorico(s,estados={}){
  if(!Array.isArray(s)||!s.length){historicoOut.innerHTML='<p class="wbc-muted">Sem sessões registradas.</p>';return;}
  const lista=document.createElement('div');lista.className='wand-hist-list';
  for(const x of s.slice(0,30)){
+  const estado=estados[String(x.id)]||{};
+  const situacao=estado.situacao||x.situacao||(x.finalizada_em?'concluido':'em_andamento');
   const series=Array.isArray(x.series)?x.series:[];
   const feitas=series.filter(v=>v.concluida);
   const tempo=duracao(x.iniciada_em,x.finalizada_em);
@@ -820,12 +822,13 @@ function desenharHistorico(s){
   const summary=document.createElement('summary');const info=document.createElement('div');info.style.minWidth='0';
   const nome=document.createElement('div');nome.className='wand-hist-name';nome.textContent=x.treino||'Treino';
   const meta=document.createElement('div');meta.className='wand-hist-date';meta.textContent=[soData(x.iniciada_em),tempo||(x.finalizada_em?'Duração indisponível':'Em andamento')].join(' · ');
-  info.append(nome,meta);
+  info.append(nome,meta);const chip=document.createElement('span');chip.className='wand-hist-estado '+(situacao==='interrompido'?'interrompido':'');chip.textContent=situacao==='interrompido'?'Interrompido':situacao==='concluido'?'Concluído':'Em andamento';info.appendChild(chip);
   if(alerta){const aviso=document.createElement('div');aviso.className='wand-hist-flag';aviso.textContent='⚠ Verificar duração';info.appendChild(aviso);}
   summary.appendChild(info);item.appendChild(summary);
   const detail=document.createElement('div');detail.className='wand-hist-detail';
   const add=(texto,classe='wbc-muted')=>{const p=document.createElement('p');p.className=classe;p.textContent=texto;detail.appendChild(p)};
-  add('Situação: '+(x.finalizada_em?'Finalizado':'Em andamento'));
+  add('Situação: '+(situacao==='interrompido'?'Interrompido':situacao==='concluido'?'Concluído':'Em andamento'));
+  if(situacao==='interrompido'){const motivos={dor_desconforto:'Dor ou desconforto',indisposicao:'Indisposição',falta_tempo:'Falta de tempo',outro:'Outro motivo',prefiro_nao_informar:'Preferiu não informar'};add('Motivo: '+(motivos[estado.motivo_interrupcao]||'Não informado'));if(estado.observacao_interrupcao)add('Observação: '+estado.observacao_interrupcao);}
   add('Início: '+dataHora(x.iniciada_em));
   add('Última série concluída registrada: '+dataHora(x.ultima_serie_em));
   add('Finalização manual: '+dataHora(x.finalizada_em));
@@ -863,7 +866,7 @@ function desenharHistorico(s){
 async function carregarHistorico(){
  if(!/^\d+$/.test(id||''))return;
  historicoOut.textContent='Carregando histórico...';
- try{const {data,error}=await dbw.rpc('wand_coach_historico_aluno',{p_aluno_id:Number(id)});if(error)throw Error(error.message);desenharHistorico(data||[])}
+ try{const [hist,status]=await Promise.all([dbw.rpc('wand_coach_historico_aluno',{p_aluno_id:Number(id)}),dbw.rpc('wand_coach_status_sessoes',{p_aluno_id:Number(id)})]);if(hist.error)throw Error(hist.error.message);if(status.error)throw Error(status.error.message);const estados=Object.fromEntries((status.data||[]).map(x=>[String(x.id),x]));desenharHistorico(hist.data||[],estados)}
  catch(e){historicoOut.textContent='Não foi possível carregar o histórico: '+e.message}
 }
 async function carregarBemEstar(){
@@ -896,7 +899,7 @@ const waToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getM
 let waSolicitacoes=[],waProtocolos=[],waTreinos=[],waNotificacoes=[];
 function waStatus(t,erro=false){waEl('waMensagem').textContent=t;waEl('waMensagem').style.color=erro?'#ff9292':'#80d9a0'}
 async function waRpc(name,args){const {data,error}=await waDb.rpc(name,args);if(error)throw Error(error.message);return data}
-function waBadge(){const n=waSolicitacoes.length+waNotificacoes.filter(x=>x.aluno_id===waId&&!x.lida_em).length,b=waEl('wandBotaoAcompanhamento'),c=waEl('wandContadorPendencias');b.classList.toggle('tem-pendencia',n>0);c.hidden=n===0;c.textContent=n?`${n} aviso${n>1?'s':''}`:''}
+function waBadge(){const n=waSolicitacoes.length+waNotificacoes.filter(x=>x.aluno_id===waId&&(x.tipo==='treino_interrompido'?!x.atendida_em:!x.lida_em)).length,b=waEl('wandBotaoAcompanhamento'),c=waEl('wandContadorPendencias');b.classList.toggle('tem-pendencia',n>0);c.hidden=n===0;c.textContent=n?`${n} aviso${n>1?'s':''}`:''}
 async function waAtualizarPendencias(){try{waSolicitacoes=await waRpc('wand_coach_solicitacoes_aluno',{p_aluno_id:waId})||[];waBadge();waMostrarSolicitacoes()}catch(e){waStatus('Não foi possível consultar solicitações: '+e.message,true)}}
 function waMostrarSolicitacoes(){const a=waEl('waSolicitacoes');a.replaceChildren();if(!waSolicitacoes.length){a.textContent='Nenhuma solicitação pendente.';return}for(const s of waSolicitacoes){const div=document.createElement('div');div.className='wa-item';const p=document.createElement('p');p.textContent=`Solicitação de ${s.dia} · Recebida em ${new Date(s.criado_em).toLocaleString('pt-BR')}`;div.appendChild(p);
  const disponiveis=waProtocolos.filter(x=>x.ativo);
@@ -923,7 +926,7 @@ function waDataHora(valor){if(!valor)return '—';const d=new Date(valor);return
 function waParagrafo(pai,rotulo,valor,classe){const p=document.createElement('p');if(classe)p.className=classe;p.textContent=rotulo+valor;pai.appendChild(p);return p}
 const waMensagemAcolhimento='Olá! Vi que você precisou interromper o treino e queria saber se está tudo bem. Como você está se sentindo? Dormiu e se alimentou bem? Aconteceu alguma coisa? Precisa de ajuda ou de algum ajuste no treino? Pode contar comigo!';
 function waDetalhe(pai,label,valor){waParagrafo(pai,label+': ',valor)}
-function waTempo(inicio,fim){if(!inicio||!fim)return 'Não disponível';const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return 'Não disponível';const m=Math.floor(ms/60000),h=Math.floor(m/60);return h?`${h}h ${m%60}min`:`${m} min`}
+function waTempo(inicio,fim){if(!inicio||!fim)return 'Não disponível';const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return 'Não disponível';const total=Math.floor(ms/1000),h=Math.floor(total/3600),m=Math.floor(total%3600/60),sec=total%60;return h?`${h}h ${String(m).padStart(2,'0')}min ${String(sec).padStart(2,'0')}s`:`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`}
 async function waCarregarExecucaoInterrompida(n,area){
  area.textContent='Consultando a sessão...';
  try{
@@ -945,8 +948,10 @@ async function waCarregarExecucaoInterrompida(n,area){
   const exercicioIds=[...new Set((prescritas||[]).map(x=>x.exercicio_id).filter(Boolean))];
   const {data:nomes}=exercicioIds.length?await waDb.from('wand_exercicios').select('id,nome').in('id',exercicioIds):{data:[]};
   const nomesEx=new Map((nomes||[]).map(x=>[x.id,x.nome]));
+  const totalPrevisto=(mapa||[]).length;seriesValor.textContent=`${feitas.length} de ${totalPrevisto}`;
   const grupos=new Map();for(const r of feitas){const pres=mapSerie.get(r.serie_id),ex=mapEx.get(pres?.treino_exercicio_id);const key=ex?.id||'sem-exercicio';if(!grupos.has(key))grupos.set(key,{ex,series:[]});grupos.get(key).series.push({...r,numero:pres?.numero_serie})}
-  const lista=document.createElement('div');waParagrafo(lista,'','Exercícios executados','wa-notificacao-titulo');
+  const feitosEx=grupos.size;const totalEx=(prescritas||[]).length;const exercBox=document.createElement('div');exercBox.className='wa-mini-stat';const e1=document.createElement('div');e1.innerHTML='<small>Exercícios realizados</small>';const ev=document.createElement('strong');ev.textContent=`${feitosEx} de ${totalEx}`;e1.append(ev);exercBox.append(e1);area.append(exercBox);
+  const lista=document.createElement('div');waParagrafo(lista,'','Exercícios executados — toque para ver cada série','wa-notificacao-titulo');
   for(const g of grupos.values()){
    const item=document.createElement('details');item.className='wa-inner-fold';const sum=document.createElement('summary');sum.textContent=`${nomesEx.get(g.ex?.exercicio_id)||'Exercício '+(g.ex?.ordem??'—')} · ${g.series.length} série(s)`;item.append(sum);
    const body=document.createElement('div');body.className='wa-inner-body';for(const r of g.series)waParagrafo(body,'',`Série ${r.numero??'—'} · ${r.repeticoes_realizadas??'—'} rep · ${r.carga_realizada_kg??'—'} kg`,'muted');item.append(body);lista.append(item)
@@ -970,7 +975,7 @@ async function waAbrirWhatsApp(botao){
 async function waCarregarNotificacoes(){
  const lista=waEl('waNotificacoes');lista.replaceChildren();
  waNotificacoes=await waRpc('wand_minhas_notificacoes')||[];
- const relevantes=waNotificacoes.filter(n=>n.aluno_id===waId&&(!n.lida_em||n.tipo==='treino_interrompido'));
+ const relevantes=waNotificacoes.filter(n=>n.aluno_id===waId&&(n.tipo==='treino_interrompido'?!n.atendida_em:!n.lida_em));
  waBadge();if(!relevantes.length){waParagrafo(lista,'','Nenhum aviso interno para este aluno.','muted');return}
  const titulo=document.createElement('h3');titulo.textContent='Avisos internos e interrupções';lista.append(titulo);
  for(const n of relevantes){
@@ -978,7 +983,7 @@ async function waCarregarNotificacoes(){
   const summary=document.createElement('summary');
   waParagrafo(summary,'',interrompido?'Treino interrompido · '+(n.treino||'Treino'):n.titulo||'Aviso interno','wa-notificacao-titulo');
   waParagrafo(summary,'',waDataHora(n.interrompida_em||n.criada_em)+' · '+(interrompido?(waMotivos[n.motivo_interrupcao]||'Motivo não informado'):'Solicitação'),'muted');
-  waParagrafo(summary,'',n.lida_em?'Aviso lido':'Aviso não lido','wa-etiqueta');box.append(summary);
+  waParagrafo(summary,'',interrompido?'Aguardando atendimento':(n.lida_em?'Aviso lido':'Aviso não lido'),'wa-etiqueta');box.append(summary);
   const body=document.createElement('div');body.className='wa-notification-body';
   waDetalhe(body,'Recebido',waDataHora(n.criada_em));
   if(interrompido){
@@ -988,11 +993,12 @@ async function waCarregarNotificacoes(){
    box.addEventListener('toggle',()=>{if(box.open&&!exec.dataset.loaded){exec.dataset.loaded='1';waCarregarExecucaoInterrompida(n,exec)} });
    const acoes=document.createElement('div');acoes.className='wa-action-row';
    const whats=document.createElement('button');whats.className='button secondary';whats.type='button';whats.textContent='WhatsApp do aluno';whats.onclick=()=>waAbrirWhatsApp(whats);acoes.append(whats);
-   const copiar=document.createElement('button');copiar.className='button secondary';copiar.type='button';copiar.textContent='Copiar mensagem';copiar.onclick=async()=>{try{await navigator.clipboard.writeText(waMensagemAcolhimento);waStatus('Mensagem copiada.')}catch{prompt('Copie a mensagem:',waMensagemAcolhimento)}};acoes.append(copiar);
+   const app=document.createElement('button');app.className='button secondary';app.type='button';app.textContent='Mensagem no app';app.onclick=()=>{alert('O chat interno ainda não está disponível. Use o WhatsApp para falar diretamente com o aluno.');};acoes.prepend(app);
    body.append(acoes);waParagrafo(body,'','O chat interno ainda depende da implementação do módulo de mensagens.','muted');
-   waParagrafo(body,'','Aviso lido não significa acompanhamento resolvido.','muted');
+   const atender=document.createElement('button');atender.type='button';atender.className='button';atender.textContent='✓ Marcar como atendido';atender.onclick=async()=>{if(!confirm('Você já verificou a situação deste aluno? O aviso sairá das pendências, mas o treino permanecerá no histórico.'))return;atender.disabled=true;try{await waRpc('wand_coach_atender_interrupcao',{p_notificacao_id:n.id});await waCarregarNotificacoes();waStatus('Aviso atendido. O histórico do treino foi preservado.')}catch(e){waStatus(e.message,true);atender.disabled=false}};body.append(atender);
+   waParagrafo(body,'','Marcar como atendido remove apenas o aviso desta lista; não apaga o treino.','muted');
   }
-  if(!n.lida_em){const btn=document.createElement('button');btn.type='button';btn.className='button secondary';btn.textContent='Marcar aviso como lido';btn.onclick=async()=>{btn.disabled=true;try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes();waStatus('Aviso marcado como lido; acompanhamento técnico permanece independente.')}catch(e){waStatus(e.message,true);btn.disabled=false}};body.append(btn)}
+  if(!interrompido&&!n.lida_em){const btn=document.createElement('button');btn.type='button';btn.className='button secondary';btn.textContent='Marcar aviso como lido';btn.onclick=async()=>{btn.disabled=true;try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes();waStatus('Aviso marcado como lido; acompanhamento técnico permanece independente.')}catch(e){waStatus(e.message,true);btn.disabled=false}};body.append(btn)}
   box.append(body);lista.append(box);
  }
 }
