@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Meu Painel | WAND METHOD — correção 3</title>
-<meta name="wand-build" content="2026.11.11.4">
+<title>Meu Painel | WAND METHOD</title>
+<meta name="wand-build" content="2026.11.11.5">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -238,7 +238,7 @@ main{max-width:850px;padding:22px 16px 90px}
     </nav>
   </section>
 
-  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições, registre as séries realizadas e acompanhe seu histórico.</p><p id="wandTreinosMsg" role="status"></p><div id="wandAdaptacaoDia" class="notice" hidden></div><div id="wandProtocolosDisponiveis" class="subcard" hidden></div><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições agrupadas por programa e acompanhe seu histórico. A execução será liberada pelo Próximo Treino Inteligente.</p><p id="wandTreinosMsg" role="status"></p><div id="wandAdaptacaoDia" class="notice" hidden></div><div id="wandProtocolosDisponiveis" class="subcard" hidden></div><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
@@ -944,7 +944,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.11.4';
+const WT_BUILD='2026.11.11.5';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -965,7 +965,7 @@ async function wtCarregarProgramas(){
     if(erroFichas)throw erroFichas;
     wtFichasPrograma=fichas||[];
   }catch(e){
-    wtAvisoProgramas='Não foi possível consultar os programas vinculados. As fichas serão exibidas individualmente até que o acesso aos programas seja liberado.';
+    wtAvisoProgramas='Não foi possível carregar o vínculo dos programas: '+(e?.message||'erro desconhecido')+'. Não altere suas prescrições; comunique ao treinador.';
     console.warn('Agrupamento de programas indisponível:',e);
   }
 }
@@ -1075,7 +1075,7 @@ function wtRender(){
  }
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
-  wtAdd(area,'h3',null,'Treinos disponíveis');
+  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.11.5 · Somente consulta das prescrições');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
   const mostrados=new Set();
@@ -1095,20 +1095,21 @@ function wtRender(){
     const fichas=wtFichasPrograma.filter(f=>String(f.programa_id)===String(programa.id))
       .sort((a,b)=>Number(a.ordem||0)-Number(b.ordem||0));
     const vinculadas=fichas.map(f=>({...f,treino:porId.get(String(f.treino_id))}))
-      .filter(f=>f.treino&&!wtAdaptacoes.some(a=>a.treino_original_id===f.treino.id));
+      .filter(f=>!f.treino||!wtAdaptacoes.some(a=>a.treino_original_id===f.treino.id));
     if(!vinculadas.length)continue;
     const grupo=wtAdd(area,'section','subcard wt-programa');
     wtAdd(grupo,'h3',null,programa.nome||('Programa '+(programa.tipo_divisao||'')));
     wtAdd(grupo,'p','muted',(programa.tipo_divisao||'Divisão personalizada')+' · '+vinculadas.length+' ficha(s) disponível(is)');
     for(const ficha of vinculadas){
-      mostrados.add(String(ficha.treino.id));
-      criarFicha(grupo,ficha.treino,ficha.codigo||'');
+      mostrados.add(String(ficha.treino_id));
+      if(ficha.treino){criarFicha(grupo,ficha.treino,ficha.codigo||'');}
+      else{const pendente=wtAdd(grupo,'article','subcard');wtAdd(pendente,'h3',null,(ficha.codigo?ficha.codigo+' · ':'')+(ficha.titulo||'Ficha vinculada'));wtAdd(pendente,'p','muted','Esta ficha pertence ao programa, mas a prescrição detalhada não foi retornada pela consulta de treinos. Consulte o treinador.');}
     }
   }
   const semPrograma=wtTreinos.filter(t=>!mostrados.has(String(t.id))&&!wtAdaptacoes.some(a=>a.treino_original_id===t.id));
   if(semPrograma.length){
     const grupo=wtAdd(area,'section','subcard wt-programa');
-    wtAdd(grupo,'h3',null,'Minhas fichas de treino');
+    wtAdd(grupo,'h3',null,wtProgramas.length?'Outras prescrições sem vínculo com o programa':'Minhas fichas de treino');
     wtAdd(grupo,'p','muted','Fichas disponíveis para consulta. A ordem de execução será definida pelo Próximo Treino Inteligente.');
     for(const t of semPrograma)criarFicha(grupo,t);
   }
