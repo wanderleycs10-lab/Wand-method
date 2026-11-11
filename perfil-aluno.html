@@ -62,6 +62,19 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 .wa-item button{margin:6px 6px 0 0}
 .wa-interrupcao{border-left:4px solid #d4af37;background:#211b10}.wa-interrupcao-lida{border-left-color:#777;background:#151515}.wa-interrupcao p{margin:7px 0;overflow-wrap:anywhere}.wa-notificacao-titulo{font-weight:bold;color:#e8c55c}.wa-etiqueta{font-size:12px;color:#e8c55c;font-weight:bold}
 
+
+/* Resumo compacto da interrupção */
+.wa-resumo-grade{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.wa-resumo-card{background:#252525;border:1px solid #4c412a;border-radius:10px;text-align:center;padding:12px 5px;min-width:0}
+.wa-resumo-card strong{display:block;font-size:clamp(15px,4vw,23px);color:#fff;overflow-wrap:anywhere}
+.wa-resumo-card small{display:block;color:#b9b9b9;margin-top:5px;font-size:12px}
+.wa-ultimo{padding:10px 0;border-top:1px solid #39352d}
+.wa-ultimo p{margin:5px 0}
+.wa-exercicio-resumo{border-bottom:1px solid #3c362b;padding:8px 0}
+.wa-exercicio-resumo p{margin:5px 0}
+.wa-notification-fold>summary{gap:4px;padding:12px}
+.wa-notification-body{padding:12px}
+@media(max-width:390px){.wa-resumo-grade{gap:5px}.wa-resumo-card{padding:9px 3px}.wa-resumo-card small{font-size:11px}}
 </style>
 <style>
 /* WAND METHOD: secoes compactas e recolhiveis no acompanhamento */
@@ -928,36 +941,34 @@ const waMensagemAcolhimento='Olá! Vi que você precisou interromper o treino e 
 function waDetalhe(pai,label,valor){waParagrafo(pai,label+': ',valor)}
 function waTempo(inicio,fim){if(!inicio||!fim)return 'Não disponível';const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return 'Não disponível';const total=Math.floor(ms/1000),h=Math.floor(total/3600),m=Math.floor(total%3600/60),sec=total%60;return h?`${h}h ${String(m).padStart(2,'0')}min ${String(sec).padStart(2,'0')}s`:`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`}
 async function waCarregarExecucaoInterrompida(n,area){
- area.textContent='Consultando a sessão...';
+ area.textContent='Carregando resumo real da sessão...';
  try{
-  const {data:s,error:e}=await waDb.from('wand_sessoes_treino').select('id,treino_id,iniciada_em,finalizada_em,situacao').eq('id',n.referencia_id).eq('aluno_id',waId).maybeSingle();
-  if(e||!s)throw Error(e?.message||'Sessão não acessível');
-  area.replaceChildren();const stats=document.createElement('div');stats.className='wa-mini-stat';
-  const tempo=document.createElement('div');tempo.innerHTML='<small>Tempo da sessão</small>';const tempoValor=document.createElement('strong');tempoValor.textContent=waTempo(s.iniciada_em,s.finalizada_em||n.interrompida_em);tempo.append(tempoValor);stats.append(tempo);
-  const seriesBox=document.createElement('div');seriesBox.innerHTML='<small>Séries realizadas</small>';const seriesValor=document.createElement('strong');seriesValor.textContent='Consultando...';seriesBox.append(seriesValor);stats.append(seriesBox);area.append(stats);
-  const {data:series,error:se}=await waDb.from('wand_series_executadas').select('serie_id,repeticoes_realizadas,carga_realizada_kg,concluida').eq('sessao_id',s.id);
-  if(se)throw Error(se.message);
-  const feitas=(series||[]).filter(r=>r.concluida===true);seriesValor.textContent=String(feitas.length);
-  if(!feitas.length){waParagrafo(area,'','Nenhuma série concluída registrada.','muted');return}
-  const {data:prescritas,error:pe}=await waDb.from('wand_treino_exercicios').select('id,exercicio_id,ordem').eq('treino_id',s.treino_id);
-  if(pe)throw Error(pe.message);
-  const ids=(prescritas||[]).map(x=>x.id);if(!ids.length){waParagrafo(area,'','Séries registradas; nomes dos exercícios indisponíveis.','muted');return}
-  const {data:mapa,error:me}=await waDb.from('wand_treino_series').select('id,treino_exercicio_id,numero_serie').in('treino_exercicio_id',ids);
-  if(me)throw Error(me.message);
-  const mapSerie=new Map((mapa||[]).map(x=>[x.id,x]));const mapEx=new Map((prescritas||[]).map(x=>[x.id,x]));
-  const exercicioIds=[...new Set((prescritas||[]).map(x=>x.exercicio_id).filter(Boolean))];
-  const {data:nomes}=exercicioIds.length?await waDb.from('wand_exercicios').select('id,nome').in('id',exercicioIds):{data:[]};
-  const nomesEx=new Map((nomes||[]).map(x=>[x.id,x.nome]));
-  const totalPrevisto=(mapa||[]).length;seriesValor.textContent=`${feitas.length} de ${totalPrevisto}`;
-  const grupos=new Map();for(const r of feitas){const pres=mapSerie.get(r.serie_id),ex=mapEx.get(pres?.treino_exercicio_id);const key=ex?.id||'sem-exercicio';if(!grupos.has(key))grupos.set(key,{ex,series:[]});grupos.get(key).series.push({...r,numero:pres?.numero_serie})}
-  const feitosEx=grupos.size;const totalEx=(prescritas||[]).length;const exercBox=document.createElement('div');exercBox.className='wa-mini-stat';const e1=document.createElement('div');e1.innerHTML='<small>Exercícios realizados</small>';const ev=document.createElement('strong');ev.textContent=`${feitosEx} de ${totalEx}`;e1.append(ev);exercBox.append(e1);area.append(exercBox);
-  const lista=document.createElement('div');waParagrafo(lista,'','Exercícios executados — toque para ver cada série','wa-notificacao-titulo');
-  for(const g of grupos.values()){
-   const item=document.createElement('details');item.className='wa-inner-fold';const sum=document.createElement('summary');sum.textContent=`${nomesEx.get(g.ex?.exercicio_id)||'Exercício '+(g.ex?.ordem??'—')} · ${g.series.length} série(s)`;item.append(sum);
-   const body=document.createElement('div');body.className='wa-inner-body';for(const r of g.series)waParagrafo(body,'',`Série ${r.numero??'—'} · ${r.repeticoes_realizadas??'—'} rep · ${r.carga_realizada_kg??'—'} kg`,'muted');item.append(body);lista.append(item)
+  const resumo=await waRpc('wand_coach_resumo_interrupcao',{p_sessao_id:n.referencia_id});
+  const series=Array.isArray(resumo.series)?resumo.series:[];
+  const exercicios=new Map();
+  for(const r of series){const k=String(r.treino_exercicio_id);if(!exercicios.has(k))exercicios.set(k,{nome:r.exercicio||'Exercício',ordem:r.ordem,series:[]});exercicios.get(k).series.push(r)}
+  const exPrev=Number(resumo.exercicios_previstos)||0,serPrev=Number(resumo.series_previstas)||0;
+  area.replaceChildren();
+  const stats=document.createElement('div');stats.className='wa-resumo-grade';
+  for(const [label,value] of [['Duração',waTempo(resumo.iniciada_em,resumo.interrompida_em)],['Exercícios',`${exercicios.size}/${exPrev}`],['Séries',`${series.length}/${serPrev}`]]){
+   const card=document.createElement('div');card.className='wa-resumo-card';const strong=document.createElement('strong');strong.textContent=value;const small=document.createElement('small');small.textContent=label;card.append(strong,small);stats.append(card)
   }
-  area.append(lista);
- }catch(e){area.replaceChildren();waParagrafo(area,'','Detalhes da execução indisponíveis nesta consulta. O histórico de treino permanece acessível na aba Treinos.','muted');console.warn('Execução da interrupção',e)}
+  area.append(stats);
+  if(series.length){
+   const ultimo=series.reduce((a,b)=>new Date(a.registrada_em)>new Date(b.registrada_em)?a:b);
+   const ult=document.createElement('div');ult.className='wa-ultimo';
+   waParagrafo(ult,'','Último exercício registrado','wa-notificacao-titulo');
+   waParagrafo(ult,'',`${ultimo.exercicio||'Exercício'} · Série ${ultimo.numero??'—'} · ${ultimo.repeticoes??'—'} rep${ultimo.carga!=null?' · '+ultimo.carga+' kg':''}`);
+   area.append(ult);
+   const detalhes=document.createElement('details');detalhes.className='wa-inner-fold';const cab=document.createElement('summary');cab.textContent='Ver todos os exercícios e séries';detalhes.append(cab);
+   const corpo=document.createElement('div');corpo.className='wa-inner-body';
+   for(const ex of [...exercicios.values()].sort((a,b)=>Number(a.ordem??999)-Number(b.ordem??999))){
+    const linha=document.createElement('div');linha.className='wa-exercicio-resumo';waParagrafo(linha,'',`${ex.nome} · ${ex.series.length} série(s)`,'wa-notificacao-titulo');
+    for(const r of ex.series)waParagrafo(linha,'',`Série ${r.numero??'—'} · ${r.repeticoes??'—'} rep · ${r.carga??'—'} kg${r.observacoes?' · '+r.observacoes:''}`,'muted');corpo.append(linha)
+   }
+   detalhes.append(corpo);area.append(detalhes);
+  }else waParagrafo(area,'','Nenhuma série concluída foi registrada antes da interrupção.','muted');
+ }catch(e){area.replaceChildren();waParagrafo(area,'','Não foi possível carregar o resumo: '+e.message,'muted');console.error('Resumo da interrupção',e)}
 }
 async function waContatoAluno(){
  const campos=['telefone','celular','whatsapp'];
@@ -985,9 +996,7 @@ async function waCarregarNotificacoes(){
   waParagrafo(summary,'',waDataHora(n.interrompida_em||n.criada_em)+' · '+(interrompido?(waMotivos[n.motivo_interrupcao]||'Motivo não informado'):'Solicitação'),'muted');
   waParagrafo(summary,'',interrompido?'Aguardando atendimento':(n.lida_em?'Aviso lido':'Aviso não lido'),'wa-etiqueta');box.append(summary);
   const body=document.createElement('div');body.className='wa-notification-body';
-  waDetalhe(body,'Recebido',waDataHora(n.criada_em));
   if(interrompido){
-   waDetalhe(body,'Interrompido',waDataHora(n.interrompida_em));waDetalhe(body,'Motivo',waMotivos[n.motivo_interrupcao]||'Não informado');
    if(n.observacao_interrupcao)waDetalhe(body,'Observação do aluno',n.observacao_interrupcao);
    const exec=document.createElement('div');body.append(exec);
    box.addEventListener('toggle',()=>{if(box.open&&!exec.dataset.loaded){exec.dataset.loaded='1';waCarregarExecucaoInterrompida(n,exec)} });
@@ -998,6 +1007,7 @@ async function waCarregarNotificacoes(){
    const atender=document.createElement('button');atender.type='button';atender.className='button';atender.textContent='✓ Marcar como atendido';atender.onclick=async()=>{if(!confirm('Você já verificou a situação deste aluno? O aviso sairá das pendências, mas o treino permanecerá no histórico.'))return;atender.disabled=true;try{await waRpc('wand_coach_atender_interrupcao',{p_notificacao_id:n.id});await waCarregarNotificacoes();waStatus('Aviso atendido. O histórico do treino foi preservado.')}catch(e){waStatus(e.message,true);atender.disabled=false}};body.append(atender);
    waParagrafo(body,'','Marcar como atendido remove apenas o aviso desta lista; não apaga o treino.','muted');
   }
+  if(!interrompido){waDetalhe(body,'Recebido',waDataHora(n.criada_em))}
   if(!interrompido&&!n.lida_em){const btn=document.createElement('button');btn.type='button';btn.className='button secondary';btn.textContent='Marcar aviso como lido';btn.onclick=async()=>{btn.disabled=true;try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes();waStatus('Aviso marcado como lido; acompanhamento técnico permanece independente.')}catch(e){waStatus(e.message,true);btn.disabled=false}};body.append(btn)}
   box.append(body);lista.append(box);
  }
