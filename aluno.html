@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
-<meta name="wand-build" content="2026.11.11.9">
+<meta name="wand-build" content="2026.11.11.10">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -225,7 +225,7 @@ main{max-width:850px;padding:22px 16px 90px}
 <div id="painel" class="hidden">
   <section id="homeView" aria-label="Menu do aluno">
     <div class="welcome"><strong>Meu acompanhamento</strong><p>Acesse seus dados, avaliações e evolução física.</p></div>
-    <section id="wtProximoCard" class="wt-smart-card" aria-label="Próximo Treino Inteligente"><h2>Próximo Treino Inteligente</h2><p id="wtProximoEstado" class="muted">Consultando sua prescrição e histórico...</p><div id="wtProximoAcoes"></div></section>
+    <section id="wtProximoCard" class="wt-smart-card" aria-label="Treino de hoje"><h2>Preparado para o treino de hoje?</h2><p id="wtProximoEstado" class="muted">Consultando sua prescrição e histórico...</p><div id="wtProximoAcoes"></div></section>
     <nav class="nav-grid" aria-label="Áreas do aluno">
       <button type="button" class="nav-tile" data-view="treinos"><span class="nav-icon">🏋</span><span class="nav-name">Meus Treinos</span><span class="nav-desc">Exercícios e séries</span></button>
       <button type="button" class="nav-tile" data-view="ficha"><span class="nav-icon">▤</span><span class="nav-name">Minha Ficha</span><span class="nav-desc">Dados e saúde</span></button>
@@ -239,7 +239,7 @@ main{max-width:850px;padding:22px 16px 90px}
     </nav>
   </section>
 
-  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições agrupadas por programa e acompanhe seu histórico. A execução será liberada pelo Próximo Treino Inteligente.</p><p id="wandTreinosMsg" role="status"></p><div id="wandAdaptacaoDia" class="notice" hidden></div><div id="wandProtocolosDisponiveis" class="subcard" hidden></div><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições agrupadas por programa e acompanhe seu histórico. Para começar, acesse o treino de hoje no painel inicial.</p><p id="wandTreinosMsg" role="status"></p><div id="wandAdaptacaoDia" class="notice" hidden></div><div id="wandProtocolosDisponiveis" class="subcard" hidden></div><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
@@ -946,7 +946,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.11.9';
+const WT_BUILD='2026.11.11.10';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1048,7 +1048,7 @@ function wtSmartRender(){
  const avulsos=wtTreinos.filter(t=>!agrupados.has(String(t.id)));
  const grupos=[...programas.map(x=>({nome:x.p.nome||'Programa',fichas:x.fichas,divisao:x.p.tipo_divisao})),...avulsos.map(t=>({nome:t.nome||'Treino individual',fichas:[{treino_id:t.id}],divisao:'individual'}))];
  if(!grupos.length){mensagem('Não há fichas disponíveis para execução.');return;}
- mensagem('A próxima ficha é calculada pelas sessões concluídas, não pelos dias da semana.');
+ mensagem('Seu treino está pronto. Vamos começar?');
  for(const grupo of grupos){
   const ids=grupo.fichas.map(f=>String(f.treino_id));
   const historico=wtHistorico.filter(h=>ids.includes(String(h.treino_id))).sort((a,b)=>Date.parse(b.finalizada_em||b.iniciada_em||0)-Date.parse(a.finalizada_em||a.iniciada_em||0));
@@ -1072,8 +1072,6 @@ function wtSmartRender(){
    const hoje=new Date();const dataAnterior=new Date(anterior.getFullYear(),anterior.getMonth(),anterior.getDate());const dataHoje=new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate());
    if((dataHoje-dataAnterior)/86400000<2){wtAdd(acoes,'p','notice',grupo.nome+': descanso obrigatório de um dia inteiro entre sessões full body.');continue;}
   }
-  const rotulo=grupo.nome+' · '+(grupo.fichas.find(f=>String(f.treino_id)===proximoId)?.codigo||treino.nome||'Próxima ficha');
-  wtAdd(acoes,'p','muted',rotulo);
   botao('Iniciar '+(treino.nome||'treino'),async()=>{window.wandMostrarVista?.('treinos');await wtIniciar(treino);wtSmartRender()});
  }
 }
@@ -1121,7 +1119,7 @@ function wtRender(){
  }
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
-  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.11.9 · Somente consulta das prescrições');
+  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.11.10 · Somente consulta das prescrições');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
   const mostrados=new Set();
@@ -1198,7 +1196,7 @@ function wtRender(){
 function wtVerTreino(t){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,t.nome||'Treino');if(t.observacoes)wtAdd(a,'p','notice',t.observacoes);
  for(const ex of t.exercicios||[]){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
  for(const s of ex.series||[])wtAdd(c,'p','muted','Série '+s.numero+': '+wtNum(s.repeticoes)+' repetições · '+wtNum(s.carga)+' kg · descanso '+wtNum(s.descanso)+' s'+(s.observacoes?' · '+s.observacoes:''));}
- wtAdd(a,'p','muted','Consulta da prescrição. A execução será liberada pelo Próximo Treino Inteligente no painel inicial.');}
+ wtAdd(a,'p','muted','Consulta da prescrição. Para começar, acesse o treino de hoje no painel inicial.');}
 async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtBlocoAberto=0;wtPersistir();wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
 // O alarme usa recursos permitidos pelo navegador. Em segundo plano ou tela bloqueada
 // o sistema operacional pode suspender audio, vibracao e temporizadores.
