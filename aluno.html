@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
-<meta name="wand-build" content="2026.11.11.6">
+<meta name="wand-build" content="2026.11.11.7">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -942,8 +943,8 @@ iniciar();
 import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
-let wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.11.6';
+let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
+const WT_BUILD='2026.11.11.7';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1074,7 +1075,7 @@ function wtRender(){
  }
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
-  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.11.6 · Somente consulta das prescrições');
+  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.11.7 · Somente consulta das prescrições');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
   const mostrados=new Set();
@@ -1096,22 +1097,47 @@ function wtRender(){
     const vinculadas=fichas.map(f=>({...f,treino:porId.get(String(f.treino_id))}))
       .filter(f=>!f.treino||!wtAdaptacoes.some(a=>a.treino_original_id===f.treino.id));
     if(!vinculadas.length)continue;
+    for(const ficha of vinculadas)mostrados.add(String(ficha.treino_id));
+    // Uma ficha unica e apresentada como treino individual, sem precisar expandir.
+    if(vinculadas.length===1 && vinculadas[0].treino){
+      criarFicha(area,vinculadas[0].treino);
+      continue;
+    }
+    // Programas com varias fichas ficam recolhidos ate o aluno clicar.
     const grupo=wtAdd(area,'section','subcard wt-programa');
-    wtAdd(grupo,'h3',null,programa.nome||('Programa '+(programa.tipo_divisao||'')));
-    wtAdd(grupo,'p','muted',(programa.tipo_divisao||'Divisão personalizada')+' · '+vinculadas.length+' ficha(s) disponível(is)');
+    const idPrograma=String(programa.id);
+    const aberto=wtProgramasAbertos.has(idPrograma);
+    const cabecalho=wtAdd(grupo,'button','wt-programa-toggle');
+    cabecalho.type='button';
+    cabecalho.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;cursor:pointer;background:transparent;border:0;color:inherit;padding:4px 0 12px;font:inherit;';
+    const texto=wtAdd(cabecalho,'span');
+    const titulo=wtAdd(texto,'strong',null,programa.nome||('Treino '+(programa.tipo_divisao||'')));
+    titulo.style.color='#d6af2e';
+    titulo.style.fontSize='1.15em';
+    const descricao=wtAdd(texto,'span',null,' · '+vinculadas.length+' fichas');
+    descricao.style.cssText='color:#bbb;font-size:.9em;';
+    const seta=wtAdd(cabecalho,'span',null,aberto?'▲':'▼');
+    seta.setAttribute('aria-hidden','true');
+    cabecalho.setAttribute('aria-expanded',String(aberto));
+    const conteudo=wtAdd(grupo,'div','wt-programa-fichas');
+    conteudo.hidden=!aberto;
+    conteudo.style.display=aberto?'block':'none';
+    cabecalho.addEventListener('click',()=>{
+      const expandir=conteudo.hidden;
+      conteudo.hidden=!expandir;
+      conteudo.style.display=expandir?'block':'none';
+      cabecalho.setAttribute('aria-expanded',String(expandir));
+      seta.textContent=expandir?'▲':'▼';
+      if(expandir)wtProgramasAbertos.add(idPrograma);else wtProgramasAbertos.delete(idPrograma);
+    });
     for(const ficha of vinculadas){
-      mostrados.add(String(ficha.treino_id));
-      if(ficha.treino){criarFicha(grupo,ficha.treino,ficha.codigo||'');}
-      else{const pendente=wtAdd(grupo,'article','subcard');wtAdd(pendente,'h3',null,(ficha.codigo?ficha.codigo+' · ':'')+(ficha.titulo||'Ficha vinculada'));wtAdd(pendente,'p','muted','Esta ficha pertence ao programa, mas a prescrição detalhada não foi retornada pela consulta de treinos. Consulte o treinador.');}
+      if(ficha.treino){criarFicha(conteudo,ficha.treino,ficha.codigo||'');}
+      else{const pendente=wtAdd(conteudo,'article','subcard');wtAdd(pendente,'h3',null,(ficha.codigo?ficha.codigo+' · ':'')+(ficha.titulo||'Ficha vinculada'));wtAdd(pendente,'p','muted','Esta ficha pertence ao programa, mas a prescrição detalhada não foi retornada. Consulte o treinador.');}
     }
   }
-  const semPrograma=wtTreinos.filter(t=>!mostrados.has(String(t.id))&&!wtAdaptacoes.some(a=>a.treino_original_id===t.id));
-  if(semPrograma.length){
-    const grupo=wtAdd(area,'section','subcard wt-programa');
-    wtAdd(grupo,'h3',null,wtProgramas.length?'Outras prescrições sem vínculo com o programa':'Minhas fichas de treino');
-    wtAdd(grupo,'p','muted','Fichas disponíveis para consulta. A ordem de execução será definida pelo Próximo Treino Inteligente.');
-    for(const t of semPrograma)criarFicha(grupo,t);
-  }
+  // Fichas individuais aparecem diretamente na mesma lista, sem categoria separada.
+  const individuais=wtTreinos.filter(t=>!mostrados.has(String(t.id))&&!wtAdaptacoes.some(a=>a.treino_original_id===t.id));
+  for(const treino of individuais)criarFicha(area,treino);
  }else if(wtVista==='historico'){
   wtAdd(area,'h3',null,'Histórico de treinos');
   const concluidas=wtHistorico.filter(s=>s.finalizada_em);
