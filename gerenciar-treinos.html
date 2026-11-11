@@ -190,4 +190,3 @@ async function carregarAvisos(){
 }
 $('atualizar').onclick=()=>{carregarTreinos();carregarAvisos();};$('filtroAluno').onchange=()=>{if(alunoFixo)return;$('editor').style.display='none';treinoAtual=null;carregarTreinos();};$('fechar').onclick=()=>{$('editor').style.display='none';treinoAtual=null;mensagem('');};$('salvar').onclick=salvarAlteracoes;$('confirmarDuplicacao').onclick=confirmarDuplicacao;$('cancelarDuplicacao').onclick=()=>{if(duplicando)return;$('painelDuplicacao').hidden=true;treinoParaDuplicar=null;};iniciar();
 </script></body></html>
-
