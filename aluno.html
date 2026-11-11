@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD — correção 3</title>
-<meta name="wand-build" content="2026.11.10.1">
+<meta name="wand-build" content="2026.11.11.2">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -807,14 +807,25 @@ $("statusPagina").textContent=
 
 // Navegacao do painel: conserva os IDs e as rotinas de avaliacao originais.
 const VIEWS=["bemestar","treinos","ficha","avaliacoes","fotografica","evolucao","coins","treinador"];
-function mostrarVista(nome){
+function mostrarVista(nome, atualizarEndereco=true){
   const valido=VIEWS.includes(nome)?nome:null;
+  if(atualizarEndereco){
+    const url=new URL(location.href);
+    url.hash=valido?'#'+valido:'';
+    history.replaceState(null,'',url);
+  }
   $("homeView").hidden=Boolean(valido);
   for(const id of VIEWS) $("view-"+id).hidden=id!==valido;
   acomodarModulos();
   window.scrollTo({top:0,behavior:"instant"});
 }
 window.wandMostrarVista = mostrarVista;
+function restaurarVista(){
+  const nome=decodeURIComponent(location.hash.slice(1));
+  mostrarVista(VIEWS.includes(nome)?nome:null,false);
+}
+window.addEventListener('hashchange',restaurarVista);
+restaurarVista();
 function acomodarFotografias(){
   const modulo=document.getElementById("wand-fotos");
   const destino=$("fotografiaDestino");
@@ -932,10 +943,32 @@ iniciar();
 import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
-let wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.10.1';
+let wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
+const WT_BUILD='2026.11.11.2';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
+const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
+function wtSalvarVista(){try{sessionStorage.setItem(wtVistaKey(),wtVista)}catch(e){}}
+function wtRestaurarVista(){try{const v=sessionStorage.getItem(wtVistaKey());if(['disponiveis','historico','nenhuma'].includes(v))wtVista=v}catch(e){}} 
+async function wtCarregarProgramas(){
+  wtProgramas=[];wtFichasPrograma=[];wtAvisoProgramas='';
+  try{
+    const {data:aluno,error:erroAluno}=await wandDb.from('alunos').select('id').eq('user_id',wtAlunoUserId).single();
+    if(erroAluno||!aluno)throw erroAluno||Error('Aluno não identificado');
+    const {data:programas,error:erroProgramas}=await wandDb.from('wand_programas_treino')
+      .select('id,nome,tipo_divisao,status').eq('aluno_id',aluno.id);
+    if(erroProgramas)throw erroProgramas;
+    wtProgramas=(programas||[]).filter(p=>!['arquivado','inativo','cancelado'].includes(String(p.status||'').toLowerCase()));
+    if(!wtProgramas.length)return;
+    const {data:fichas,error:erroFichas}=await wandDb.from('wand_programa_fichas')
+      .select('programa_id,treino_id,ordem,codigo,titulo').in('programa_id',wtProgramas.map(p=>p.id)).order('ordem',{ascending:true});
+    if(erroFichas)throw erroFichas;
+    wtFichasPrograma=fichas||[];
+  }catch(e){
+    wtAvisoProgramas='Não foi possível consultar os programas vinculados. As fichas serão exibidas individualmente até que o acesso aos programas seja liberado.';
+    console.warn('Agrupamento de programas indisponível:',e);
+  }
+}
 let wtRestauroFeito=false;
 let wtTimerRestaurado=false;
 function wtPersistir(){
@@ -1035,7 +1068,7 @@ function wtRender(){
  const menu=wtAdd(area,'div','wt-menu-clean');
  const opcoes=[['disponiveis','🏋 Treinos disponíveis'],['historico','◷ Histórico de treinos']];
  for(const [id,rotulo] of opcoes){
-  const b=wtBtn(menu,rotulo,()=>{wtVista=wtVista===id?'nenhuma':id;wtRender()},wtVista!==id);
+  const b=wtBtn(menu,rotulo,()=>{wtVista=wtVista===id?'nenhuma':id;wtSalvarVista();wtRender()},wtVista!==id);
   b.classList.add('wt-menu-btn');b.setAttribute('aria-expanded',String(wtVista===id));
   if(wtVista===id)b.classList.add('wt-menu-selected');
  }
@@ -1043,15 +1076,37 @@ function wtRender(){
  if(wtVista==='disponiveis'){
   wtAdd(area,'h3',null,'Treinos disponíveis');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
+  if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
+  const mostrados=new Set();
+  const porId=new Map(wtTreinos.map(t=>[String(t.id),t]));
+  const criarFicha=(destino,t,codigo='')=>{
+    const c=wtAdd(destino,'article','subcard');
+    if(wtAdaptacoes.some(a=>a.treino_alternativo_id===t.id))wtAdd(c,'p','notice','✓ Alternativa autorizada para a sessão de hoje');
+    wtAdd(c,'h3',null,(codigo?codigo+' · ':'')+(t.nome||'Treino'));
+    if(t.objetivo)wtAdd(c,'p','muted','Objetivo: '+t.objetivo);
+    if(t.observacoes)wtAdd(c,'p',null,t.observacoes);
+    wtAdd(c,'p','muted',(t.exercicios||[]).length+' exercício(s)');
+    const acoes=wtAdd(c,'div','wand-acoes-treino');
+    wtBtn(acoes,'Ver prescrição',()=>wtVerTreino(t));
+    wtBtn(acoes,'Iniciar treino',()=>wtIniciar(t),true);
+  };
+  for(const programa of wtProgramas){
+    const fichas=wtFichasPrograma.filter(f=>String(f.programa_id)===String(programa.id))
+      .sort((a,b)=>Number(a.ordem||0)-Number(b.ordem||0));
+    const vinculadas=fichas.map(f=>({...f,treino:porId.get(String(f.treino_id))}))
+      .filter(f=>f.treino&&!wtAdaptacoes.some(a=>a.treino_original_id===f.treino.id));
+    if(!vinculadas.length)continue;
+    const grupo=wtAdd(area,'section','subcard wt-programa');
+    wtAdd(grupo,'h3',null,programa.nome||('Programa '+(programa.tipo_divisao||'')));
+    wtAdd(grupo,'p','muted',(programa.tipo_divisao||'Divisão personalizada')+' · '+vinculadas.length+' ficha(s) disponível(is)');
+    for(const ficha of vinculadas){
+      mostrados.add(String(ficha.treino.id));
+      criarFicha(grupo,ficha.treino,ficha.codigo||'');
+    }
+  }
   for(const t of wtTreinos){
-   if(wtAdaptacoes.some(a=>a.treino_original_id===t.id))continue;
-   const c=wtAdd(area,'article','subcard');
-   if(wtAdaptacoes.some(a=>a.treino_alternativo_id===t.id))wtAdd(c,'p','notice','✓ Alternativa autorizada para a sessão de hoje');
-   wtAdd(c,'h3',null,t.nome||'Treino');
-   if(t.objetivo)wtAdd(c,'p','muted','Objetivo: '+t.objetivo);
-   if(t.observacoes)wtAdd(c,'p',null,t.observacoes);
-   wtAdd(c,'p','muted',(t.exercicios||[]).length+' exercício(s)');
-   const acoes=wtAdd(c,'div','wand-acoes-treino');wtBtn(acoes,'Ver prescrição',()=>wtVerTreino(t));wtBtn(acoes,'Iniciar treino',()=>wtIniciar(t),true);
+    if(mostrados.has(String(t.id))||wtAdaptacoes.some(a=>a.treino_original_id===t.id))continue;
+    criarFicha(area,t);
   }
  }else if(wtVista==='historico'){
   wtAdd(area,'h3',null,'Histórico de treinos');
@@ -1299,7 +1354,7 @@ function wtCriarInterrupcao(area){
   try{
    wtPersistir();
    await wtRpc('wand_interromper_sessao',{p_sessao_id:wtSessao,p_motivo:select.value||null,p_observacao:obs.value.trim()||null});
-   wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};wtTimerFim=0;wtVista='historico';wtPersistir();
+   wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};wtTimerFim=0;wtVista='historico';wtSalvarVista();wtPersistir();
    await wtCarregar();wtMsg('Treino interrompido. Os registros foram preservados e o treinador foi notificado.');
   }catch(e){wtMsg('Não foi possível interromper: '+e.message,true);confirmar.disabled=false}
   finally{wtBusy=false}
@@ -1313,6 +1368,7 @@ function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);
 const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListener('click',()=>{if(!wt.dataset.loaded){wt.dataset.loaded='1';wtCarregar()}});
 // Após autenticação, retoma a sessão aberta diretamente na execução.
 (async()=>{try{const {data:{user}}=await wandDb.auth.getUser();if(!user)return;wtAlunoUserId=user.id;
+ wtRestaurarVista();
  if(!wt.dataset.loaded){wt.dataset.loaded='1';await wtCarregar();}
  wtVerificarVersao();setInterval(wtVerificarVersao,5*60*1000);
 }catch(e){console.warn('Retomada de treino indisponível',e)}})();
