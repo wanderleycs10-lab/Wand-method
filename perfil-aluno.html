@@ -76,6 +76,33 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 #painel-acompanhamento .wand-fold-body>:first-child{margin-top:0}
 #painel-acompanhamento .wand-fold-body .subcard{max-width:100%}
 </style>
+<style>
+/* Acompanhamento: três grupos, fechados por padrão */
+#painel-acompanhamento .wa-main-fold{border:1px solid #4c402b;border-radius:14px;margin:13px 0;background:#131313;overflow:hidden}
+#painel-acompanhamento .wa-main-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:18px 15px;color:#d4af37;font-weight:700;font-size:16px}
+#painel-acompanhamento .wa-main-fold>summary::-webkit-details-marker,#painel-acompanhamento .wa-inner-fold>summary::-webkit-details-marker{display:none}
+#painel-acompanhamento .wa-main-fold>summary:after,#painel-acompanhamento .wa-inner-fold>summary:after{content:'+';margin-left:auto;font-size:22px}
+#painel-acompanhamento .wa-main-fold[open]>summary:after,#painel-acompanhamento .wa-inner-fold[open]>summary:after{content:'−'}
+#painel-acompanhamento .wa-main-fold[open]>summary{border-bottom:1px solid #51442a;background:#211c13}
+#painel-acompanhamento .wa-summary-hint{color:#aaa;font-size:12px;font-weight:400}
+#painel-acompanhamento .wa-main-body{padding:10px}
+#painel-acompanhamento .wa-inner-fold{border:1px solid #4b412f;border-radius:10px;margin:12px 0;overflow:hidden}
+#painel-acompanhamento .wa-inner-fold>summary{padding:13px;color:#d4af37;cursor:pointer;display:flex;align-items:center}
+#painel-acompanhamento .wa-inner-body{padding:13px}
+#painel-acompanhamento .wa-main-body>.subcard{margin:8px 0}
+.wa-notification-fold{border:1px solid #66552f;border-radius:12px;margin:12px 0;overflow:hidden;background:#171717}
+.wa-notification-fold>summary{padding:14px;cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:7px}
+.wa-notification-fold>summary::-webkit-details-marker{display:none}
+.wa-notification-fold[open]>summary{border-bottom:1px solid #4c412a}
+.wa-notification-body{padding:13px}
+.wa-mini-stat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.wa-mini-stat>div{border:1px solid #463a28;border-radius:9px;padding:10px}
+.wa-mini-stat small{display:block;color:#aaa;margin-bottom:5px}
+.wa-mini-stat strong{color:#e6c358}
+.wa-action-row{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.wa-action-row .button{font-size:13px;padding:10px 12px}
+.wa-notification-fold p{overflow-wrap:anywhere}
+</style>
 </head>
 <body>
 <header>
@@ -148,22 +175,28 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 </section>
 <section id="painel-acompanhamento" class="card painel-perfil">
 <h2>Acompanhamento</h2>
-<p class="muted">Solicitações, histórico de execução, check-ins e adaptações de treino.</p>
+<p class="muted">Avisos, adaptações e bem-estar. Abra somente o que precisar.</p>
+<details class="wa-main-fold"><summary>🔔 Central de acompanhamento <span class="wa-summary-hint">Interrupções e solicitações</span></summary><div class="wa-main-body">
 <div class="subcard"><h3>Solicitações de ajuste</h3><p id="waMensagem" role="status" class="muted"></p><div id="waSolicitacoes"></div><div id="waNotificacoes" aria-live="polite"></div><button type="button" class="button secondary" id="waAtualizar">Atualizar acompanhamento</button></div>
-<div class="subcard"><h3>Protocolos previamente definidos</h3><p class="muted">Crie primeiro um treino alternativo no Gerenciamento de Treinos. Depois vincule os dois treinos aqui.</p>
+</div></details>
+<details class="wa-main-fold"><summary>▤ Protocolos e adaptações <span class="wa-summary-hint">Alternativas e programação</span></summary><div class="wa-main-body">
+<div class="subcard"><h3>Protocolos cadastrados</h3><details class="wa-inner-fold"><summary>+ Criar novo protocolo</summary><div class="wa-inner-body"><p class="muted">Crie primeiro um treino alternativo no Gerenciamento de Treinos. Depois vincule os dois treinos aqui.</p>
 <label for="waOriginal">Treino original</label><select id="waOriginal"></select>
 <label for="waAlternativo">Treino alternativo</label><select id="waAlternativo"></select>
 <label for="waTitulo">Nome do protocolo</label><input id="waTitulo" maxlength="100" placeholder="Ex.: Sessão com menor volume">
 <label for="waDescricao">Orientação do treinador</label><textarea id="waDescricao" maxlength="1000" rows="3" placeholder="Quando usar e quais cuidados observar"></textarea>
 <label for="waModo">Tipo de autorização</label><select id="waModo"><option value="aprovacao">Exige minha aprovação</option><option value="pre_autorizado">Alternativa previamente autorizada</option></select>
-<button type="button" id="waCriar" class="button">Criar protocolo</button><div id="waProtocolos"></div></div>
-<div class="subcard"><h3>Programar adaptação</h3><p class="muted">Selecione um protocolo ativo para uma data. A prescrição original não será alterada.</p>
+<button type="button" id="waCriar" class="button">Criar protocolo</button></div></details><div id="waProtocolos"></div></div>
+<details class="wa-inner-fold"><summary>Programar adaptação</summary><div class="wa-inner-body"><p class="muted">Selecione um protocolo ativo para uma data. A prescrição original não será alterada.</p>
 <label for="waProtocoloAgenda">Protocolo</label><select id="waProtocoloAgenda"></select>
 <label for="waDiaAgenda">Data da adaptação</label><input id="waDiaAgenda" type="date">
 <label for="waJustificativa">Observação (opcional)</label><textarea id="waJustificativa" maxlength="1000" rows="2"></textarea>
-<button type="button" id="waProgramar" class="button">Programar adaptação</button><p class="muted">A programação será consultada pelo aplicativo do aluno. No dia escolhido, o aluno verá a alternativa indicada; sessões já iniciadas não serão modificadas.</p></div>
-<div class="subcard"><h3>Adaptações programadas</h3><div id="waAdaptacoes"></div></div>
-<div class="subcard"><h3>Execução e bem-estar</h3><p class="muted">Registros realizados pelo aluno e dados compartilhados voluntariamente.</p><button type="button" class="button secondary" id="wbcRecarregar">Atualizar registros</button><div id="wbcArea"></div></div>
+<button type="button" id="waProgramar" class="button">Programar adaptação</button><p class="muted">A programação será consultada pelo aplicativo do aluno. No dia escolhido, o aluno verá a alternativa indicada; sessões já iniciadas não serão modificadas.</p></div></details>
+<details class="wa-inner-fold"><summary>Consultar adaptações programadas</summary><div class="wa-inner-body"><h3>Adaptações programadas</h3><div id="waAdaptacoes"></div></div></details>
+</div></details>
+<details class="wa-main-fold"><summary>♡ Bem-estar do aluno <span class="wa-summary-hint">Check-ins compartilhados</span></summary><div class="wa-main-body">
+<div class="subcard"><h3>Check-ins de bem-estar</h3><p class="muted">Dados de bem-estar compartilhados voluntariamente pelo aluno. O histórico de execução fica na aba Treinos.</p><button type="button" class="button secondary" id="wbcRecarregar">Atualizar registros</button><div id="wbcArea"></div></div>
+</div></details>
 </section>
 </div>
 </main>
@@ -888,33 +921,79 @@ async function waCarregarAdaptacoes(){const lista=waEl('waAdaptacoes');lista.rep
 const waMotivos={dor_desconforto:'Dor ou desconforto',indisposicao:'Indisposição',falta_tempo:'Falta de tempo',outro:'Outro motivo',prefiro_nao_informar:'Preferiu não informar'};
 function waDataHora(valor){if(!valor)return '—';const d=new Date(valor);return Number.isNaN(d.getTime())?'—':d.toLocaleString('pt-BR')}
 function waParagrafo(pai,rotulo,valor,classe){const p=document.createElement('p');if(classe)p.className=classe;p.textContent=rotulo+valor;pai.appendChild(p);return p}
+const waMensagemAcolhimento='Olá! Vi que você precisou interromper o treino e queria saber se está tudo bem. Como você está se sentindo? Dormiu e se alimentou bem? Aconteceu alguma coisa? Precisa de ajuda ou de algum ajuste no treino? Pode contar comigo!';
+function waDetalhe(pai,label,valor){waParagrafo(pai,label+': ',valor)}
+function waTempo(inicio,fim){if(!inicio||!fim)return 'Não disponível';const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return 'Não disponível';const m=Math.floor(ms/60000),h=Math.floor(m/60);return h?`${h}h ${m%60}min`:`${m} min`}
+async function waCarregarExecucaoInterrompida(n,area){
+ area.textContent='Consultando a sessão...';
+ try{
+  const {data:s,error:e}=await waDb.from('wand_sessoes_treino').select('id,treino_id,iniciada_em,finalizada_em,situacao').eq('id',n.referencia_id).eq('aluno_id',waId).maybeSingle();
+  if(e||!s)throw Error(e?.message||'Sessão não acessível');
+  area.replaceChildren();const stats=document.createElement('div');stats.className='wa-mini-stat';
+  const tempo=document.createElement('div');tempo.innerHTML='<small>Tempo da sessão</small>';const tempoValor=document.createElement('strong');tempoValor.textContent=waTempo(s.iniciada_em,s.finalizada_em||n.interrompida_em);tempo.append(tempoValor);stats.append(tempo);
+  const seriesBox=document.createElement('div');seriesBox.innerHTML='<small>Séries realizadas</small>';const seriesValor=document.createElement('strong');seriesValor.textContent='Consultando...';seriesBox.append(seriesValor);stats.append(seriesBox);area.append(stats);
+  const {data:series,error:se}=await waDb.from('wand_series_executadas').select('serie_id,repeticoes_realizadas,carga_realizada_kg,concluida').eq('sessao_id',s.id);
+  if(se)throw Error(se.message);
+  const feitas=(series||[]).filter(r=>r.concluida===true);seriesValor.textContent=String(feitas.length);
+  if(!feitas.length){waParagrafo(area,'','Nenhuma série concluída registrada.','muted');return}
+  const {data:prescritas,error:pe}=await waDb.from('wand_treino_exercicios').select('id,exercicio_id,ordem').eq('treino_id',s.treino_id);
+  if(pe)throw Error(pe.message);
+  const ids=(prescritas||[]).map(x=>x.id);if(!ids.length){waParagrafo(area,'','Séries registradas; nomes dos exercícios indisponíveis.','muted');return}
+  const {data:mapa,error:me}=await waDb.from('wand_treino_series').select('id,treino_exercicio_id,numero_serie').in('treino_exercicio_id',ids);
+  if(me)throw Error(me.message);
+  const mapSerie=new Map((mapa||[]).map(x=>[x.id,x]));const mapEx=new Map((prescritas||[]).map(x=>[x.id,x]));
+  const exercicioIds=[...new Set((prescritas||[]).map(x=>x.exercicio_id).filter(Boolean))];
+  const {data:nomes}=exercicioIds.length?await waDb.from('wand_exercicios').select('id,nome').in('id',exercicioIds):{data:[]};
+  const nomesEx=new Map((nomes||[]).map(x=>[x.id,x.nome]));
+  const grupos=new Map();for(const r of feitas){const pres=mapSerie.get(r.serie_id),ex=mapEx.get(pres?.treino_exercicio_id);const key=ex?.id||'sem-exercicio';if(!grupos.has(key))grupos.set(key,{ex,series:[]});grupos.get(key).series.push({...r,numero:pres?.numero_serie})}
+  const lista=document.createElement('div');waParagrafo(lista,'','Exercícios executados','wa-notificacao-titulo');
+  for(const g of grupos.values()){
+   const item=document.createElement('details');item.className='wa-inner-fold';const sum=document.createElement('summary');sum.textContent=`${nomesEx.get(g.ex?.exercicio_id)||'Exercício '+(g.ex?.ordem??'—')} · ${g.series.length} série(s)`;item.append(sum);
+   const body=document.createElement('div');body.className='wa-inner-body';for(const r of g.series)waParagrafo(body,'',`Série ${r.numero??'—'} · ${r.repeticoes_realizadas??'—'} rep · ${r.carga_realizada_kg??'—'} kg`,'muted');item.append(body);lista.append(item)
+  }
+  area.append(lista);
+ }catch(e){area.replaceChildren();waParagrafo(area,'','Detalhes da execução indisponíveis nesta consulta. O histórico de treino permanece acessível na aba Treinos.','muted');console.warn('Execução da interrupção',e)}
+}
+async function waContatoAluno(){
+ const campos=['telefone','celular','whatsapp'];
+ for(const campo of campos){const {data,error}=await waDb.from('alunos').select(campo).eq('id',waId).maybeSingle();if(!error&&data?.[campo])return String(data[campo]);}
+ return null;
+}
+async function waAbrirWhatsApp(botao){
+ botao.disabled=true;
+ try{const contato=await waContatoAluno();if(!contato){alert('Telefone do aluno não disponível no cadastro. Verifique o contato antes de abrir o WhatsApp.');return}
+  let digits=contato.replace(/\D/g,'');if(digits.length===10||digits.length===11)digits='55'+digits;
+  if(digits.length<12||digits.length>13){alert('Telefone do aluno inválido ou incompleto.');return}
+  window.open('https://wa.me/'+digits+'?text='+encodeURIComponent(waMensagemAcolhimento),'_blank','noopener,noreferrer');
+ }finally{botao.disabled=false}
+}
 async function waCarregarNotificacoes(){
  const lista=waEl('waNotificacoes');lista.replaceChildren();
  waNotificacoes=await waRpc('wand_minhas_notificacoes')||[];
  const relevantes=waNotificacoes.filter(n=>n.aluno_id===waId&&(!n.lida_em||n.tipo==='treino_interrompido'));
- waBadge();
- if(!relevantes.length){waParagrafo(lista,'','Nenhum aviso interno para este aluno.','muted');return}
- const titulo=document.createElement('h3');titulo.textContent='Avisos internos e interrupções de treino';lista.appendChild(titulo);
+ waBadge();if(!relevantes.length){waParagrafo(lista,'','Nenhum aviso interno para este aluno.','muted');return}
+ const titulo=document.createElement('h3');titulo.textContent='Avisos internos e interrupções';lista.append(titulo);
  for(const n of relevantes){
-  const interrupcao=n.tipo==='treino_interrompido';
-  const div=document.createElement('div');div.className='wa-item'+(interrupcao?' wa-interrupcao':'')+(n.lida_em?' wa-interrupcao-lida':'');
-  waParagrafo(div,'',n.titulo||'Aviso interno','wa-notificacao-titulo');
-  waParagrafo(div,'Recebido em: ',waDataHora(n.criada_em),'muted');
-  if(interrupcao){
-   waParagrafo(div,'Treino: ',n.treino||'Não identificado');
-   waParagrafo(div,'Interrompido em: ',waDataHora(n.interrompida_em));
-   waParagrafo(div,'Motivo: ',waMotivos[n.motivo_interrupcao]||'Não informado');
-   if(n.observacao_interrupcao)waParagrafo(div,'Observações do aluno: ',n.observacao_interrupcao);
-   waParagrafo(div,'Situação da sessão: ',n.situacao_treino==='interrompido'?'Interrompida':n.situacao_treino||'Não identificada');
-   waParagrafo(div,'Aviso: ',n.lida_em?'Lido':'Não lido','wa-etiqueta');
-   waParagrafo(div,'','A leitura do aviso não confirma que o acompanhamento técnico foi resolvido.','muted');
+  const interrompido=n.tipo==='treino_interrompido';const box=document.createElement('details');box.className='wa-notification-fold';
+  const summary=document.createElement('summary');
+  waParagrafo(summary,'',interrompido?'Treino interrompido · '+(n.treino||'Treino'):n.titulo||'Aviso interno','wa-notificacao-titulo');
+  waParagrafo(summary,'',waDataHora(n.interrompida_em||n.criada_em)+' · '+(interrompido?(waMotivos[n.motivo_interrupcao]||'Motivo não informado'):'Solicitação'),'muted');
+  waParagrafo(summary,'',n.lida_em?'Aviso lido':'Aviso não lido','wa-etiqueta');box.append(summary);
+  const body=document.createElement('div');body.className='wa-notification-body';
+  waDetalhe(body,'Recebido',waDataHora(n.criada_em));
+  if(interrompido){
+   waDetalhe(body,'Interrompido',waDataHora(n.interrompida_em));waDetalhe(body,'Motivo',waMotivos[n.motivo_interrupcao]||'Não informado');
+   if(n.observacao_interrupcao)waDetalhe(body,'Observação do aluno',n.observacao_interrupcao);
+   const exec=document.createElement('div');body.append(exec);
+   box.addEventListener('toggle',()=>{if(box.open&&!exec.dataset.loaded){exec.dataset.loaded='1';waCarregarExecucaoInterrompida(n,exec)} });
+   const acoes=document.createElement('div');acoes.className='wa-action-row';
+   const whats=document.createElement('button');whats.className='button secondary';whats.type='button';whats.textContent='WhatsApp do aluno';whats.onclick=()=>waAbrirWhatsApp(whats);acoes.append(whats);
+   const copiar=document.createElement('button');copiar.className='button secondary';copiar.type='button';copiar.textContent='Copiar mensagem';copiar.onclick=async()=>{try{await navigator.clipboard.writeText(waMensagemAcolhimento);waStatus('Mensagem copiada.')}catch{prompt('Copie a mensagem:',waMensagemAcolhimento)}};acoes.append(copiar);
+   body.append(acoes);waParagrafo(body,'','O chat interno ainda depende da implementação do módulo de mensagens.','muted');
+   waParagrafo(body,'','Aviso lido não significa acompanhamento resolvido.','muted');
   }
-  if(!n.lida_em){
-   const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent='Marcar aviso como lido';
-   btn.onclick=async()=>{btn.disabled=true;try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes();waStatus('Aviso marcado como lido. Isso não encerra o acompanhamento técnico.')}catch(e){waStatus(e.message,true);btn.disabled=false}};
-   div.appendChild(btn);
-  }
-  lista.appendChild(div);
+  if(!n.lida_em){const btn=document.createElement('button');btn.type='button';btn.className='button secondary';btn.textContent='Marcar aviso como lido';btn.onclick=async()=>{btn.disabled=true;try{await waRpc('wand_ler_notificacao',{p_id:n.id});await waCarregarNotificacoes();waStatus('Aviso marcado como lido; acompanhamento técnico permanece independente.')}catch(e){waStatus(e.message,true);btn.disabled=false}};body.append(btn)}
+  box.append(body);lista.append(box);
  }
 }
 async function waCarregarTudo(){if(!Number.isSafeInteger(waId)||waId<=0)return;waStatus('Carregando acompanhamento...');try{await Promise.all([waCarregarTreinos(),waCarregarProtocolos()]);await Promise.all([waAtualizarPendencias(),waCarregarAdaptacoes(),waCarregarNotificacoes()]);waStatus('Acompanhamento atualizado.')}catch(e){waStatus('Não foi possível carregar: '+e.message,true)}}
@@ -928,39 +1007,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){waAtualiz
 const waReady=setInterval(()=>{if(!waEl('conteudo').classList.contains('hidden')){clearInterval(waReady);waAtualizarPendencias();waCarregarNotificacoes().catch(e=>waStatus('Não foi possível atualizar os avisos: '+e.message,true))}},600);
 </script>
 
-<script>
-// Recolhe somente os paineis internos do acompanhamento; mantem os IDs,
-// botoes, formularios, listeners e carregamento de dados originais.
-(function(){
-  function preparar(){
-    const painel=document.getElementById('painel-acompanhamento');
-    if(!painel)return;
-    const secoes=Array.from(painel.children).filter(el=>el.classList.contains('subcard'));
-    for(const secao of secoes){
-      if(secao.dataset.wandFoldReady)return;
-      const titulo=secao.querySelector(':scope > h3');
-      if(!titulo)continue;
-      const rotulo=titulo.textContent.trim();
-      const detalhes=document.createElement('details');
-      detalhes.className=secao.className+' wand-fold';
-      detalhes.dataset.wandFoldReady='1';
-      const resumo=document.createElement('summary');
-      resumo.textContent=rotulo;
-      resumo.setAttribute('aria-label','Abrir ou fechar '+rotulo);
-      const corpo=document.createElement('div');
-      corpo.className='wand-fold-body';
-      while(secao.firstChild){
-        const filho=secao.firstChild;
-        if(filho===titulo){titulo.remove();continue;}
-        corpo.appendChild(filho);
-      }
-      detalhes.append(resumo,corpo);
-      secao.replaceWith(detalhes);
-    }
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',preparar);
-  else preparar();
-})();
-</script>
+
 </body>
 </html>
