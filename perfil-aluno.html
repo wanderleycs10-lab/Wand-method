@@ -758,13 +758,15 @@ function configurarMenuPerfil(){
 const botoes=[...document.querySelectorAll(".menu-perfil button")];
 const paineis=[...document.querySelectorAll(".painel-perfil")];
 function abrirPainel(nome){
+  const botaoSelecionado=botoes.find(botao=>botao.dataset.painel===nome);
+  const fechar=botaoSelecionado?.classList.contains("ativo")===true;
   botoes.forEach(botao=>{
-    const ativo=botao.dataset.painel===nome;
+    const ativo=!fechar&&botao.dataset.painel===nome;
     botao.classList.toggle("ativo",ativo);
     botao.setAttribute("aria-expanded",String(ativo));
   });
-  paineis.forEach(painel=>painel.classList.toggle("ativo",painel.id==="painel-"+nome));
-  $("orientacaoPerfil").classList.add("hidden");
+  paineis.forEach(painel=>painel.classList.toggle("ativo",!fechar&&painel.id==="painel-"+nome));
+  $("orientacaoPerfil").classList.toggle("hidden",!fechar);
 }
 botoes.forEach(botao=>botao.addEventListener("click",()=>abrirPainel(botao.dataset.painel)));
 }
