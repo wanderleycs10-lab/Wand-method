@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perfil do Aluno | WAND METHOD</title>
-<meta name="wand-versao" content="perfil-admin-interrupcoes-20261110">
+<meta name="wand-versao" content="perfil-admin-navegacao-20261111">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
@@ -178,6 +178,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <section id="painel-treinos" class="card painel-perfil">
 <h2>Treinos</h2>
 <p class="muted">Monte um treino com exercícios da biblioteca, escolha os métodos e configure as séries antes de publicar para este aluno.</p>
+<div id="wandPublicacaoDestaque" class="subcard hidden" role="status" aria-live="polite" style="border:2px solid #d4af37;background:#29220f"></div>
 <div class="actions">
 <a id="prescreverTreino" class="button" href="#">+ Criar treino</a>
 <a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
@@ -223,7 +224,11 @@ const db=createClient(
 );
 
 const $=id=>document.getElementById(id);
-const alunoId=new URLSearchParams(location.search).get("id");
+const parametrosRetorno=new URLSearchParams(location.search);
+const alunoId=parametrosRetorno.get("id");
+const abaRetorno=parametrosRetorno.get("aba");
+const programaRetorno=parametrosRetorno.get("programa_id");
+const treinoRetorno=parametrosRetorno.get("treino_id");
 const CAMPOS=[
 ["peso","Peso","kg"],
 ["cintura","Cintura","cm"],
