@@ -83,7 +83,7 @@ button.remover{background:#572323;color:#fff}
 
 <div id="app">
 <h2>Criar treino</h2><p class="info">Métodos científicos e modelos operacionais identificados na descrição. Métodos combinados são selecionados e vinculados na primeira etapa; na revisão, você pode editar ou excluir cada exercício e combinação.</p>
-<section class="wand-programa" id="wandPrograma"><h3>Programa de treino · Montagem guiada</h3><p class="info">Selecione a divisão. Cada ficha será salva como rascunho até a publicação conjunta do programa.</p><div class="linha"><div><label for="wandTipo">Tipo de treino</label><select id="wandTipo"><option value="full_body">Full body</option><option value="ab">A/B</option><option value="abc">A/B/C</option><option value="abcd">A/B/C/D</option><option value="personalizado">Personalizado</option></select></div><div id="wandCustomBox" class="oculto"><label for="wandCustom">Quantidade de fichas (2 a 8)</label><input id="wandCustom" type="number" min="2" max="8" value="5"></div></div><input id="wandProgramaNome" type="hidden"><div id="wandFullBox" class="oculto"><label for="wandDescanso">Dias completos de intervalo entre full body</label><input id="wandDescanso" type="number" min="1" max="14" value="1"></div><div id="wandDias" hidden></div><div id="wandFichas" class="wand-fichas"></div><p id="wandAndamento" class="wand-etiqueta"></p><div class="botoes"><button id="wandPublicarPrograma" type="button" class="secundario oculto">Revisar e publicar programa completo</button></div></section><div class="etapas"><span id="passo1" class="etapa atual">1. Escolher exercícios</span><span id="passo2" class="etapa">2. Montar, revisar e publicar</span></div>
+<section class="wand-programa" id="wandPrograma"><h3>Programa de treino · Montagem guiada</h3><p class="info">Selecione a divisão. Cada ficha será salva como rascunho até a publicação conjunta do programa.</p><div class="linha"><div><label for="wandTipo">Tipo de treino</label><select id="wandTipo"><option value="full_body">Full body</option><option value="ab">A/B</option><option value="abc">A/B/C</option><option value="abcd">A/B/C/D</option><option value="personalizado">Personalizado</option></select></div><div id="wandCustomBox" class="oculto"><label for="wandCustom">Quantidade de fichas (2 a 8)</label><input id="wandCustom" type="number" min="2" max="8" value="5"></div></div><input id="wandProgramaNome" type="hidden"><div id="wandFullBox" class="oculto"><label for="wandDescanso">Dias completos de intervalo entre full body</label><input id="wandDescanso" type="number" min="1" max="14" value="1"></div><div id="wandDias" hidden></div><div id="wandFichas" class="wand-fichas"></div><p id="wandAndamento" class="wand-etiqueta"></p><div class="botoes"><button id="wandPublicarPrograma" type="button" class="secundario oculto">Publicar programa completo</button></div></section><div class="etapas"><span id="passo1" class="etapa atual">1. Escolher exercícios</span><span id="passo2" class="etapa">2. Montar e concluir</span></div>
 <div class="card" id="identificacao">
 <div class="linha"><div><label for="aluno">Aluno</label><select id="aluno"><option value="">Selecione um aluno</option></select><p id="alunoFixoAviso" class="info" hidden>Aluno definido pelo perfil.</p></div><div><label for="nome">Nome do treino</label><input id="nome" placeholder="Ex.: Treino A - Peitoral e Tríceps"></div></div>
 <div class="card" style="margin:12px 0;padding:14px"><h3>Validade do treino</h3><label for="validadeTipo">Disponibilidade</label><select id="validadeTipo"><option value="sem">Sem prazo de validade</option><option value="com">Definir período de validade</option></select><div id="validadeDatas" class="oculto"><label for="validadeInicio">Disponível a partir de</label><input id="validadeInicio" type="date"><label for="validadeFim">Último dia disponível (inclusive)</label><input id="validadeFim" type="date"><p class="info">Depois da data final, o treino deixa de estar disponível para execução.</p></div></div>
@@ -119,13 +119,41 @@ const programaUrl=parametros.get('programa_id');const fichaUrl=Number(parametros
 let wandProgramaId=null,wandFichaAtual=1,wandFichasIds=[],wandCarregando=false;
 const wandLetras='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const wandCodigos=()=>$('wandTipo').value==='full_body'?['Full body']:wandLetras.slice(0,$('wandTipo').value==='personalizado'?Math.max(2,Math.min(8,Number($('wandCustom').value)||5)):({ab:2,abc:3,abcd:4}[$('wandTipo').value]||2));
-function wandRender(){const cod=wandCodigos();$('wandCustomBox').classList.toggle('oculto',$('wandTipo').value!=='personalizado');$('wandFullBox').classList.toggle('oculto',$('wandTipo').value!=='full_body');$('wandFichas').replaceChildren(...cod.map((c,i)=>{const e=document.createElement('span');e.textContent=(wandFichasIds[i]?'✓ ':'')+c;e.className=i+1===wandFichaAtual?'atual':'';if(wandFichasIds[i]){e.style.cursor='pointer';e.title='Editar esta ficha';e.onclick=()=>location.href=location.pathname+'?programa_id='+encodeURIComponent(wandProgramaId)+'&ficha='+(i+1)+'&aluno_id='+encodeURIComponent($('aluno').value);}return e;}));$('wandAndamento').textContent='Ficha '+wandFichaAtual+' de '+cod.length+' · '+cod[wandFichaAtual-1];$('wandPublicarPrograma').classList.toggle('oculto',!wandProgramaId);if(!idTreinoEmEdicao&&!$('nome').value.trim())$('nome').value=cod.length===1?'Full body':'Treino '+cod[wandFichaAtual-1];}
+function wandRender(){const cod=wandCodigos();$('wandCustomBox').classList.toggle('oculto',$('wandTipo').value!=='personalizado');$('wandFullBox').classList.toggle('oculto',$('wandTipo').value!=='full_body');$('wandFichas').replaceChildren(...cod.map((c,i)=>{const e=document.createElement('span');e.textContent=(wandFichasIds[i]?'✓ ':'')+c;e.className=i+1===wandFichaAtual?'atual':'';if(wandFichasIds[i]){e.style.cursor='pointer';e.title='Editar esta ficha';e.onclick=()=>location.href=location.pathname+'?programa_id='+encodeURIComponent(wandProgramaId)+'&ficha='+(i+1)+'&aluno_id='+encodeURIComponent($('aluno').value);}return e;}));$('wandAndamento').textContent='Ficha '+wandFichaAtual+' de '+cod.length+' · '+cod[wandFichaAtual-1];$('publicar').textContent=wandFichaAtual===cod.length?'Salvar e publicar programa':'Salvar ficha e avançar →';$('wandPublicarPrograma').classList.add('oculto');if(!idTreinoEmEdicao&&!$('nome').value.trim())$('nome').value=cod.length===1?'Full body':'Treino '+cod[wandFichaAtual-1];}
 function wandTravado(travar){for(const id of ['wandTipo','wandCustom','wandProgramaNome','wandDescanso'])$(id).disabled=travar;for(const el of $('wandDias').querySelectorAll('input'))el.disabled=travar;}
 function wandDados(){return {aluno_id:Number($('aluno').value),treinador_id:usuario.id,nome:$('wandProgramaNome').value.trim()||(($('objetivo').value.trim()||'Treinamento')+' · '+(wandCodigos().length===1?'Full body':wandCodigos().join('/'))),quantidade_fichas:wandCodigos().length,tipo_divisao:$('wandTipo').value,intervalo_full_body_dias:Number($('wandDescanso').value),dias_preferenciais:[...$('wandDias').querySelectorAll('input:checked')].map(x=>Number(x.value))};}
 async function wandCriarOuAtualizarPrograma(){if(wandProgramaId)return wandProgramaId;const dados=wandDados();if(!Number.isSafeInteger(dados.aluno_id)||dados.aluno_id<=0)throw Error('Selecione o aluno.');if(dados.intervalo_full_body_dias<1||dados.intervalo_full_body_dias>14)throw Error('Intervalo inválido.');const {data,error}=await supabase.from('wand_programas_treino').insert({...dados,status:'rascunho'}).select('id').single();if(error)throw error;wandProgramaId=data.id;wandTravado(true);return wandProgramaId;}
 async function wandVincularFicha(treinoId){const codigo=wandCodigos()[wandFichaAtual-1];const {error}=await supabase.from('wand_programa_fichas').upsert({programa_id:wandProgramaId,ordem:wandFichaAtual,codigo,titulo:$('nome').value.trim(),treino_id:treinoId,modalidade:'musculacao'},{onConflict:'programa_id,ordem'});if(error)throw error;wandFichasIds[wandFichaAtual-1]=treinoId;wandRender();}
 async function wandCarregarPrograma(id){const {data:p,error}=await supabase.from('wand_programas_treino').select('*').eq('id',id).eq('treinador_id',usuario.id).single();if(error||!p)throw Error('Programa não encontrado ou sem permissão.');if(p.status!=='rascunho')throw Error('Programa já publicado.');if(alunoPerfil&&String(p.aluno_id)!==alunoPerfil)throw Error('Programa pertence a outro aluno.');wandProgramaId=p.id;$('aluno').value=String(p.aluno_id);$('aluno').disabled=true;$('wandTipo').value=p.tipo_divisao;$('wandProgramaNome').value=p.nome;$('wandDescanso').value=p.intervalo_full_body_dias;for(const x of $('wandDias').querySelectorAll('input'))x.checked=(p.dias_preferenciais||[]).includes(Number(x.value));const {data:f,error:ef}=await supabase.from('wand_programa_fichas').select('ordem,codigo,treino_id').eq('programa_id',id).order('ordem');if(ef)throw ef;wandFichasIds=[];for(const x of f||[])wandFichasIds[x.ordem-1]=x.treino_id;if(p.tipo_divisao==='personalizado')$('wandCustom').value=Math.max(2,Number(p.quantidade_fichas)||5);wandFichaAtual=Number.isInteger(fichaUrl)&&fichaUrl>=1&&fichaUrl<=wandCodigos().length?fichaUrl:1;wandTravado(true);wandRender();const treino=wandFichasIds[wandFichaAtual-1];if(treino)await carregarRascunho(treino);else{$('nome').value=wandCodigos().length===1?'Full body':'Treino '+wandCodigos()[wandFichaAtual-1];}wandRender();}
-async function wandPublicar(){if(!wandProgramaId)return;try{mensagem('Validando todas as fichas...');const {data,error}=await supabase.rpc('wand_publicar_programa',{p_programa_id:wandProgramaId,p_quantidade:wandCodigos().length});if(error)throw error;mensagem('Programa publicado com '+data+' ficha(s)!','sucesso');$('wandPublicarPrograma').disabled=true;$('publicar').disabled=true;$('salvarRascunho').disabled=true;}catch(e){mensagem('Não foi possível publicar: '+e.message,'erro');}}
+async function wandPublicar(){
+ if(!wandProgramaId)return false;
+ const botao=$('wandPublicarPrograma');
+ try{
+  botao.disabled=true;
+  mensagem('Publicando o programa completo...');
+  const {data,error}=await supabase.rpc('wand_publicar_programa',{p_programa_id:wandProgramaId,p_quantidade:wandCodigos().length});
+  if(error)throw error;
+  mensagem('Programa publicado com sucesso! '+data+' ficha(s) disponíveis para o aluno.','sucesso');
+  $('publicar').disabled=true;$('salvarRascunho').disabled=true;
+  return true;
+ }catch(e){
+  console.error('Erro ao publicar programa:',e);
+  // Uma falha de rede pode ocorrer após o banco ter confirmado a publicação.
+  // Consultar o estado antes de orientar qualquer nova tentativa.
+  try{
+   const {data:verificacao,error:ev}=await supabase.from('wand_programas_treino').select('status').eq('id',wandProgramaId).single();
+   if(!ev&&verificacao?.status==='ativo'){
+    mensagem('Publicação confirmada no Supabase! O programa está disponível para o aluno.','sucesso');
+    $('publicar').disabled=true;$('salvarRascunho').disabled=true;
+    return true;
+   }
+  }catch(ignorado){}
+  mensagem('Não foi possível confirmar a publicação: '+(e?.message||String(e))+'. Verifique a conexão e o status do programa antes de tentar novamente pelo botão Salvar e publicar programa. Não recrie as fichas.','erro');
+  // Mantém apenas o botão principal: o treinador pode tentar novamente sem voltar ao topo.
+  botao.classList.add('oculto');
+  return false;
+ }finally{botao.disabled=false;}
+}
 
 function configurarValidade(t){const tipo=$('validadeTipo'),inicio=$('validadeInicio'),fim=$('validadeFim');tipo.value=t?.validade_fim?'com':'sem';inicio.value=t?.validade_inicio||'';fim.value=t?.validade_fim||'';$('validadeDatas').classList.toggle('oculto',tipo.value!=='com');}
 
@@ -350,10 +378,26 @@ async function salvarTreino(status){const apenasRascunho=status==='rascunho';
    const {data:publicado,error:ep}=await supabase.from('wand_treinos').update({status:'ativo'}).eq('id',treinoId).eq('status','rascunho').eq('treinador_id',usuario.id).select('id,status').single();
    if(ep||publicado?.status!=='ativo')throw Error('Não foi possível confirmar a publicação: '+(ep?.message||'status não confirmado'));
   }
-  if(emPrograma){await wandCriarOuAtualizarPrograma();await wandVincularFicha(treinoId);const total=wandCodigos().length;if(wandFichaAtual<total&&!apenasRascunho){const prox=wandFichaAtual+1;mensagem('Ficha '+wandFichaAtual+' salva. Abrindo ficha '+prox+'...','sucesso');location.href=location.pathname+'?programa_id='+encodeURIComponent(wandProgramaId)+'&ficha='+prox+'&aluno_id='+encodeURIComponent(dados.aluno_id);return;}mensagem(wandFichaAtual===total?'Todas as fichas foram salvas. Revise o programa e clique em "Revisar e publicar programa completo".':'Rascunho salvo. Clique em Salvar ficha e avançar para continuar.','sucesso');$('wandPublicarPrograma').classList.remove('oculto');}else mensagem(status==='ativo'?'Treino concluído e publicado com sucesso!':'Rascunho atualizado com sucesso! Você pode continuar editando depois.','sucesso');
-  if(status==='ativo'){$('publicar').disabled=true;$('salvarRascunho').disabled=true;}
+  if(emPrograma){
+   await wandCriarOuAtualizarPrograma();
+   await wandVincularFicha(treinoId);
+   const total=wandCodigos().length;
+   if(apenasRascunho){
+    mensagem('Rascunho salvo. Você pode continuar depois.','sucesso');
+   }else if(wandFichaAtual<total){
+    const prox=wandFichaAtual+1;
+    mensagem('Ficha '+wandFichaAtual+' salva. Abrindo ficha '+prox+'...','sucesso');
+    location.href=location.pathname+'?programa_id='+encodeURIComponent(wandProgramaId)+'&ficha='+prox+'&aluno_id='+encodeURIComponent(dados.aluno_id);
+    return;
+   }else{
+    // A última ficha é publicada na mesma ação de salvar.
+    const publicado=await wandPublicar();
+    if(!publicado){$('wandPublicarPrograma').classList.add('oculto');}
+   }
+  }else mensagem(status==='ativo'?'Treino concluído e publicado com sucesso!':'Rascunho atualizado com sucesso! Você pode continuar editando depois.','sucesso');
+  if(status==='ativo'&&!emPrograma){$('publicar').disabled=true;$('salvarRascunho').disabled=true;}
  }catch(e){console.error(e);mensagem('Não foi possível concluir o salvamento: '+e.message+'. Confira o rascunho em Treinos do aluno antes de tentar novamente.','erro');}
- finally{salvando=false;if(status!=='ativo'||!$('mensagem').classList.contains('sucesso')){$('publicar').disabled=false;$('salvarRascunho').disabled=false;}}
+ finally{salvando=false;if(!$('mensagem').classList.contains('sucesso')||!$('mensagem').textContent.includes('publicado')){$('publicar').disabled=false;$('salvarRascunho').disabled=false;}}
 }
 $('validadeTipo').onchange=()=>{$('validadeDatas').classList.toggle('oculto',$('validadeTipo').value!=='com');};$('pesquisaBib').addEventListener('input',()=>{pagina=1;renderBiblioteca();});$('grupoBib').addEventListener('change',()=>{pagina=1;renderBiblioteca();});$('categoriaBib').addEventListener('change',()=>{pagina=1;renderBiblioteca();});$('concluirSelecao').onclick=concluirSelecao;$('voltarBib').onclick=()=>mudarPasso(1);$('salvarRascunho').onclick=()=>salvarTreino('rascunho');$('publicar').onclick=()=>salvarTreino('ativo');$('semMetodo').onclick=()=>confirmarMetodo(null,'Sem método');$('fecharMetodo').onclick=()=>$('modalMetodo').classList.add('oculto');$('buscarMetodo').oninput=renderMetodos;$('criarMetodo').onclick=criarMetodo;$('fecharVideo').onclick=fecharVideo;$('verSelecionados').onclick=()=>{$('painelSelecionados').classList.toggle('oculto');renderSelecionados();$('painelSelecionados').scrollIntoView({behavior:'smooth',block:'nearest'});};$('fecharSelecionados').onclick=()=>$('painelSelecionados').classList.add('oculto');$('voltarDetalheMetodo').onclick=()=>{$('modalDetalheMetodo').classList.add('oculto');$('modalMetodo').classList.remove('oculto');};$('aplicarDetalheMetodo').onclick=()=>{if(metodoDetalhado)confirmarMetodo(metodoDetalhado.id,metodoDetalhado.nome);};$('buscaConjugado').oninput=renderConjugado;$('grupoConjugado').onchange=renderConjugado;$('cancelarConjugado').onclick=fecharConjugado;$('confirmarConjugado').onclick=confirmarConjugado;$('expandirTodos').onclick=()=>{const todos=selecionados.every(x=>expandidos.has(x));expandidos=todos?new Set():new Set(selecionados);renderConfig();};
 
