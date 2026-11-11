@@ -11,7 +11,7 @@
 <section id="painelDuplicacao" class="card" hidden><h2>Duplicar treino</h2><p id="origemDuplicacao" class="info"></p><label for="destinoDuplicacao">Aluno que receberá a cópia</label><select id="destinoDuplicacao"></select><label for="nomeDuplicacao">Nome do novo treino</label><input id="nomeDuplicacao" maxlength="180" placeholder="Nome da cópia"><p class="info">A cópia será um novo rascunho independente. O original não será alterado.</p><div class="acoes"><button id="confirmarDuplicacao" type="button">Confirmar duplicação</button><button id="cancelarDuplicacao" class="secundario" type="button">Cancelar</button></div><p id="mensagemDuplicacao" role="status" aria-live="polite"></p></section>
 <div class="acoes" id="wandVisoes"><a id="wandDisponiveis" class="botao secundario" href="#">Treinos disponíveis</a><a id="wandHistorico" class="botao secundario" href="#">Histórico do aluno</a></div><div id="wandCategoriasHistorico" class="card" hidden><h3>Consultar histórico</h3><p class="info">Escolha uma categoria para abrir as planilhas. Toque novamente para fechar.</p><div class="acoes" id="wandCategoriaBotoes"><button type="button" class="secundario" data-categoria="ativos">Treinos ativos</button><button type="button" class="secundario" data-categoria="arquivados">Treinos arquivados</button><button type="button" class="secundario" data-categoria="vencidos">Treinos vencidos</button><button type="button" class="secundario" data-categoria="todos">Todos os treinos</button></div></div><p id="contador"></p><div id="listaTreinos"></div>
 <section id="editor"><h2>Detalhes do treino</h2><div class="card"><p id="alunoSelecionado" class="info"></p><p id="statusTreino"></p><label for="nome">Nome do treino</label><input id="nome"><label for="objetivo">Objetivo</label><input id="objetivo"><label for="observacoes">Orientações gerais</label><textarea id="observacoes" rows="3"></textarea></div><h2>Exercícios e séries</h2><div id="exercicios"></div><div class="acoes"><button id="salvar" type="button">Salvar alterações</button><button id="fechar" type="button" class="secundario">Fechar detalhes</button></div><p id="mensagem" role="status" aria-live="polite"></p></section></section>
-<section id="wandValidadeAvisos" class="card"><h2>🔔 Vencimentos de treinos</h2><p id="wandAvisosStatus">Consultando treinos próximos do vencimento...</p><div id="wandAvisosLista"></div><p class="info">Avisos dentro do WandCoach. Notificações push com o aplicativo fechado exigem configuração adicional de servidor e permissões.</p></section>
+<section id="wandValidadeAvisos" class="card"><h2>🔔 Vencimentos de treinos</h2><p id="wandAvisosStatus">Consultando treinos próximos do vencimento...</p><div id="wandAvisosLista"></div><p class="info">Um aviso por programa, incluindo todas as fichas vinculadas. Avisos dentro do WandCoach. Notificações push com o aplicativo fechado exigem configuração adicional de servidor e permissões.</p></section>
 </main>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -111,7 +111,83 @@ function renderizarEditor(){const t=treinoAtual,editavel=t.status==='rascunho';$
 }
 function lerAlteracoes(){const nome=$('nome').value.trim();if(!nome)throw Error('Informe o nome do treino.');const notas=[...document.querySelectorAll('#exercicios .exercicio')].map(card=>{const campo=card.querySelector('.notas');return{id:campo.dataset.exercicioId,observacoes:campo.value.trim()||null};});const series=[...document.querySelectorAll('#exercicios .serie')].map(linha=>{const reps=linha.querySelector('.repeticoes').value.trim(),cargaTexto=linha.querySelector('.carga').value,descansoTexto=linha.querySelector('.descanso').value;if(!reps)throw Error('Informe todas as repetições.');if(!/^\d+$/.test(descansoTexto))throw Error('Descanso deve ser inteiro.');const descanso=Number(descansoTexto);if(!Number.isSafeInteger(descanso)||descanso<0)throw Error('Descanso inválido.');let carga=null;if(cargaTexto!==''){carga=Number(cargaTexto);if(!Number.isFinite(carga)||carga<0)throw Error('Carga inválida.');}return{id:linha.dataset.serieId,repeticoes:reps,carga_kg:carga,descanso_segundos:descanso};});return{treino:{nome,objetivo:$('objetivo').value.trim()||null,observacoes:$('observacoes').value.trim()||null},notas,series};}
 async function salvarAlteracoes(){if(salvando||!treinoAtual)return;if(treinoAtual.status!=='rascunho'){mensagem('Este treino não é um rascunho.','erro');return;}let dados;try{dados=lerAlteracoes();}catch(e){mensagem(e.message,'erro');return;}salvando=true;$('salvar').disabled=true;mensagem('Salvando alterações...');try{const id=treinoAtual.id,{data:atualizado,error:et}=await supabase.from('wand_treinos').update(dados.treino).eq('id',id).eq('status','rascunho').select('id').single();if(et)throw et;if(!atualizado)throw Error('Treino não atualizado.');for(const nota of dados.notas){const {error}=await supabase.from('wand_treino_exercicios').update({observacoes:nota.observacoes}).eq('id',nota.id).eq('treino_id',id);if(error)throw error;}for(const serie of dados.series){const {id:serieId,...campos}=serie;const {error}=await supabase.from('wand_treino_series').update(campos).eq('id',serieId);if(error)throw error;}mensagem('Alterações salvas com sucesso!','sucesso');await carregarTreinos();}catch(e){console.error(e);mensagem('Erro ao salvar: '+e.message+'. Algumas alterações podem ter sido gravadas. Reabra o treino para conferir.','erro');}finally{salvando=false;$('salvar').disabled=false;}}
-async function carregarAvisos(){const status=$('wandAvisosStatus'),lista=$('wandAvisosLista');try{const {data:{user}}=await supabase.auth.getUser();if(!user){status.textContent='Faça login para consultar os avisos.';return;}const {data,error}=await supabase.from('wand_treinos').select('id,nome,aluno_id,validade_fim,status').eq('treinador_id',user.id).eq('status','ativo').not('validade_fim','is',null).order('validade_fim');if(error)throw error;const hoje=new Date();hoje.setHours(0,0,0,0);const itens=(data||[]).map(t=>({...t,dias:Math.round((new Date(t.validade_fim+'T00:00:00')-hoje)/86400000)})).filter(t=>t.dias<=7);lista.replaceChildren();status.textContent=itens.length?itens.length+' treino(s) exigem atenção.':'Nenhum treino vence nos próximos 7 dias.';for(const t of itens){const d=criar('div');d.style.cssText='border:1px solid #9b7c35;border-radius:10px;padding:12px;margin:8px 0';const nome=criar('strong','',t.nome),msg=criar('p','',t.dias<0?'Vencido há '+(-t.dias)+' dia(s)':t.dias===0?'Último dia de validade':'Faltam '+t.dias+' dia(s)'),a=criar('a','','Abrir treinos do aluno');a.href='gerenciar-treinos.html?aluno_id='+encodeURIComponent(t.aluno_id);d.append(nome,msg,a);lista.append(d);}}catch(e){status.textContent='Não foi possível consultar vencimentos: '+e.message;}}
+async function carregarAvisos(){
+ const status=$('wandAvisosStatus'),lista=$('wandAvisosLista');
+ status.textContent='Consultando programas próximos do vencimento...';
+ try{
+  const {data:{user},error:authErro}=await supabase.auth.getUser();
+  if(authErro||!user){status.textContent='Faça login para consultar os avisos.';return;}
+  const {data:ativos,error}=await supabase.from('wand_treinos')
+   .select('id,nome,aluno_id,validade_fim,status')
+   .eq('treinador_id',user.id).eq('status','ativo').not('validade_fim','is',null)
+   .order('validade_fim');
+  if(error)throw error;
+  const treinosAtivos=ativos||[];
+  const ids=treinosAtivos.map(t=>t.id);
+  let fichas=[];
+  if(ids.length){
+   // Usa os vínculos reais: nunca junta fichas apenas por nomes semelhantes.
+   const r=await supabase.from('wand_programa_fichas')
+    .select('programa_id,treino_id,codigo').in('treino_id',ids);
+   if(r.error)throw r.error;
+   fichas=r.data||[];
+  }
+  const idsProgramas=[...new Set(fichas.map(f=>f.programa_id).filter(Boolean))];
+  let programas=[];
+  if(idsProgramas.length){
+   const r=await supabase.from('wand_programas_treino')
+    .select('id,nome,tipo_divisao,aluno_id,status').in('id',idsProgramas)
+    .eq('treinador_id',user.id);
+   if(r.error)throw r.error;
+   programas=r.data||[];
+  }
+  const porId=new Map(programas.map(p=>[String(p.id),p]));
+  const porTreino=new Map();
+  for(const f of fichas){
+   if(porId.has(String(f.programa_id)))porTreino.set(String(f.treino_id),String(f.programa_id));
+  }
+  const grupos=new Map();
+  for(const t of treinosAtivos){
+   const programaId=porTreino.get(String(t.id));
+   const programa=programaId?porId.get(programaId):null;
+   const chave=programa?'programa:'+programaId:'treino:'+t.id;
+   if(!grupos.has(chave))grupos.set(chave,{programa,aluno_id:t.aluno_id,treinos:[]});
+   grupos.get(chave).treinos.push(t);
+  }
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const diasAte=v=>Math.round((new Date(v+'T00:00:00')-hoje)/86400000);
+  const itens=[];
+  for(const grupo of grupos.values()){
+   // Em um programa, uma ficha não pode produzir um aviso independente.
+   // Se houver validades divergentes, usa a data mais próxima e sinaliza isso.
+   const datas=grupo.treinos.map(t=>t.validade_fim).filter(Boolean).sort();
+   if(!datas.length)continue;
+   const fim=datas[0],dias=diasAte(fim);
+   if(dias>7)continue;
+   itens.push({...grupo,fim,dias,divergente:new Set(datas).size>1});
+  }
+  itens.sort((a,b)=>a.dias-b.dias);
+  lista.replaceChildren();
+  status.textContent=itens.length
+   ?itens.length+' programa(s)/treino(s) exigem atenção.'
+   :'Nenhum programa ou treino vence nos próximos 7 dias.';
+  for(const g of itens){
+   const d=criar('div');d.style.cssText='border:1px solid #9b7c35;border-radius:10px;padding:12px;margin:8px 0';
+   const nome=g.programa
+    ?(g.programa.nome||'Programa de treinamento')+' · '+(g.programa.tipo_divisao||'Planilha')
+    :g.treinos[0].nome;
+   d.appendChild(criar('strong','',nome));
+   if(g.programa)d.appendChild(criar('p','info',g.treinos.length+' ficha(s) ativa(s) vinculada(s)'));
+   d.appendChild(criar('p','',g.dias<0?'Vencido há '+(-g.dias)+' dia(s)':g.dias===0?'Último dia de validade':'Faltam '+g.dias+' dia(s)'));
+   d.appendChild(criar('p','info','Data de referência: '+g.fim.split('-').reverse().join('/')));
+   if(g.divergente)d.appendChild(criar('p','erro','Atenção: as fichas deste programa têm validades diferentes. Verifique a prescrição.'));
+   const a=criar('a','','Abrir programa do aluno');
+   a.href='gerenciar-treinos.html?aluno_id='+encodeURIComponent(g.aluno_id)
+    +(g.programa?'&programa_id='+encodeURIComponent(g.programa.id):'');
+   d.appendChild(a);lista.appendChild(d);
+  }
+ }catch(e){console.error('Vencimentos',e);status.textContent='Não foi possível consultar vencimentos: '+e.message;}
+}
 $('atualizar').onclick=()=>{carregarTreinos();carregarAvisos();};$('filtroAluno').onchange=()=>{if(alunoFixo)return;$('editor').style.display='none';treinoAtual=null;carregarTreinos();};$('fechar').onclick=()=>{$('editor').style.display='none';treinoAtual=null;mensagem('');};$('salvar').onclick=salvarAlteracoes;$('confirmarDuplicacao').onclick=confirmarDuplicacao;$('cancelarDuplicacao').onclick=()=>{if(duplicando)return;$('painelDuplicacao').hidden=true;treinoParaDuplicar=null;};iniciar();
 </script></body></html>
 
