@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perfil do Aluno | WAND METHOD</title>
-<meta name="wand-versao" content="perfil-admin-navegacao-20261111">
+<meta name="wand-versao" content="perfil-admin-programas-agrupados-20261111">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
@@ -116,6 +116,9 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 .wa-action-row .button{font-size:13px;padding:10px 12px}
 .wa-notification-fold p{overflow-wrap:anywhere}
 </style>
+<style>
+.wand-programa{border:1px solid #655321;background:#111;border-radius:13px;padding:16px;margin:13px 0}.wand-programa.recente{border:2px solid #d4af37;box-shadow:0 0 0 2px #3b3219}.wand-programa h3{margin:0 0 6px}.wand-programa .wand-fichas{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.wand-ficha-btn{font-size:13px;padding:9px 13px;background:#25221a;color:#e8c65c;border:1px solid #806b32}.wand-ficha-btn[aria-expanded="true"]{background:#d4af37;color:#080808}.wand-ficha-detalhes{border:1px solid #504325;border-radius:9px;padding:12px;margin-top:8px;background:#191919}.wand-ficha-ex{border-top:1px solid #363029;padding:10px 0}.wand-ficha-ex strong{color:#d4af37}.wand-programa-meta{font-size:12px;color:#bbb;line-height:1.7}.wand-programa-status{display:inline-block;border:1px solid #6a592e;border-radius:20px;color:#e6c358;padding:4px 9px;font-size:12px}.wand-ficha-link{font-size:12px;display:inline-block;margin-top:8px}
+</style>
 </head>
 <body>
 <header>
@@ -183,7 +186,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <a id="prescreverTreino" class="button" href="#">+ Criar treino</a>
 <a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
 </div>
-<div class="actions"><button type="button" class="button secondary" id="wandHistoricoAlternar" aria-expanded="false" aria-controls="wandHistoricoCard">Histórico de execução</button></div><div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico de execução</h3><p class="muted">Consulte as sessões em formato compacto. Toque em um treino para ver todos os detalhes.</p><div id="wandHistoricoConteudo"><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Abra o histórico para consultar as sessões.</div></div></div>
+<h3>Planilhas de treinamento</h3><p class="muted">Cada programa reúne suas fichas A, B, C etc. Toque em uma ficha para abrir ou fechar.</p><div id="wandProgramasAgrupados" aria-live="polite">Carregando planilhas...</div><div class="actions"><button type="button" class="button secondary" id="wandHistoricoAlternar" aria-expanded="false" aria-controls="wandHistoricoCard">Histórico de execução</button></div><div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico de execução</h3><p class="muted">Consulte as sessões em formato compacto. Toque em um treino para ver todos os detalhes.</p><div id="wandHistoricoConteudo"><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Abra o histórico para consultar as sessões.</div></div></div>
 
 
 </section>
@@ -1028,6 +1031,108 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){waAtualiz
 const waReady=setInterval(()=>{if(!waEl('conteudo').classList.contains('hidden')){clearInterval(waReady);waAtualizarPendencias();waCarregarNotificacoes().catch(e=>waStatus('Não foi possível atualizar os avisos: '+e.message,true))}},600);
 </script>
 
+
+<script type="module">
+import {createClient as criarWandCliente} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const wandDB=criarWandCliente('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const wandParams=new URLSearchParams(location.search);
+const wandAluno=Number(wandParams.get('id'));
+const wandProgramaDestaque=wandParams.get('programa_id');
+const wandTreinoDestaque=wandParams.get('treino_id');
+const wandArea=document.getElementById('wandProgramasAgrupados');
+const wandNovo=(tag,texto,classe)=>{const e=document.createElement(tag);if(texto!==undefined)e.textContent=texto;if(classe)e.className=classe;return e};
+const wandData=v=>v?String(v).slice(0,10).split('-').reverse().join('/'):'Não informado';
+const wandRotuloStatus=s=>({ativo:'Ativo',rascunho:'Rascunho',arquivado:'Arquivado',inativo:'Inativo'}[s]||s||'Não informado');
+function wandFichaDetalhes(ficha,treino,corpo){
+ corpo.textContent='Carregando exercícios...';
+ return (async()=>{
+  if(!treino){corpo.textContent='Esta ficha não possui treino vinculado.';return}
+  const {data:exs,error:ee}=await wandDB.from('wand_treino_exercicios').select('id,exercicio_id,ordem,observacoes,configuracao_metodo').eq('treino_id',treino.id).order('ordem');
+  if(ee)throw ee;
+  const ids=(exs||[]).map(x=>x.id);
+  const exerciciosIds=[...new Set((exs||[]).map(x=>x.exercicio_id).filter(Boolean))];
+  const [sr,nr]=await Promise.all([
+   ids.length?wandDB.from('wand_treino_series').select('treino_exercicio_id,numero_serie,repeticoes,carga_kg,descanso_segundos').in('treino_exercicio_id',ids).order('numero_serie'):Promise.resolve({data:[],error:null}),
+   exerciciosIds.length?wandDB.from('wand_exercicios').select('id,nome').in('id',exerciciosIds):Promise.resolve({data:[],error:null})
+  ]);
+  if(sr.error)throw sr.error;if(nr.error)throw nr.error;
+  const nomes=new Map((nr.data||[]).map(x=>[x.id,x.nome]));
+  corpo.replaceChildren();
+  const meta=wandNovo('p','Objetivo: '+(treino.objetivo||'Não informado'),'wand-programa-meta');corpo.append(meta);
+  if(treino.observacoes)corpo.append(wandNovo('p',treino.observacoes,'wand-programa-meta'));
+  if(!exs?.length)corpo.append(wandNovo('p','Nenhum exercício cadastrado.','muted'));
+  for(const ex of exs||[]){
+   const bloco=wandNovo('div',undefined,'wand-ficha-ex');
+   bloco.append(wandNovo('strong',`${ex.ordem||'—'}. ${nomes.get(ex.exercicio_id)||'Exercício'}`));
+   const metodo=ex.configuracao_metodo?.grupo_metodo_nome;
+   if(metodo)bloco.append(wandNovo('p','Método: '+metodo,'wand-programa-meta'));
+   if(ex.observacoes)bloco.append(wandNovo('p',ex.observacoes,'wand-programa-meta'));
+   for(const serie of (sr.data||[]).filter(x=>x.treino_exercicio_id===ex.id)){
+    bloco.append(wandNovo('p',`Série ${serie.numero_serie} · ${serie.repeticoes??'—'} rep · ${serie.carga_kg??'—'} kg · ${serie.descanso_segundos??'—'} s descanso`,'wand-programa-meta'));
+   }
+   corpo.append(bloco);
+  }
+  const link=wandNovo('a','Abrir no gerenciamento de treinos','wand-ficha-link');
+  link.href='gerenciar-treinos.html?aluno_id='+encodeURIComponent(wandAluno)+'&treino_id='+encodeURIComponent(treino.id);
+  corpo.append(link);
+ })().catch(e=>{corpo.textContent='Não foi possível carregar esta ficha: '+e.message});
+}
+function wandMontarPrograma(programa,fichas,treinosPorId){
+ const card=wandNovo('article',undefined,'wand-programa');card.dataset.programaId=programa.id;
+ const titulo=wandNovo('h3',programa.nome||'Programa de treinamento');card.append(titulo);
+ const status=wandNovo('span',wandRotuloStatus(programa.status),'wand-programa-status');card.append(status);
+ const meta=wandNovo('p',`Divisão: ${String(programa.tipo_divisao||'Personalizada').toUpperCase()} · ${fichas.length} ficha(s) · Criado em ${wandData(programa.criado_em)}`,'wand-programa-meta');card.append(meta);
+ const datas=fichas.map(f=>treinosPorId.get(f.treino_id)).filter(Boolean);
+ const inicios=datas.map(t=>t.validade_inicio).filter(Boolean).sort();const fins=datas.map(t=>t.validade_fim).filter(Boolean).sort();
+ card.append(wandNovo('p','Período: '+(inicios.length?wandData(inicios[0]):'Não definido')+' até '+(fins.length?wandData(fins[fins.length-1]):'não definido'),'wand-programa-meta'));
+ const botoes=wandNovo('div',undefined,'wand-fichas');const area=wandNovo('div');card.append(botoes,area);
+ for(const ficha of fichas){
+  const treino=treinosPorId.get(ficha.treino_id);
+  const botao=wandNovo('button','Treino '+(ficha.codigo||ficha.ordem||'—'),'wand-ficha-btn');botao.type='button';botao.setAttribute('aria-expanded','false');
+  const conteudo=wandNovo('section',undefined,'wand-ficha-detalhes');conteudo.hidden=true;
+  botao.addEventListener('click',()=>{const abrir=conteudo.hidden;conteudo.hidden=!abrir;botao.setAttribute('aria-expanded',String(abrir));if(abrir&&!conteudo.dataset.loaded){conteudo.dataset.loaded='1';wandFichaDetalhes(ficha,treino,conteudo)}});
+  botoes.append(botao);area.append(conteudo);
+  if(wandTreinoDestaque&&String(ficha.treino_id)===wandTreinoDestaque)card.classList.add('recente');
+ }
+ if(wandProgramaDestaque===String(programa.id))card.classList.add('recente');
+ return card;
+}
+async function wandCarregarPlanilhas(){
+ if(!Number.isSafeInteger(wandAluno)||wandAluno<=0)return;
+ wandArea.textContent='Carregando planilhas de treinamento...';
+ try{
+  const [pr,tr]=await Promise.all([
+   wandDB.from('wand_programas_treino').select('id,nome,tipo_divisao,status,criado_em').eq('aluno_id',wandAluno).order('criado_em',{ascending:false}),
+   wandDB.from('wand_treinos').select('id,nome,objetivo,observacoes,status,created_at,validade_inicio,validade_fim').eq('aluno_id',wandAluno).order('created_at',{ascending:false})
+  ]);
+  if(pr.error)throw pr.error;if(tr.error)throw tr.error;
+  const programas=pr.data||[],treinos=tr.data||[];
+  const ids=programas.map(p=>p.id);
+  const fr=ids.length?await wandDB.from('wand_programa_fichas').select('id,programa_id,ordem,codigo,titulo,treino_id').in('programa_id',ids).order('ordem'): {data:[],error:null};
+  if(fr.error)throw fr.error;
+  const fichas=fr.data||[];
+  const porId=new Map(treinos.map(t=>[t.id,t]));const vinculados=new Set(fichas.map(f=>f.treino_id));
+  wandArea.replaceChildren();
+  const ativos=programas.filter(p=>p.status==='ativo');const outros=programas.filter(p=>p.status!=='ativo');
+  if(ativos.length){wandArea.append(wandNovo('h3','Planilhas ativas'));for(const p of ativos)wandArea.append(wandMontarPrograma(p,fichas.filter(f=>f.programa_id===p.id),porId))}
+  const avulsos=treinos.filter(t=>!vinculados.has(t.id)&&t.status==='ativo');
+  if(avulsos.length){wandArea.append(wandNovo('h3','Treinos individuais'));for(const t of avulsos){const fake={id:t.id,nome:t.nome,tipo_divisao:'Individual',status:t.status,criado_em:t.created_at};const ficha={id:t.id,treino_id:t.id,codigo:'único',ordem:1};wandArea.append(wandMontarPrograma(fake,[ficha],porId))}}
+  const historicos=[...outros.map(p=>({p,f:fichas.filter(f=>f.programa_id===p.id)})),...treinos.filter(t=>!vinculados.has(t.id)&&t.status!=='ativo').map(t=>({p:{id:t.id,nome:t.nome,tipo_divisao:'Individual',status:t.status,criado_em:t.created_at},f:[{id:t.id,treino_id:t.id,codigo:'único'}]}))];
+  if(historicos.length){const historico=wandNovo('details');const cab=wandNovo('summary','Histórico de prescrições · '+historicos.length+' planilha(s)');historico.append(cab);for(const {p,f} of historicos)historico.append(wandMontarPrograma(p,f,porId));wandArea.append(historico)}
+  if(!programas.length&&!treinos.length)wandArea.textContent='Nenhuma planilha cadastrada.';
+  const destaque=wandArea.querySelector('.wand-programa.recente');
+  const aviso=document.getElementById('wandPublicacaoDestaque');
+  if(destaque&&aviso){aviso.classList.remove('hidden');aviso.textContent='✓ Planilha localizada! O programa recém-publicado está destacado em dourado abaixo.';}
+ }catch(e){wandArea.textContent='Não foi possível carregar as planilhas: '+e.message;console.error(e)}
+}
+const wandMenuTreinos=document.querySelector('[data-painel="treinos"]');
+wandMenuTreinos?.addEventListener('click',()=>{if(wandArea.dataset.loaded!=='1'){wandArea.dataset.loaded='1';wandCarregarPlanilhas()}});
+if(wandParams.get('aba')==='treinos'||wandProgramaDestaque||wandTreinoDestaque){
+ const observer=new MutationObserver(()=>{if(!document.getElementById('conteudo').classList.contains('hidden')){observer.disconnect();wandMenuTreinos?.click()}});
+ observer.observe(document.getElementById('conteudo'),{attributes:true,attributeFilter:['class']});
+ if(!document.getElementById('conteudo').classList.contains('hidden'))wandMenuTreinos?.click();
+}
+</script>
 
 </body>
 </html>
