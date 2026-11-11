@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gerenciar Treinos | WAND METHOD</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif}header{padding:25px;text-align:center;border-bottom:1px solid #d4af37}header h1{margin:0 0 8px;color:#d4af37}header p{margin:0;letter-spacing:2px;color:#bbb}main{max-width:1050px;margin:auto;padding:24px 16px}h2,h3{color:#d4af37}a{color:#d4af37}.card{background:#171717;border:1px solid #66551f;border-radius:14px;padding:20px;margin:18px 0}input,select,textarea{width:100%;padding:12px;background:#242424;color:#fff;border:1px solid #66551f;border-radius:8px;font:inherit}label{display:block;margin:12px 0 6px;color:#ddd}button,.botao{display:inline-block;background:#d4af37;color:#111;border:0;border-radius:8px;padding:12px 17px;font-weight:bold;font-size:14px;text-decoration:none;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.secundario{background:#303030;color:#fff;border:1px solid #66551f}.acoes{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.treino-item{padding:18px;border:1px solid #66551f;border-radius:12px;margin:12px 0;background:#111}.treino-item h3{margin:0 0 8px}.info{color:#bbb;line-height:1.6;font-size:14px}.serie{display:grid;grid-template-columns:65px 1fr 1fr 1fr;gap:10px;align-items:end;margin:12px 0}.serie label{font-size:12px;margin:0 0 5px}.serie input{padding:9px}.exercicio{background:#101010;border:1px solid #55471d;border-radius:10px;padding:16px;margin:14px 0}.grupo-conjugado{background:#17150e;border:1px solid #a18428;border-radius:14px;padding:16px;margin:16px 0}.grupo-conjugado>h3{margin:0 0 7px;font-size:19px}.grupo-resumo{color:#e6d39a;margin:0 0 14px;line-height:1.5}.grupo-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grupo-grade.tres{grid-template-columns:repeat(3,minmax(0,1fr))}.grupo-grade .exercicio{margin:0;min-width:0}.grupo-grade .serie{grid-template-columns:38px minmax(0,1fr);gap:7px;align-items:end}.grupo-grade .serie>div:nth-child(4){grid-column:2}.grupo-grade .serie input{min-width:0}.grupo-grade .exercicio h3{font-size:16px;margin-top:0}.status{display:inline-block;padding:5px 10px;background:#332a13;color:#eac34a;border-radius:6px;font-size:12px}.erro{color:#ff8989}.sucesso{color:#78df94}.wand-excluir{background:transparent;border:1px solid #c65e5e;color:#ff9696}.wand-destaque{border:2px solid #d4af37;box-shadow:0 0 0 3px #d4af3733}.wand-resultado{color:#eac34a;line-height:1.5}#editor{display:none}@media(max-width:800px){.grupo-grade,.grupo-grade.tres{grid-template-columns:1fr}}@media(max-width:650px){.serie{grid-template-columns:45px 1fr 1fr}.serie>div:last-child{grid-column:2/4}.card{padding:15px}}
-</style><style>.treino-item .treino-item{margin:8px 0;background:#111}.treino-item>button.wand-excluir{margin-top:12px}.treino-item .acoes{margin:12px 0}.treino-item [hidden]{display:none!important}</style></head><body>
+.wand-avisos-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:bold;color:#d4af37;font-size:20px}.wand-avisos-fold>summary::-webkit-details-marker{display:none}.wand-avisos-fold>summary:after{content:"+";margin-left:auto;font-size:25px}.wand-avisos-fold[open]>summary:after{content:"−"}.wand-avisos-corpo{padding-top:15px}.wand-aviso-item{border:1px solid #9b7c35;border-radius:10px;margin:10px 0;background:#111}.wand-aviso-item>summary{list-style:none;cursor:pointer;padding:14px;color:#f1d279;font-weight:bold;display:flex;justify-content:space-between;gap:8px}.wand-aviso-item>summary::-webkit-details-marker{display:none}.wand-aviso-item>summary:after{content:"▾"}.wand-aviso-item[open]>summary:after{content:"▴"}.wand-aviso-corpo{padding:0 14px 14px}.wand-aviso-corpo .acoes button{font-size:13px} </style><style>.treino-item .treino-item{margin:8px 0;background:#111}.treino-item>button.wand-excluir{margin-top:12px}.treino-item .acoes{margin:12px 0}.treino-item [hidden]{display:none!important}</style></head><body>
 <header><h1>WAND METHOD</h1><p>GERENCIAMENTO DE TREINOS</p></header><main>
 <a id="voltar" href="admin.html">← Voltar ao WandCoach</a><p id="status">Verificando acesso...</p>
 <section id="app" hidden><h2 id="tituloTreinos">Treinos cadastrados</h2><p id="contextoAluno" class="info" hidden></p>
@@ -11,7 +11,7 @@
 <section id="painelDuplicacao" class="card" hidden><h2>Duplicar treino</h2><p id="origemDuplicacao" class="info"></p><label for="destinoDuplicacao">Aluno que receberá a cópia</label><select id="destinoDuplicacao"></select><label for="nomeDuplicacao">Nome do novo treino</label><input id="nomeDuplicacao" maxlength="180" placeholder="Nome da cópia"><p class="info">A cópia será um novo rascunho independente. O original não será alterado.</p><div class="acoes"><button id="confirmarDuplicacao" type="button">Confirmar duplicação</button><button id="cancelarDuplicacao" class="secundario" type="button">Cancelar</button></div><p id="mensagemDuplicacao" role="status" aria-live="polite"></p></section>
 <div class="acoes" id="wandVisoes"><a id="wandDisponiveis" class="botao secundario" href="#">Treinos disponíveis</a><a id="wandHistorico" class="botao secundario" href="#">Histórico do aluno</a></div><div id="wandCategoriasHistorico" class="card" hidden><h3>Consultar histórico</h3><p class="info">Escolha uma categoria para abrir as planilhas. Toque novamente para fechar.</p><div class="acoes" id="wandCategoriaBotoes"><button type="button" class="secundario" data-categoria="ativos">Treinos ativos</button><button type="button" class="secundario" data-categoria="arquivados">Treinos arquivados</button><button type="button" class="secundario" data-categoria="vencidos">Treinos vencidos</button><button type="button" class="secundario" data-categoria="todos">Todos os treinos</button></div></div><p id="contador"></p><div id="listaTreinos"></div>
 <section id="editor"><h2>Detalhes do treino</h2><div class="card"><p id="alunoSelecionado" class="info"></p><p id="statusTreino"></p><label for="nome">Nome do treino</label><input id="nome"><label for="objetivo">Objetivo</label><input id="objetivo"><label for="observacoes">Orientações gerais</label><textarea id="observacoes" rows="3"></textarea></div><h2>Exercícios e séries</h2><div id="exercicios"></div><div class="acoes"><button id="salvar" type="button">Salvar alterações</button><button id="fechar" type="button" class="secundario">Fechar detalhes</button></div><p id="mensagem" role="status" aria-live="polite"></p></section></section>
-<section id="wandValidadeAvisos" class="card"><h2>🔔 Vencimentos de treinos</h2><p id="wandAvisosStatus">Consultando treinos próximos do vencimento...</p><div id="wandAvisosLista"></div><p class="info">Um aviso por programa, incluindo todas as fichas vinculadas. Avisos dentro do WandCoach. Notificações push com o aplicativo fechado exigem configuração adicional de servidor e permissões.</p></section>
+<details id="wandValidadeAvisos" class="card wand-avisos-fold"><summary>🔔 Vencimentos de treinos <span id="wandAvisosContador" class="status" aria-live="polite">Consultando...</span></summary><div class="wand-avisos-corpo"><p id="wandAvisosStatus" class="info">Consultando treinos próximos do vencimento...</p><div id="wandAvisosLista"></div><p class="info">Avisos preventivos: somente programas ainda válidos que vencem nos próximos 7 dias. Planilhas vencidas permanecem no histórico do aluno.</p></div></details>
 </main>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -155,36 +155,56 @@ async function carregarAvisos(){
    grupos.get(chave).treinos.push(t);
   }
   const hoje=new Date();hoje.setHours(0,0,0,0);
-  const diasAte=v=>Math.round((new Date(v+'T00:00:00')-hoje)/86400000);
+  const diasAte=v=>{const [ano,mes,dia]=String(v).split('-').map(Number);const alvo=new Date(ano,mes-1,dia);return Math.round((alvo-hoje)/86400000)};
   const itens=[];
   for(const grupo of grupos.values()){
-   // Em um programa, uma ficha não pode produzir um aviso independente.
-   // Se houver validades divergentes, usa a data mais próxima e sinaliza isso.
    const datas=grupo.treinos.map(t=>t.validade_fim).filter(Boolean).sort();
    if(!datas.length)continue;
+   // Usa a primeira validade do programa para não manter fichas vencidas em avisos.
    const fim=datas[0],dias=diasAte(fim);
-   if(dias>7)continue;
+   if(dias<0||dias>7)continue;
    itens.push({...grupo,fim,dias,divergente:new Set(datas).size>1});
   }
   itens.sort((a,b)=>a.dias-b.dias);
   lista.replaceChildren();
+  const contador=$('wandAvisosContador');
+  contador.textContent=itens.length?itens.length+' próximo(s)':'Nenhum aviso';
   status.textContent=itens.length
-   ?itens.length+' programa(s)/treino(s) exigem atenção.'
+   ?itens.length+' programa(s)/treino(s) próximo(s) do vencimento. Toque em um aviso para abrir.'
    :'Nenhum programa ou treino vence nos próximos 7 dias.';
+  const mensagemRenovacao='Olá! Tudo bem? Seu programa de treinamento está próximo do vencimento. Vamos conversar sobre a renovação e os próximos objetivos?';
+  async function abrirWhatsApp(alunoId,botao){
+   botao.disabled=true;
+   try{
+    // Consulta cada campo separadamente: cadastros antigos podem não ter todas as colunas.
+    let telefone='';
+    for(const campo of ['whatsapp','celular','telefone']){
+     const r=await supabase.from('alunos').select(campo).eq('id',alunoId).maybeSingle();
+     if(!r.error&&r.data?.[campo]){telefone=String(r.data[campo]);break;}
+    }
+    if(!telefone){alert('O cadastro deste aluno não possui um número de WhatsApp disponível.');return;}
+    let numero=telefone.replace(/\D/g,'');
+    if(numero.length===10||numero.length===11)numero='55'+numero;
+    if(!/^\d{12,13}$/.test(numero)){alert('Número de telefone incompleto ou inválido.');return;}
+    window.open('https://wa.me/'+numero+'?text='+encodeURIComponent(mensagemRenovacao),'_blank','noopener,noreferrer');
+   }catch(e){alert('Não foi possível consultar o contato: '+e.message)}finally{botao.disabled=false}
+  }
   for(const g of itens){
-   const d=criar('div');d.style.cssText='border:1px solid #9b7c35;border-radius:10px;padding:12px;margin:8px 0';
    const nome=g.programa
     ?(g.programa.nome||'Programa de treinamento')+' · '+(g.programa.tipo_divisao||'Planilha')
     :g.treinos[0].nome;
-   d.appendChild(criar('strong','',nome));
-   if(g.programa)d.appendChild(criar('p','info',g.treinos.length+' ficha(s) ativa(s) vinculada(s)'));
-   d.appendChild(criar('p','',g.dias<0?'Vencido há '+(-g.dias)+' dia(s)':g.dias===0?'Último dia de validade':'Faltam '+g.dias+' dia(s)'));
-   d.appendChild(criar('p','info','Data de referência: '+g.fim.split('-').reverse().join('/')));
-   if(g.divergente)d.appendChild(criar('p','erro','Atenção: as fichas deste programa têm validades diferentes. Verifique a prescrição.'));
-   const a=criar('a','','Abrir programa do aluno');
-   a.href='gerenciar-treinos.html?aluno_id='+encodeURIComponent(g.aluno_id)
-    +(g.programa?'&programa_id='+encodeURIComponent(g.programa.id):'');
-   d.appendChild(a);lista.appendChild(d);
+   const d=criar('details','wand-aviso-item');
+   const cab=criar('summary','',nome+' · '+(g.dias===0?'Vence hoje':'Faltam '+g.dias+' dia(s)'));
+   d.appendChild(cab);
+   const corpo=criar('div','wand-aviso-corpo');
+   if(g.programa)corpo.appendChild(criar('p','info',g.treinos.length+' ficha(s) ativa(s) vinculada(s)'));
+   corpo.appendChild(criar('p','info','Validade: '+g.fim.split('-').reverse().join('/')));
+   if(g.divergente)corpo.appendChild(criar('p','erro','Atenção: as fichas deste programa têm datas de validade diferentes. Verifique a prescrição.'));
+   const acoes=criar('div','acoes');
+   const whats=criar('button','secundario','WhatsApp do aluno');whats.type='button';whats.onclick=()=>abrirWhatsApp(g.aluno_id,whats);
+   const app=criar('button','secundario','Mensagem no app');app.type='button';app.onclick=()=>alert('O chat interno ainda não foi implementado. Por enquanto, utilize o WhatsApp.');
+   acoes.append(whats,app);corpo.appendChild(acoes);
+   d.appendChild(corpo);lista.appendChild(d);
   }
  }catch(e){console.error('Vencimentos',e);status.textContent='Não foi possível consultar vencimentos: '+e.message;}
 }
