@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perfil do Aluno | WAND METHOD</title>
-<meta name="wand-versao" content="perfil-menu-treinos-20261111">
+<meta name="wand-versao" content="perfil-gestao-status-20261111">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
@@ -139,7 +139,12 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <div class="grid">
 <div class="metric"><strong>Nome</strong><span id="nome">—</span></div>
 <div class="metric"><strong>Modalidade</strong><span id="modalidade">—</span></div>
-<div class="metric"><strong>Status</strong><span id="statusAluno">—</span></div>
+<div class="metric"><strong>Status</strong><span id="statusAluno">—</span><button type="button" id="gerenciarStatus" class="secondary" style="display:block;margin-top:12px;padding:9px 12px">Gerenciar status</button></div>
+</div>
+<div id="gestaoAluno" class="subcard hidden" aria-label="Gerenciar situação do aluno">
+<h3>Gerenciar aluno</h3><p class="muted">Inativar preserva avaliações, treinos e histórico. Excluir exige remoção segura dos registros vinculados.</p>
+<div class="actions"><button id="ativarAluno" type="button">Ativar aluno</button><button id="inativarAluno" type="button" class="secondary">Inativar aluno</button><button id="excluirAluno" type="button" style="background:#532323;color:#fff">Excluir aluno</button></div>
+<p id="gestaoFeedback" role="status" class="muted"></p>
 </div>
 </section>
 
@@ -324,6 +329,30 @@ if(error)throw error;
 $("nome").textContent=data.nome_completo||"—";
 $("modalidade").textContent=data.modalidade||"—";
 $("statusAluno").textContent=data.Status||"—";
+}
+
+// Gestão administrativa: a exclusão depende de uma RPC transacional no banco.
+function configurarGestaoAluno(){
+ const painel=$("gestaoAluno"), feedback=$("gestaoFeedback");
+ $("gerenciarStatus").addEventListener("click",()=>painel.classList.toggle("hidden"));
+ async function alterarStatus(novo){
+  const atual=$("statusAluno").textContent.trim();
+  if(atual.toLowerCase()===novo.toLowerCase()){feedback.textContent="O aluno já está "+novo.toLowerCase()+".";return;}
+  if(!confirm((novo==="Inativo"?"Inativar":"Ativar")+" este aluno? O histórico será preservado."))return;
+  const botoes=[$("ativarAluno"),$("inativarAluno"),$("excluirAluno")];botoes.forEach(b=>b.disabled=true);
+  feedback.textContent="Atualizando status...";
+  const {data,error}=await db.from("alunos").update({Status:novo}).eq("id",Number(alunoId)).select("Status").single();
+  botoes.forEach(b=>b.disabled=false);
+  if(error){feedback.className="error";feedback.textContent="Não foi possível alterar o status: "+error.message;return;}
+  $("statusAluno").textContent=data.Status||novo;
+  feedback.className="success";feedback.textContent="Status atualizado. Os dados do aluno foram preservados.";
+ }
+ $("ativarAluno").addEventListener("click",()=>alterarStatus("Ativo"));
+ $("inativarAluno").addEventListener("click",()=>alterarStatus("Inativo"));
+ $("excluirAluno").addEventListener("click",async()=>{
+  feedback.className="muted";
+  feedback.textContent="Exclusão definitiva ainda não habilitada: é necessário configurar uma operação segura no Supabase para apagar os registros relacionados e, quando aplicável, a conta de acesso. Nenhum dado foi apagado.";
+ });
 }
 
 function exibirRespostas(destino,objeto){
@@ -746,6 +775,7 @@ if(!alunoId||!/^\d+$/.test(alunoId))
 throw Error("Aluno não selecionado. Abra o perfil pelo painel.");
 if(!await autenticar())return;
 await carregarAluno();
+configurarGestaoAluno();
 $("novaAvaliacao").href=
 "avaliacao-fisica.html?id="+encodeURIComponent(alunoId);
 $("prescreverTreino").href=
