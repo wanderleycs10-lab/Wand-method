@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perfil do Aluno | WAND METHOD</title>
-<meta name="wand-versao" content="perfil-gestao-status-20261111">
+<meta name="wand-versao" content="perfil-relatorio-semanal-20261112">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
@@ -191,8 +191,10 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <a id="prescreverTreino" class="button" href="#">+ Criar treino</a>
 <a id="treinosAluno" class="button secondary" href="#">Treinos do aluno</a>
 </div>
-<div class="actions"><a id="historicoAluno" class="button secondary" href="#">Histórico do aluno</a></div>
-<div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico de execução</h3><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Abra o histórico para consultar as sessões.</div></div>
+<div class="actions"><a id="historicoAluno" class="button secondary" href="#">Histórico de Treinos</a></div>
+<div class="actions"><button type="button" id="wandAbrirRelatorio" class="button secondary" aria-expanded="false" aria-controls="wandRelatorioSemanal">📊 Relatório Semanal</button></div>
+<section id="wandRelatorioSemanal" hidden><details class="wa-main-fold"><summary>📊 Relatório semanal <span class="wa-summary-hint">Frequência, séries e interrupções</span></summary><div class="wa-main-body"><div class="subcard"><h3>Resumo da semana</h3><p class="muted">Resumo exclusivo deste aluno, calculado a partir dos registros de treino. Semana de segunda a domingo; sessões em andamento não contam como concluídas.</p><label for="wandSemanaReferencia">Semana de referência</label><input id="wandSemanaReferencia" type="date"><button id="wandSemanaAtualizar" type="button" class="button secondary">Atualizar relatório</button><div id="wandSemanaArea" role="status" aria-live="polite">Abra esta seção para consultar os registros.</div></div></div></details></section>
+<div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico detalhado de treinos</h3><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Abra o histórico para consultar as sessões.</div></div>
 </section>
 <section id="painel-acompanhamento" class="card painel-perfil">
 <h2>Acompanhamento</h2>
@@ -215,7 +217,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <button type="button" id="waProgramar" class="button">Programar adaptação</button><p class="muted">A programação será consultada pelo aplicativo do aluno. No dia escolhido, o aluno verá a alternativa indicada; sessões já iniciadas não serão modificadas.</p></div></details>
 <details class="wa-inner-fold"><summary>Consultar adaptações programadas</summary><div class="wa-inner-body"><h3>Adaptações programadas</h3><div id="waAdaptacoes"></div></div></details>
 </div></details>
-<details class="wa-main-fold"><summary>📊 Relatório semanal <span class="wa-summary-hint">Frequência, séries e interrupções</span></summary><div class="wa-main-body"><div class="subcard"><h3>Resumo da semana</h3><p class="muted">Dados registrados no histórico de execução. Semana de segunda a domingo; sessões em andamento não contam como concluídas.</p><label for="wandSemanaReferencia">Semana de referência</label><input id="wandSemanaReferencia" type="date"><button id="wandSemanaAtualizar" type="button" class="button secondary">Atualizar relatório</button><div id="wandSemanaArea" role="status" aria-live="polite">Abra esta seção para consultar os registros.</div></div></div></details>
+
 <details class="wa-main-fold"><summary>♡ Bem-estar do aluno <span class="wa-summary-hint">Check-ins compartilhados</span></summary><div class="wa-main-body">
 <div class="subcard"><h3>Check-ins de bem-estar</h3><p class="muted">Dados de bem-estar compartilhados voluntariamente pelo aluno. O histórico de execução fica na aba Treinos.</p><button type="button" class="button secondary" id="wbcRecarregar">Atualizar registros</button><div id="wbcArea"></div></div>
 </div></details>
@@ -1102,7 +1104,10 @@ async function relCarregar(){
  }catch(e){relArea.textContent='Não foi possível gerar o relatório: '+(e.message||String(e));}
 }
 relInput.value=relDia(new Date());document.getElementById('wandSemanaAtualizar').addEventListener('click',relCarregar);
-relArea.closest('details')?.addEventListener('toggle',e=>{if(e.currentTarget.open)relCarregar()});
+const relPainel=document.getElementById('wandRelatorioSemanal');
+const relBotao=document.getElementById('wandAbrirRelatorio');
+relBotao.addEventListener('click',()=>{const abrir=relPainel.hidden;relPainel.hidden=!abrir;relBotao.setAttribute('aria-expanded',String(abrir));if(abrir){const d=relPainel.querySelector('details');if(d)d.open=true;relCarregar();}});
+relPainel.querySelector('details')?.addEventListener('toggle',e=>{if(e.currentTarget.open)relCarregar()});
 </script>
 </body>
 </html>
