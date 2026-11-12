@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
-<meta name="wand-build" content="2026.11.11.11">
+<meta name="wand-build" content="2026.11.12.1">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -203,6 +203,11 @@ main{max-width:850px;padding:22px 16px 90px}
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#080808">
 <link rel="icon" type="image/png" href="./icons/icon-192.png">
+<style>
+/* WAND METHOD — painel semanal do aluno */
+.wes-root{margin:16px 0 22px}.wes-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.wes-tab{border:1px solid #6a572a;background:#141414;color:#e6d3a1;border-radius:10px;padding:12px 7px;font:inherit;font-weight:700;cursor:pointer}.wes-tab[aria-selected="true"]{background:#d4af37;color:#080808}.wes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.wes-metric{background:#111;border:1px solid #3e372c;border-radius:12px;padding:14px;min-width:0}.wes-metric small{display:block;color:#bbb;line-height:1.4}.wes-metric strong{display:block;color:#d4af37;font-size:22px;margin-top:7px}.wes-chart{width:100%;height:auto;display:block;overflow:visible}.wes-chart-card{border:1px solid #3e372c;border-radius:13px;background:#101010;padding:15px;margin-top:14px}.wes-chart-card h3{margin:0 0 10px}.wes-chart text{fill:#bbb;font:11px Arial,sans-serif}.wes-chart .wes-axis{stroke:#48433b;stroke-width:1}.wes-chart .wes-bar{fill:#d4af37}.wes-chart .wes-line{fill:none;stroke:#d4af37;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.wes-chart .wes-dot{fill:#f3d97a;stroke:#111;stroke-width:2}.wes-note{font-size:13px;color:#bbb;line-height:1.55}.wes-avaliacoes{border-top:1px solid #393126;padding-top:16px;margin-top:22px}.wes-avaliacoes>summary{color:#d4af37;font-weight:bold;cursor:pointer;padding:10px 0}.wes-weeknav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}.wes-weeknav button{background:#171717;color:#d4af37;border:1px solid #665321;border-radius:8px;padding:10px 12px;cursor:pointer}.wes-weeknav button:disabled{opacity:.3;cursor:not-allowed}.wes-weeknav strong{text-align:center;font-size:13px}.wes-root .notice{margin-top:12px}
+@media(max-width:420px){.wes-metric{padding:11px}.wes-metric strong{font-size:19px}.wes-tab{font-size:12px}}
+</style>
 </head>
 
 <body>
@@ -243,7 +248,7 @@ main{max-width:850px;padding:22px 16px 90px}
   <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
-  <section class="panel-view" id="view-evolucao" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Compare suas avaliações e acompanhe as mudanças nas medidas corporais.</p><div id="graficos">Carregando evolução...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-evolucao" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Compare suas avaliações e acompanhe as mudanças nas medidas corporais.</p><div id="wandEvolucaoSemanal" class="wes-root"><p class="muted">Carregando desempenho semanal...</p></div><details class="wes-avaliacoes"><summary>Gráficos de avaliação física</summary><div id="graficos">Carregando evolução...</div></details></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-bemestar" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu bem-estar</h2><p id="wbStatus" role="status"></p><div id="wbConteudo"></div></div></section>
   <section class="panel-view" id="view-coins" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>WAND Coins</h2><p class="module-note">O sistema de pontos e recompensas está em desenvolvimento. Sua pontuação será exibida quando o módulo estiver disponível.</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-treinador" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu Treinador</h2><p>Precisa de orientação sobre sua avaliação ou treinamento?</p><a class="button" href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o." target="_blank" rel="noopener noreferrer">FALAR PELO WHATSAPP</a></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
@@ -946,7 +951,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.11.11';
+const WT_BUILD='2026.11.12.1';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1119,7 +1124,7 @@ function wtRender(){
  }
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
-  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.11.10 · Somente consulta das prescrições');
+  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.12.1 · Somente consulta das prescrições');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
   const mostrados=new Set();
@@ -1184,7 +1189,6 @@ function wtRender(){
   for(const treino of individuais)criarFicha(area,treino);
  }else if(wtVista==='historico'){
   wtAdd(area,'h3',null,'Histórico de treinos');
-  const semanaInicio=new Date();semanaInicio.setHours(0,0,0,0);semanaInicio.setDate(semanaInicio.getDate()-(semanaInicio.getDay()+6)%7);const semanaFim=new Date(semanaInicio);semanaFim.setDate(semanaInicio.getDate()+7);const daSemana=wtHistorico.filter(s=>{const d=new Date(s.iniciada_em);return d>=semanaInicio&&d<semanaFim});const completasSemana=daSemana.filter(s=>s.situacao==='concluido');const interrompidasSemana=daSemana.filter(s=>s.situacao==='interrompido');wtAdd(area,'p','notice','Esta semana: '+completasSemana.length+' treino(s) concluído(s) · '+interrompidasSemana.length+' interrompido(s).');
   const concluidas=wtHistorico.filter(s=>s.finalizada_em);
   if(!concluidas.length)wtAdd(area,'p','muted','Nenhuma sessão finalizada ainda.');
   for(const s of concluidas){
@@ -1521,6 +1525,72 @@ const adDia=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMon
 const adText=(tag,txt)=>{const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;return e};
 document.querySelector('[data-view="treinos"]')?.addEventListener('click',adConsultar);
 </script>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const wesDb=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const wesRoot=document.getElementById('wandEvolucaoSemanal');
+let wesMode='atual',wesOffset=0,wesRows=[],wesLoaded=false,wesLoading=false,wesError='';
+const wesNode=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
+const wesAdd=(parent,tag,cls,txt)=>{const e=wesNode(tag,cls,txt);parent.append(e);return e};
+const wesNum=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:1});
+const wesDate=d=>{const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
+function wesStart(date){const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());d.setDate(d.getDate()-(d.getDay()+6)%7);return d}
+function wesKey(date){const d=wesStart(date);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function wesWeek(offset=0){const d=wesStart(new Date());d.setDate(d.getDate()+offset*7);return d}
+const wesShort=d=>d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+const wesStatus=s=>s.situacao==='interrompido'?'interrompido':s.situacao==='concluido'||(s.finalizada_em&&s.situacao!=='interrompido')?'concluido':'aberto';
+function wesSummarize(rows){
+ const days=new Set(),sessions=new Set(),exercises=new Set();let series=0,volume=0,interruptions=0;
+ for(const s of rows){const status=wesStatus(s);if(status==='concluido'){sessions.add(String(s.id));const d=wesDate(s.finalizada_em||s.iniciada_em);if(d)days.add(d.toLocaleDateString('en-CA'));}if(status==='interrompido')interruptions++;
+  for(const sr of s.series||[]){if(sr.concluida!==true)continue;series++;if(sr.exercicio)exercises.add(String(sr.exercicio));const r=Number(sr.repeticoes),kg=Number(sr.carga);if(Number.isFinite(r)&&r>=0&&Number.isFinite(kg)&&kg>=0)volume+=r*kg;}
+ }
+ return {days:days.size,trainings:sessions.size,series,volume,interruptions,exercises:exercises.size};
+}
+function wesGroup(){const m=new Map();for(const s of wesRows){const d=wesDate(s.finalizada_em||s.iniciada_em);if(!d)continue;const key=wesKey(d);if(!m.has(key))m.set(key,[]);m.get(key).push(s)}return m}
+function wesMetric(parent,label,value){const box=wesAdd(parent,'div','wes-metric');wesAdd(box,'small',null,label);wesAdd(box,'strong',null,value)}
+const wesSvg=(parent)=>{const e=document.createElementNS('http://www.w3.org/2000/svg','svg');e.setAttribute('viewBox','0 0 340 195');e.setAttribute('class','wes-chart');e.setAttribute('role','img');parent.append(e);return e};
+function wesSvgItem(svg,tag,attrs,text){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs||{}))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=text;svg.append(e);return e}
+function wesChart(parent,title,values,labels,type='bar'){
+ const card=wesAdd(parent,'div','wes-chart-card');wesAdd(card,'h3',null,title);const svg=wesSvg(card);const max=Math.max(1,...values);const base=154,top=19,left=24,right=320;wesSvgItem(svg,'line',{x1:left,y1:base,x2:right,y2:base,class:'wes-axis'});
+ const pts=values.map((v,i)=>{const x=values.length===1?170:left+17+i*(right-left-34)/(values.length-1);return {x,y:base-v/max*(base-top),v}});
+ if(type==='bar'){pts.forEach((p,i)=>{const w=Math.min(30,240/values.length);wesSvgItem(svg,'rect',{x:p.x-w/2,y:p.y,width:w,height:Math.max(0,base-p.y),rx:4,class:'wes-bar'});wesSvgItem(svg,'title',{},`${labels[i]}: ${wesNum(p.v)} kg`);});}
+ else{if(pts.length>1)wesSvgItem(svg,'polyline',{points:pts.map(p=>`${p.x},${p.y}`).join(' '),class:'wes-line'});pts.forEach((p,i)=>{const c=wesSvgItem(svg,'circle',{cx:p.x,cy:p.y,r:5,class:'wes-dot'});wesSvgItem(c,'title',{},`${labels[i]}: ${wesNum(p.v)} kg`)});}
+ pts.forEach((p,i)=>wesSvgItem(svg,'text',{x:p.x,y:175,'text-anchor':'middle'},labels[i]));
+ wesSvgItem(svg,'text',{x:24,y:14},`${wesNum(max)} kg`);
+ return card;
+}
+function wesRender(){
+ wesRoot.replaceChildren();const title=wesAdd(wesRoot,'h3',null,'Meu desempenho de treinos');title.style.marginBottom='6px';
+ const tabs=wesAdd(wesRoot,'div','wes-tabs');for(const [id,name] of [['atual','Semana atual'],['historico','Histórico de semanas']]){const b=wesAdd(tabs,'button','wes-tab',name);b.type='button';b.setAttribute('aria-selected',String(wesMode===id));b.onclick=()=>{wesMode=id;wesRender()}}
+ if(wesLoading){wesAdd(wesRoot,'p','muted','Carregando registros...');return}if(wesError){wesAdd(wesRoot,'p','error',wesError);return}
+ const grouped=wesGroup();
+ if(wesMode==='atual'){
+  const start=wesWeek(wesOffset),end=new Date(start);end.setDate(end.getDate()+6);const key=wesKey(start);
+  const nav=wesAdd(wesRoot,'div','wes-weeknav');const prev=wesAdd(nav,'button',null,'← Anterior');prev.onclick=()=>{wesOffset--;wesRender()};wesAdd(nav,'strong',null,`${wesShort(start)} a ${wesShort(end)}`);const next=wesAdd(nav,'button',null,'Próxima →');next.disabled=wesOffset>=0;next.onclick=()=>{wesOffset++;wesRender()};
+  const rows=grouped.get(key)||[],sum=wesSummarize(rows);const grid=wesAdd(wesRoot,'div','wes-grid');
+  wesMetric(grid,'Treinos concluídos',String(sum.trainings));wesMetric(grid,'Meta semanal','Não definida');wesMetric(grid,'Séries concluídas',String(sum.series));wesMetric(grid,'Volume registrado',wesNum(sum.volume)+' kg');
+  const volumes=Array(7).fill(0);for(const s of rows){const d=wesDate(s.finalizada_em||s.iniciada_em);if(!d)continue;const index=(d.getDay()+6)%7;for(const sr of s.series||[]){if(sr.concluida!==true)continue;const reps=Number(sr.repeticoes),kg=Number(sr.carga);if(Number.isFinite(reps)&&reps>=0&&Number.isFinite(kg)&&kg>=0)volumes[index]+=reps*kg}}
+  wesChart(wesRoot,'Volume de treino por dia',volumes,['Seg','Ter','Qua','Qui','Sex','Sáb','Dom']);
+  const p=wesAdd(wesRoot,'p','wes-note',`${sum.trainings} treino(s) concluído(s), ${sum.series} série(s) registrada(s) e ${sum.interruptions} interrupção(ões) na semana. ${sum.exercises} exercício(s) diferente(s) com registro.`);
+  if(!rows.length)wesAdd(wesRoot,'p','notice','Ainda não há registros nesta semana.');
+  wesAdd(wesRoot,'p','wes-note','Volume = soma de carga × repetições registradas. Dias sem treino aparecem com zero. A meta semanal será exibida quando houver um campo de frequência prescrito pelo treinador.');
+ }else{
+  const entries=[...grouped.entries()].sort((a,b)=>a[0].localeCompare(b[0]));const total=wesSummarize(wesRows);const grid=wesAdd(wesRoot,'div','wes-grid');wesMetric(grid,'Semanas com registros',String(entries.length));wesMetric(grid,'Treinos concluídos',String(total.trainings));wesMetric(grid,'Séries registradas',String(total.series));wesMetric(grid,'Volume acumulado',wesNum(total.volume)+' kg');
+  if(!entries.length){wesAdd(wesRoot,'p','notice','O histórico comparativo aparecerá após os primeiros registros de treino.');return}
+  const recent=entries.slice(-8);const labels=recent.map(([key])=>wesShort(new Date(key+'T12:00:00')));const summaries=recent.map(([,rows])=>wesSummarize(rows));
+  wesChart(wesRoot,'Evolução do volume entre semanas',summaries.map(s=>s.volume),labels,'line');
+  const card=wesAdd(wesRoot,'div','wes-chart-card');wesAdd(card,'h3',null,'Frequência semanal');const svg=wesSvg(card);const values=summaries.map(s=>s.trainings),max=Math.max(1,...values);wesSvgItem(svg,'line',{x1:24,y1:154,x2:320,y2:154,class:'wes-axis'});values.forEach((v,i)=>{const x=values.length===1?170:41+i*262/(values.length-1),y=154-v/max*128;wesSvgItem(svg,'rect',{x:x-12,y,width:24,height:154-y,rx:4,class:'wes-bar'});wesSvgItem(svg,'text',{x,y:175,'text-anchor':'middle'},labels[i]);wesSvgItem(svg,'text',{x,y:y-7,'text-anchor':'middle'},String(v))});
+  wesAdd(wesRoot,'p','wes-note','Comparativo das últimas oito semanas com registros. Volume total e frequência podem variar com a prescrição, descanso e intensidade. Compare o mesmo exercício para avaliar progressão de carga e repetições.');
+ }
+}
+async function wesLoad(){if(wesLoading)return;wesLoading=true;wesError='';wesRender();try{const {data:{user},error:authError}=await wesDb.auth.getUser();if(authError||!user)throw Error('Faça login para visualizar seus dados.');const {data,error}=await wesDb.rpc('wand_aluno_historico');if(error)throw error;wesRows=Array.isArray(data)?data:[];let ids=wesRows.filter(s=>s.finalizada_em).map(s=>s.id);if(ids.length){try{const {data:statuses,error:statusError}=await wesDb.from('wand_sessoes_treino').select('id,situacao').in('id',ids);if(!statusError){const map=new Map((statuses||[]).map(x=>[String(x.id),x.situacao]));wesRows=wesRows.map(s=>({...s,situacao:map.get(String(s.id))||s.situacao}))}}catch(e){console.warn('Status das sessões não disponível',e)}}wesLoaded=true}catch(e){wesError='Não foi possível consultar o histórico: '+(e.message||String(e))}finally{wesLoading=false;wesRender()}}
+const wesObserver=new MutationObserver(()=>{const view=document.getElementById('view-evolucao');if(view&&!view.hidden&&!wesLoaded&&!wesLoading)wesLoad()});
+wesObserver.observe(document.getElementById('view-evolucao'),{attributes:true,attributeFilter:['hidden']});
+document.querySelector('[data-view="evolucao"]')?.addEventListener('click',()=>wesLoad());
+window.addEventListener('pageshow',()=>{wesLoaded=false});
+</script>
+
 <script src="./pwa-init.js" defer></script>
 </body>
 </html>
+
