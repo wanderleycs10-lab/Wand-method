@@ -215,6 +215,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <button type="button" id="waProgramar" class="button">Programar adaptação</button><p class="muted">A programação será consultada pelo aplicativo do aluno. No dia escolhido, o aluno verá a alternativa indicada; sessões já iniciadas não serão modificadas.</p></div></details>
 <details class="wa-inner-fold"><summary>Consultar adaptações programadas</summary><div class="wa-inner-body"><h3>Adaptações programadas</h3><div id="waAdaptacoes"></div></div></details>
 </div></details>
+<details class="wa-main-fold"><summary>📊 Relatório semanal <span class="wa-summary-hint">Frequência, séries e interrupções</span></summary><div class="wa-main-body"><div class="subcard"><h3>Resumo da semana</h3><p class="muted">Dados registrados no histórico de execução. Semana de segunda a domingo; sessões em andamento não contam como concluídas.</p><label for="wandSemanaReferencia">Semana de referência</label><input id="wandSemanaReferencia" type="date"><button id="wandSemanaAtualizar" type="button" class="button secondary">Atualizar relatório</button><div id="wandSemanaArea" role="status" aria-live="polite">Abra esta seção para consultar os registros.</div></div></div></details>
 <details class="wa-main-fold"><summary>♡ Bem-estar do aluno <span class="wa-summary-hint">Check-ins compartilhados</span></summary><div class="wa-main-body">
 <div class="subcard"><h3>Check-ins de bem-estar</h3><p class="muted">Dados de bem-estar compartilhados voluntariamente pelo aluno. O histórico de execução fica na aba Treinos.</p><button type="button" class="button secondary" id="wbcRecarregar">Atualizar registros</button><div id="wbcArea"></div></div>
 </div></details>
@@ -758,15 +759,13 @@ function configurarMenuPerfil(){
 const botoes=[...document.querySelectorAll(".menu-perfil button")];
 const paineis=[...document.querySelectorAll(".painel-perfil")];
 function abrirPainel(nome){
-  const botaoSelecionado=botoes.find(botao=>botao.dataset.painel===nome);
-  const fechar=botaoSelecionado?.classList.contains("ativo")===true;
   botoes.forEach(botao=>{
-    const ativo=!fechar&&botao.dataset.painel===nome;
+    const ativo=botao.dataset.painel===nome;
     botao.classList.toggle("ativo",ativo);
     botao.setAttribute("aria-expanded",String(ativo));
   });
-  paineis.forEach(painel=>painel.classList.toggle("ativo",!fechar&&painel.id==="painel-"+nome));
-  $("orientacaoPerfil").classList.toggle("hidden",!fechar);
+  paineis.forEach(painel=>painel.classList.toggle("ativo",painel.id==="painel-"+nome));
+  $("orientacaoPerfil").classList.add("hidden");
 }
 botoes.forEach(botao=>botao.addEventListener("click",()=>abrirPainel(botao.dataset.painel)));
 }
@@ -857,8 +856,8 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const dataHora=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('pt-BR')};
 const soData=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString('pt-BR')};
 const soHora=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleTimeString('pt-BR')};
-function duracao(inicio,fim){if(!inicio||!fim)return null;const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return null;const min=Math.floor(ms/60000),h=Math.floor(min/60),m=min%60;return h?`${h}h ${String(m).padStart(2,'0')}min`:`${min} min`;}
-function duracaoSeg(seg){if(seg===null||seg===undefined||!Number.isFinite(Number(seg)))return null;const min=Math.floor(Math.max(0,Number(seg))/60);const h=Math.floor(min/60);return h?`${h}h ${String(min%60).padStart(2,'0')}min`:`${min} min`;}
+function duracao(inicio,fim){if(!inicio||!fim)return null;const ms=new Date(fim)-new Date(inicio);if(!Number.isFinite(ms)||ms<0)return null;const min=Math.floor(ms/60000),h=Math.floor(min/60),m=min%60;const sec=Math.floor(ms/1000)%60;return h?`${h}h ${String(m).padStart(2,'0')}min ${String(sec).padStart(2,'0')}s`:`${min}min ${String(sec).padStart(2,'0')}s`;}
+function duracaoSeg(seg){if(seg===null||seg===undefined||!Number.isFinite(Number(seg)))return null;const min=Math.floor(Math.max(0,Number(seg))/60);const h=Math.floor(min/60);const sec=Math.floor(Math.max(0,Number(seg)))%60;return h?`${h}h ${String(min%60).padStart(2,'0')}min ${String(sec).padStart(2,'0')}s`:`${min}min ${String(sec).padStart(2,'0')}s`;}
 function nomeMetodo(serie){const bruto=String(serie.metodo||serie.configuracao_metodo?.grupo_metodo_nome||serie.configuracao_metodo?.tipo||'Tradicional');if(bruto==='series')return 'TRADICIONAL';if(bruto==='exercicios_vinculados')return 'MÉTODO COMBINADO';return bruto.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()==='SUPERSERIE'?'SUPERSÉRIE':bruto.toUpperCase();}
 function desenharHistorico(s,estados={}){
  if(!Array.isArray(s)||!s.length){historicoOut.innerHTML='<p class="wbc-muted">Sem sessões registradas.</p>';return;}
@@ -1069,5 +1068,41 @@ const waReady=setInterval(()=>{if(!waEl('conteudo').classList.contains('hidden')
 
 
 
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const relDb=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const relId=Number(new URLSearchParams(location.search).get('id'));
+const relArea=document.getElementById('wandSemanaArea'),relInput=document.getElementById('wandSemanaReferencia');
+const relTexto=(pai,tag,valor,classe='')=>{const el=document.createElement(tag);if(classe)el.className=classe;el.textContent=valor;pai.append(el);return el};
+const relDia=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const relLocal=iso=>{if(!iso)return null;const d=new Date(iso);return Number.isNaN(d.getTime())?null:d};
+function relPeriodo(){const base=new Date((relInput.value||relDia(new Date()))+'T12:00:00');const inicio=new Date(base);inicio.setDate(base.getDate()-(base.getDay()+6)%7);inicio.setHours(0,0,0,0);const fim=new Date(inicio);fim.setDate(inicio.getDate()+7);return {inicio,fim};}
+async function relCarregar(){
+ if(!Number.isSafeInteger(relId)||relId<=0)return;
+ relArea.textContent='Consultando sessões da semana...';
+ try{
+  const [hist,status]=await Promise.all([relDb.rpc('wand_coach_historico_aluno',{p_aluno_id:relId}),relDb.rpc('wand_coach_status_sessoes',{p_aluno_id:relId})]);
+  if(hist.error)throw hist.error;if(status.error)throw status.error;
+  const estados=new Map((status.data||[]).map(s=>[String(s.id),s]));const {inicio,fim}=relPeriodo();
+  const sessoes=(hist.data||[]).filter(s=>{const d=relLocal(s.iniciada_em);return d&&d>=inicio&&d<fim;});
+  const concluidas=sessoes.filter(s=>(estados.get(String(s.id))?.situacao||s.situacao)==='concluido');
+  const interrompidas=sessoes.filter(s=>(estados.get(String(s.id))?.situacao||s.situacao)==='interrompido');
+  const andamento=sessoes.filter(s=>!s.finalizada_em);
+  const series=concluidas.flatMap(s=>Array.isArray(s.series)?s.series:[]).filter(s=>s.concluida);
+  const exercicios=new Set(series.map(s=>String(s.treino_exercicio_id||s.exercicio_id||s.exercicio||'')).filter(Boolean));
+  const cargas=series.filter(s=>s.carga!==null&&s.carga!==undefined&&Number.isFinite(Number(s.carga)));
+  relArea.replaceChildren();relTexto(relArea,'p',`Período: ${inicio.toLocaleDateString('pt-BR')} a ${new Date(fim.getTime()-86400000).toLocaleDateString('pt-BR')}`,'muted');
+  const grade=relTexto(relArea,'div','','grid');
+  for(const [titulo,numero] of [['Treinos concluídos',concluidas.length],['Interrupções',interrompidas.length],['Séries concluídas',series.length],['Exercícios registrados',exercicios.size]]){const c=relTexto(grade,'div','','metric');relTexto(c,'strong',titulo);relTexto(c,'span',String(numero));}
+  if(andamento.length)relTexto(relArea,'p',`${andamento.length} sessão(ões) em andamento, fora da frequência concluída.`,'notice');
+  if(cargas.length)relTexto(relArea,'p',`Carga máxima registrada nas séries concluídas: ${Math.max(...cargas.map(s=>Number(s.carga))).toLocaleString('pt-BR')} kg. Não representa 1RM.`,'muted');
+  if(interrompidas.length){relTexto(relArea,'h3','Interrupções na semana');for(const s of interrompidas){const estado=estados.get(String(s.id))||{};const motivo=estado.motivo_interrupcao||s.motivo_interrupcao||'Não informado';relTexto(relArea,'p',`${s.treino||'Treino'} · ${relLocal(s.iniciada_em)?.toLocaleString('pt-BR')||'—'} · ${motivo}`,'notice');}}
+  if(!sessoes.length)relTexto(relArea,'p','Nenhuma sessão registrada nesta semana.','muted');
+  relTexto(relArea,'p','Indicadores calculados a partir das sessões retornadas pelo banco. Treinos presenciais só entram se registrados no mesmo histórico.','muted');
+ }catch(e){relArea.textContent='Não foi possível gerar o relatório: '+(e.message||String(e));}
+}
+relInput.value=relDia(new Date());document.getElementById('wandSemanaAtualizar').addEventListener('click',relCarregar);
+relArea.closest('details')?.addEventListener('toggle',e=>{if(e.currentTarget.open)relCarregar()});
+</script>
 </body>
 </html>
