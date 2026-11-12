@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
-<meta name="wand-build" content="2026.11.11.10">
+<meta name="wand-build" content="2026.11.11.11">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -946,7 +946,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.11.10';
+const WT_BUILD='2026.11.11.11';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1184,6 +1184,7 @@ function wtRender(){
   for(const treino of individuais)criarFicha(area,treino);
  }else if(wtVista==='historico'){
   wtAdd(area,'h3',null,'Histórico de treinos');
+  const semanaInicio=new Date();semanaInicio.setHours(0,0,0,0);semanaInicio.setDate(semanaInicio.getDate()-(semanaInicio.getDay()+6)%7);const semanaFim=new Date(semanaInicio);semanaFim.setDate(semanaInicio.getDate()+7);const daSemana=wtHistorico.filter(s=>{const d=new Date(s.iniciada_em);return d>=semanaInicio&&d<semanaFim});const completasSemana=daSemana.filter(s=>s.situacao==='concluido');const interrompidasSemana=daSemana.filter(s=>s.situacao==='interrompido');wtAdd(area,'p','notice','Esta semana: '+completasSemana.length+' treino(s) concluído(s) · '+interrompidasSemana.length+' interrompido(s).');
   const concluidas=wtHistorico.filter(s=>s.finalizada_em);
   if(!concluidas.length)wtAdd(area,'p','muted','Nenhuma sessão finalizada ainda.');
   for(const s of concluidas){
