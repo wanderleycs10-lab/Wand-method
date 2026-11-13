@@ -1095,7 +1095,7 @@ async function wtCarregar(){
  try{
   wtMsg('Carregando treinos...');
   [wtTreinos,wtHistorico]=await Promise.all([wtRpc('wand_aluno_treinos'),wtRpc('wand_aluno_historico')]);
-  await wtComplementarHistorico();
+  // Histórico completo recebido pela RPC wand_aluno_historico.
   await wtCarregarProgramas();
    wtTreinos=(wtTreinos||[]).filter(t=>{const hoje=wtHoje();return (!t.validade_inicio||t.validade_inicio<=hoje)&&(!t.validade_fim||t.validade_fim>=hoje)});wtHistorico=wtHistorico||[];
   try {wtGruposMeta=await wtRpc('wand_aluno_grupos_execucao')||{}}catch(e){wtGruposMeta={};wtMsg('Agrupamento indisponível: execute o SQL complementar antes de testar métodos conjugados. '+e.message,true)}
@@ -1672,7 +1672,7 @@ function wesRender(){
   wesAdd(wesRoot,'p','wes-note','Comparativo das últimas oito semanas com registros. Volume total e frequência podem variar com a prescrição, descanso e intensidade. Compare o mesmo exercício para avaliar progressão de carga e repetições.');
  }
 }
-async function wesLoad(){if(wesLoading)return;wesLoading=true;wesError='';wesRender();try{const {data:{user},error:authError}=await wesDb.auth.getUser();if(authError||!user)throw Error('Faça login para visualizar seus dados.');const {data,error}=await wesDb.rpc('wand_aluno_historico');if(error)throw error;wesRows=Array.isArray(data)?data:[];let ids=wesRows.filter(s=>s.finalizada_em).map(s=>s.id);if(ids.length){try{const {data:statuses,error:statusError}=await wesDb.from('wand_sessoes_treino').select('id,situacao').in('id',ids);if(!statusError){const map=new Map((statuses||[]).map(x=>[String(x.id),x.situacao]));wesRows=wesRows.map(s=>({...s,situacao:map.get(String(s.id))||s.situacao}))}}catch(e){console.warn('Status das sessões não disponível',e)}}wesLoaded=true}catch(e){wesError='Não foi possível consultar o histórico: '+(e.message||String(e))}finally{wesLoading=false;wesRender()}}
+async function wesLoad(){if(wesLoading)return;wesLoading=true;wesError='';wesRender();try{const {data:{user},error:authError}=await wesDb.auth.getUser();if(authError||!user)throw Error('Faça login para visualizar seus dados.');const {data,error}=await wesDb.rpc('wand_aluno_historico');if(error)throw error;wesRows=Array.isArray(data)?data:[];wesLoaded=true}catch(e){wesError='Não foi possível consultar o histórico: '+(e.message||String(e))}finally{wesLoading=false;wesRender()}}
 const wesObserver=new MutationObserver(()=>{const view=document.getElementById('view-evolucao');if(view&&!view.hidden&&!wesLoaded&&!wesLoading)wesLoad()});
 wesObserver.observe(document.getElementById('view-evolucao'),{attributes:true,attributeFilter:['hidden']});
 document.querySelector('[data-view="evolucao"]')?.addEventListener('click',()=>wesLoad());
