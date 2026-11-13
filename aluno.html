@@ -946,6 +946,7 @@ iniciar();
 .wt-update-banner button{margin:6px 6px 0 0}
 .wt-smart-card{background:#17140f;border:1px solid #8d7227;border-radius:16px;padding:18px;margin:16px 0 22px}.wt-smart-card h2{color:#d6af2e;margin:0 0 10px;font-size:21px}.wt-smart-card .button{margin:8px 10px 0 0}.wt-smart-card p{line-height:1.5}
 </style>
+<script src="./wand-push-config.js"></script>
 <script type="module">
 import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
@@ -1245,6 +1246,15 @@ async function wtPushRegistrar(){
  wtPushSub=sub;
  return true;
 }
+function wtAtualizarBotaoPush(){
+ const autorizado=('Notification' in window)&&Notification.permission==='granted'&&Boolean(wtPushSub);
+ document.querySelectorAll('[data-wt-push-ativar]').forEach(btn=>{btn.hidden=autorizado;btn.style.display=autorizado?'none':''});
+}
+async function wtPushRevalidarSilenciosamente(){
+ if(!('Notification' in window)||Notification.permission!=='granted')return;
+ try{await wtPushRegistrar();wtAtualizarBotaoPush()}
+ catch(e){console.warn('Cadastro Push precisa de atenção:',e);wtAtualizarBotaoPush()}
+}
 async function wtPushCancelarAviso(){
  const id=wtPushAvisoId||localStorage.getItem('wand-push-alert-id');wtPushAvisoId=null;localStorage.removeItem('wand-push-alert-id');
  if(!id)return;
@@ -1268,7 +1278,7 @@ async function wtSolicitarNotificacoes(){
  if(!('Notification' in window)){wtMsg('Este navegador não oferece notificações web.',true);return}
  try{
   const p=await Notification.requestPermission();
-  if(p==='granted'){try{await wtPushRegistrar();wtMsg('Notificações push ativadas neste dispositivo.');}catch(e){wtMsg('Notificações locais permitidas, mas push ainda não configurado: '+e.message,true)}}else wtMsg('Notificações não autorizadas. O alarme dentro do aplicativo continua disponível.',true);
+  if(p==='granted'){try{await wtPushRegistrar();wtMsg('');wtAtualizarBotaoPush();}catch(e){wtMsg('Notificações locais permitidas, mas push ainda não configurado: '+e.message,true)}}else wtMsg('Notificações não autorizadas. O alarme dentro do aplicativo continua disponível.',true);
  }catch(e){wtMsg('Não foi possível solicitar notificações: '+e.message,true)}
 }
 async function wtNotificarFimDescanso(){
@@ -1404,7 +1414,7 @@ function wtExecucao(area){
  const timer=wtAdd(area,'div','wt-rest-dock');wtAlarmArea=timer;
  wtAdd(timer,'strong',null,'⏱ Descanso automático');wtClock=wtAdd(timer,'div','wt-timer','00:00');wtClock.setAttribute('role','timer');
  wtAlarmTexto=wtAdd(timer,'div','wt-alarm-message','');wtAlarmTexto.setAttribute('role','status');wtAlarmTexto.setAttribute('aria-live','assertive');
- const actions=wtAdd(timer,'div','actions');wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);wtBtn(actions,'🔔 Ativar notificações',wtSolicitarNotificacoes,true);wtAtualizarTimer();
+ const actions=wtAdd(timer,'div','actions');wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);const pushBtn=wtBtn(actions,'🔔 Ativar notificações',wtSolicitarNotificacoes,true);pushBtn.dataset.wtPushAtivar='1';wtAtualizarBotaoPush();wtAtualizarTimer();
  blocos.forEach((bloco,indice)=>{
   const total=Math.max(...bloco.exercicios.map(({ex})=>(ex.series||[]).length),0);
   const concluido=wtCompleto(bloco),nRodadas=wtProximaRodada(bloco);
@@ -1528,7 +1538,7 @@ const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListene
 (async()=>{try{const {data:{user}}=await wandDb.auth.getUser();if(!user)return;wtAlunoUserId=user.id;
  wtRestaurarVista();
  if(!wt.dataset.loaded){wt.dataset.loaded='1';await wtCarregar();}
- wtVerificarVersao();setInterval(wtVerificarVersao,5*60*1000);
+ await wtPushRevalidarSilenciosamente();wtVerificarVersao();setInterval(wtVerificarVersao,5*60*1000);
 }catch(e){console.warn('Retomada de treino indisponível',e)}})();
 </script>
 
@@ -1669,7 +1679,6 @@ document.querySelector('[data-view="evolucao"]')?.addEventListener('click',()=>w
 window.addEventListener('pageshow',()=>{wesLoaded=false});
 </script>
 
-<script src="./wand-push-config.js" defer></script>
 <script src="./pwa-init.js" defer></script>
 </body>
 </html>
