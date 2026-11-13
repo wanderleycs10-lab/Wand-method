@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
-<meta name="wand-build" content="2026.11.13.1">
+<meta name="wand-build" content="2026.11.13.2">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -951,7 +951,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.13.1';
+const WT_BUILD='2026.11.13.2';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1134,7 +1134,7 @@ function wtRender(){
  }
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
-  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.13.1 · Somente consulta das prescrições');
+  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.13.2 · Somente consulta das prescrições');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
   const mostrados=new Set();
@@ -1224,6 +1224,43 @@ async function wtRetomar(sessao,treino){
  }catch(e){wtMsg('Não foi possível retomar: '+e.message,true)}finally{wtBusy=false}
 }
 async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtBlocoAberto=0;wtPersistir();wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+// Web Push: usa o mesmo SW existente. A chave publica VAPID deve ser configurada
+// no arquivo wand-push-config.js; nunca coloque a chave privada no navegador.
+let wtPushSub=null, wtPushAvisoId=null;
+// Recupera a inscrição já autorizada após atualizar ou reabrir o PWA.
+if('serviceWorker' in navigator&&'PushManager' in window){
+ navigator.serviceWorker.ready.then(reg=>reg.pushManager.getSubscription()).then(sub=>{wtPushSub=sub}).catch(()=>{});
+}
+async function wtPushRegistrar(){
+ if(!window.WAND_PUSH_PUBLIC_KEY)throw Error('Chave pública VAPID ainda não configurada.');
+ if(!('serviceWorker' in navigator)||!('PushManager' in window))throw Error('Web Push indisponível neste navegador.');
+ const reg=await navigator.serviceWorker.ready;
+ const decode=(s)=>{const pad='='.repeat((4-s.length%4)%4);const bin=atob((s+pad).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(bin,c=>c.charCodeAt(0))};
+ let sub=await reg.pushManager.getSubscription();
+ if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:decode(window.WAND_PUSH_PUBLIC_KEY)});
+ const json=sub.toJSON();
+ const {data:{user},error:authErr}=await wandDb.auth.getUser();if(authErr||!user)throw Error('Faça login antes de ativar o push.');
+ const {error}=await wandDb.from('wand_push_inscricoes').upsert({user_id:user.id,endpoint:json.endpoint,p256dh:json.keys.p256dh,auth_key:json.keys.auth},{onConflict:'endpoint'});
+ if(error)throw error;
+ wtPushSub=sub;
+ return true;
+}
+async function wtPushCancelarAviso(){
+ const id=wtPushAvisoId||localStorage.getItem('wand-push-alert-id');wtPushAvisoId=null;localStorage.removeItem('wand-push-alert-id');
+ if(!id)return;
+ try{const {error}=await wandDb.from('wand_descansos_push').update({status:'cancelado'}).eq('id',id).eq('status','pendente');if(error)throw error}
+ catch(e){console.warn('Não foi possível cancelar o aviso remoto:',e)}
+}
+async function wtPushAgendarAviso(fim){
+ if(!wtSessao||!wtPushSub||Notification.permission!=='granted')return;
+ const sessao=wtSessao;
+ try{
+  const {data,error}=await wandDb.from('wand_descansos_push').insert({sessao_id:sessao,disparar_em:new Date(fim).toISOString()}).select('id').single();
+  if(error)throw error;
+  if(wtSessao!==sessao||wtTimerFim!==fim){await wandDb.from('wand_descansos_push').update({status:'cancelado'}).eq('id',data.id);return}
+  wtPushAvisoId=data.id;localStorage.setItem('wand-push-alert-id',data.id);
+ }catch(e){console.warn('Agendamento push não disponível:',e);wtMsg('Cronômetro ativo; aviso com tela bloqueada não foi agendado: '+e.message,true)}
+}
 // Avisos locais: melhor esforço quando a página continua executando.
 // Push em tela bloqueada exige envio pelo servidor; ver guia de implantação.
 let wtAvisoDescansoEnviado=false;
@@ -1231,7 +1268,7 @@ async function wtSolicitarNotificacoes(){
  if(!('Notification' in window)){wtMsg('Este navegador não oferece notificações web.',true);return}
  try{
   const p=await Notification.requestPermission();
-  wtMsg(p==='granted'?'Notificações autorizadas neste dispositivo.':'Notificações não autorizadas. O alarme dentro do aplicativo continua disponível.',p!=='granted');
+  if(p==='granted'){try{await wtPushRegistrar();wtMsg('Notificações push ativadas neste dispositivo.');}catch(e){wtMsg('Notificações locais permitidas, mas push ainda não configurado: '+e.message,true)}}else wtMsg('Notificações não autorizadas. O alarme dentro do aplicativo continua disponível.',true);
  }catch(e){wtMsg('Não foi possível solicitar notificações: '+e.message,true)}
 }
 async function wtNotificarFimDescanso(){
@@ -1304,7 +1341,7 @@ function wtDispararAlarme(){
  wtAlarmId=setInterval(()=>{if(!wtAlarmAtivo)return;wtBip();wtVibrar();},2300);
 }
 function wtPararDescanso(){
- wtAvisoDescansoEnviado=false;wtTimerFim=0;wtAlarmAtivo=false;
+ wtPushCancelarAviso();wtAvisoDescansoEnviado=false;wtTimerFim=0;wtAlarmAtivo=false;
  if(wtTimerId){clearInterval(wtTimerId);wtTimerId=null;}
  if(wtAlarmId){clearInterval(wtAlarmId);wtAlarmId=null;}
  try{navigator.vibrate?.(0)}catch(e){}
@@ -1316,7 +1353,7 @@ function wtPararDescanso(){
 function wtComecarTimer(sec){
  wtPararDescanso();wtPrepararAudio();
  const segundos=Number(sec);if(!Number.isFinite(segundos)||segundos<=0)return;
- wtAvisoDescansoEnviado=false;wtTimerFim=Date.now()+segundos*1000;
+ wtAvisoDescansoEnviado=false;wtTimerFim=Date.now()+segundos*1000;wtPushAgendarAviso(wtTimerFim);
  wtAtualizarTimer();wtTimerId=setInterval(wtAtualizarTimer,250);
  if(wtAlarmTexto)wtAlarmTexto.textContent='Sirene de descanso e vibração ao terminar (se o navegador permitir).';
 }
@@ -1632,6 +1669,7 @@ document.querySelector('[data-view="evolucao"]')?.addEventListener('click',()=>w
 window.addEventListener('pageshow',()=>{wesLoaded=false});
 </script>
 
+<script src="./wand-push-config.js" defer></script>
 <script src="./pwa-init.js" defer></script>
 </body>
 </html>
