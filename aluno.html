@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
-<meta name="wand-build" content="2026.11.12.1">
+<meta name="wand-build" content="2026.11.13.1">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -951,7 +951,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.12.1';
+const WT_BUILD='2026.11.13.1';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1019,12 +1019,13 @@ const wtEl=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.classNam
 const wtAdd=(parent,tag,cls,txt)=>{const e=wtEl(tag,cls,txt);parent.append(e);return e};
 const wtBtn=(parent,txt,fn,secondary=false)=>{const b=wtAdd(parent,'button','button'+(secondary?' secondary':''),txt);b.type='button';b.addEventListener('click',fn);return b};
 const wtData=x=>x?new Date(x).toLocaleString('pt-BR'):'—';
-const wtHoje=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const wtHoje=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const wtDiaSP=x=>x?new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(x)):'';
 const wtNum=x=>x==null?'—':String(x);
 const wtSituacao=s=>s.situacao==='interrompido'?'Interrompido':s.situacao==='concluido'?'Concluído':s.finalizada_em?'Encerrado':'Em andamento';
 const wtMotivos={dor_desconforto:'Dor ou desconforto',indisposicao:'Indisposição',falta_tempo:'Falta de tempo',outro:'Outro',prefiro_nao_informar:'Prefiro não informar'};
 async function wtComplementarHistorico(){
- const ids=wtHistorico.filter(s=>s.finalizada_em).map(s=>s.id);
+ const ids=wtHistorico.map(s=>s.id).filter(Boolean);
  if(!ids.length)return;
  try{
   const {data,error}=await wandDb.from('wand_sessoes_treino').select('id,situacao,motivo_interrupcao,observacao_interrupcao').in('id',ids);
@@ -1058,9 +1059,18 @@ function wtSmartRender(){
   const ids=grupo.fichas.map(f=>String(f.treino_id));
   const historico=wtHistorico.filter(h=>ids.includes(String(h.treino_id))).sort((a,b)=>Date.parse(b.finalizada_em||b.iniciada_em||0)-Date.parse(a.finalizada_em||a.iniciada_em||0));
   const ultima=historico[0];
-  // Uma interrupcao nao avanca a ficha. Por seguranca, exige avaliacao do treinador.
+  // Uma interrupcao nao avanca a ficha. No mesmo dia, permitir retomada da sessao.
   if(ultima?.situacao==='interrompido'){
-   const p=wtAdd(acoes,'p','notice',grupo.nome+': última sessão interrompida. O treinador precisa avaliar a retomada.');continue;
+   if(wtDiaSP(ultima.iniciada_em)===wtHoje()){
+    const t=porId.get(String(ultima.treino_id));
+    if(t)botao('Continuar '+(t.nome||'treino')+' de onde parou',async()=>{window.wandMostrarVista?.('treinos');await wtRetomar(ultima,t);});
+    else wtAdd(acoes,'p','notice','Treino interrompido: prescrição indisponível. Consulte seu treinador.');
+   }else{
+    wtAdd(acoes,'p','muted',grupo.nome+': sessão anterior interrompida. Inicie uma nova sessão do mesmo treino.');
+    const t=porId.get(String(ultima.treino_id));
+    if(t)botao('Recomeçar '+(t.nome||'treino'),async()=>{window.wandMostrarVista?.('treinos');await wtIniciar(t);wtSmartRender()});
+   }
+   continue;
   }
   const concluida=historico.find(h=>h.finalizada_em&&h.situacao==='concluido');
   // Se o status da sessao nao estiver disponivel, nao presumir conclusao.
@@ -1124,7 +1134,7 @@ function wtRender(){
  }
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
-  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.12.1 · Somente consulta das prescrições');
+  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.13.1 · Somente consulta das prescrições');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
   const mostrados=new Set();
@@ -1202,6 +1212,17 @@ function wtVerTreino(t){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtA
  for(const ex of t.exercicios||[]){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
  for(const s of ex.series||[])wtAdd(c,'p','muted','Série '+s.numero+': '+wtNum(s.repeticoes)+' repetições · '+wtNum(s.carga)+' kg · descanso '+wtNum(s.descanso)+' s'+(s.observacoes?' · '+s.observacoes:''));}
  wtAdd(a,'p','muted','Consulta da prescrição. Para começar, acesse o treino de hoje no painel inicial.');}
+async function wtRetomar(sessao,treino){
+ if(wtBusy)return;wtBusy=true;
+ try{
+  const id=await wtRpc('wand_retomar_sessao',{p_sessao_id:sessao.id});
+  wtSessao=id;wtTreino=treino;wtInicio=Date.parse(sessao.iniciada_em)||Date.now();
+  wtSerieSalva=Object.fromEntries((sessao.series||[]).map(x=>[x.serie_id,x]));
+  const saved=wtEstadoLocal();wtBlocoAberto=saved?.sessao===id&&Number.isInteger(saved.bloco)?saved.bloco:0;
+  wtVista='disponiveis';wtSalvarVista();wtPersistir();
+  await wtCarregar();wtMsg('Treino retomado! Suas séries anteriores foram preservadas.');
+ }catch(e){wtMsg('Não foi possível retomar: '+e.message,true)}finally{wtBusy=false}
+}
 async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtBlocoAberto=0;wtPersistir();wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
 // O alarme usa recursos permitidos pelo navegador. Em segundo plano ou tela bloqueada
 // o sistema operacional pode suspender audio, vibracao e temporizadores.
@@ -1593,4 +1614,3 @@ window.addEventListener('pageshow',()=>{wesLoaded=false});
 <script src="./pwa-init.js" defer></script>
 </body>
 </html>
-
