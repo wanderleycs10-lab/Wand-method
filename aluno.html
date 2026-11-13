@@ -1224,6 +1224,27 @@ async function wtRetomar(sessao,treino){
  }catch(e){wtMsg('Não foi possível retomar: '+e.message,true)}finally{wtBusy=false}
 }
 async function wtIniciar(t){if(wtBusy)return;wtBusy=true;try{const id=await wtRpc('wand_iniciar_sessao',{p_treino_id:t.id});wtSessao=id;wtTreino=t;wtInicio=Date.now();wtSerieSalva={};wtBlocoAberto=0;wtPersistir();wtMsg('Sessão iniciada. Registre as séries conforme executar.');wtRender();}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+// Avisos locais: melhor esforço quando a página continua executando.
+// Push em tela bloqueada exige envio pelo servidor; ver guia de implantação.
+let wtAvisoDescansoEnviado=false;
+async function wtSolicitarNotificacoes(){
+ if(!('Notification' in window)){wtMsg('Este navegador não oferece notificações web.',true);return}
+ try{
+  const p=await Notification.requestPermission();
+  wtMsg(p==='granted'?'Notificações autorizadas neste dispositivo.':'Notificações não autorizadas. O alarme dentro do aplicativo continua disponível.',p!=='granted');
+ }catch(e){wtMsg('Não foi possível solicitar notificações: '+e.message,true)}
+}
+async function wtNotificarFimDescanso(){
+ if(wtAvisoDescansoEnviado||!('Notification' in window)||Notification.permission!=='granted')return;
+ wtAvisoDescansoEnviado=true;
+ const titulo='WAND METHOD · Descanso finalizado';
+ const opts={body:'Seu intervalo terminou. Volte para a próxima série! 💪',tag:'wand-descanso-'+(wtSessao||'aluno'),renotify:true,icon:'./icon-192.png',data:{url:location.href}};
+ try{
+  const reg=await navigator.serviceWorker?.getRegistration();
+  if(reg&&reg.showNotification){await reg.showNotification(titulo,opts);return}
+  new Notification(titulo,opts);
+ }catch(e){console.warn('Notificação local não disponível',e)}
+}
 // O alarme usa recursos permitidos pelo navegador. Em segundo plano ou tela bloqueada
 // o sistema operacional pode suspender audio, vibracao e temporizadores.
 function wtPrepararAudio(){
@@ -1279,11 +1300,11 @@ function wtDispararAlarme(){
  if(wtAlarmArea)wtAlarmArea.classList.add('wt-alarm');
  if(wtAlarmTexto)wtAlarmTexto.textContent='⏰ DESCANSO FINALIZADO! Hora da próxima série. Toque em PARAR ALARME.';
  if(wtPararBotao){wtPararBotao.textContent='🔕 PARAR ALARME';wtPararBotao.focus({preventScroll:true});}
- wtBip();wtVibrar();
+ wtBip();wtVibrar();wtNotificarFimDescanso();wtPersistir();
  wtAlarmId=setInterval(()=>{if(!wtAlarmAtivo)return;wtBip();wtVibrar();},2300);
 }
 function wtPararDescanso(){
- wtTimerFim=0;wtAlarmAtivo=false;
+ wtAvisoDescansoEnviado=false;wtTimerFim=0;wtAlarmAtivo=false;
  if(wtTimerId){clearInterval(wtTimerId);wtTimerId=null;}
  if(wtAlarmId){clearInterval(wtAlarmId);wtAlarmId=null;}
  try{navigator.vibrate?.(0)}catch(e){}
@@ -1295,11 +1316,11 @@ function wtPararDescanso(){
 function wtComecarTimer(sec){
  wtPararDescanso();wtPrepararAudio();
  const segundos=Number(sec);if(!Number.isFinite(segundos)||segundos<=0)return;
- wtTimerFim=Date.now()+segundos*1000;
+ wtAvisoDescansoEnviado=false;wtTimerFim=Date.now()+segundos*1000;
  wtAtualizarTimer();wtTimerId=setInterval(wtAtualizarTimer,250);
  if(wtAlarmTexto)wtAlarmTexto.textContent='Sirene de descanso e vibração ao terminar (se o navegador permitir).';
 }
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)wtAtualizarTimer()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){wtPrepararAudio();wtAtualizarTimer();if(wtAlarmAtivo)wtBip();}});
 window.addEventListener('pagehide',()=>{wtPersistir()});
 // Agrupamento pelo identificador de prescrição: não agrupar apenas por nome do método.
 function wtBlocos(){
@@ -1346,7 +1367,7 @@ function wtExecucao(area){
  const timer=wtAdd(area,'div','wt-rest-dock');wtAlarmArea=timer;
  wtAdd(timer,'strong',null,'⏱ Descanso automático');wtClock=wtAdd(timer,'div','wt-timer','00:00');wtClock.setAttribute('role','timer');
  wtAlarmTexto=wtAdd(timer,'div','wt-alarm-message','');wtAlarmTexto.setAttribute('role','status');wtAlarmTexto.setAttribute('aria-live','assertive');
- const actions=wtAdd(timer,'div','actions');wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);wtAtualizarTimer();
+ const actions=wtAdd(timer,'div','actions');wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);wtBtn(actions,'🔔 Ativar notificações',wtSolicitarNotificacoes,true);wtAtualizarTimer();
  blocos.forEach((bloco,indice)=>{
   const total=Math.max(...bloco.exercicios.map(({ex})=>(ex.series||[]).length),0);
   const concluido=wtCompleto(bloco),nRodadas=wtProximaRodada(bloco);
