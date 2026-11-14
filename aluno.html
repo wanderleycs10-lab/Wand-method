@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
-<meta name="wand-build" content="2026.11.14.1">
+<meta name="wand-build" content="2026.11.14.2">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -952,7 +952,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.14.1';
+const WT_BUILD='2026.11.14.2';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1056,7 +1056,25 @@ function wtSmartRender(){
  const botao=(texto,fn)=>wtBtn(acoes,texto,fn);
  const nota=(texto)=>wtAdd(acoes,'p','muted',texto);
  if(wtSessao){titulo.textContent='Treino em andamento';status.textContent='Continue sua sessão de onde parou.';botao('Continuar treino',()=>window.wandMostrarVista?.('treinos'));return;}
- if(!wtTreinos.length){titulo.textContent='Meus treinos';status.textContent='Nenhuma prescrição ativa disponível.';return;}
+ // O histórico deve ser verificado mesmo quando a lista de prescrições está vazia.
+ // Não confundir treino concluído com prescrição inativa ou falha de carregamento.
+ const hojeSP=wtHoje();
+ const concluidosHoje=wtHistorico.filter(h=>h.situacao==='concluido'&&h.finalizada_em&&wtDiaSP(h.finalizada_em)===hojeSP);
+ if(!wtTreinos.length){
+  if(concluidosHoje.length){
+   const ultima=[...concluidosHoje].sort((a,b)=>Date.parse(b.finalizada_em)-Date.parse(a.finalizada_em))[0];
+   const ficha=wtFichasPrograma.find(f=>String(f.treino_id)===String(ultima.treino_id));
+   const programa=wtProgramas.find(p=>String(p.id)===String(ficha?.programa_id));
+   const divisao=String(programa?.tipo_divisao||'').toLowerCase();
+   const full=/full[ _-]?body|corpo inteiro/.test(divisao);
+   const sequencial=/^ab(c(d(e(f)?)?)?)?$/.test(divisao);
+   if(full){titulo.textContent='Missão cumprida! 🏆';status.textContent='Excelente trabalho! 💪🏻 Seu treino de corpo inteiro está concluído. Amanhã é dia de recuperação muscular. Respeite esse intervalo para voltar com energia e disposição!';nota('Seu próximo Full Body estará disponível após o dia de descanso.');}
+   else if(sequencial){titulo.textContent='Treino concluído. Parabéns! 🏆';status.textContent='Você cumpriu sua missão de hoje! 💪🏻 Cada treino é mais um passo na sua evolução. Aproveite para se recuperar e volte amanhã para continuar sua jornada.';nota('Seu próximo treino estará disponível amanhã, se a prescrição estiver ativa.');}
+   else{titulo.textContent='Muito bem! Mais uma conquista! 💪🏻';status.textContent='Você dedicou mais um momento ao seu bem-estar. Continue nesse ritmo e valorize cada conquista!';nota('Suas outras atividades prescritas continuam liberadas, quando disponíveis.');}
+  }else{titulo.textContent='Meus treinos';status.textContent='Não foi encontrada uma prescrição ativa para hoje. Isso não significa que seu treino foi concluído.';}
+  nota('A lista de prescrições ativas não foi retornada. Peça ao treinador para verificar o status e a validade dos treinos.');
+  return;
+ }
  if(wtAvisoProgramas){titulo.textContent='Aguardando confirmação';status.textContent='Não foi possível confirmar a sequência do programa. Consulte seu treinador.';return;}
  const hoje=wtHoje(),porId=new Map(wtTreinos.map(t=>[String(t.id),t]));
  const programas=wtProgramas.map(p=>({p,fichas:wtFichasPrograma.filter(f=>String(f.programa_id)===String(p.id)).sort((a,b)=>Number(a.ordem||0)-Number(b.ordem||0))})).filter(x=>x.fichas.length);
@@ -1084,7 +1102,7 @@ function wtSmartRender(){
    else avisos.push(grupo.nome+': treino do dia já concluído.');
    continue;
   }
-  if(conclusaoHoje){
+  if(conclusaoHoje&&(sequencial||ids.length===1)){
    conclusoes.push(full?'full':sequencial?'sequencial':'livre');
    avisos.push(grupo.nome+': concluído hoje.');
    continue;
@@ -1104,13 +1122,13 @@ function wtSmartRender(){
  }
  if(conclusoes.includes('full')){
   titulo.textContent='Missão cumprida! 🏆';
-  status.textContent='Excelente trabalho! Seu treino de corpo inteiro está concluído. Amanhã é dia de recuperação muscular. Respeite esse intervalo para voltar com energia e disposição!';
+  status.textContent='Excelente trabalho! 💪🏻 Seu treino de corpo inteiro está concluído. Amanhã é dia de recuperação muscular. Respeite esse intervalo para voltar com energia e disposição!';
  }else if(conclusoes.includes('sequencial')){
   titulo.textContent='Treino concluído. Parabéns! 🏆';
-  status.textContent='Você cumpriu sua missão de hoje! 💪🏻 Cada treino é mais um passo na sua evolução. Aproveite para se recuperar e volte amanhã para continuar sua jornada.';
+  status.textContent='Você cumpriu sua missão de hoje! 💪🏻 Cada treino é mais um passo na sua evolução. Aproveite para se recuperar e volte amanhã para continuar sua jornada. Seu próximo treino estará disponível amanhã.';
  }else if(conclusoes.includes('livre')){
   titulo.textContent='Muito bem! Mais uma conquista! 💪🏻';
-  status.textContent='Você dedicou mais um momento ao seu bem-estar. Continue nesse ritmo e valorize cada conquista!';
+  status.textContent='Você dedicou mais um momento ao seu bem-estar. Continue nesse ritmo e valorize cada conquista! Suas outras atividades disponíveis continuam liberadas.';
  }else{
   titulo.textContent='Preparado para o treino de hoje?';
   status.textContent=disponiveis.length?'Seu próximo treino está pronto. Vamos começar?':'Sua programação está sendo respeitada. Aproveite para se recuperar.';
@@ -1165,7 +1183,7 @@ function wtRender(){
  }
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
-  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.14.1 · Somente consulta das prescrições');
+  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.14.2 · Somente consulta das prescrições');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
   const mostrados=new Set();
