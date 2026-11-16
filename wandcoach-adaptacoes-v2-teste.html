@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#080808"><title>WandCoach | Adaptações V2 (Teste)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif;line-height:1.5}header{border-bottom:1px solid #66551f;padding:22px 16px;text-align:center}header img{width:96px;max-width:35%;height:auto}h1{color:#d4af37;letter-spacing:2px;margin:4px 0}header p{margin:0;color:#bbb;letter-spacing:2px;font-size:12px}main{max-width:950px;margin:auto;padding:20px 16px 48px}h2{color:#d4af37;margin:0 0 10px;font-size:21px}h3{color:#f0cf68;margin:0 0 8px}.intro{color:#c8c8c8;margin:12px 0 20px}.card{background:#171717;border:1px solid #66551f;border-radius:14px;padding:22px;margin:16px 0}.descricao{color:#bbb;margin:8px 0 16px}.acoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}.botao-link,button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;background:#d4af37;color:#080808;border:0;border-radius:9px;padding:12px 16px;font:700 14px Arial,sans-serif;text-align:center;text-decoration:none;cursor:pointer}.botao-link:hover,button:hover{background:#f0c65c}button:disabled{opacity:.5;cursor:not-allowed}.botao-link.secundario,button.secundario{background:#242424;border:1px solid #9b812d;color:#f0cf68}.aluno,.pedido{padding:14px;border:1px solid #66551f;border-radius:10px;margin:10px 0}.aluno a{color:#d4af37;font-weight:bold}.aluno p,.pedido p{margin:6px 0;color:#ccc;font-size:14px}#painel{display:none}#status{color:#d4af37}#sair{background:#262626;color:#fff;border:1px solid #777;margin-top:12px;width:100%}footer{text-align:center;color:#777;font-size:12px;padding:0 12px 24px}select,textarea{background:#101010;color:#fff;border:1px solid #806b32;border-radius:8px;padding:12px;width:100%;font-size:15px}input[type=text]{background:#101010;color:#fff;border:1px solid #806b32;border-radius:8px;padding:12px;width:100%;font-size:15px}textarea{resize:vertical;min-height:80px}label{display:block;margin:12px 0 5px}.aviso{border-left:3px solid #d4af37;padding:10px 12px;background:#26200f;color:#f6e4ad}.erro{color:#ffb3b3}.sucesso{color:#b5e5b9}.chip{display:inline-block;border:1px solid #806b32;border-radius:99px;padding:2px 10px;font-size:12px;color:#f0cf68}.pedido .acoes{margin-top:12px}.formulario{padding:12px;background:#101010;border-radius:10px;margin-top:12px}.escondido{display:none!important}.linha{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.linha>*{flex:1}.mini{font-size:12px;color:#aaa}a{color:#d4af37}@media(max-width:600px){.card{padding:17px}.acoes{grid-template-columns:1fr}.linha{display:block}}
+</style></head>
+<body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><p>WANDCOACH · PAINEL DO TREINADOR · TESTE</p></header>
+<main><p id="status" role="status">Verificando acesso...</p><section id="painel">
+<p class="intro">Gerencie seus alunos, acompanhe os treinos e acesse as ferramentas do WandCoach em um só painel.</p>
+<p class="aviso">Versão de teste independente. As decisões feitas aqui, porém, são <strong>reais no Supabase</strong>. Utilize somente solicitações de teste até concluir a validação.</p>
+<div class="card"><h2>Meus alunos</h2><p class="descricao">Selecione um aluno para abrir seu perfil, avaliações e prescrição individual. O status e a exclusão são gerenciados dentro do perfil.</p><label for="filtroAlunos">Visualizar alunos</label><select id="filtroAlunos"><option value="ativos">Ativos</option><option value="inativos">Inativos</option><option value="todos">Todos os alunos</option></select><div id="listaAlunos"><p>Carregando alunos...</p></div><div class="acoes"><a class="botao-link" href="cadastro-aluno.html">+ Cadastrar aluno</a></div></div>
+<div class="card"><h2>Treinos</h2><p class="descricao">Biblioteca de exercícios e gerenciamento geral das prescrições.</p><div class="acoes"><a class="botao-link" href="gerenciar-treinos.html">Gerenciar treinos</a><a class="botao-link secundario" href="biblioteca-exercicios.html">Biblioteca de exercícios</a></div><p class="descricao">Para prescrever um treino individual, abra o perfil do aluno acima.</p></div>
+<div class="card"><h2>Avaliações e acompanhamento</h2><p class="descricao">Acesse os dados e avaliações de cada aluno pelo respectivo perfil. As ferramentas permanecem nas páginas já existentes.</p></div>
+<div class="card" id="adaptacoes"><h2>Solicitações de Adaptação</h2><p class="descricao">Analise pedidos de adaptação de treino e acompanhe as decisões registradas.</p><div class="linha"><div><label for="filtroPedidos">Visualizar solicitações</label><select id="filtroPedidos"><option value="pendente">Pendentes</option><option value="atendida">Atendidas</option><option value="recusada">Recusadas</option><option value="cancelada">Canceladas</option><option value="todas">Todas</option></select></div><div><button id="atualizarPedidos" type="button">Atualizar solicitações</button></div></div><p id="mensagemPedidos" role="status" aria-live="polite"></p><div id="listaPedidos"><p>Carregando solicitações...</p></div></div>
+<button id="sair" type="button">Sair da conta</button></section></main><footer>WAND METHOD · WandCoach · Ambiente de teste</footer>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const supabase=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const status=document.getElementById('status'),painel=document.getElementById('painel');let alunosCarregados=[],pedidosCarregados=[];
+const $=id=>document.getElementById(id);
+function texto(el,txt){el.textContent=txt==null?'':String(txt);return el}
+function criar(tag,classe,conteudo){const e=document.createElement(tag);if(classe)e.className=classe;if(conteudo!==undefined)texto(e,conteudo);return e}
+function formatarData(s){if(!s)return 'Não informada';const v=String(s).slice(0,10).split('-');return v.length===3?`${v[2]}/${v[1]}/${v[0]}`:String(s)}
+function informar(msg,erro=false){const el=$('mensagemPedidos');el.className=erro?'erro':'sucesso';texto(el,msg)}
+async function verificarAcesso(){try{const {data:{user},error}=await supabase.auth.getUser();if(error||!user){window.location.replace('login.html');return;}const {data,error:erroPerfil}=await supabase.from('profiles').select('role').eq('id',user.id).single();if(erroPerfil||data?.role!=='admin'){status.textContent='Acesso não autorizado.';return;}status.textContent='';painel.style.display='block';await Promise.all([carregarAlunos(),carregarPedidos()]);}catch(e){console.error(e);status.textContent='Não foi possível verificar o acesso. Tente atualizar a página.';}}
+function mostrarAlunos(){const lista=$('listaAlunos'),filtro=$('filtroAlunos').value;lista.replaceChildren();const filtrados=alunosCarregados.filter(a=>{const s=String(a.Status||'').trim().toLowerCase();return filtro==='todos'||(filtro==='inativos'?s==='inativo':s!=='inativo');});if(!filtrados.length){lista.textContent='Nenhum aluno nesta categoria.';return;}filtrados.forEach(aluno=>{const item=criar('div','aluno');const nome=criar('a','',aluno.nome_completo||'Sem nome');nome.href='perfil-aluno.html?id='+encodeURIComponent(aluno.id);const detalhes=criar('p','',`Modalidade: ${aluno.modalidade||'Não informada'} | Status: ${aluno.Status||'Não informado'}`);item.append(nome,detalhes);lista.appendChild(item);});}
+async function carregarAlunos(){const lista=$('listaAlunos');lista.textContent='Carregando alunos...';const {data,error}=await supabase.from('alunos').select('id, nome_completo, modalidade, Status').order('nome_completo',{ascending:true});if(error){console.error(error);lista.textContent='Não foi possível carregar os alunos.';return;}alunosCarregados=data||[];mostrarAlunos();}
+async function carregarPedidos(){const lista=$('listaPedidos');lista.textContent='Carregando solicitações...';informar('');try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_adaptacao');if(error)throw error;if(!Array.isArray(data))throw new Error('Resposta inesperada da função de solicitações');pedidosCarregados=data;mostrarPedidos();}catch(e){console.error(e);lista.textContent='Não foi possível carregar as solicitações.';informar(e.message||'Erro ao consultar solicitações',true);}}
+function linhaInfo(rotulo,valor){const p=criar('p');const b=criar('strong','',rotulo+': ');p.append(b,document.createTextNode(valor==null||valor===''?'Não informado':String(valor)));return p}
+function mostrarPedidos(){const lista=$('listaPedidos'),filtro=$('filtroPedidos').value;lista.replaceChildren();const itens=pedidosCarregados.filter(p=>filtro==='todas'||p.status===filtro);if(!itens.length){lista.textContent='Nenhuma solicitação nesta categoria.';return;}itens.forEach(p=>{const card=criar('article','pedido');const cab=criar('h3','',p.aluno_nome||'Aluno sem nome');const chip=criar('span','chip',({pendente:'Pendente',atendida:'Atendida',recusada:'Recusada',cancelada:'Cancelada'})[p.status]||p.status);card.append(cab,chip,linhaInfo('Dia solicitado',formatarData(p.dia)),linhaInfo('Motivo',p.motivo),linhaInfo('Observações',p.observacoes));if(p.resposta_treinador)card.append(linhaInfo('Resposta do treinador',p.resposta_treinador));if(p.atendido_em)card.append(linhaInfo('Decisão em',new Date(p.atendido_em).toLocaleString('pt-BR')));
+if(p.status==='pendente'){
+ const acoes=criar('div','acoes');const aprovar=criar('button','','Aprovar');aprovar.type='button';const recusar=criar('button','secundario','Recusar');recusar.type='button';acoes.append(aprovar,recusar);const formulario=criar('div','formulario escondido');card.append(acoes,formulario);
+ async function abrir(modo){
+  formulario.replaceChildren();formulario.classList.remove('escondido');
+  formulario.append(criar('h3','',modo==='aprovar'?'Aprovar adaptação':'Recusar solicitação'));
+  let seletor=null,treinoOriginal=null,treinoAlternativo=null,tituloProtocolo=null,descricaoProtocolo=null;
+  let modalidade='existente';
+  const erroLocal=criar('p','erro');
+  if(modo==='aprovar'){
+    const opcoes=criar('div','acoes');
+    const existente=criar('button','secundario','Selecionar protocolo existente');
+    const novo=criar('button','secundario','Criar nova adaptação');
+    existente.type=novo.type='button';opcoes.append(existente,novo);formulario.append(opcoes);
+    const conteudo=criar('div');formulario.append(conteudo);
+    async function escolher(tipo){
+      modalidade=tipo;conteudo.replaceChildren();erroLocal.textContent='';
+      existente.className=tipo==='existente'?'':'secundario';novo.className=tipo==='novo'?'':'secundario';
+      if(tipo==='existente'){
+        const protocolos=Array.isArray(p.protocolos)?p.protocolos:[];
+        if(!protocolos.length){conteudo.append(criar('p','aviso','Nenhum protocolo ativo disponível. Escolha “Criar nova adaptação”.'));seletor=null;return;}
+        conteudo.append(criar('label','','Protocolo de adaptação'));
+        seletor=criar('select');seletor.append(new Option('Selecione o protocolo',''));
+        protocolos.forEach(x=>seletor.append(new Option(x.titulo||'Protocolo sem título',x.id)));
+        conteudo.append(seletor);return;
+      }
+      conteudo.append(criar('p','mini','O protocolo será criado para esta aluna e usado apenas na sessão aprovada. A prescrição original não será alterada.'));
+      conteudo.append(criar('label','','Nome da adaptação'));
+      tituloProtocolo=criar('input');tituloProtocolo.type='text';tituloProtocolo.maxLength=120;tituloProtocolo.placeholder='Ex.: Alternativa de treino por desconforto';conteudo.append(tituloProtocolo);
+      conteudo.append(criar('label','','Descrição (opcional)'));
+      descricaoProtocolo=criar('textarea');descricaoProtocolo.maxLength=1000;conteudo.append(descricaoProtocolo);
+      conteudo.append(criar('label','','Treino original'));
+      treinoOriginal=criar('select');treinoOriginal.append(new Option('Carregando treinos...',''));conteudo.append(treinoOriginal);
+      conteudo.append(criar('label','','Treino alternativo'));
+      treinoAlternativo=criar('select');treinoAlternativo.append(new Option('Carregando treinos...',''));conteudo.append(treinoAlternativo);
+      try{
+        const {data,error}=await supabase.from('wand_treinos').select('id,nome,status,aluno_id,treinador_id').eq('aluno_id',p.aluno_id).eq('status','ativo');
+        if(error)throw error;
+        const {data:{user}}=await supabase.auth.getUser();
+        const treinos=(data||[]).filter(t=>t.treinador_id===user?.id);
+        for(const sel of [treinoOriginal,treinoAlternativo]){
+          sel.replaceChildren();sel.append(new Option('Selecione um treino',''));
+          treinos.forEach(t=>sel.append(new Option(t.nome||'Treino '+String(t.id).slice(0,8),t.id)));
+        }
+        if(treinos.length<2)conteudo.append(criar('p','aviso','É necessário haver dois treinos ativos vinculados a esta aluna e ao seu perfil de treinador. Cadastre ou ative o treino alternativo antes de continuar.'));
+      }catch(e){erroLocal.textContent='Não foi possível consultar os treinos: '+(e.message||e);}
+    }
+    existente.addEventListener('click',()=>escolher('existente'));
+    novo.addEventListener('click',()=>escolher('novo'));
+    await escolher((p.protocolos||[]).length?'existente':'novo');
+  }
+  const lbl=criar('label','',modo==='aprovar'?'Resposta à aluna (opcional)':'Justificativa da recusa (obrigatória)');
+  const area=criar('textarea');area.maxLength=1000;area.placeholder=modo==='aprovar'?'Ex.: Adaptação autorizada para esta sessão.':'Explique o motivo da recusa (mínimo de 3 caracteres).';
+  const botoes=criar('div','acoes');const confirmar=criar('button','',modo==='aprovar'?'Confirmar aprovação':'Confirmar recusa');confirmar.type='button';
+  const cancelar=criar('button','secundario','Voltar');cancelar.type='button';cancelar.addEventListener('click',()=>formulario.classList.add('escondido'));
+  botoes.append(confirmar,cancelar);formulario.append(lbl,area,botoes,erroLocal);
+  confirmar.addEventListener('click',async()=>{
+    const resposta=area.value.trim();let protocoloId=seletor?.value||'';
+    if(modo==='aprovar'){
+      if(modalidade==='existente'&&!protocoloId){erroLocal.textContent='Selecione um protocolo.';return;}
+      if(modalidade==='novo'){
+        if(!tituloProtocolo?.value.trim()){erroLocal.textContent='Informe o nome da adaptação.';return;}
+        if(!treinoOriginal?.value||!treinoAlternativo?.value){erroLocal.textContent='Selecione os dois treinos.';return;}
+        if(treinoOriginal.value===treinoAlternativo.value){erroLocal.textContent='O treino alternativo deve ser diferente do original.';return;}
+      }
+    }
+    if(modo==='recusar'&&resposta.length<3){erroLocal.textContent='Informe uma justificativa de pelo menos 3 caracteres.';return;}
+    const aviso=modo==='aprovar'?(modalidade==='novo'?'Criar este protocolo e aprovar a adaptação desta sessão?':'Confirmar aprovação desta adaptação para a sessão?'):'Confirmar recusa desta solicitação?';
+    if(!window.confirm(aviso))return;
+    confirmar.disabled=true;cancelar.disabled=true;erroLocal.textContent='Registrando decisão...';
+    try{
+      if(modo==='aprovar'&&modalidade==='novo'){
+        const {data,error}=await supabase.rpc('wand_coach_criar_protocolo',{
+          p_aluno_id:p.aluno_id,p_treino_original:treinoOriginal.value,p_treino_alternativo:treinoAlternativo.value,
+          p_titulo:tituloProtocolo.value.trim(),p_descricao:descricaoProtocolo.value.trim()||null,p_modo:'aprovacao'
+        });
+        if(error)throw error;
+        protocoloId=typeof data==='string'?data:(data?.id||data?.protocolo_id);
+        if(!protocoloId)throw new Error('O protocolo foi criado, mas não foi possível identificar seu ID. Atualize a lista antes de tentar novamente.');
+      }
+      const args=modo==='aprovar'?{p_solicitacao_id:p.id,p_protocolo_id:protocoloId,p_resposta:resposta||null}:{p_solicitacao_id:p.id,p_resposta:resposta};
+      const {error}=await supabase.rpc(modo==='aprovar'?'wand_coach_aprovar_solicitacao':'wand_coach_recusar_solicitacao',args);
+      if(error)throw error;
+      await carregarPedidos();informar(modo==='aprovar'?'Solicitação aprovada com sucesso.':'Solicitação recusada com sucesso.');
+    }catch(e){console.error(e);erroLocal.textContent=(e.message||'Não foi possível registrar a decisão.')+' Se o protocolo já foi criado, atualize as solicitações e selecione-o como existente.';confirmar.disabled=false;cancelar.disabled=false;}
+  });
+ }
+ aprovar.addEventListener('click',()=>abrir('aprovar'));recusar.addEventListener('click',()=>abrir('recusar'));
+}lista.appendChild(card);});}
+$('filtroAlunos').addEventListener('change',mostrarAlunos);$('filtroPedidos').addEventListener('change',mostrarPedidos);$('atualizarPedidos').addEventListener('click',carregarPedidos);window.addEventListener('pageshow',()=>{if(painel.style.display==='block'){carregarAlunos();carregarPedidos();}});$('sair').addEventListener('click',async()=>{const botao=$('sair');botao.disabled=true;botao.textContent='Saindo...';const {error}=await supabase.auth.signOut();if(error){status.textContent='Não foi possível sair da conta. Tente novamente.';botao.disabled=false;botao.textContent='Sair da conta';return;}window.location.replace('login.html');});verificarAcesso();
+</script></body></html>
