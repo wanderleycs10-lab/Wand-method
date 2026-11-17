@@ -26,3 +26,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 details{border-color:#7d8189}summary,a{accent-color:#e8b84e}
 @media(max-width:600px){.card,.subcard{border-radius:15px}.nav-tile,.wc-tile{border-radius:16px}}
 @media(prefers-reduced-motion:reduce){.nav-tile,.wc-tile,.menu-perfil button,.nav-grid>a,.nav-grid>button{transition:none}}
+
+/* v3 — resumo superior: o cartão é a única superfície, sem botão emoldurado */
+.wand-overview .wand-overview-item{overflow:hidden}
+.wand-overview .wand-overview-item>button,.wand-overview .wand-overview-item>button:not(.primary){display:flex!important;flex-direction:column;justify-content:space-between;width:100%;height:100%;min-height:105px;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline-offset:3px;color:#f4eee2!important;text-align:left;text-shadow:none!important;font:inherit;cursor:pointer}
+.wand-overview .wand-overview-item>button:hover,.wand-overview .wand-overview-item>button:focus-visible{background:transparent!important;box-shadow:none!important}
+.wand-overview .wand-overview-label{color:#e4d7ba!important;line-height:1.25}
+.wand-overview .wand-overview-value{color:#f4c65d!important;line-height:1.2}
+.wand-overview .wand-overview-note{color:#d0c8bb!important;line-height:1.3}
