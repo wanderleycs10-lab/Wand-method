@@ -960,7 +960,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.17.9.1';
+const WT_BUILD='2026.11.17.9.2';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1067,6 +1067,30 @@ function wtOriginalDaConclusao(h){
 function wtAdaptacaoConcluidaHoje(a){
  return wtHistorico.some(h=>h.situacao==='concluido'&&h.finalizada_em&&wtDiaSP(h.finalizada_em)===wtHoje()&&String(h.treino_id)===String(a.treino_alternativo_id));
 }
+// Calcula a proxima ficha a partir da ultima conclusao real, incluindo adaptacoes.
+function wtProximaFichaAposConclusao(){
+ const programas=wtProgramas.map(p=>({
+  p,
+  fichas:wtFichasPrograma.filter(f=>String(f.programa_id)===String(p.id))
+   .sort((a,b)=>Number(a.ordem||0)-Number(b.ordem||0))
+ })).filter(x=>x.fichas.length>1);
+ const conclusoes=(wtHistorico||[]).filter(h=>h.situacao==='concluido'&&h.finalizada_em)
+  .sort((a,b)=>Date.parse(b.finalizada_em)-Date.parse(a.finalizada_em));
+ for(const h of conclusoes){
+  const original=wtOriginalDaConclusao(h);
+  for(const {p,fichas} of programas){
+   const divisao=String(p.tipo_divisao||'').toLowerCase();
+   if(!['ab','abc','abcd'].includes(divisao)&&!/^abcde?f?$/.test(divisao))continue;
+   const indice=fichas.findIndex(f=>String(f.treino_id)===original);
+   if(indice<0)continue;
+   const proxima=fichas[(indice+1)%fichas.length];
+   const treino=wtTreinos.find(t=>String(t.id)===String(proxima.treino_id));
+   const nome=treino?.nome||proxima.titulo||('Treino '+(proxima.codigo||''));
+   return {nome,programa:p.nome||'Programa'};
+  }
+ }
+ return null;
+}
 function wtSmartRender(){
  const card=document.getElementById('wtProximoCard');
  const titulo=card?.querySelector('h2');
@@ -1086,13 +1110,15 @@ function wtSmartRender(){
   }else if(tipo==='sequencial'){
    titulo.textContent='Treino concluído. Parabéns! 🏆';
    status.textContent='Você cumpriu sua missão de hoje! 💪🏻 Cada treino é mais um passo na sua evolução. Aproveite para se recuperar e volte amanhã para continuar sua jornada.';
-   proximo='Próximo treino disponível amanhã';
+   const fichaSeguinte=wtProximaFichaAposConclusao();
+   proximo=fichaSeguinte?'Próximo treino: '+fichaSeguinte.nome:'Próximo treino disponível amanhã';
+   if(fichaSeguinte)detalhe='Disponível a partir de amanhã · '+fichaSeguinte.programa;
   }else{
    titulo.textContent='Muito bem! Mais uma conquista! 💪🏻';
    status.textContent='Você dedicou mais um momento ao seu bem-estar. Continue nesse ritmo e valorize cada conquista!';
    proximo='Outras atividades prescritas continuam disponíveis';
   }
-  if(nomePrograma)detalhe=nomePrograma+' — treino de hoje concluído.';
+  if(nomePrograma&&!detalhe)detalhe=nomePrograma+' — treino de hoje concluído.';
   const bloco=wtAdd(acoes,'div','wt-smart-next');
   wtAdd(bloco,'span',null,'▣');
   const conteudo=wtAdd(bloco,'div');
