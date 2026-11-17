@@ -21,11 +21,57 @@ header img{filter:drop-shadow(0 4px 9px #e2ac3333)}h1,h2,.wc-panel-title{color:#
 .wc-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:17px 0 24px}.wc-overview-item{min-width:0;background:linear-gradient(145deg,#35250d,#141414 60%,#241706);border:1px solid #a27e38;border-radius:18px;padding:15px 11px;box-shadow:inset 0 2px #ffe39d77,inset 0 -3px 7px #d5a02a30,0 8px 17px #000a,0 0 13px #d4a02b2a}.wc-overview-item strong{display:block;color:#ffd06b;font-size:clamp(14px,2.5vw,21px);margin:7px 0}.wc-overview-item small{display:block;color:#d3c2a6;font-size:11px}.wc-overview-item span{color:#e4d1a9;font-size:12px}.wc-overview-item a{color:inherit;text-decoration:none}.wc-section-label{font-size:17px;color:#ffcd65;margin:0 0 14px}
 @media(max-width:430px){.wc-overview{gap:7px}.wc-overview-item{padding:12px 8px}.wc-overview-item span{font-size:11px}.wc-tile{min-height:130px;padding:15px}}
 @media(prefers-reduced-motion:reduce){.wc-tile{transition:none}}
-</style><link rel="stylesheet" href="./wand-premium.css?v=20261117-2">
+
+/* WandCoach dashboard premium — composição de referência, dados não fictícios */
+#wcHome .wc-hero{display:flex;align-items:center;gap:17px;margin:12px 0 24px}
+#wcHome .wc-avatar{width:76px;height:76px;flex:none;border:2px solid #f4bf42;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#38250b,#090909 70%);box-shadow:0 0 17px #d7a23d77;overflow:hidden}
+#wcHome .wc-avatar img{width:80%;height:80%;object-fit:contain}
+#wcHome .wc-panel-title{font-size:clamp(22px,4vw,33px);color:#fff;letter-spacing:0}
+#wcHome .wc-panel-title span{color:#ffd069}
+#wcHome .wc-overview{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0 25px}
+#wcHome .wc-overview-item{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;min-height:154px;padding:17px 13px;border:1px solid #c79c45;border-radius:23px;background:linear-gradient(145deg,#33220c,#090909 65%,#281a0b);box-shadow:inset 0 1px #ffe4a588,inset 0 -4px 9px #ffc34c77,0 9px 18px #000b,0 0 14px #cc922c44;color:#f5f0e9;text-decoration:none;font:inherit;cursor:default}
+#wcHome button.wc-overview-item,#wcHome a.wc-overview-item{cursor:pointer}
+#wcHome .wc-overview-item strong{font-size:clamp(22px,3.7vw,38px);line-height:1.1;margin:3px 0;color:#ffce5d}
+#wcHome .wc-overview-item span:not(.wc-kpi-icon){font-size:13px;color:#f3e9d7}
+#wcHome .wc-overview-item small{font-size:11px;color:#d4c7b6}
+#wcHome .wc-kpi-icon{display:block;width:28px;height:28px;color:#f9c13e;filter:drop-shadow(0 0 5px #d9a32e88)}
+#wcHome .wc-kpi-icon svg{width:100%;height:100%;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#wcHome .wc-kpi-alert{border-color:#ad625b;box-shadow:inset 0 1px #ffd2aa77,inset 0 -3px 8px #a83d3d55,0 9px 18px #000a}
+#wcHome .wc-kpi-alert strong,#wcHome .wc-kpi-alert .wc-kpi-icon{color:#ff8a80}
+#wcHome .wc-feature-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(200px,1fr);gap:15px;margin-bottom:27px}
+#wcHome .wc-feature-card{border:1px solid #d2a23e;border-radius:23px;padding:19px;background:linear-gradient(145deg,#2b1e0e,#090909 64%,#24190a);box-shadow:inset 0 1px #ffe6a188,inset 0 -4px 10px #d8a02e66,0 10px 18px #000a}
+#wcHome .wc-feature-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+#wcHome .wc-feature-heading h3,#wcHome .wc-adhesion h3{font-size:19px;color:#f6f1e7;margin:0}
+#wcHome .wc-feature-heading button{min-height:30px;padding:4px 8px;border:0;background:transparent;color:#ffd36b;box-shadow:none;font-size:12px}
+#wcHome .wc-priority-list{display:grid;gap:9px}
+#wcHome .wc-priority-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #665238;border-radius:14px;background:linear-gradient(135deg,#241b12,#0d0d0d);color:#f4eee6;text-decoration:none;font-size:14px}
+#wcHome .wc-priority-item small{color:#ffc46e;font-size:11px}
+#wcHome .wc-adhesion{text-align:center}
+#wcHome .wc-adhesion-ring{width:120px;height:120px;border-radius:50%;border:12px solid #735625;box-shadow:inset 0 0 12px #d9aa3b55,0 0 12px #d9aa3b33;margin:16px auto;display:grid;place-items:center}
+#wcHome .wc-adhesion-ring strong{font-size:28px;color:#f7c960}
+#wcHome .wc-adhesion p{margin:8px 0;color:#f2e9d7}
+#wcHome .wc-adhesion small{color:#bfb5a5;font-size:11px}
+#wcHome .wc-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+#wcHome .wc-tile{min-width:0;min-height:160px;align-items:center;justify-content:center;text-align:center;padding:14px 9px;gap:10px;border-radius:21px;background:linear-gradient(140deg,#2b2011,#090909 63%,#30200a);box-shadow:inset 0 1px #ffe6aa99,inset 0 -5px 10px #e8a83166,0 9px 16px #000b,0 0 13px #daa12d33}
+#wcHome .wc-icon{width:37px;height:37px}
+#wcHome .wc-name{font-size:15px;color:#f8f1e5}
+#wcHome .wc-desc{font-size:11px;color:#d3c8b6}
+@media(max-width:650px){#wcHome .wc-overview{grid-template-columns:repeat(2,minmax(0,1fr))}#wcHome .wc-feature-grid{grid-template-columns:1fr}#wcHome .wc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#wcHome .wc-overview-item{min-height:140px}#wcHome .wc-hero{gap:12px}#wcHome .wc-avatar{width:60px;height:60px}}
+</style><link rel="stylesheet" href="./wand-premium.css?v=20261117-6">
 </head>
 <body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><p>WANDCOACH · PAINEL DO TREINADOR</p></header>
 <main><p id="status" role="status">Verificando acesso...</p><section id="painel">
-<section id="wcHome" aria-label="Menu WandCoach" hidden><h2 class="wc-panel-title">Bem-vindo, WandCoach!</h2><p class="wc-subtitle">Gestão, prescrição e evolução dos seus alunos.</p><div class="wc-overview" aria-label="Resumo do WandCoach"><div class="wc-overview-item"><a href="cadastro-aluno.html"><span>♟ Meus alunos</span><strong id="wcResumoAlunos">Consultar</strong><small>Cadastros e acompanhamento</small></a></div><div class="wc-overview-item"><a href="gerenciar-treinos.html"><span>✦ Treinos</span><strong>Gerenciar</strong><small>Programas e prescrições</small></a></div><div class="wc-overview-item"><a href="#alunos"><span>↗ Evolução</span><strong>Acompanhar</strong><small>Indicadores dos alunos</small></a></div></div><h3 class="wc-section-label">Ações principais</h3><nav id="wcGrid" class="wc-grid" aria-label="Áreas administrativas"></nav></section><section id="wcInner" hidden><button type="button" class="wc-back" id="wcBackTop">← Voltar ao painel</button><h2 id="wcTitle"></h2><p id="wcSubtitle" class="wc-subtitle"></p><div id="wcContent"></div><button type="button" class="wc-back" id="wcBackBottom">← Voltar ao painel</button></section><div id="wcLegacy" class="wc-legacy">
+<section id="wcHome" aria-label="Painel principal WandCoach" hidden>
+<div class="wc-hero"><div class="wc-avatar" aria-hidden="true"><img src="wand-icon-192-premium(1)-1.png" alt=""></div><div><h2 class="wc-panel-title">Bem-vindo, <span>WandCoach!</span></h2><p class="wc-subtitle">Gestão, prescrição e evolução dos seus alunos.</p></div></div>
+<div class="wc-overview" aria-label="Indicadores administrativos">
+ <button type="button" class="wc-overview-item" id="wcGoAlunos"><span class="wc-kpi-icon" data-icon="users"></span><span>Meus alunos</span><strong id="wcResumoAlunos">—</strong><small>Ativos</small></button>
+ <a class="wc-overview-item" href="gerenciar-treinos.html"><span class="wc-kpi-icon" data-icon="dumbbell"></span><span>Treinos publicados</span><strong id="wcResumoTreinos">—</strong><small id="wcTreinosNota">Consultar programas</small></a>
+ <div class="wc-overview-item"><span class="wc-kpi-icon" data-icon="chart"></span><span>Taxa de adesão</span><strong id="wcResumoAdesao">—</strong><small>Indicador a integrar</small></div>
+ <button type="button" class="wc-overview-item wc-kpi-alert" id="wcGoPrioridades"><span class="wc-kpi-icon" data-icon="activity"></span><span>Alunos em atenção</span><strong id="wcResumoAtencao">—</strong><small>Solicitações pendentes</small></button>
+</div>
+<div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>Alunos em prioridade</h3><button type="button" id="wcVerPrioridades">Ver todos →</button></div><div id="wcPrioridadeLista" class="wc-priority-list"><p class="wc-subtitle">Consultando solicitações...</p></div></section><section class="wc-feature-card wc-adhesion"><h3>Evolução geral</h3><div class="wc-adhesion-ring"><strong>—</strong></div><p>Adesão média dos alunos</p><small>Disponível após integração dos indicadores de frequência</small></section></div>
+<h3 class="wc-section-label">Ações principais</h3><nav id="wcGrid" class="wc-grid" aria-label="Áreas administrativas"></nav>
+</section><section id="wcInner" hidden><button type="button" class="wc-back" id="wcBackTop">← Voltar ao painel</button><h2 id="wcTitle"></h2><p id="wcSubtitle" class="wc-subtitle"></p><div id="wcContent"></div><button type="button" class="wc-back" id="wcBackBottom">← Voltar ao painel</button></section><div id="wcLegacy" class="wc-legacy">
 
 <div class="card"><h2>Meus alunos</h2><p class="descricao">Selecione um aluno para abrir seu perfil, avaliações e prescrição individual. O status e a exclusão são gerenciados dentro do perfil.</p><label for="filtroAlunos">Visualizar alunos</label><select id="filtroAlunos"><option value="" selected disabled>Selecione o status dos alunos</option><option value="ativos">Ativos</option><option value="inativos">Inativos</option><option value="todos">Todos os alunos</option></select><div id="listaAlunos" hidden></div><div class="acoes"><a class="botao-link" href="cadastro-aluno.html">+ Cadastrar aluno</a></div></div>
 <div class="card"><h2>Treinos</h2><p class="descricao">Biblioteca de exercícios, gerenciamento de prescrições e acompanhamento assistido dos treinos.</p><div class="acoes"><a class="botao-link" href="gerenciar-treinos.html">Gerenciar treinos</a><a class="botao-link" href="biblioteca-exercicios.html">Biblioteca de exercícios</a><a class="botao-link" href="treino-presencial.html">▶ Iniciar treino assistido</a></div><p class="descricao">Para prescrever um treino individual, abra o perfil do aluno acima.</p></div>
@@ -57,6 +103,8 @@ archive:'<rect x="3" y="4" width="18" height="5"/><path d="M5 9v12h14V9M10 13h4"
 trash:'<path d="M3 6h18M8 6V4h8v2M5 6l1 15h12l1-15M10 10v7M14 10v7"/>'
 };
 const wcIcon=k=>'<span class="wc-icon" aria-hidden="true"><svg viewBox="0 0 24 24">'+(wcIcons[k]||wcIcons.book)+'</svg></span>';
+for(const holder of document.querySelectorAll('.wc-kpi-icon')){const k=holder.dataset.icon;holder.innerHTML='<svg viewBox="0 0 24 24">'+(wcIcons[k]||wcIcons.chart)+'</svg>'}
+
 const wcMenus={
 treinos:{name:'Treinos',desc:'Prescrição e gestão',icon:'dumbbell',items:[['Prescrever Treino','Criar programas para alunos','clipboard','students'],['Gerenciar Treinos','Ativos, rascunhos e arquivados','book','gerenciar-treinos.html'],['Biblioteca de Exercícios','Consultar e cadastrar exercícios','dumbbell','biblioteca-exercicios.html'],['Modelos de Treino','Programas reutilizáveis','book','gerenciar-treinos.html'],['Iniciar Treino Assistido','Acompanhar sessão presencial','play','treino-presencial.html'],['Histórico de Treinos','Execuções e interrupções','history','students']]},
 alunos:{name:'Meus Alunos',desc:'Cadastros e status',icon:'users',items:[['Alunos Ativos','Alunos em acompanhamento','check','ativos'],['Alunos Inativos','Cadastros desativados','archive','inativos'],['Alunos Excluídos','Registros excluídos','trash','excluidos'],['Cadastrar Aluno','Novo cadastro','plus','cadastro-aluno.html']]},
@@ -68,6 +116,15 @@ bemestar:{name:'Bem-estar',desc:'Saúde e acompanhamento',icon:'heart',items:[['
 coins:{name:'WAND Coins',desc:'Conquistas e recompensas',icon:'coin',items:[['Conquistas','Consultar alunos','coin','students'],['Recompensas','Gerenciar pelo perfil','coin','students'],['Pontos dos Alunos','Consultar saldos','users','students']]},
 comunicacao:{name:'Comunicação',desc:'Mensagens e suporte',icon:'message',items:[['Mensagens no App','Contato pelo perfil','message','students'],['WhatsApp','Contato direto pelo perfil','message','students'],['Notificações','Alertas e solicitações','activity','adaptacoes']]}
 };
+function wcAtualizarDashboard(){
+ const ativos=alunosCarregados.filter(a=>!['inativo','excluido','excluído','excluida','excluída'].includes(String(a.Status||'').toLowerCase()));
+ $('wcResumoAlunos').textContent=String(ativos.length);
+ const pendentes=pedidosCarregados.filter(p=>String(p.status||p.situacao||'').toLowerCase()==='pendente');
+ $('wcResumoAtencao').textContent=String(new Set(pendentes.map(p=>p.aluno_id).filter(Boolean)).size);
+ const lista=$('wcPrioridadeLista');lista.replaceChildren();
+ if(!pendentes.length){const p=document.createElement('p');p.className='wc-subtitle';p.textContent='Nenhuma solicitação de adaptação pendente no momento.';lista.append(p);return;}
+ const vistos=new Set();for(const pedido of pendentes){if(!pedido.aluno_id||vistos.has(String(pedido.aluno_id)))continue;vistos.add(String(pedido.aluno_id));const aluno=alunosCarregados.find(a=>String(a.id)===String(pedido.aluno_id));const link=document.createElement('a');link.className='wc-priority-item';link.href='perfil-aluno.html?id='+encodeURIComponent(pedido.aluno_id);const nome=document.createElement('strong');nome.textContent=aluno?.nome_completo||'Aluno com solicitação';const motivo=document.createElement('small');motivo.textContent='Adaptação pendente ›';link.append(nome,motivo);lista.append(link);if(vistos.size>=4)break;}
+}
 const wcHome=$('wcHome'),wcInner=$('wcInner'),wcContent=$('wcContent'),wcLegacy=$('wcLegacy');
 const wcStatus=a=>String(a.Status||'').trim().toLowerCase();
 const wcExcluded=a=>['excluido','excluído','excluida','excluída','excluidos','excluídos'].includes(wcStatus(a));
@@ -81,6 +138,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){wcSetRoute(i
 function wcAction(item,parent,index){const dest=item[3];if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
 function wcMenu(key){const m=wcMenus[key];if(!m)return;wcSetRoute([key]);wcOpen(m.name,m.desc);const list=document.createElement('div');list.className='wc-list';m.items.forEach((item,index)=>{const tipo=item[3],count=['ativos','inativos','excluidos'].includes(tipo)?wcFiltered(tipo).length:undefined;list.append(wcRow(item,()=>wcAction(item,key,index),count))});wcContent.append(list)}
 function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
+$('wcGoAlunos').onclick=()=>wcMenu('alunos');$('wcGoPrioridades').onclick=()=>wcMenu('bemestar');$('wcVerPrioridades').onclick=()=>wcMenu('bemestar');
 Object.entries(wcMenus).forEach(([key,m])=>{const b=document.createElement('button');b.type='button';b.className='wc-tile';b.innerHTML=wcIcon(m.icon)+'<span class="wc-name"></span><span class="wc-desc"></span>';b.querySelector('.wc-name').textContent=m.name;b.querySelector('.wc-desc').textContent=m.desc;b.onclick=()=>wcMenu(key);$('wcGrid').append(b)});
 
 function texto(el,txt){el.textContent=txt==null?'':String(txt);return el}
@@ -89,8 +147,8 @@ function formatarData(s){if(!s)return 'Não informada';const v=String(s).slice(0
 function informar(msg,erro=false){const el=$('mensagemPedidos');el.className=erro?'erro':'sucesso';texto(el,msg)}
 async function verificarAcesso(){try{const {data:{user},error}=await supabase.auth.getUser();if(error||!user){window.location.replace('login.html');return;}const {data,error:erroPerfil}=await supabase.from('profiles').select('role').eq('id',user.id).single();if(erroPerfil||data?.role!=='admin'){status.textContent='Acesso não autorizado.';return;}status.textContent='';await Promise.all([carregarAlunos(),carregarPedidos()]);wcRestore();painel.style.display='block';}catch(e){console.error(e);status.textContent='Não foi possível verificar o acesso. Tente atualizar a página.';}}
 function mostrarAlunos(){const lista=$('listaAlunos'),filtro=$('filtroAlunos').value;lista.hidden=!filtro;lista.replaceChildren();if(!filtro)return;const filtrados=alunosCarregados.filter(a=>{const s=String(a.Status||'').trim().toLowerCase();return filtro==='todos'||(filtro==='inativos'?s==='inativo':s!=='inativo');});if(!filtrados.length){lista.textContent='Nenhum aluno nesta categoria.';return;}filtrados.forEach(aluno=>{const item=criar('div','aluno');const nome=criar('a','',aluno.nome_completo||'Sem nome');nome.href='perfil-aluno.html?id='+encodeURIComponent(aluno.id);const detalhes=criar('p','',`Modalidade: ${aluno.modalidade||'Não informada'} | Status: ${aluno.Status||'Não informado'}`);item.append(nome,detalhes);lista.appendChild(item);});}
-async function carregarAlunos(){const lista=$('listaAlunos');if($('filtroAlunos').value)lista.textContent='Carregando alunos...';const {data,error}=await supabase.from('alunos').select('id, nome_completo, modalidade, Status').order('nome_completo',{ascending:true});if(error){console.error(error);lista.textContent='Não foi possível carregar os alunos.';return;}alunosCarregados=data||[];mostrarAlunos();}
-async function carregarPedidos(){const lista=$('listaPedidos');if($('filtroPedidos').value)lista.textContent='Carregando solicitações...';informar('');try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_adaptacao');if(error)throw error;if(!Array.isArray(data))throw new Error('Resposta inesperada da função de solicitações');pedidosCarregados=data;mostrarPedidos();}catch(e){console.error(e);lista.textContent='Não foi possível carregar as solicitações.';informar(e.message||'Erro ao consultar solicitações',true);}}
+async function carregarAlunos(){const lista=$('listaAlunos');if($('filtroAlunos').value)lista.textContent='Carregando alunos...';const {data,error}=await supabase.from('alunos').select('id, nome_completo, modalidade, Status').order('nome_completo',{ascending:true});if(error){console.error(error);lista.textContent='Não foi possível carregar os alunos.';return;}alunosCarregados=data||[];mostrarAlunos();wcAtualizarDashboard();}
+async function carregarPedidos(){const lista=$('listaPedidos');if($('filtroPedidos').value)lista.textContent='Carregando solicitações...';informar('');try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_adaptacao');if(error)throw error;if(!Array.isArray(data))throw new Error('Resposta inesperada da função de solicitações');pedidosCarregados=data;mostrarPedidos();wcAtualizarDashboard();}catch(e){console.error(e);lista.textContent='Não foi possível carregar as solicitações.';informar(e.message||'Erro ao consultar solicitações',true);}}
 function linhaInfo(rotulo,valor){const p=criar('p');const b=criar('strong','',rotulo+': ');p.append(b,document.createTextNode(valor==null||valor===''?'Não informado':String(valor)));return p}
 function mostrarPedidos(){const lista=$('listaPedidos'),filtro=$('filtroPedidos').value;lista.hidden=!filtro;lista.replaceChildren();if(!filtro)return;const itens=pedidosCarregados.filter(p=>filtro==='todas'||p.status===filtro);if(!itens.length){lista.textContent='Nenhuma solicitação nesta categoria.';return;}itens.forEach(p=>{const card=criar('article','pedido');const cab=criar('h3','',p.aluno_nome||'Aluno sem nome');const chip=criar('span','chip',({pendente:'Pendente',atendida:'Atendida',recusada:'Recusada',cancelada:'Cancelada'})[p.status]||p.status);card.append(cab,chip,linhaInfo('Dia solicitado',formatarData(p.dia)),linhaInfo('Motivo',p.motivo),linhaInfo('Observações',p.observacoes));if(p.resposta_treinador)card.append(linhaInfo('Resposta do treinador',p.resposta_treinador));if(p.atendido_em)card.append(linhaInfo('Decisão em',new Date(p.atendido_em).toLocaleString('pt-BR')));
 if(p.status==='pendente'){
