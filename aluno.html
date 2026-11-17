@@ -1288,7 +1288,7 @@ function wtRender(){
   }
  }
  const menu=wtAdd(area,'div','wt-menu-clean');
- const opcoes=[['disponiveis','🏋 Treinos disponíveis'],['historico','◷ Histórico de treinos']];
+ const opcoes=[['disponiveis','Treinos disponíveis'],['historico','◷ Histórico de treinos']];
  for(const [id,rotulo] of opcoes){
   const b=wtBtn(menu,rotulo,()=>{wtVista=wtVista===id?'nenhuma':id;wtSalvarVista();wtRender()},wtVista!==id);
   b.classList.add('wt-menu-btn');b.setAttribute('aria-expanded',String(wtVista===id));
