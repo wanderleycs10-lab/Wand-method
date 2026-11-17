@@ -72,17 +72,22 @@ header img{filter:drop-shadow(0 4px 9px #e2ac3333)}h1,h2,.wc-panel-title{color:#
 #wcHome .wc-demo-fill{height:100%;width:0;background:linear-gradient(90deg,#a77518,#ffe49b 48%,#dba52d);border-radius:99px;box-shadow:0 0 7px #efc45c66;transition:width .3s ease}
 @media(max-width:750px){#wcHome .wc-feature-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){#wcHome .wc-demo-fill{transition:none}}
-</style><link rel="stylesheet" href="./wand-premium.css?v=20261117-7">
+
+/* Indicadores superiores: leitura apenas, todos no mesmo acabamento metálico dourado */
+#wcHome .wc-overview .wc-overview-item{cursor:default!important;border:1px solid #c79c45!important;background:linear-gradient(145deg,#33220c,#090909 65%,#281a0b)!important;box-shadow:inset 0 1px #ffe4a588,inset 0 -4px 9px #ffc34c77,0 9px 18px #000b,0 0 14px #cc922c44!important}
+#wcHome .wc-overview .wc-overview-item .wc-kpi-icon,#wcHome .wc-overview .wc-overview-item .wc-kpi-icon svg{color:#f9c13e!important;stroke:#f9c13e!important}
+#wcHome .wc-overview .wc-overview-item strong{color:#ffce5d!important}
+</style><link rel="stylesheet" href="./wand-premium.css?v=20261117-8">
 </head>
 <body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><p>WANDCOACH · PAINEL DO TREINADOR</p></header>
 <main><p id="status" role="status">Verificando acesso...</p><section id="painel">
 <section id="wcHome" aria-label="Painel principal WandCoach" hidden>
 <div class="wc-hero"><div class="wc-avatar" aria-hidden="true"><img src="wand-icon-192-premium(1)-1.png" alt=""></div><div><h2 class="wc-panel-title">Bem-vindo, <span>WandCoach!</span></h2><p class="wc-subtitle">Gestão, prescrição e evolução dos seus alunos.</p></div></div>
 <div class="wc-overview" aria-label="Indicadores administrativos">
- <button type="button" class="wc-overview-item" id="wcGoAlunos"><span class="wc-kpi-icon" data-icon="users"></span><span>Meus alunos</span><strong id="wcResumoAlunos">—</strong><small>Ativos</small></button>
- <a class="wc-overview-item" href="gerenciar-treinos.html"><span class="wc-kpi-icon" data-icon="dumbbell"></span><span>Treinos publicados</span><strong id="wcResumoTreinos">—</strong><small id="wcTreinosNota">Consultar programas</small></a>
+ <div class="wc-overview-item"><span class="wc-kpi-icon" data-icon="users"></span><span>Meus alunos</span><strong id="wcResumoAlunos">—</strong><small>Ativos</small></div>
+ <div class="wc-overview-item"><span class="wc-kpi-icon" data-icon="dumbbell"></span><span>Treinos publicados</span><strong id="wcResumoTreinos">—</strong><small id="wcTreinosNota">Programas publicados</small></div>
  <div class="wc-overview-item"><span class="wc-kpi-icon" data-icon="chart"></span><span>Taxa de adesão</span><strong id="wcResumoAdesao">—</strong><small>Indicador a integrar</small></div>
- <button type="button" class="wc-overview-item wc-kpi-alert" id="wcGoPrioridades"><span class="wc-kpi-icon" data-icon="activity"></span><span>Alunos em atenção</span><strong id="wcResumoAtencao">—</strong><small>Solicitações pendentes</small></button>
+ <div class="wc-overview-item wc-kpi-alert"><span class="wc-kpi-icon" data-icon="activity"></span><span>Alunos em atenção</span><strong id="wcResumoAtencao">—</strong><small>Solicitações pendentes</small></div>
 </div>
 <div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>Alunos em prioridade</h3><button type="button" id="wcVerPrioridades">Ver todos →</button></div><div id="wcPrioridadeLista" class="wc-priority-list"><p class="wc-subtitle">Consultando solicitações...</p></div></section><section class="wc-feature-card wc-demographics" aria-label="Perfil dos alunos"><h3>Perfil dos alunos</h3><p class="wc-demo-note">Distribuição dos alunos cadastrados <strong id="wcDemoTotal"></strong></p><h4>Distribuição por sexo</h4><div id="wcDemoSexo" class="wc-demo-bars"></div><h4>Faixa etária</h4><div id="wcDemoIdade" class="wc-demo-bars"></div></section></div>
 <h3 class="wc-section-label">Ações principais</h3><nav id="wcGrid" class="wc-grid" aria-label="Áreas administrativas"></nav>
@@ -179,7 +184,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){wcSetRoute(i
 function wcAction(item,parent,index){const dest=item[3];if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
 function wcMenu(key){const m=wcMenus[key];if(!m)return;wcSetRoute([key]);wcOpen(m.name,m.desc);const list=document.createElement('div');list.className='wc-list';m.items.forEach((item,index)=>{const tipo=item[3],count=['ativos','inativos','excluidos'].includes(tipo)?wcFiltered(tipo).length:undefined;list.append(wcRow(item,()=>wcAction(item,key,index),count))});wcContent.append(list)}
 function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
-$('wcGoAlunos').onclick=()=>wcMenu('alunos');$('wcGoPrioridades').onclick=()=>wcMenu('bemestar');$('wcVerPrioridades').onclick=()=>wcMenu('bemestar');
+$('wcVerPrioridades').onclick=()=>wcMenu('bemestar');
 Object.entries(wcMenus).forEach(([key,m])=>{const b=document.createElement('button');b.type='button';b.className='wc-tile';b.innerHTML=wcIcon(m.icon)+'<span class="wc-name"></span><span class="wc-desc"></span>';b.querySelector('.wc-name').textContent=m.name;b.querySelector('.wc-desc').textContent=m.desc;b.onclick=()=>wcMenu(key);$('wcGrid').append(b)});
 
 function texto(el,txt){el.textContent=txt==null?'':String(txt);return el}
