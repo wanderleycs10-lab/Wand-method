@@ -30,7 +30,7 @@ activity:'<path d="M2 12h4l3-8 5 16 3-8h5"/>',
 camera:'<path d="M14 4h-4L8 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4z"/><circle cx="12" cy="14" r="3"/>',
 chart:'<path d="M3 3v18h18M7 16l4-5 3 2 6-7"/>',
 heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
-star:'<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.3-6.2 3.3L7 14.2l-5-4.9 6.9-1z"/>',
+coin:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="6"/><path d="M14.5 9.5c-.6-.8-1.4-1.2-2.5-1.2-1.5 0-2.5.7-2.5 1.8 0 2.7 5 1 5 3.7 0 1.1-1 1.9-2.5 1.9-1.1 0-2-.4-2.7-1.2M12 7v2M12 15.7V17"/>',
 message:'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a9 9 0 0 1-.9-4A8.5 8.5 0 1 1 21 11.5Z"/>',
 book:'<path d="M4 4h16v16H4zM8 4v16M11 8h6M11 12h6"/>',
 play:'<circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4z"/>',
@@ -47,8 +47,8 @@ anamnese:{name:'Anamneses',desc:'Histórico de saúde',icon:'clipboard',items:[[
 avaliacao:{name:'Avaliação Física',desc:'Medidas e resultados',icon:'activity',items:[['Selecionar Aluno','Consultar avaliações','users','students'],['Nova Avaliação','Registrar medidas no perfil','plus','students'],['Histórico de Avaliações','Comparar resultados','history','students']]},
 fotografica:{name:'Avaliação Fotográfica',desc:'Registros posturais',icon:'camera',items:[['Selecionar Aluno','Ver registros fotográficos','users','students'],['Nova Avaliação','Registrar fotografias','camera','students'],['Comparar Fotografias','Frente, perfil e costas','book','students']]},
 evolucao:{name:'Evoluções',desc:'Gráficos dos alunos',icon:'chart',items:[['Selecionar Aluno','Gráficos individuais','users','students'],['Progressão de Cargas','Desempenho','chart','students'],['Frequência de Treinos','Adesão semanal e mensal','activity','students'],['Evolução Corporal','Peso e circunferências','chart','students']]},
-bemestar:{name:'Bem-estar',desc:'Saúde e acompanhamento',icon:'heart',items:[['Selecionar Aluno','Consultar informações','users','students'],['Check-ins','Bem-estar registrado','heart','students'],['Saúde Feminina','Registros autorizados','heart','students'],['Adaptações de Treino','Solicitações e aprovações','activity','adaptacoes']]},
-coins:{name:'WAND Coins',desc:'Conquistas e recompensas',icon:'star',items:[['Conquistas','Consultar alunos','star','students'],['Recompensas','Gerenciar pelo perfil','star','students'],['Pontos dos Alunos','Consultar saldos','users','students']]},
+bemestar:{name:'Bem-estar',desc:'Saúde e acompanhamento',icon:'heart',items:[['Selecionar Aluno','Consultar informações','users','students'],['Check-ins','Bem-estar registrado','check','students'],['Saúde Feminina','Registros autorizados','heart','students'],['Adaptações de Treino','Solicitações e aprovações','activity','adaptacoes']]},
+coins:{name:'WAND Coins',desc:'Conquistas e recompensas',icon:'coin',items:[['Conquistas','Consultar alunos','coin','students'],['Recompensas','Gerenciar pelo perfil','coin','students'],['Pontos dos Alunos','Consultar saldos','users','students']]},
 comunicacao:{name:'Comunicação',desc:'Mensagens e suporte',icon:'message',items:[['Mensagens no App','Contato pelo perfil','message','students'],['WhatsApp','Contato direto pelo perfil','message','students'],['Notificações','Alertas e solicitações','activity','adaptacoes']]}
 };
 const wcHome=$('wcHome'),wcInner=$('wcInner'),wcContent=$('wcContent'),wcLegacy=$('wcLegacy');
