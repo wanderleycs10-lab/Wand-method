@@ -57,7 +57,22 @@ header img{filter:drop-shadow(0 4px 9px #e2ac3333)}h1,h2,.wc-panel-title{color:#
 #wcHome .wc-name{font-size:15px;color:#f8f1e5}
 #wcHome .wc-desc{font-size:11px;color:#d3c8b6}
 @media(max-width:650px){#wcHome .wc-overview{grid-template-columns:repeat(2,minmax(0,1fr))}#wcHome .wc-feature-grid{grid-template-columns:1fr}#wcHome .wc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#wcHome .wc-overview-item{min-height:140px}#wcHome .wc-hero{gap:12px}#wcHome .wc-avatar{width:60px;height:60px}}
-</style><link rel="stylesheet" href="./wand-premium.css?v=20261117-6">
+
+/* Perfil do público — gráficos reais, responsivos e legíveis */
+#wcHome .wc-feature-grid{grid-template-columns:minmax(0,1.1fr) minmax(280px,1fr)}
+#wcHome .wc-demographics h3{color:#f5e8ce;font-size:20px;margin:0 0 7px}
+#wcHome .wc-demographics h4{color:#f3ce7b;font-size:15px;margin:20px 0 12px}
+#wcHome .wc-demo-note{font-size:12px;color:#c6bdb0;margin:0 0 8px}
+#wcHome .wc-demo-note strong{color:#f5ce6d}
+#wcHome .wc-demo-bars{display:grid;gap:11px}
+#wcHome .wc-demo-row{display:grid;gap:5px}
+#wcHome .wc-demo-label{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#eae4dc}
+#wcHome .wc-demo-label strong{color:#f6d184;white-space:nowrap;font-size:12px}
+#wcHome .wc-demo-track{height:10px;background:#2b2929;border-radius:99px;overflow:hidden;box-shadow:inset 0 2px 4px #000b}
+#wcHome .wc-demo-fill{height:100%;width:0;background:linear-gradient(90deg,#a77518,#ffe49b 48%,#dba52d);border-radius:99px;box-shadow:0 0 7px #efc45c66;transition:width .3s ease}
+@media(max-width:750px){#wcHome .wc-feature-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#wcHome .wc-demo-fill{transition:none}}
+</style><link rel="stylesheet" href="./wand-premium.css?v=20261117-7">
 </head>
 <body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><p>WANDCOACH · PAINEL DO TREINADOR</p></header>
 <main><p id="status" role="status">Verificando acesso...</p><section id="painel">
@@ -69,7 +84,7 @@ header img{filter:drop-shadow(0 4px 9px #e2ac3333)}h1,h2,.wc-panel-title{color:#
  <div class="wc-overview-item"><span class="wc-kpi-icon" data-icon="chart"></span><span>Taxa de adesão</span><strong id="wcResumoAdesao">—</strong><small>Indicador a integrar</small></div>
  <button type="button" class="wc-overview-item wc-kpi-alert" id="wcGoPrioridades"><span class="wc-kpi-icon" data-icon="activity"></span><span>Alunos em atenção</span><strong id="wcResumoAtencao">—</strong><small>Solicitações pendentes</small></button>
 </div>
-<div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>Alunos em prioridade</h3><button type="button" id="wcVerPrioridades">Ver todos →</button></div><div id="wcPrioridadeLista" class="wc-priority-list"><p class="wc-subtitle">Consultando solicitações...</p></div></section><section class="wc-feature-card wc-adhesion"><h3>Evolução geral</h3><div class="wc-adhesion-ring"><strong>—</strong></div><p>Adesão média dos alunos</p><small>Disponível após integração dos indicadores de frequência</small></section></div>
+<div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>Alunos em prioridade</h3><button type="button" id="wcVerPrioridades">Ver todos →</button></div><div id="wcPrioridadeLista" class="wc-priority-list"><p class="wc-subtitle">Consultando solicitações...</p></div></section><section class="wc-feature-card wc-demographics" aria-label="Perfil dos alunos"><h3>Perfil dos alunos</h3><p class="wc-demo-note">Distribuição dos alunos cadastrados <strong id="wcDemoTotal"></strong></p><h4>Distribuição por sexo</h4><div id="wcDemoSexo" class="wc-demo-bars"></div><h4>Faixa etária</h4><div id="wcDemoIdade" class="wc-demo-bars"></div></section></div>
 <h3 class="wc-section-label">Ações principais</h3><nav id="wcGrid" class="wc-grid" aria-label="Áreas administrativas"></nav>
 </section><section id="wcInner" hidden><button type="button" class="wc-back" id="wcBackTop">← Voltar ao painel</button><h2 id="wcTitle"></h2><p id="wcSubtitle" class="wc-subtitle"></p><div id="wcContent"></div><button type="button" class="wc-back" id="wcBackBottom">← Voltar ao painel</button></section><div id="wcLegacy" class="wc-legacy">
 
@@ -116,6 +131,32 @@ bemestar:{name:'Bem-estar',desc:'Saúde e acompanhamento',icon:'heart',items:[['
 coins:{name:'WAND Coins',desc:'Conquistas e recompensas',icon:'coin',items:[['Conquistas','Consultar alunos','coin','students'],['Recompensas','Gerenciar pelo perfil','coin','students'],['Pontos dos Alunos','Consultar saldos','users','students']]},
 comunicacao:{name:'Comunicação',desc:'Mensagens e suporte',icon:'message',items:[['Mensagens no App','Contato pelo perfil','message','students'],['WhatsApp','Contato direto pelo perfil','message','students'],['Notificações','Alertas e solicitações','activity','adaptacoes']]}
 };
+function wcRenderDemographics(){
+ const alunos=alunosCarregados.filter(a=>!['excluido','excluído','excluida','excluída','excluidos','excluídos'].includes(String(a.Status||'').trim().toLowerCase()));
+ const total=alunos.length;$('wcDemoTotal').textContent='· '+total+' cadastro'+(total===1?'':'s');
+ const sexos={'Feminino':0,'Masculino':0,'Outro':0,'Prefiro não informar':0,'Não informado':0};
+ const idades={'Abaixo de 30':0,'30 anos ou mais':0,'Não informado':0};
+ const hoje=new Date();const ano=hoje.getFullYear(),mes=hoje.getMonth()+1,dia=hoje.getDate();
+ for(const a of alunos){const sexo=String(a.sexo||'').trim().toLowerCase();
+  if(['feminino','f','mulher'].includes(sexo))sexos['Feminino']++;
+  else if(['masculino','m','homem'].includes(sexo))sexos['Masculino']++;
+  else if(['outro','outros'].includes(sexo))sexos['Outro']++;
+  else if(['prefiro não informar','prefiro nao informar','não informar','nao informar'].includes(sexo))sexos['Prefiro não informar']++;
+  else sexos['Não informado']++;
+  const data=String(a.data_nascimento||'').slice(0,10),partes=data.split('-').map(Number);
+  if(partes.length!==3||!partes.every(Number.isInteger)||partes[0]<1900||partes[0]>ano||partes[1]<1||partes[1]>12||partes[2]<1||partes[2]>31){idades['Não informado']++;continue;}
+  const valida=new Date(Date.UTC(partes[0],partes[1]-1,partes[2]));if(valida.getUTCFullYear()!==partes[0]||valida.getUTCMonth()+1!==partes[1]||valida.getUTCDate()!==partes[2]){idades['Não informado']++;continue;}
+  const idade=ano-partes[0]-(mes<partes[1]||(mes===partes[1]&&dia<partes[2])?1:0);
+  if(idade<0||idade>120){idades['Não informado']++;continue;}
+  idades[idade<30?'Abaixo de 30':'30 anos ou mais']++;
+ }
+ function render(id,grupos){const el=$(id);el.replaceChildren();for(const [nome,qtd] of Object.entries(grupos)){
+  const percent=total?Math.round(qtd*100/total):0;const row=document.createElement('div');row.className='wc-demo-row';
+  const label=document.createElement('div');label.className='wc-demo-label';const nomeEl=document.createElement('span');nomeEl.textContent=nome;const valor=document.createElement('strong');valor.textContent=qtd+' ('+percent+'%)';label.append(nomeEl,valor);
+  const track=document.createElement('div');track.className='wc-demo-track';track.setAttribute('role','progressbar');track.setAttribute('aria-label',nome);track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',String(percent));const fill=document.createElement('div');fill.className='wc-demo-fill';fill.style.width=(total?qtd*100/total:0)+'%';track.append(fill);row.append(label,track);el.append(row);
+ }}
+ render('wcDemoSexo',sexos);render('wcDemoIdade',idades);
+}
 function wcAtualizarDashboard(){
  const ativos=alunosCarregados.filter(a=>!['inativo','excluido','excluído','excluida','excluída'].includes(String(a.Status||'').toLowerCase()));
  $('wcResumoAlunos').textContent=String(ativos.length);
@@ -147,7 +188,7 @@ function formatarData(s){if(!s)return 'Não informada';const v=String(s).slice(0
 function informar(msg,erro=false){const el=$('mensagemPedidos');el.className=erro?'erro':'sucesso';texto(el,msg)}
 async function verificarAcesso(){try{const {data:{user},error}=await supabase.auth.getUser();if(error||!user){window.location.replace('login.html');return;}const {data,error:erroPerfil}=await supabase.from('profiles').select('role').eq('id',user.id).single();if(erroPerfil||data?.role!=='admin'){status.textContent='Acesso não autorizado.';return;}status.textContent='';await Promise.all([carregarAlunos(),carregarPedidos()]);wcRestore();painel.style.display='block';}catch(e){console.error(e);status.textContent='Não foi possível verificar o acesso. Tente atualizar a página.';}}
 function mostrarAlunos(){const lista=$('listaAlunos'),filtro=$('filtroAlunos').value;lista.hidden=!filtro;lista.replaceChildren();if(!filtro)return;const filtrados=alunosCarregados.filter(a=>{const s=String(a.Status||'').trim().toLowerCase();return filtro==='todos'||(filtro==='inativos'?s==='inativo':s!=='inativo');});if(!filtrados.length){lista.textContent='Nenhum aluno nesta categoria.';return;}filtrados.forEach(aluno=>{const item=criar('div','aluno');const nome=criar('a','',aluno.nome_completo||'Sem nome');nome.href='perfil-aluno.html?id='+encodeURIComponent(aluno.id);const detalhes=criar('p','',`Modalidade: ${aluno.modalidade||'Não informada'} | Status: ${aluno.Status||'Não informado'}`);item.append(nome,detalhes);lista.appendChild(item);});}
-async function carregarAlunos(){const lista=$('listaAlunos');if($('filtroAlunos').value)lista.textContent='Carregando alunos...';const {data,error}=await supabase.from('alunos').select('id, nome_completo, modalidade, Status').order('nome_completo',{ascending:true});if(error){console.error(error);lista.textContent='Não foi possível carregar os alunos.';return;}alunosCarregados=data||[];mostrarAlunos();wcAtualizarDashboard();}
+async function carregarAlunos(){const lista=$('listaAlunos');if($('filtroAlunos').value)lista.textContent='Carregando alunos...';const {data,error}=await supabase.from('alunos').select('id, nome_completo, modalidade, Status, sexo, data_nascimento').order('nome_completo',{ascending:true});if(error){console.error(error);lista.textContent='Não foi possível carregar os alunos.';return;}alunosCarregados=data||[];mostrarAlunos();wcAtualizarDashboard();wcRenderDemographics();}
 async function carregarPedidos(){const lista=$('listaPedidos');if($('filtroPedidos').value)lista.textContent='Carregando solicitações...';informar('');try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_adaptacao');if(error)throw error;if(!Array.isArray(data))throw new Error('Resposta inesperada da função de solicitações');pedidosCarregados=data;mostrarPedidos();wcAtualizarDashboard();}catch(e){console.error(e);lista.textContent='Não foi possível carregar as solicitações.';informar(e.message||'Erro ao consultar solicitações',true);}}
 function linhaInfo(rotulo,valor){const p=criar('p');const b=criar('strong','',rotulo+': ');p.append(b,document.createTextNode(valor==null||valor===''?'Não informado':String(valor)));return p}
 function mostrarPedidos(){const lista=$('listaPedidos'),filtro=$('filtroPedidos').value;lista.hidden=!filtro;lista.replaceChildren();if(!filtro)return;const itens=pedidosCarregados.filter(p=>filtro==='todas'||p.status===filtro);if(!itens.length){lista.textContent='Nenhuma solicitação nesta categoria.';return;}itens.forEach(p=>{const card=criar('article','pedido');const cab=criar('h3','',p.aluno_nome||'Aluno sem nome');const chip=criar('span','chip',({pendente:'Pendente',atendida:'Atendida',recusada:'Recusada',cancelada:'Cancelada'})[p.status]||p.status);card.append(cab,chip,linhaInfo('Dia solicitado',formatarData(p.dia)),linhaInfo('Motivo',p.motivo),linhaInfo('Observações',p.observacoes));if(p.resposta_treinador)card.append(linhaInfo('Resposta do treinador',p.resposta_treinador));if(p.atendido_em)card.append(linhaInfo('Decisão em',new Date(p.atendido_em).toLocaleString('pt-BR')));
