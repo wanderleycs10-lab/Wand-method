@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meu Painel | WAND METHOD</title>
-<meta name="wand-build" content="2026.11.14.3">
+<meta name="wand-build" content="2026.11.17.definitivo">
 <style>
 *{box-sizing:border-box}
 :root{
@@ -960,7 +960,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.14.3';
+const WT_BUILD='2026.11.17.definitivo';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -985,6 +985,7 @@ async function wtCarregarProgramas(){
     console.warn('Agrupamento de programas indisponível:',e);
   }
 }
+let wtMapaAdaptacoes=[],wtAvisoMapa="";
 let wtRestauroFeito=false;
 let wtTimerRestaurado=false;
 function wtPersistir(){
@@ -1055,6 +1056,41 @@ function wtDiasEntreSP(iso){
  if(!a)return Infinity;
  return Math.round((Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z'))/86400000);
 }
+// V7: associa uma sessão alternativa concluída à posição da ficha original.
+// O mapa é obtido no servidor para sobreviver a trocas de dispositivo e dias posteriores.
+function wtOriginalDaConclusao(h){
+ if(!h || h.situacao!=='concluido' || !h.finalizada_em)return String(h?.treino_id||'');
+ const dia=wtDiaSP(h.iniciada_em||h.finalizada_em);
+ const a=wtMapaAdaptacoes.find(a=>String(a.treino_alternativo_id)===String(h.treino_id)&&a.dia===dia&&['programada','aplicada'].includes(String(a.status)));
+ return String(a?.treino_original_id||h.treino_id||'');
+}
+function wtAdaptacaoConcluidaHoje(a){
+ return wtHistorico.some(h=>h.situacao==='concluido'&&h.finalizada_em&&wtDiaSP(h.finalizada_em)===wtHoje()&&String(h.treino_id)===String(a.treino_alternativo_id));
+}
+// Calcula a proxima ficha a partir da ultima conclusao real, incluindo adaptacoes.
+function wtProximaFichaAposConclusao(){
+ const programas=wtProgramas.map(p=>({
+  p,
+  fichas:wtFichasPrograma.filter(f=>String(f.programa_id)===String(p.id))
+   .sort((a,b)=>Number(a.ordem||0)-Number(b.ordem||0))
+ })).filter(x=>x.fichas.length>1);
+ const conclusoes=(wtHistorico||[]).filter(h=>h.situacao==='concluido'&&h.finalizada_em)
+  .sort((a,b)=>Date.parse(b.finalizada_em)-Date.parse(a.finalizada_em));
+ for(const h of conclusoes){
+  const original=wtOriginalDaConclusao(h);
+  for(const {p,fichas} of programas){
+   const divisao=String(p.tipo_divisao||'').toLowerCase();
+   if(!['ab','abc','abcd'].includes(divisao)&&!/^abcde?f?$/.test(divisao))continue;
+   const indice=fichas.findIndex(f=>String(f.treino_id)===original);
+   if(indice<0)continue;
+   const proxima=fichas[(indice+1)%fichas.length];
+   const treino=wtTreinos.find(t=>String(t.id)===String(proxima.treino_id));
+   const nome=treino?.nome||proxima.titulo||('Treino '+(proxima.codigo||''));
+   return {nome,programa:p.nome||'Programa'};
+  }
+ }
+ return null;
+}
 function wtSmartRender(){
  const card=document.getElementById('wtProximoCard');
  const titulo=card?.querySelector('h2');
@@ -1074,13 +1110,15 @@ function wtSmartRender(){
   }else if(tipo==='sequencial'){
    titulo.textContent='Treino concluído. Parabéns! 🏆';
    status.textContent='Você cumpriu sua missão de hoje! 💪🏻 Cada treino é mais um passo na sua evolução. Aproveite para se recuperar e volte amanhã para continuar sua jornada.';
-   proximo='Próximo treino disponível amanhã';
+   const fichaSeguinte=wtProximaFichaAposConclusao();
+   proximo=fichaSeguinte?'Próximo treino: '+fichaSeguinte.nome:'Próximo treino disponível amanhã';
+   if(fichaSeguinte)detalhe='Disponível a partir de amanhã · '+fichaSeguinte.programa;
   }else{
    titulo.textContent='Muito bem! Mais uma conquista! 💪🏻';
    status.textContent='Você dedicou mais um momento ao seu bem-estar. Continue nesse ritmo e valorize cada conquista!';
    proximo='Outras atividades prescritas continuam disponíveis';
   }
-  if(nomePrograma)detalhe=nomePrograma+' — treino de hoje concluído.';
+  if(nomePrograma&&!detalhe)detalhe=nomePrograma+' — treino de hoje concluído.';
   const bloco=wtAdd(acoes,'div','wt-smart-next');
   wtAdd(bloco,'span',null,'▣');
   const conteudo=wtAdd(bloco,'div');
@@ -1091,6 +1129,32 @@ function wtSmartRender(){
  // O histórico deve ser verificado mesmo quando a lista de prescrições está vazia.
  // Não confundir treino concluído com prescrição inativa ou falha de carregamento.
  const hojeSP=wtHoje();
+ // Adaptação aprovada: destaque no painel principal, sem exigir acesso ao Bem-estar.
+ // Uma sessão já aberta continua tendo prioridade sobre novas opções de início.
+  const adaptacoesHoje=(Array.isArray(wtAdaptacoes)?wtAdaptacoes:[]).filter(a=>
+    a && a.treino_alternativo_id && a.treino_original_id &&
+    ['programada','aplicada'].includes(String(a.status||'programada').toLowerCase()));
+  if(adaptacoesHoje.length){
+    const pendentes=adaptacoesHoje.filter(a=>!wtAdaptacaoConcluidaHoje(a));
+    if(!pendentes.length){
+      mensagemConclusao('sequencial');
+      nota('Treino adaptado concluído. Sua sequência habitual foi preservada.');
+      return;
+    }
+    titulo.textContent='Sua solicitação foi atendida!';
+    status.textContent='Seu treinador autorizou a adaptação para hoje. Comece seu treino adaptado abaixo.';
+    for(const a of pendentes){
+      const treino=wtTreinos.find(t=>String(t.id)===String(a.treino_alternativo_id));
+      if(!treino){nota('Treino adaptado aprovado, mas a ficha alternativa não está disponível. Fale com seu treinador.');continue;}
+      botao('COMEÇAR TREINO ADAPTADO · '+treino.nome,async()=>{
+        window.wandMostrarVista?.('treinos');
+        await wtIniciar(treino);
+        wtSmartRender();
+      });
+    }
+    nota('A prescrição original permanece salva. A sequência avança somente após concluir a sessão.');
+    return;
+  }
  const concluidosHoje=wtHistorico.filter(h=>h.situacao==='concluido'&&h.finalizada_em&&wtDiaSP(h.finalizada_em)===hojeSP);
  if(!wtTreinos.length){
   if(concluidosHoje.length){
@@ -1115,7 +1179,7 @@ function wtSmartRender(){
  const disponiveis=[],avisos=[],conclusoes=[];
  for(const grupo of grupos){
   const ids=grupo.fichas.map(f=>String(f.treino_id));
-  const historico=wtHistorico.filter(h=>ids.includes(String(h.treino_id))).sort((a,b)=>Date.parse(b.finalizada_em||b.iniciada_em||0)-Date.parse(a.finalizada_em||a.iniciada_em||0));
+  const historico=wtHistorico.filter(h=>ids.includes(wtOriginalDaConclusao(h))).sort((a,b)=>Date.parse(b.finalizada_em||b.iniciada_em||0)-Date.parse(a.finalizada_em||a.iniciada_em||0));
   const ultima=historico[0];
   if(historico.some(h=>h.finalizada_em&&!h.situacao)){avisos.push(grupo.nome+': aguardando confirmação do histórico.');continue;}
   const concluidas=historico.filter(h=>h.situacao==='concluido'&&h.finalizada_em);
@@ -1144,7 +1208,7 @@ function wtSmartRender(){
     continue;
    }
   }
-  const indice=ultimaConclusao?ids.indexOf(String(ultimaConclusao.treino_id)):-1;
+  const indice=ultimaConclusao?ids.indexOf(wtOriginalDaConclusao(ultimaConclusao)):-1;
   const proximoId=sequencial?ids[(indice+1)%ids.length]:ids[0];
   const treino=porId.get(proximoId);
   if(!treino){avisos.push(grupo.nome+': ficha indisponível. Consulte seu treinador.');continue;}
@@ -1154,7 +1218,7 @@ function wtSmartRender(){
   const tipo=conclusoes.includes('full')?'full':conclusoes.includes('sequencial')?'sequencial':'livre';
   const grupoConcluido=grupos.find(grupo=>{
    const ids=grupo.fichas.map(f=>String(f.treino_id));
-   return wtHistorico.some(h=>ids.includes(String(h.treino_id))&&h.situacao==='concluido'&&h.finalizada_em&&wtDiaSP(h.finalizada_em)===hoje);
+   return wtHistorico.some(h=>ids.includes(wtOriginalDaConclusao(h))&&h.situacao==='concluido'&&h.finalizada_em&&wtDiaSP(h.finalizada_em)===hoje);
   });
   mensagemConclusao(tipo,grupoConcluido?.nome||'');
  }else{
@@ -1173,9 +1237,19 @@ async function wtCarregar(){
   await wtCarregarProgramas();
    wtTreinos=(wtTreinos||[]).filter(t=>{const hoje=wtHoje();return (!t.validade_inicio||t.validade_inicio<=hoje)&&(!t.validade_fim||t.validade_fim>=hoje)});wtHistorico=wtHistorico||[];
   try {wtGruposMeta=await wtRpc('wand_aluno_grupos_execucao')||{}}catch(e){wtGruposMeta={};wtMsg('Agrupamento indisponível: execute o SQL complementar antes de testar métodos conjugados. '+e.message,true)}
+  try {wtMapaAdaptacoes=await wtRpc('wand_aluno_mapa_adaptacoes')||[]}
+  catch(e){wtMapaAdaptacoes=[];console.warn('Mapa de adaptações indisponível:',e)}
   // Programacoes de hoje sao apresentadas como a alternativa recomendada.
   try {wtAdaptacoes=await wtRpc('wand_aluno_adaptacoes_do_dia',{p_dia:wtHoje()})||[]}
   catch(e){wtAdaptacoes=[];wtMsg('Treinos carregados; não foi possível consultar adaptações: '+e.message,true)}
+  // Fichas adaptadas so entram na memoria apos autorizacao no servidor.
+  if(wtAdaptacoes.length){
+   try{
+    const adaptados=await wtRpc('wand_aluno_treinos_adaptados_autorizados',{p_dia:wtHoje()})||[];
+    const ids=new Set(wtTreinos.map(t=>String(t.id)));
+    for(const t of adaptados){if(!ids.has(String(t.id))){wtTreinos.push(t);ids.add(String(t.id));}}
+   }catch(e){wtMsg('Não foi possível carregar a ficha adaptada aprovada: '+e.message,true);console.warn(e)}
+  }
   const aberta=wtHistorico.find(x=>!x.finalizada_em);
   if(aberta){wtSessao=aberta.id;wtTreino=wtTreinos.find(t=>t.id===aberta.treino_id)||null;wtSerieSalva=Object.fromEntries((aberta.series||[]).map(s=>[s.serie_id,s]));wtInicio=Date.parse(aberta.iniciada_em)||Date.now();
     const saved=wtEstadoLocal();if(saved?.sessao===wtSessao){wtBlocoAberto=Number.isInteger(saved.bloco)?saved.bloco:0;if(!wtTimerRestaurado){wtTimerFim=Number(saved.timerFim)||0;wtAlarmAtivo=false;wtTimerRestaurado=true;}}
@@ -1200,6 +1274,19 @@ function wtRender(){
   }
   wtExecucao(area);return;
  }
+ if(Array.isArray(wtAdaptacoes)&&wtAdaptacoes.length){
+  const autorizadas=wtAdaptacoes.filter(a=>a?.treino_alternativo_id&&['programada','aplicada'].includes(String(a.status||'programada').toLowerCase()));
+  for(const adaptacao of autorizadas){
+   const treino=wtTreinos.find(t=>String(t.id)===String(adaptacao.treino_alternativo_id));
+   if(!treino)continue;
+   const box=wtAdd(area,'div','notice');
+   wtAdd(box,'strong',null,'✓ Adaptação aprovada para hoje');
+   wtAdd(box,'p',null,'Treino autorizado: '+treino.nome+'. A prescrição original permanece salva.');
+   const feito=wtHistorico.some(h=>String(h.treino_id)===String(treino.id)&&h.situacao==='concluido'&&h.finalizada_em&&wtDiaSP(h.finalizada_em)===wtHoje());
+   if(feito)wtAdd(box,'p','muted','Treino adaptado já concluído hoje.');
+   else wtBtn(box,'Iniciar treino adaptado',async()=>{await wtIniciar(treino);wtSmartRender()});
+  }
+ }
  const menu=wtAdd(area,'div','wt-menu-clean');
  const opcoes=[['disponiveis','🏋 Treinos disponíveis'],['historico','◷ Histórico de treinos']];
  for(const [id,rotulo] of opcoes){
@@ -1209,7 +1296,7 @@ function wtRender(){
  }
  if(wtVista==='nenhuma')return;
  if(wtVista==='disponiveis'){
-  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.14.3 · Somente consulta das prescrições');
+  wtAdd(area,'h3',null,'Treinos disponíveis');wtAdd(area,'p','muted','WAND METHOD · versão 2026.11.16.7 · Somente consulta das prescrições');
   if(!wtTreinos.length){wtAdd(area,'p','notice','Nenhum treino disponível no momento. Entre em contato com seu treinador para verificar a liberação ou renovação do seu programa.');wtAdd(area,'p','muted','Você pode utilizar o chat do aplicativo ou o WhatsApp do seu treinador, se disponível no seu perfil.');}
   if(wtAvisoProgramas)wtAdd(area,'p','muted',wtAvisoProgramas);
   const mostrados=new Set();
@@ -1270,7 +1357,7 @@ function wtRender(){
     }
   }
   // Fichas individuais aparecem diretamente na mesma lista, sem categoria separada.
-  const individuais=wtTreinos.filter(t=>!mostrados.has(String(t.id))&&!wtAdaptacoes.some(a=>a.treino_original_id===t.id));
+  const individuais=wtTreinos.filter(t=>!mostrados.has(String(t.id))&&!wtAdaptacoes.some(a=>String(a.treino_original_id)===String(t.id)||String(a.treino_alternativo_id)===String(t.id)));
   for(const treino of individuais)criarFicha(area,treino);
  }else if(wtVista==='historico'){
   wtAdd(area,'h3',null,'Histórico de treinos');
@@ -1604,9 +1691,17 @@ function wtCriarInterrupcao(area){
  confirmar.classList.add('wt-interrupt-btn');
  wtBtn(acoes,'Continuar treinando',()=>{form.hidden=true;toggle.setAttribute('aria-expanded','false')},true);
 }
-async function wtFinalizar(obs=''){if(wtBusy||!wtSessao||wtAlteracoesPendentes)return;if(wtTreino&&wtBlocos().some(b=>!wtCompleto(b))){wtMsg('Conclua todos os exercícios antes de finalizar.',true);return;}if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();await wtCarregar();wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
+async function wtFinalizar(obs=''){if(wtBusy||!wtSessao||wtAlteracoesPendentes)return;if(wtTreino&&wtBlocos().some(b=>!wtCompleto(b))){wtMsg('Conclua todos os exercícios antes de finalizar.',true);return;}if(!confirm('Finalizar esta sessão? Depois não será possível alterar os registros.'))return;wtBusy=true;try{await wtRpc('wand_finalizar_sessao',{p_sessao_id:wtSessao,p_observacoes:obs});wtPararDescanso();wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();await wtCarregar();window.wandMostrarVista?.(null);wtMsg('Treino finalizado e registrado no histórico!')}catch(e){wtMsg(e.message,true)}finally{wtBusy=false}}
 function wtVerHistorico(s){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,s.treino||'Treino');wtAdd(a,'p',s.situacao==='interrompido'?'wt-hist-interrupted':'muted','Situação: '+wtSituacao(s));wtAdd(a,'p','muted','Início: '+wtData(s.iniciada_em)+' · Fim: '+wtData(s.finalizada_em));if(s.situacao==='interrompido'){if(s.motivo_interrupcao)wtAdd(a,'p','muted','Motivo: '+(wtMotivos[s.motivo_interrupcao]||s.motivo_interrupcao));if(s.observacao_interrupcao)wtAdd(a,'p','notice','Observações da interrupção: '+s.observacao_interrupcao)}if(s.observacoes)wtAdd(a,'p','notice',s.observacoes);
  const agrupados={};for(const sr of s.series||[]){(agrupados[sr.exercicio]??=[]).push(sr)}for(const [nome,series] of Object.entries(agrupados)){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,nome);for(const sr of series)wtAdd(c,'p','muted','Série '+sr.numero+': '+wtNum(sr.repeticoes)+' reps · '+wtNum(sr.carga)+' kg · '+(sr.concluida?'Concluída':'Não concluída')+(sr.observacoes?' · '+sr.observacoes:''));}}
+let wtUltimaConsulta=0;
+async function wtAtualizarAposRetorno(){
+ if(!wtAlunoUserId||wtBusy||document.hidden||Date.now()-wtUltimaConsulta<12000)return;
+ wtUltimaConsulta=Date.now();
+ await wtCarregar();
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)wtAtualizarAposRetorno()});
+window.addEventListener('focus',()=>wtAtualizarAposRetorno());
 const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListener('click',()=>{if(!wt.dataset.loaded){wt.dataset.loaded='1';wtCarregar()}});
 // Após autenticação, retoma a sessão aberta diretamente na execução.
 (async()=>{try{const {data:{user}}=await wandDb.auth.getUser();if(!user)return;wtAlunoUserId=user.id;
@@ -1617,7 +1712,7 @@ const tile=document.querySelector('[data-view="treinos"]');tile?.addEventListene
 </script>
 
 <style>
-.wb-panel{margin-top:16px}.wb-panel label{display:block;margin:12px 0 5px;color:#ddd;font-size:14px}.wb-panel input:not([type=checkbox]),.wb-panel select,.wb-panel textarea{width:100%;padding:12px;background:#101010;color:#fff;border:1px solid #62552d;border-radius:8px;font:inherit}.wb-panel input[type=checkbox]{accent-color:#d4af37}.wb-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.wb-muted{font-size:13px;color:#bbb}.wb-note{border-left:3px solid #d4af37;padding:12px;background:#241e12;margin:12px 0}.wb-panel button{margin:8px 8px 4px 0}.wb-danger{border:1px solid #ff9a9a!important;color:#ffb6b6!important}
+.wb-icon-choice{justify-content:flex-start}.wb-icon-choice>span:nth-child(2){flex:1}.wb-ico{width:44px;height:44px;display:grid;place-items:center;font-size:26px;color:#e1ba3b;border:1px solid #665322;border-radius:12px;flex:none}.wb-heading{margin:18px 0 8px;color:#e1ba3b}.wb-calendar{margin:14px 0}.wb-calendar-head{text-align:center;text-transform:capitalize;font-weight:700;color:#e1ba3b;margin-bottom:12px}.wb-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.wb-calendar-grid span{text-align:center;padding:9px 1px;border-radius:8px;font-size:12px}.wb-weekday{color:#aaa}.wb-recorded{background:#88475a;color:white}.wb-predicted{background:#665127;color:white}.wb-menu{display:grid;gap:12px;margin-top:16px}.wb-choice{width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px;border:1px solid #665322;border-radius:14px;background:#1c1913;color:#fff;cursor:pointer;font:inherit}.wb-choice strong{display:block;color:#e1ba3b;font-size:18px;margin-bottom:6px}.wb-choice small{display:block;color:#ccc;font-size:13px;line-height:1.5}.wb-choice:hover,.wb-choice:focus-visible{border-color:#e1ba3b;background:#292216}.wb-panel{margin-top:16px}.wb-panel label{display:block;margin:12px 0 5px;color:#ddd;font-size:14px}.wb-panel input:not([type=checkbox]),.wb-panel select,.wb-panel textarea{width:100%;padding:12px;background:#101010;color:#fff;border:1px solid #62552d;border-radius:8px;font:inherit}.wb-panel input[type=checkbox]{accent-color:#d4af37}.wb-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.wb-muted{font-size:13px;color:#bbb}.wb-note{border-left:3px solid #d4af37;padding:12px;background:#241e12;margin:12px 0}.wb-panel button{margin:8px 8px 4px 0}.wb-danger{border:1px solid #ff9a9a!important;color:#ffb6b6!important}
 </style>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -1629,27 +1724,140 @@ const wbEsc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':
 async function wbRpc(n,a){const {data,error}=await wbdb.rpc(n,a);if(error)throw Error(error.message);return data}
 function wbStatus(s,err=false){$w('wbStatus').textContent=s;$w('wbStatus').style.color=err?'#ff9292':'#83dca1'}
 let wbData={preferencias:null,registros:[]};
-async function wbLoad(){try{wbStatus('Carregando...');wbData=await wbRpc('wand_bemestar_meu_painel');wbStatus('');wbRender()}catch(e){wbStatus('Não foi possível carregar: '+e.message,true)}}
-function wbRender(){const p=wbData.preferencias||{},active=!!p.ativo,cycle=!!p.ciclo_ativo;wb.innerHTML=`<div class="subcard wb-panel"><h3>Preferências e privacidade</h3><p class="wb-muted">Check-in opcional. Você decide se ativa o acompanhamento menstrual e se compartilha os dados do ciclo com o treinador. O treinador poderá visualizar seus check-ins gerais quando ativados.</p><label><input id="wbAtivo" type="checkbox" ${active?'checked':''}> Ativar check-in de bem-estar</label><label><input id="wbCiclo" type="checkbox" ${cycle?'checked':''}> Ativar acompanhamento menstrual</label><label><input id="wbCompartilhar" type="checkbox" ${p.compartilhar_ciclo?'checked':''}> Compartilhar informações menstruais com meu treinador</label><label for="wbSituacao">Situação atual do ciclo (opcional)</label><select id="wbSituacao"><option value="">Não informar</option><option value="regular">Menstruação regular</option><option value="irregular">Menstruação irregular</option><option value="sem_menstruacao">Não menstruo atualmente</option><option value="nao_informar">Prefiro não informar</option></select><p class="wb-note">Ao ativar o acompanhamento menstrual, você autoriza o registro desses dados sensíveis. O compartilhamento com o treinador exige uma escolha separada. Você pode desativar e apagar os dados quando desejar.</p><button type="button" class="button" id="wbSalvarPref">Salvar preferências</button><button type="button" class="button secondary wb-danger" id="wbApagarCiclo">Apagar dados menstruais</button><button type="button" class="button secondary wb-danger" id="wbApagarTudo">Apagar todos os registros</button></div><div id="wbCheckin"></div><div id="wbHistorico"></div>`;
-$w('wbSituacao').value=p.situacao_ciclo||'';
-$w('wbSalvarPref').onclick=wbSavePref;
-$w('wbApagarCiclo').onclick=()=>wbDelete(false);
-$w('wbApagarTudo').onclick=()=>wbDelete(true);
-if(active)wbRenderCheckin(cycle);
-wbRenderHistorico(cycle);
+let wbCiclos=[];
+let wbSexo='';
+async function wbIdentificarPerfil(){
+ try{
+  const {data:{user}}=await wbdb.auth.getUser();if(!user)return;
+  const {data,error}=await wbdb.from('alunos').select('*').eq('user_id',user.id).single();
+  if(error)throw error;
+  wbSexo=String(data?.sexo||data?.sexo_biologico||'').trim().toLowerCase();
+ }catch(e){console.warn('Sexo cadastrado indisponível:',e);wbSexo=''}
 }
-async function wbSavePref(){const active=$w('wbAtivo').checked,cycle=$w('wbCiclo').checked,share=$w('wbCompartilhar').checked;
-if(cycle&&!active){wbStatus('Ative primeiro o check-in geral.',true);return}
-if(share&&!cycle){wbStatus('Ative primeiro o acompanhamento menstrual.',true);return}
-if(cycle&&!wbData.preferencias?.ciclo_ativo&&!confirm('Deseja ativar o registro de informações menstruais sensíveis? Você poderá desativar e apagar os registros depois.'))return;
-try{await wbRpc('wand_bemestar_configurar',{p_ativo:active,p_ciclo_ativo:cycle,p_compartilhar_ciclo:share,p_situacao:$w('wbSituacao').value||null});await wbLoad();wbStatus('Preferências salvas.')}catch(e){wbStatus(e.message,true)}}
-function wbRenderCheckin(cycle){$w('wbCheckin').innerHTML=`<div class="subcard wb-panel"><h3>Check-in do dia</h3><p class="wb-muted">Escalas de 1 (muito baixo) a 5 (muito alto). Dor muscular: 0 (nenhuma) a 5 (intensa).</p><label>Data</label><input id="wbDia" type="date" max="${wbDate()}" value="${wbDate()}"><div class="wb-row"><div><label>Energia</label><select id="wbEnergia">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Qualidade do sono</label><select id="wbSono">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Disposição</label><select id="wbDisposicao">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Dor muscular</label><select id="wbDor">${[0,1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div></div>${cycle?`<div id="wbCicloCampos"><label>Menstruação hoje?</label><select id="wbMenstruando"><option value="">Não informar</option><option value="true">Sim</option><option value="false">Não</option></select><label>Cólicas (0–5)</label><select id="wbColica"><option value="">Não informar</option>${[0,1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select><label>Data do início da menstruação (se desejar)</label><input type="date" id="wbInicio" max="${wbDate()}"></div>`:''}<label>Observações (opcional)</label><textarea id="wbObs" maxlength="1000" rows="3" placeholder="Como você se sentiu hoje?"></textarea><label><input type="checkbox" id="wbAjuste"> Gostaria de conversar sobre uma adaptação no treino</label><p class="wb-muted">Este registro não altera automaticamente seu treino. Se precisar de ajuda imediata, fale com seu treinador.</p><button class="button" type="button" id="wbSalvarDia">Salvar check-in</button></div>`;
-$w('wbSalvarDia').onclick=wbSaveDay;
-$w('wbDia').onchange=wbFillDay;wbFillDay();}
-function wbFillDay(){const r=(wbData.registros||[]).find(x=>x.dia===$w('wbDia').value);for(const [id,key,def] of [['wbEnergia','energia',3],['wbSono','sono',3],['wbDisposicao','disposicao',3],['wbDor','dor_muscular',0]])$w(id).value=r?.[key]??def;$w('wbObs').value=r?.observacoes||'';$w('wbAjuste').checked=!!r?.pedir_ajuste;if($w('wbMenstruando')){$w('wbMenstruando').value=r?.menstruando===null||r?.menstruando===undefined?'':String(r.menstruando);$w('wbColica').value=r?.colica??'';$w('wbInicio').value=r?.inicio_menstruacao||''}}
-async function wbSaveDay(){const val=id=>Number($w(id).value);try{await wbRpc('wand_bemestar_salvar',{p_dia:$w('wbDia').value,p_energia:val('wbEnergia'),p_sono:val('wbSono'),p_disposicao:val('wbDisposicao'),p_dor_muscular:val('wbDor'),p_observacoes:$w('wbObs').value||null,p_menstruando:$w('wbMenstruando')?.value===''||!$w('wbMenstruando')?null:$w('wbMenstruando').value==='true',p_colica:$w('wbColica')?.value?val('wbColica'):($w('wbColica')?.value==='0'?0:null),p_inicio_menstruacao:$w('wbInicio')?.value||null,p_pedir_ajuste:$w('wbAjuste').checked});await wbLoad();wbStatus('Check-in salvo com sucesso.')}catch(e){wbStatus(e.message,true)}}
-function wbRenderHistorico(cycle){const list=(wbData.registros||[]);$w('wbHistorico').innerHTML=`<div class="subcard wb-panel"><h3>Meus registros</h3>${list.length?list.slice(0,30).map(r=>`<div class="subcard"><strong>${wbEsc(r.dia)}</strong><p class="wb-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${cycle&&r.menstruando!==null?`<p class="wb-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!==null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wb-note">Solicitou conversa sobre adaptação</p>':''}${r.observacoes?`<p>${wbEsc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wb-muted">Nenhum registro ainda.</p>'}</div>`}
-async function wbDelete(all){if(!confirm(all?'Excluir permanentemente TODOS os check-ins e preferências?':'Excluir permanentemente dados menstruais e desativar o acompanhamento do ciclo?'))return;try{await wbRpc('wand_bemestar_apagar',{p_apagar_tudo:all,p_apagar_ciclo:!all});await wbLoad();wbStatus('Dados excluídos.')}catch(e){wbStatus(e.message,true)}}
+const wbSaudeFeminina=()=>['f','feminino','feminina','mulher'].includes(wbSexo);
+const wbPodeCalendario=()=>!!wbData.preferencias?.ciclo_ativo && !['sem_menstruacao','nao_informar'].includes(wbData.preferencias?.situacao_ciclo);
+async function wbLoad(){try{wbStatus('Carregando...');await wbIdentificarPerfil();wbData=await wbRpc('wand_bemestar_meu_painel');wbCiclos=[];if(wbSaudeFeminina()&&wbData.preferencias?.ciclo_ativo){wbCiclos=await wbRpc('wand_ciclo_meus_registros')||[];}wbStatus('');wbRender()}catch(e){wbStatus('Não foi possível carregar: '+e.message,true)}}
+let wbArea='menu',wbSub='menu';
+const wbBack=(label='Voltar')=>`<button type="button" class="back-btn" id="wbVoltarMenu">← ${label}</button>`;
+const wbTile=(id,ico,title,desc)=>`<button type="button" class="wb-choice wb-icon-choice" id="${id}"><span class="wb-ico" aria-hidden="true">${ico}</span><span><strong>${title}</strong><small>${desc}</small></span><span aria-hidden="true">❯</span></button>`;
+const wbAviso='<p class="wb-note"><strong>Atenção:</strong> este calendário fornece apenas estimativas, que podem variar bastante. Não é método contraceptivo nem previsão confiável de fertilidade; não o utilize para evitar ou planejar gravidez.</p>';
+function wbRender(){
+ const p=wbData.preferencias||{},active=!!p.ativo,cycle=!!p.ciclo_ativo,fem=wbSaudeFeminina();
+ if(wbArea==='saude'&&!fem){wbArea='menu';wbSub='menu'}
+ if(wbArea==='saude'&&!wbPodeCalendario()&&['calendario','registro','sintomas','historico'].includes(wbSub))wbSub='menu';
+ if(wbArea==='menu'){
+  wb.innerHTML=`<div class="wb-menu">${wbTile('wbAbrirAdaptacao','🏋️','Adaptação de Treino','Solicitar uma avaliação pontual ao treinador.')}${fem?wbTile('wbAbrirSaude','♡','Saúde Feminina','Seu ciclo, sintomas e acompanhamento pessoal.'):''}</div>`;
+  $w('wbAbrirAdaptacao').onclick=()=>{wbArea='adaptacao';wbSub='menu';wbRender()};
+  if(fem)$w('wbAbrirSaude').onclick=()=>{wbArea='saude';wbSub='menu';wbRender()};return;
+ }
+ if(wbSub==='menu'){
+  const saude=wbArea==='saude';
+  const habilitado=wbPodeCalendario();
+  wb.innerHTML=wbBack('Voltar ao Bem-estar')+`<h3 class="wb-heading">${saude?'Saúde Feminina':'Adaptação de Treino'}</h3><div class="wb-menu">${saude?(habilitado?[
+   wbTile('wbAbrirCalendario','🗓️','Calendário Menstrual','Visualize os registros e uma previsão aproximada.'),
+   wbTile('wbAbrirRegistro','✍️','Registrar Menstruação','Marque os dias menstruados, início e término.'),
+   wbTile('wbAbrirSintomas','♡','Meus Sintomas','Registre cólicas e acompanhe os sintomas.'),
+   wbTile('wbAbrirHistorico','📊','Meu Histórico','Consulte seus registros anteriores.'),
+   wbTile('wbAbrirPreferencias','⚙️','Minhas Preferências','Consentimento, privacidade e exclusão de dados.')
+  ]:[wbTile('wbAbrirPreferencias','⚙️','Configurar acompanhamento','O calendário só aparece se você menstrua e deseja acompanhá-lo.')]).join(''):[
+   wbTile('wbAbrirSolicitar','✍️','Registrar Como Estou','Informe sua condição e solicite adaptação, se necessário.'),
+   wbTile('wbAbrirHistorico','📋','Meus Registros','Acompanhe os registros anteriores.'),
+   wbTile('wbAbrirPedidos','📨','Minhas Solicitações','Consulte pedidos pendentes e respostas do treinador.'),
+   wbTile('wbAbrirPreferencias','⚙️','Minhas Preferências','Ativação e privacidade do acompanhamento.')
+  ].join('')}</div>`;
+  $w('wbVoltarMenu').onclick=()=>{wbArea='menu';wbRender()};
+  const routes=saude?(habilitado?{wbAbrirCalendario:'calendario',wbAbrirRegistro:'registro',wbAbrirSintomas:'sintomas',wbAbrirHistorico:'historico',wbAbrirPreferencias:'preferencias'}:{wbAbrirPreferencias:'preferencias'}):{wbAbrirSolicitar:'solicitar',wbAbrirHistorico:'historico',wbAbrirPedidos:'pedidos',wbAbrirPreferencias:'preferencias'};
+  for(const [id,route] of Object.entries(routes))$w(id).onclick=()=>{wbSub=route;wbRender()};return;
+ }
+ wb.innerHTML=wbBack(wbArea==='saude'?'Voltar à Saúde Feminina':'Voltar à Adaptação de Treino')+`<div id="wbInterior" class="wb-panel"></div>`;
+ $w('wbVoltarMenu').onclick=()=>{wbSub='menu';wbRender()};
+ const content=$w('wbInterior');
+ if(wbSub==='preferencias'){
+  if(wbArea==='adaptacao'){
+   content.innerHTML=`<div class="subcard"><h3>Preferências de Adaptação de Treino</h3><label><input id="wbAtivo" type="checkbox" ${active?'checked':''}> Ativar acompanhamento de bem-estar</label><button class="button" type="button" id="wbSalvarPref">Salvar preferência</button><p class="wb-muted">Registros de adaptação só são enviados formalmente ao treinador após integração do fluxo de solicitações.</p><button type="button" class="button secondary wb-danger" id="wbApagarTudo">Apagar todos os registros</button></div>`;
+   $w('wbSalvarPref').onclick=wbSavePref;$w('wbApagarTudo').onclick=()=>wbDelete(true);
+  }else{
+   content.innerHTML=`<div class="subcard"><h3>Preferências de Saúde Feminina</h3><p class="wb-note">O calendário é opcional e destinado a quem menstrua atualmente e deseja registrar o ciclo. Menopausa ou uso de hormônios não determinam, sozinhos, se há sangramento.</p><label><input id="wbCiclo" type="checkbox" ${cycle?'checked':''}> Menstruo atualmente e quero acompanhar meu ciclo</label><label><input id="wbCompartilhar" type="checkbox" ${p.compartilhar_ciclo?'checked':''}> Compartilhar sintomas dos registros antigos com o treinador (não inclui o calendário privado)</label><label for="wbSituacao">Situação atual do ciclo</label><select id="wbSituacao"><option value="">Não informar</option><option value="regular">Menstruação regular</option><option value="irregular">Menstruação irregular</option><option value="sem_menstruacao">Não menstruo atualmente</option><option value="nao_informar">Prefiro não informar</option></select><p class="wb-note">Registrar sintomas não solicita adaptação. Compartilhe apenas se desejar. A limitação do acesso do treinador ao resumo depende de regras de segurança no Supabase, que devem ser validadas antes do uso real.</p><button type="button" class="button" id="wbSalvarSaude">Salvar preferências</button><button type="button" class="button secondary wb-danger" id="wbApagarCiclo">Apagar dados menstruais</button></div>`;
+   $w('wbSituacao').value=p.situacao_ciclo||'';$w('wbSalvarSaude').onclick=wbSavePref;$w('wbApagarCiclo').onclick=()=>wbDelete(false);
+  }return;
+ }
+ if(wbSub==='solicitar'){
+  content.innerHTML=`<div class="subcard"><h3>Adaptação de Treino</h3><p class="wb-muted">Registre como está se sentindo. Alterações no treino dependem de aprovação do treinador.</p><div id="wbCheckin"></div>${!active?'<p class="wb-note">Para preencher, ative primeiro o acompanhamento em Minhas Preferências.</p>':''}</div>`;
+  if(active)wbRenderCheckin();return;
+ }
+ if(wbSub==='pedidos'){wbRenderPedidos();return}
+ if(wbSub==='historico'){
+  content.innerHTML='<div id="wbHistorico"></div>';wbRenderHistorico(wbArea==='saude');return;
+ }
+ if(wbSub==='calendario'){if(!cycle){content.innerHTML='<p class="wb-note">Ative Saúde Feminina em Minhas Preferências para acessar o calendário.</p>';return}wbRenderCalendario();return}
+ if(wbSub==='registro'){if(!cycle){content.innerHTML='<p class="wb-note">Ative Saúde Feminina em Minhas Preferências antes de registrar o período.</p>';return}wbRenderRegistroCiclo();return}
+ if(wbSub==='sintomas'){
+  content.innerHTML=`<div class="subcard"><h3>Meus Sintomas</h3><p class="wb-muted">Seus registros não enviam solicitações de adaptação automaticamente.</p><div id="wbSaudeDia"></div>${!cycle?'<p class="wb-note">Ative o acompanhamento menstrual em Minhas Preferências para registrar informações.</p>':''}</div>`;
+  if(cycle)wbRenderSaudeDia();return;
+ }
+}
+async function wbRenderPedidos(){
+ const area=$w('wbInterior');area.textContent='Carregando solicitações...';
+ try{const lista=await wbRpc('wand_aluno_minhas_solicitacoes_adaptacao');
+  if(!area.isConnected||wbSub!=='pedidos')return;
+  const nomes={pendente:'Aguardando treinador',atendida:'Aprovada / atendida',recusada:'Recusada',cancelada:'Cancelada'};
+  area.innerHTML='<div class="subcard"><h3>Minhas solicitações</h3>'+(Array.isArray(lista)&&lista.length?lista.map(x=>`<div class="subcard"><strong>${wbEsc(x.dia)} — ${wbEsc(nomes[x.status]||x.status)}</strong>${x.motivo?`<p>Motivo: ${wbEsc(x.motivo)}</p>`:''}${x.observacoes?`<p>${wbEsc(x.observacoes)}</p>`:''}${x.resposta_treinador?`<p class="wb-note">Resposta do treinador: ${wbEsc(x.resposta_treinador)}</p>`:''}</div>`).join(''):'<p class="wb-muted">Nenhuma solicitação registrada.</p>')+'</div>';
+ }catch(e){area.textContent='Não foi possível consultar suas solicitações: '+e.message}
+}
+function wbRenderCalendario(){
+ const ciclos=[...wbCiclos].filter(c=>c.inicio).sort((a,b)=>a.inicio.localeCompare(b.inicio));
+ const starts=ciclos.map(c=>c.inicio);
+ const diffs=[];for(let i=1;i<starts.length;i++){const d=(Date.parse(starts[i]+'T12:00:00Z')-Date.parse(starts[i-1]+'T12:00:00Z'))/86400000;if(d>=18&&d<=60)diffs.push(d)}
+ const media=diffs.length?Math.round(diffs.reduce((a,b)=>a+b,0)/diffs.length):null;
+ const hoje=wbDate();let proximo=null;
+ if(media&&starts.length){proximo=new Date(starts.at(-1)+'T12:00:00Z');while(proximo.toISOString().slice(0,10)<hoje)proximo.setUTCDate(proximo.getUTCDate()+media)}
+ const fmt=x=>x?new Date(x+'T12:00:00Z').toLocaleDateString('pt-BR',{timeZone:'UTC'}):'—';
+ const registrado=new Set();for(const c of ciclos){const fim=c.termino||c.inicio;let d=new Date(c.inicio+'T12:00:00Z');const last=new Date(fim+'T12:00:00Z');while(d<=last){registrado.add(d.toISOString().slice(0,10));d.setUTCDate(d.getUTCDate()+1)}}
+ const agora=new Date();let ano=agora.getFullYear(),mes=agora.getMonth();
+ const desenhar=()=>{const first=new Date(ano,mes,1).getDay(),days=new Date(ano,mes+1,0).getDate();const predicted=proximo?.toISOString().slice(0,10);$w('wbMes').textContent=new Date(ano,mes,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});$w('wbDias').innerHTML=['D','S','T','Q','Q','S','S'].map(x=>`<span class="wb-weekday">${x}</span>`).join('')+Array(first).fill('<span></span>').join('')+Array.from({length:days},(_,i)=>{const dia=`${ano}-${String(mes+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`;const previsao=predicted&&Math.abs((Date.parse(dia+'T12:00:00Z')-Date.parse(predicted+'T12:00:00Z'))/86400000)<=2;return `<span class="${registrado.has(dia)?'wb-recorded':previsao?'wb-predicted':''}">${i+1}</span>`}).join('')};
+ $w('wbInterior').innerHTML=`<div class="subcard"><h3>Meu Calendário Menstrual</h3><p class="wb-muted">Calendário pessoal, sem compartilhamento automático com o treinador.</p><div class="wb-row" style="align-items:center"><button type="button" class="button secondary" id="wbMesAnterior">← Anterior</button><button type="button" class="button secondary" id="wbMesSeguinte">Próximo →</button></div><div class="wb-calendar"><div class="wb-calendar-head" id="wbMes"></div><div class="wb-calendar-grid" id="wbDias"></div></div><p class="wb-muted">🩷 Registrado · 🟡 Estimativa aproximada</p>${media?`<p class="wb-note">Próximo início estimado: <strong>${fmt(proximo.toISOString().slice(0,10))}</strong>. Média de ${media} dias, com base em ${diffs.length} intervalo(s). A estimativa pode variar.</p>`:'<p class="wb-note">Registre ao menos dois inícios de ciclos diferentes para visualizar uma primeira estimativa.</p>'}${wbAviso}</div>`;
+ desenhar();$w('wbMesAnterior').onclick=()=>{mes--;if(mes<0){mes=11;ano--}desenhar()};$w('wbMesSeguinte').onclick=()=>{mes++;if(mes>11){mes=0;ano++}desenhar()};
+}
+function wbRenderRegistroCiclo(){
+ const lista=wbCiclos.map(c=>`<div class="subcard"><strong>${wbEsc(c.inicio)} até ${wbEsc(c.termino||'em aberto')}</strong><div class="actions"><button type="button" class="button secondary" data-wb-edit="${wbEsc(c.id)}">Editar</button><button type="button" class="button secondary wb-danger" data-wb-delete="${wbEsc(c.id)}">Excluir</button></div></div>`).join('');
+ $w('wbInterior').innerHTML=`<div class="subcard"><h3>Registrar Menstruação</h3><p class="wb-muted">Registre o primeiro e o último dia do período. O término pode ficar em branco enquanto a menstruação estiver acontecendo.</p><form id="wbFormCiclo"><label for="wbInicioCiclo">Início da menstruação</label><input type="date" id="wbInicioCiclo" max="${wbDate()}" required><label for="wbFimCiclo">Término (opcional)</label><input type="date" id="wbFimCiclo" max="${wbDate()}"><button class="button" type="submit" id="wbSalvarCiclo">Salvar período</button><button type="button" class="button secondary" id="wbCancelarEdicao" hidden>Cancelar edição</button></form><p id="wbCicloMensagem" role="status"></p></div><h3>Períodos registrados</h3>${lista||'<p class="wb-muted">Nenhum período registrado.</p>'}`;
+ let editId=null;const form=$w('wbFormCiclo');const msg=$w('wbCicloMensagem');
+ form.onsubmit=async e=>{e.preventDefault();const inicio=$w('wbInicioCiclo').value,termino=$w('wbFimCiclo').value||null;if(termino&&termino<inicio){msg.textContent='O término não pode ser anterior ao início.';return}const btn=$w('wbSalvarCiclo');btn.disabled=true;try{await wbRpc('wand_ciclo_salvar',{p_inicio:inicio,p_termino:termino,p_id:editId});wbArea='saude';wbSub='menu';await wbLoad();wbStatus('Período salvo com sucesso. Você voltou à Saúde Feminina.')}catch(err){msg.textContent='Não foi possível salvar: '+err.message;btn.disabled=false}};
+ $w('wbCancelarEdicao').onclick=()=>{editId=null;form.reset();$w('wbCancelarEdicao').hidden=true};
+ $w('wbInterior').querySelectorAll('[data-wb-edit]').forEach(b=>b.onclick=()=>{const c=wbCiclos.find(x=>x.id===b.dataset.wbEdit);if(!c)return;editId=c.id;$w('wbInicioCiclo').value=c.inicio;$w('wbFimCiclo').value=c.termino||'';$w('wbCancelarEdicao').hidden=false;form.scrollIntoView({behavior:'smooth'})});
+ $w('wbInterior').querySelectorAll('[data-wb-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('Excluir este período menstrual?'))return;b.disabled=true;try{await wbRpc('wand_ciclo_excluir',{p_id:b.dataset.wbDelete});await wbLoad();wbArea='saude';wbSub='registro';wbRender();wbStatus('Período excluído.')}catch(err){msg.textContent=err.message;b.disabled=false}});
+}
+
+async function wbSavePref(){
+ const fem=wbSaudeFeminina(),active=wbArea==='adaptacao'?!!$w('wbAtivo')?.checked:!!wbData.preferencias?.ativo,cycle=fem&&wbArea==='saude'?!!$w('wbCiclo')?.checked:!!wbData.preferencias?.ciclo_ativo,share=fem&&wbArea==='saude'?!!$w('wbCompartilhar')?.checked:!!wbData.preferencias?.compartilhar_ciclo;
+ if(cycle&&!active){active=true}
+ if(cycle&&['sem_menstruacao','nao_informar'].includes($w('wbSituacao')?.value)){wbStatus('Para ativar o calendário, selecione menstruação regular ou irregular.',true);return}
+ if(share&&!cycle){wbStatus('Ative primeiro o acompanhamento menstrual.',true);return}
+ if(cycle&&!wbData.preferencias?.ciclo_ativo&&!confirm('Deseja ativar o registro de informações menstruais sensíveis? Você poderá apagar os registros depois.'))return;
+ try{await wbRpc('wand_bemestar_configurar',{p_ativo:active,p_ciclo_ativo:cycle,p_compartilhar_ciclo:share,p_situacao:fem&&wbArea==='saude'?($w('wbSituacao')?.value||null):(wbData.preferencias?.situacao_ciclo||null)});wbSub='menu';await wbLoad();wbStatus('Preferências salvas. Você voltou ao menu.')}catch(e){wbStatus(e.message,true)}
+}
+function wbRenderCheckin(){
+ $w('wbCheckin').innerHTML=`<h3>Como você está se sentindo hoje?</h3><p class="wb-muted">Escalas de 1 (muito baixo) a 5 (muito alto). Dor muscular: 0 (nenhuma) a 5 (intensa).</p><label>Data</label><input id="wbDia" type="date" max="${wbDate()}" value="${wbDate()}"><div class="wb-row"><div><label>Energia</label><select id="wbEnergia">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Qualidade do sono</label><select id="wbSono">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Disposição</label><select id="wbDisposicao">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div><label>Dor muscular</label><select id="wbDor">${[0,1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div></div><label>Observações (opcional)</label><textarea id="wbObs" maxlength="1000" rows="3" placeholder="Conte como você está se sentindo."></textarea><label><input type="checkbox" id="wbAjuste"> Quero solicitar uma adaptação pontual no treino</label><p class="wb-note"><strong>Antecedência:</strong> envie seu pedido pelo menos 3 horas antes do horário em que pretende treinar. Solicitações de última hora podem não ser analisadas a tempo. Nenhuma adaptação é aplicada sem aprovação do treinador.</p><p class="wb-muted">Este check-in registra seu pedido de conversa; o envio e a aprovação formal da adaptação no WandCoach ainda dependem da integração administrativa.</p><button class="button" type="button" id="wbSalvarDia">Salvar registro</button>`;
+ $w('wbSalvarDia').onclick=wbSaveDay;$w('wbDia').onchange=wbFillDay;wbFillDay();
+}
+function wbRenderSaudeDia(){
+ $w('wbSaudeDia').innerHTML=`<h3>Registro do dia</h3><p class="wb-muted">Informações opcionais. Você pode registrar sintomas sem pedir adaptação do treino.</p><label>Data</label><input type="date" id="wbDiaSaude" max="${wbDate()}" value="${wbDate()}"><label>Menstruação hoje?</label><select id="wbMenstruando"><option value="">Não informar</option><option value="true">Sim</option><option value="false">Não</option></select><label>Cólicas (0–5)</label><select id="wbColica"><option value="">Não informar</option>${[0,1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select><label>Data do início da menstruação (opcional)</label><input type="date" id="wbInicio" max="${wbDate()}"><p class="wb-muted">Menopausa, perimenopausa e uso de anticoncepcional serão adicionados quando os campos seguros do banco de dados estiverem preparados. Nenhum desses dados é inferido automaticamente.</p><button class="button" type="button" id="wbSalvarSaudeDia">Salvar registro menstrual</button>`;
+ $w('wbSalvarSaudeDia').onclick=wbSaveSaudeDia;$w('wbDiaSaude').onchange=wbFillSaude;wbFillSaude();
+}
+function wbRegistro(dia){return (wbData.registros||[]).find(x=>x.dia===dia)||{}}
+function wbFillDay(){const r=wbRegistro($w('wbDia').value);for(const [id,key,def] of [['wbEnergia','energia',3],['wbSono','sono',3],['wbDisposicao','disposicao',3],['wbDor','dor_muscular',0]])$w(id).value=r[key]??def;$w('wbObs').value=r.observacoes||'';$w('wbAjuste').checked=!!r.pedir_ajuste}
+function wbFillSaude(){const r=wbRegistro($w('wbDiaSaude').value);$w('wbMenstruando').value=r.menstruando==null?'':String(r.menstruando);$w('wbColica').value=r.colica??'';$w('wbInicio').value=r.inicio_menstruacao||''}
+async function wbSaveDay(){
+ const val=id=>Number($w(id).value),r=wbRegistro($w('wbDia').value);
+ try{await wbRpc('wand_bemestar_salvar',{p_dia:$w('wbDia').value,p_energia:val('wbEnergia'),p_sono:val('wbSono'),p_disposicao:val('wbDisposicao'),p_dor_muscular:val('wbDor'),p_observacoes:$w('wbObs').value||null,p_menstruando:r.menstruando??null,p_colica:r.colica??null,p_inicio_menstruacao:r.inicio_menstruacao||null,p_pedir_ajuste:$w('wbAjuste').checked});wbArea='adaptacao';wbSub='menu';await wbLoad();wbStatus('Registro salvo. Se solicitou adaptação, acompanhe o pedido em Minhas Solicitações.')}catch(e){wbStatus(e.message,true)}
+}
+async function wbSaveSaudeDia(){
+ const r=wbRegistro($w('wbDiaSaude').value),m=$w('wbMenstruando').value,c=$w('wbColica').value;
+ try{await wbRpc('wand_bemestar_salvar',{p_dia:$w('wbDiaSaude').value,p_energia:r.energia??3,p_sono:r.sono??3,p_disposicao:r.disposicao??3,p_dor_muscular:r.dor_muscular??0,p_observacoes:r.observacoes||null,p_menstruando:m===''?null:m==='true',p_colica:c===''?null:Number(c),p_inicio_menstruacao:$w('wbInicio').value||null,p_pedir_ajuste:!!r.pedir_ajuste});wbArea='saude';wbSub='menu';await wbLoad();wbStatus('Sintomas salvos. Você voltou à Saúde Feminina.')}catch(e){wbStatus(e.message,true)}
+}
+function wbRenderHistorico(cycle){if(cycle){$w('wbHistorico').innerHTML='<div class="subcard"><h3>Meu histórico menstrual</h3>'+ (wbCiclos.length?wbCiclos.map(c=>'<p class="wb-muted">Início: '+wbEsc(c.inicio)+' · Término: '+wbEsc(c.termino||'em aberto')+'</p>').join(''):'<p class="wb-muted">Nenhum período registrado.</p>')+'</div>';return}const list=wbData.registros||[];$w('wbHistorico').innerHTML=`<div class="subcard wb-panel"><h3>Meus registros</h3>${list.length?list.slice(0,30).map(r=>`<div class="subcard"><strong>${wbEsc(r.dia)}</strong><p class="wb-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${cycle&&r.menstruando!=null?`<p class="wb-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!=null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wb-note">Interesse registrado em conversar sobre adaptação</p>':''}${r.observacoes?`<p>${wbEsc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wb-muted">Nenhum registro ainda.</p>'}</div>`}
+async function wbDelete(all){if(!confirm(all?'Excluir permanentemente TODOS os check-ins e preferências?':'Excluir permanentemente os dados menstruais e desativar o acompanhamento do ciclo?'))return;try{for(const c of wbCiclos){await wbRpc('wand_ciclo_excluir',{p_id:c.id})}await wbRpc('wand_bemestar_apagar',{p_apagar_tudo:all,p_apagar_ciclo:!all});await wbLoad();wbStatus('Dados excluídos.')}catch(e){wbStatus(e.message,true)}}
+document.querySelector('[data-view="bemestar"]')?.addEventListener('click',()=>{wbArea='menu';wbSub='menu';wb.dataset.loaded='';wbLoad().then(()=>{wb.dataset.loaded='1'})});
 const wbObserver=new MutationObserver(()=>{if(!document.getElementById('view-bemestar')?.hidden&&wb.dataset.loaded!=='1'){wb.dataset.loaded='1';wbLoad()}});
 wbObserver.observe(document.getElementById('painel'),{subtree:true,attributes:true,attributeFilter:['hidden']});
 </script>
@@ -1660,29 +1868,15 @@ const adEl=document.getElementById('wandAdaptacaoDia');
 async function adConsultar(){
  const dia=adDia();const protocolos=document.getElementById('wandProtocolosDisponiveis');
  adEl.hidden=true;adEl.replaceChildren();protocolos.hidden=true;protocolos.replaceChildren();
- const [rAdapt,rProtocolos]=await Promise.all([
-  adDb.rpc('wand_aluno_adaptacoes_do_dia',{p_dia:dia}),
-  adDb.rpc('wand_aluno_protocolos_disponiveis')
- ]);
- if(rAdapt.error||rProtocolos.error){adEl.hidden=false;adEl.textContent='Não foi possível consultar as adaptações: '+(rAdapt.error?.message||rProtocolos.error?.message);return}
- const adaptacoes=rAdapt.data||[],lista=rProtocolos.data||[];
+ const rAdapt=await adDb.rpc('wand_aluno_adaptacoes_do_dia',{p_dia:dia});
+ if(rAdapt.error){adEl.hidden=false;adEl.textContent='Não foi possível consultar as adaptações: '+rAdapt.error.message;return}
+ const adaptacoes=rAdapt.data||[];
  if(adaptacoes.length){adEl.hidden=false;adEl.appendChild(adText('strong','Adaptação autorizada para hoje'));
   adEl.appendChild(adText('p','O treino alternativo está destacado em Meus Treinos. Execute a alternativa autorizada; a prescrição original permanece salva.'));
   const btn=adText('button','Atualizar treinos');btn.type='button';btn.className='button secondary';btn.onclick=()=>{document.getElementById('wandTreinosArea')?.scrollIntoView({behavior:'smooth'});document.querySelector('[data-view="treinos"]')?.click()};adEl.appendChild(btn);
  }
- if(lista.length){protocolos.hidden=false;protocolos.appendChild(adText('h3','Alternativas previamente autorizadas'));
-  protocolos.appendChild(adText('p','Para usar uma alternativa hoje, primeiro faça o check-in de hoje e marque “Gostaria de conversar sobre uma adaptação”. Depois escolha a alternativa. Isso não altera a prescrição original.'));
-  for(const p of lista){const item=adText('div');item.className='subcard';item.appendChild(adText('strong',p.titulo));item.appendChild(adText('p',p.treino_original+' → '+p.treino_alternativo));
-   if(p.descricao)item.appendChild(adText('p',p.descricao));
-   const btn=adText('button','Usar esta alternativa hoje');btn.className='button';btn.type='button';
-   btn.disabled=adaptacoes.some(a=>a.treino_original_id===p.treino_original_id);
-   btn.onclick=async()=>{if(!confirm('Usar a alternativa autorizada somente no treino de hoje?'))return;
-    btn.disabled=true;const r=await adDb.rpc('wand_aluno_usar_protocolo',{p_protocolo_id:p.id});
-    if(r.error){alert(r.error.message);btn.disabled=false;return}
-    alert('Alternativa autorizada para hoje. A lista de treinos será atualizada.');
-    await adConsultar();window.location.reload();
-   };item.appendChild(btn);protocolos.appendChild(item)}
- }
+ // Protocolos pré-autorizados não podem ser ativados pela aluna.
+
 }
 const adDia=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const adText=(tag,txt)=>{const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;return e};
