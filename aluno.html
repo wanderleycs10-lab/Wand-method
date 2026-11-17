@@ -199,6 +199,32 @@ main{max-width:850px;padding:22px 16px 90px}
   .wand-acoes-treino{flex-direction:column!important;align-items:stretch!important;gap:14px!important}
   .wand-acoes-treino > button{display:block!important;width:100%!important;flex:none!important;margin:0!important;min-height:46px}
 }
+
+/* Painel premium: composição aprovada, responsiva e com informações reais */
+body{background:radial-gradient(ellipse at 90% 12%,#38220745,transparent 34%),radial-gradient(ellipse at 4% 85%,#24160142,transparent 35%),#050505}
+#homeView .wand-overview{margin:24px 0 30px;gap:12px}
+#homeView .wand-overview>button.wand-overview-item{min-height:168px!important;padding:17px 15px!important;border:1px solid #bb943d!important;border-radius:22px!important;background:linear-gradient(155deg,#211a10,#090909 57%,#271908)!important;box-shadow:inset 0 1px #ffe6a388,inset 0 -2px 8px #efb94055,0 9px 18px #000b,0 0 13px #c58d3038!important;gap:8px;justify-content:flex-start!important}
+#homeView .wand-metric-heading{display:flex;align-items:center;gap:7px;min-height:38px;font-size:13px;color:#f2e7d4;line-height:1.25}
+#homeView .wand-metric-heading svg{flex-shrink:0;color:#f6be40;filter:drop-shadow(0 0 4px #d9a32370)}
+#homeView .wand-overview-value{display:block;font-size:clamp(18px,3.5vw,32px);font-weight:800;margin:4px 0;color:#f9c858!important;overflow-wrap:anywhere}
+#homeView .wand-overview-note{font-size:12px;color:#e0d7c7!important;line-height:1.35}
+.wand-metric-track,.wand-progress-track{display:block;width:100%;height:9px;background:#292929;border-radius:30px;overflow:hidden;margin-top:auto}
+.wand-metric-track>span,.wand-progress-track>span{display:block;width:0;height:100%;border-radius:30px;background:linear-gradient(90deg,#a96c0b,#ffca43,#ffe4a0);transition:width .3s}
+.wand-section-heading{display:flex;align-items:center;gap:10px;margin:18px 0 13px}
+.wand-section-heading svg{color:#f4bd42;width:27px;height:27px;filter:drop-shadow(0 0 5px #daa72c66)}
+.wand-section-heading h2{color:#f8f4ed;font-size:23px;margin:0}
+#homeView .wt-smart-card{border:1px solid #d6a63d;border-radius:24px;background:linear-gradient(115deg,#25190c,#0d0d0d 50%,#2a1a09);box-shadow:inset 0 1px #ffe3a68c,inset 0 -3px 9px #f7b82c50,0 12px 22px #000b;padding:24px;margin:0 0 30px}
+#homeView .wt-smart-card h2{color:#f8cb68;font-size:23px}
+.wand-progress-card{border:1px solid #c99b3e;border-radius:22px;padding:21px;background:linear-gradient(145deg,#24190e,#0d0d0d 65%,#2b1b09);box-shadow:inset 0 1px #ffdc8a77,inset 0 -3px 8px #f6b9314f,0 8px 18px #0009}
+.wand-progress-row{display:flex;justify-content:space-between;gap:12px;align-items:center;color:#f5f2eb}.wand-progress-row strong:last-child{color:#ffca50;font-size:24px}
+.wand-progress-track{height:13px;margin:16px 0}.wand-progress-card p{color:#d7d0c6;font-size:13px;margin:0}
+.wand-menu-heading{color:#f3f0e9;font-size:19px;margin:30px 0 16px}
+#homeView .nav-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+#homeView .nav-tile{min-width:0;min-height:145px;align-items:center;text-align:center;justify-content:center;gap:11px;padding:14px 7px;border-radius:20px;border:1px solid #b58b39;background:linear-gradient(150deg,#211a12,#0e0e0e 60%,#291a08);box-shadow:inset 0 1px #ffe0a366,inset 0 -3px 8px #d89d324d,0 7px 14px #000a}
+#homeView .nav-icon{color:#f9c34d;filter:drop-shadow(0 0 5px #ffc64b55)}
+#homeView .nav-name{font-size:14px;color:#f6f1e7}
+#homeView .nav-desc{font-size:11px;color:#c9c1b5}
+@media(max-width:620px){#homeView .nav-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#homeView .wand-overview{gap:7px}#homeView .wand-overview>button.wand-overview-item{padding:11px 8px!important;min-height:165px!important;border-radius:16px!important}#homeView .wand-metric-heading{font-size:11px;flex-wrap:wrap}#homeView .wand-metric-heading svg{width:19px;height:19px}#homeView .wand-overview-value{font-size:19px}#homeView .wand-overview-note{font-size:11px}#homeView .wt-smart-card{padding:19px}}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#080808">
@@ -221,7 +247,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 @media(max-width:430px){.nav-tile{min-height:122px;padding:14px 11px}.wand-overview{gap:7px}.wand-overview-item{padding:11px 8px}.wand-overview-label{font-size:11px}.wand-overview-note{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.nav-tile{transition:none}}
 </style>
-<link rel="stylesheet" href="./wand-premium.css?v=20261117-4">
+<link rel="stylesheet" href="./wand-premium.css?v=20261117-5">
 </head>
 
 <body>
@@ -243,8 +269,15 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 
 <div id="painel" class="hidden">
   <section id="homeView" aria-label="Menu do aluno">
-    <div class="welcome"><strong>Seu espaço de evolução</strong><p>Treine com estratégia. Evolua com propósito.</p></div><div class="wand-overview" aria-label="Resumo do aluno"><button type="button" class="wand-overview-item" data-view="treinos"><div class="wand-overview-label">Treino disponível</div><div class="wand-overview-value">Ver treino</div><div class="wand-overview-note">Sua próxima sessão</div></button><button type="button" class="wand-overview-item" data-view="coins"><div class="wand-overview-label">WAND Coins</div><div class="wand-overview-value">Em breve</div><div class="wand-overview-note">Recompensas em preparação</div></button><button type="button" class="wand-overview-item" data-view="evolucao"><div class="wand-overview-label">Sua evolução</div><div class="wand-overview-value">Ver gráficos</div><div class="wand-overview-note">Dados do seu progresso</div></button></div>
+    <div class="wand-overview" aria-label="Seu desempenho">
+      <button type="button" class="wand-overview-item" data-view="treinos"><span class="wand-metric-heading"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9v6m3-9v12m3-7h6m0-5v12m3-9v6M1 9h2m18 0h2"/></svg><span>Treinos no mês</span></span><strong class="wand-overview-value" id="wandMetricMes">—</strong><span class="wand-overview-note" id="wandMetricMesNota">Consultando histórico</span><span class="wand-metric-track"><span id="wandMetricBarra"></span></span></button>
+      <button type="button" class="wand-overview-item" data-view="coins"><span class="wand-metric-heading"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v5c0 4 16 4 16 0V6M4 11v5c0 4 16 4 16 0v-5"/></svg><span>WAND Coins</span></span><strong class="wand-overview-value" id="wandMetricCoins">Em breve</strong><span class="wand-overview-note">Recompensas em preparação</span></button>
+      <button type="button" class="wand-overview-item" data-view="evolucao"><span class="wand-metric-heading"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 2 6 9 6-9M7 2h10"/><circle cx="12" cy="16" r="6"/><path d="m12 13 1 2 2 .3-1.5 1.5.4 2.2-1.9-1-1.9 1 .4-2.2L9 15.3l2-.3z"/></svg><span>Seu nível</span></span><strong class="wand-overview-value" id="wandMetricNivel">Não definido</strong><span class="wand-overview-note">Acompanhe sua evolução</span></button>
+    </div>
+    <div class="wand-section-heading"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M7 14h3m4 0h3"/></svg><h2>Treino de hoje</h2></div>
     <section id="wtProximoCard" class="wt-smart-card" aria-label="Treino de hoje"><h2>Preparado para o treino de hoje?</h2><p id="wtProximoEstado" class="muted">Consultando sua prescrição e histórico...</p><div id="wtProximoAcoes"></div></section>
+    <section class="wand-progress-section" aria-label="Progresso mensal"><div class="wand-section-heading"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20V4M3 20h18M7 16v-5m5 5V8m5 8V5"/></svg><h2>Seu progresso</h2></div><div class="wand-progress-card"><div class="wand-progress-row"><strong id="wandProgressoTitulo">Consultando histórico...</strong><strong id="wandProgressoPercentual">—</strong></div><div class="wand-progress-track"><span id="wandProgressoBarra"></span></div><p id="wandProgressoNota">Acompanhamento dos treinos concluídos neste mês.</p></div></section>
+    <h2 class="wand-menu-heading">Seu espaço de treinamento</h2>
     <nav class="nav-grid" aria-label="Áreas do aluno">
       <button type="button" class="nav-tile" data-view="treinos"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="11" width="3.5" height="10" rx="1"/><rect x="6.5" y="8.5" width="5" height="15" rx="1.2"/><path d="M11.5 16h9"/><rect x="20.5" y="8.5" width="5" height="15" rx="1.2"/><rect x="26" y="11" width="3.5" height="10" rx="1"/></svg></span><span class="nav-name">Meus Treinos</span><span class="nav-desc">Exercícios e séries</span></button>
       <button type="button" class="nav-tile" data-view="ficha"><span class="nav-icon">▤</span><span class="nav-name">Minha Ficha</span><span class="nav-desc">Dados e saúde</span></button>
@@ -1243,6 +1276,18 @@ function wtSmartRender(){
  if(!disponiveis.length&&avisos.length&&!conclusoes.length)nota(avisos.join(' '));
 }
 
+
+function wandAtualizarResumo(){
+ const feitos=(Array.isArray(wtHistorico)?wtHistorico:[]).filter(h=>h.situacao==='concluido'&&h.finalizada_em);
+ const mes=wtHoje().slice(0,7);
+ const total=feitos.filter(h=>wtDiaSP(h.finalizada_em)?.startsWith(mes)).length;
+ const set=(id,value)=>{const e=document.getElementById(id);if(e)e.textContent=value};
+ set('wandMetricMes',String(total));set('wandMetricMesNota','Treinos concluídos neste mês');
+ set('wandProgressoTitulo',total+' treino'+(total===1?'':'s')+' realizado'+(total===1?'':'s')+' neste mês');
+ set('wandProgressoPercentual',String(total));
+ set('wandProgressoNota','Meta mensal ainda não configurada. Os dados acima vêm do seu histórico.');
+ // Não criar percentuais, saldos ou níveis fictícios sem dados oficiais do sistema.
+}
 async function wtCarregar(){
  try{
   wtMsg('Carregando treinos...');
@@ -1270,7 +1315,7 @@ async function wtCarregar(){
     if(!wtRestauroFeito){wtRestauroFeito=true;window.wandMostrarVista?.('treinos');}
    }
   else{wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();}
-  wtMsg('');wtRender();wtSmartRender();if(wtSessao){wtRestaurarCampos();wtAtualizarTimer();if(wtTimerFim>Date.now()&&!wtTimerId)wtTimerId=setInterval(wtAtualizarTimer,250);}
+  wtMsg('');wtRender();wtSmartRender();wandAtualizarResumo();if(wtSessao){wtRestaurarCampos();wtAtualizarTimer();if(wtTimerFim>Date.now()&&!wtTimerId)wtTimerId=setInterval(wtAtualizarTimer,250);}
  }catch(e){wtMsg('Não foi possível carregar os treinos: '+e.message,true);const st=document.getElementById('wtProximoEstado');if(st)st.textContent='Não foi possível verificar o próximo treino: '+e.message;}
 }
 function wtRender(){
