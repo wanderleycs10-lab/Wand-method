@@ -69,10 +69,6 @@ button.remover{background:#572323;color:#fff}
 @media(max-width:850px){.grupo-colunas,.grupo-colunas:has(> :nth-child(3)){grid-template-columns:1fr}.grupo-conteudo{padding:10px}}
 .wand-programa{border:1px solid #b69438;background:#211b10;border-radius:12px;padding:16px;margin:14px 0}.wand-programa .linha{margin-top:10px}.wand-etiqueta{color:#f0d47b;font-weight:bold}.wand-fichas{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.wand-fichas span{border:1px solid #78632c;border-radius:7px;padding:8px}.wand-fichas .atual{background:#d4af37;color:#111}.wand-checks{display:flex;gap:12px;flex-wrap:wrap}.wand-checks label{display:flex;align-items:center;gap:5px;margin:5px 0}.wand-checks input{width:auto;margin:0}
 
-/* WAND FORCE: avaliação pontual durante a prescrição */
-.wf-resumo{background:#211c10;border:1px solid #8b7434;border-radius:10px;padding:13px;margin:12px 0;line-height:1.55}
-.wf-resumo strong{color:#f1cf68}.wf-aviso{color:#cfc6a9;font-size:13px;line-height:1.55}
-.wf-acoes{display:flex;gap:8px;flex-wrap:wrap}.wf-acoes button{flex:1}
 /* Confirmação breve de conclusão antes da navegação */
 .wand-confirmacao{position:fixed;inset:0;z-index:1000;background:#080808;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;text-align:center;padding:24px}
 .wand-confirmacao .wand-check{width:116px;height:116px;border:4px solid #d4af37;border-radius:50%;display:grid;place-items:center;color:#d4af37;font-size:76px;font-weight:700;animation:wandCheck .35s ease-out both}
@@ -112,16 +108,6 @@ button.remover{background:#572323;color:#fff}
 <div id="modalConjugado" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloConjugado"><div class="modal"><h2 id="tituloConjugado">Escolher exercícios conjugados</h2><p id="instrucaoConjugado" class="info"></p><div id="resumoConjugado" class="conjugado-resumo"></div><div class="conjugado-filtros"><div><label for="buscaConjugado">Pesquisar exercício</label><input id="buscaConjugado" type="search" placeholder="Nome do exercício..."></div><div><label for="grupoConjugado">Grupo muscular</label><select id="grupoConjugado"><option value="">Todos os grupos</option></select></div></div><div id="listaConjugado" class="conjugado-lista"></div><div class="botoes"><button id="confirmarConjugado" type="button">Adicionar combinação ao treino</button><button id="cancelarConjugado" class="secundario" type="button">Cancelar</button></div><p id="erroConjugado" class="erro"></p></div></div>
 <div id="modalVideo" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-label="Vídeo demonstrativo"><div class="modal"><h2 id="nomeVideo">Vídeo do exercício</h2><div id="areaVideo" class="video-area"></div><div class="botoes"><button id="fecharVideo" type="button" class="secundario">Fechar vídeo</button></div></div></div>
 
-<div id="modalWandForce" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="wfTitulo"><div class="modal">
-<h2 id="wfTitulo">WAND FORCE · Avaliar carga</h2><p id="wfExercicio" class="info"></p>
-<p class="wf-aviso">Teste submáximo ou de repetições máximas tecnicamente válidas, sem meta de repetições anunciada ao aluno. Interrompa diante de perda técnica, dor ou sintomas anormais.</p>
-<div class="linha"><div><label for="wfCarga">Carga utilizada no teste (kg)</label><input id="wfCarga" type="number" min="0.1" step="0.5" placeholder="Ex.: 60"></div><div><label for="wfReps">Repetições válidas realizadas</label><input id="wfReps" type="number" min="1" max="15" step="1" placeholder="Ex.: 6"></div></div>
-<div class="linha"><div><label for="wfObjetivo">Objetivo</label><select id="wfObjetivo"><option value="hipertrofia">Hipertrofia</option><option value="forca">Força</option><option value="resistencia">Resistência muscular</option></select></div><div><label for="wfFaixa">Faixa de repetições</label><select id="wfFaixa"></select></div></div>
-<div class="linha"><div><label for="wfDescanso">Descanso sugerido (segundos)</label><input id="wfDescanso" type="number" min="0" max="900" step="15"></div><div><label for="wfRir">RIR ao fim do teste (opcional)</label><select id="wfRir"><option value="0">0 — limite técnico / falha</option><option value="1">1 repetição em reserva</option><option value="2">2 repetições em reserva</option><option value="3">3 repetições em reserva</option></select></div></div>
-<div id="wfResultado" class="wf-resumo" aria-live="polite">Informe carga e repetições para calcular.</div>
-<p class="wf-aviso">A estimativa usa a equação de Epley, não uma tabela universal de repetições por objetivo. A carga calculada é um ponto de partida, não garante desempenho em todas as séries. Confirme a técnica e ajuste a prescrição conforme necessário.</p>
-<div class="wf-acoes"><button id="wfAplicar" type="button" disabled>Aplicar à prescrição</button><button id="wfCancelar" type="button" class="secundario">Cancelar</button></div>
-</div></div>
 </main>
 
 <script type="module">
@@ -357,67 +343,7 @@ function renderSelecionados(){const area=$('listaSelecionados');area.replaceChil
 async function criarMetodo(){const nome=$('nomeNovoMetodo').value.trim();if(!nome){$('erroMetodo').textContent='Informe o nome do método.';return;}if(metodos.some(m=>normal(m.nome)===normal(nome))){$('erroMetodo').textContent='Este método já existe. Selecione-o na lista.';return;}$('criarMetodo').disabled=true;try{const {data,error}=await supabase.from('wand_metodos').insert({nome,ativo:true}).select('id,nome,descricao,estrutura,personalizado').single();if(error)throw error;metodos.push(data);metodos.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));confirmarMetodo(data.id,data.nome);}catch(e){$('erroMetodo').textContent='Não foi possível criar o método: '+e.message+'; utilize o cadastro de métodos do WandCoach para configurar regras avançadas.';}finally{$('criarMetodo').disabled=false;}}
 function concluirSelecao(){if(!selecionados.length){mensagem('Adicione pelo menos um exercício.','erro');return;}renderConfig();mudarPasso(2);}
 
-// WAND FORCE — somente apoio à prescrição inicial. Não modifica histórico ou progressão.
-let wfItem=null,wfEstimativa=null;
-const wfOpcoes={
- hipertrofia:{faixas:['8-10','10-12','13-15'],descanso:120},
- forca:{faixas:['1-3','3-5','4-6'],descanso:180},
- resistencia:{faixas:['15-20','20-25','25-30'],descanso:90}
-};
-function wfPrepararFaixas(){
- const p=wfOpcoes[$('wfObjetivo').value],anterior=$('wfFaixa').value;
- $('wfFaixa').replaceChildren();
- p.faixas.forEach(v=>opcao($('wfFaixa'),v,v+' repetições'));
- if(p.faixas.includes(anterior))$('wfFaixa').value=anterior;
- $('wfDescanso').value=p.descanso;
- wfCalcular();
-}
-function wfAbrir(item){
- wfItem=item;wfEstimativa=null;
- $('wfExercicio').textContent=item.exercicio.nome;
- $('wfCarga').value='';$('wfReps').value='';$('wfRir').value='0';
- const objetivo=normal($('objetivo').value);
- $('wfObjetivo').value=objetivo.includes('forca')?'forca':objetivo.includes('resisten')?'resistencia':'hipertrofia';
- wfPrepararFaixas();$('modalWandForce').classList.remove('oculto');
-}
-function wfCalcular(){
- const carga=Number($('wfCarga').value),reps=Number($('wfReps').value),rir=Number($('wfRir').value);
- const descanso=Number($('wfDescanso').value),faixa=$('wfFaixa').value;
- const limites=faixa.split('-').map(Number);
- const valido=$('wfCarga').value!==''&&$('wfReps').value!==''&&Number.isFinite(carga)&&carga>0&&Number.isInteger(reps)&&reps>=1&&reps<=15&&Number.isInteger(rir)&&rir>=0&&rir<=3&&Number.isInteger(descanso)&&descanso>=0&&descanso<=900&&limites.length===2&&limites.every(Number.isFinite);
- $('wfAplicar').disabled=!valido;wfEstimativa=null;
- if(!valido){$('wfResultado').textContent='Informe carga (> 0), repetições inteiras (1 a 15) e descanso válido.';return;}
- // Epley: 1RM = carga x (1 + repetições máximas estimadas / 30).
- // Se houver RIR, somamos à contagem observada para uma aproximação submáxima.
- const rm=carga*(1+(reps+rir)/30);
- const [min,max]=limites;
- const inferior=rm/(1+max/30),superior=rm/(1+min/30);
- const sugerida=(inferior+superior)/2;
- wfEstimativa={rm,inferior,superior,sugerida,descanso,faixa,carga,reps,rir,objetivo:$('wfObjetivo').value};
- const fmt=n=>n.toLocaleString('pt-BR',{maximumFractionDigits:1});
- $('wfResultado').replaceChildren();
- const linhas=[`1RM estimado: ${fmt(rm)} kg`,`Faixa inicial calculada: ${fmt(inferior)}–${fmt(superior)} kg`,`Carga central sugerida: ${fmt(sugerida)} kg`,`Prescrição-alvo: ${faixa} repetições · ${descanso} s de descanso`];
- for(const l of linhas)$('wfResultado').append(criar('div','',l));
-}
-function wfAplicar(){
- if(!wfItem||!wfEstimativa)return;
- const w=wfEstimativa;
- // Preserva a estrutura do método e permite edição manual de cada série.
- // O valor central é arredondado para o múltiplo de 0,5 kg mais próximo.
- const carga=Math.round(w.sugerida*2)/2;
- if(!confirm(`Aplicar ${carga.toLocaleString('pt-BR')} kg, ${w.faixa} repetições e ${w.descanso} s às ${wfItem.series.length} séries de ${wfItem.exercicio.nome}? Isso substituirá esses campos nas séries atuais.`))return;
- for(const serie of wfItem.series){serie.carga_kg=carga;serie.repeticoes=w.faixa;serie.descanso_segundos=w.descanso;}
- // Metadados da avaliação ficam na configuração já persistida para este exercício.
- wfItem.configuracao_metodo={...wfItem.configuracao_metodo,wand_force:{versao:1,origem:'avaliacao_inicial',objetivo:w.objetivo,carga_teste_kg:w.carga,repeticoes_teste:w.reps,rir_teste:w.rir,rm_estimado_kg:Number(w.rm.toFixed(2)),faixa_repeticoes:w.faixa,descanso_segundos:w.descanso,carga_sugerida_kg:carga}};
- expandidos.add(wfItem);$('modalWandForce').classList.add('oculto');wfItem=null;wfEstimativa=null;
- renderConfig();mensagem('Estimativa aplicada à prescrição. Confira as séries antes de salvar.','sucesso');
-}
-$('wfObjetivo').onchange=wfPrepararFaixas;
- for(const id of ['wfCarga','wfReps','wfFaixa','wfDescanso','wfRir'])$(id).addEventListener('input',wfCalcular);
-$('wfAplicar').onclick=wfAplicar;
-$('wfCancelar').onclick=()=>{$('modalWandForce').classList.add('oculto');wfItem=null;wfEstimativa=null;};
-
-function renderEditorIndividual(item,i,area,forceOpen=false){const bloco=criar('div',forceOpen?'conjugado-membro':'exercicio');const topo=criar('button','exercicio-resumo');topo.type='button';topo.setAttribute('aria-expanded',String(forceOpen||expandidos.has(item)));const titulo=criar('strong','',`${i+1}. ${item.exercicio.nome}`);titulo.append(criar('small','',`Método: ${item.metodo_nome} · ${item.series.length} série(s)`));if(item.configuracao_metodo?.grupo_prescricao_id)titulo.append(criar('span','grupo-tag',`Conjugado ${item.configuracao_metodo.grupo_posicao}/${item.configuracao_metodo.grupo_total}`));topo.append(titulo,criar('span','',forceOpen?'':'▾'));if(forceOpen){topo.disabled=true;topo.classList.add('membro-titulo');}else{topo.onclick=()=>{if(expandidos.has(item))expandidos.delete(item);else expandidos.add(item);renderConfig();};}if(!forceOpen){const cabeca=criar('div','cabeca-com-acoes');const lixo=criar('button','lixeira-direta','🗑');lixo.type='button';lixo.title='Excluir exercício';lixo.setAttribute('aria-label','Excluir '+item.exercicio.nome);lixo.onclick=(ev)=>{ev.stopPropagation();removerSelecionado(item);};cabeca.append(topo,lixo);bloco.append(cabeca);}else bloco.append(topo);if(forceOpen||expandidos.has(item)){const corpo=criar('div','exercicio-conteudo');const trocar=criar('button','secundario','Trocar método');trocar.type='button';trocar.disabled=!!item.configuracao_metodo?.grupo_prescricao_id;trocar.title=trocar.disabled?'Altere a combinação na etapa de seleção':'Trocar método';trocar.onclick=()=>abrirMetodos(item.exercicio,i);const avaliar=criar('button','secundario','⚖ Avaliar carga · WAND FORCE');avaliar.type='button';avaliar.style.marginLeft='8px';avaliar.onclick=()=>wfAbrir(item);corpo.append(trocar,avaliar);if(item.configuracao_metodo?.grupo_prescricao_id)corpo.append(criar('p','info','Exercícios vinculados: '+item.configuracao_metodo.grupo_exercicios.map(x=>x.nome).join(' → '))); const notas=criar('textarea','campo-nota');notas.rows=2;notas.placeholder='Observações de execução';notas.value=item.observacoes;notas.oninput=()=>item.observacoes=notas.value;const rotulo=criar('label','','Observações');corpo.append(rotulo,notas,criar('h4','','Séries · Repetições · Carga · Intervalo'));const series=criar('div','area-series');function desenharSeries(){series.replaceChildren();item.series.forEach((s,j)=>{const linha=criar('div','serie');const n=criar('div');n.append(criar('label','','Série'),criar('strong','',String(j+1)));const reps=campo('Repetições','text',s.repeticoes);reps.input.maxLength=40;reps.input.oninput=()=>s.repeticoes=reps.input.value;const carga=campo('Carga (kg)','number',s.carga_kg??'');carga.input.placeholder='—';carga.input.oninput=()=>s.carga_kg=carga.input.value===''?null:carga.input.value;const descanso=campo('Intervalo (s)','number',s.descanso_segundos);descanso.input.step='1';descanso.input.oninput=()=>s.descanso_segundos=descanso.input.value;linha.append(n,reps.div,carga.div,descanso.div);const del=criar('button','remover','🗑 Excluir série');del.type='button';del.onclick=()=>{if(item.series.length<=1){alert('O exercício precisa ter ao menos uma série.');return;}item.series.splice(j,1);desenharSeries();};linha.append(del);series.append(linha);});}desenharSeries();corpo.append(series);const acoes=criar('div','botoes');const mais=criar('button','secundario','+ Adicionar série');mais.type='button';mais.onclick=()=>{const ultima=item.series.at(-1);item.series.push({repeticoes:ultima?.repeticoes||'12',carga_kg:null,descanso_segundos:ultima?.descanso_segundos??60});desenharSeries();};const replicar=criar('button','secundario','Replicar última série');replicar.type='button';replicar.onclick=()=>{const ultima=item.series.at(-1);if(ultima){item.series.push({...ultima});desenharSeries();}};acoes.append(mais,replicar);corpo.append(acoes);const mover=criar('div','botoes');for(const [texto,d] of [['↑ Subir',-1],['↓ Descer',1]]){const b=criar('button','secundario',texto);b.type='button';b.disabled=d<0?i===0:i===selecionados.length-1;b.onclick=()=>moverSelecionado(item,d);mover.append(b);}const remover=criar('button','remover','Remover exercício');remover.type='button';remover.onclick=()=>removerSelecionado(item);mover.append(remover);if(!forceOpen)corpo.append(mover);bloco.append(corpo);}area.append(bloco);}
+function renderEditorIndividual(item,i,area,forceOpen=false){const bloco=criar('div',forceOpen?'conjugado-membro':'exercicio');const topo=criar('button','exercicio-resumo');topo.type='button';topo.setAttribute('aria-expanded',String(forceOpen||expandidos.has(item)));const titulo=criar('strong','',`${i+1}. ${item.exercicio.nome}`);titulo.append(criar('small','',`Método: ${item.metodo_nome} · ${item.series.length} série(s)`));if(item.configuracao_metodo?.grupo_prescricao_id)titulo.append(criar('span','grupo-tag',`Conjugado ${item.configuracao_metodo.grupo_posicao}/${item.configuracao_metodo.grupo_total}`));topo.append(titulo,criar('span','',forceOpen?'':'▾'));if(forceOpen){topo.disabled=true;topo.classList.add('membro-titulo');}else{topo.onclick=()=>{if(expandidos.has(item))expandidos.delete(item);else expandidos.add(item);renderConfig();};}if(!forceOpen){const cabeca=criar('div','cabeca-com-acoes');const lixo=criar('button','lixeira-direta','🗑');lixo.type='button';lixo.title='Excluir exercício';lixo.setAttribute('aria-label','Excluir '+item.exercicio.nome);lixo.onclick=(ev)=>{ev.stopPropagation();removerSelecionado(item);};cabeca.append(topo,lixo);bloco.append(cabeca);}else bloco.append(topo);if(forceOpen||expandidos.has(item)){const corpo=criar('div','exercicio-conteudo');const trocar=criar('button','secundario','Trocar método');trocar.type='button';trocar.disabled=!!item.configuracao_metodo?.grupo_prescricao_id;trocar.title=trocar.disabled?'Altere a combinação na etapa de seleção':'Trocar método';trocar.onclick=()=>abrirMetodos(item.exercicio,i);corpo.append(trocar);if(item.configuracao_metodo?.grupo_prescricao_id)corpo.append(criar('p','info','Exercícios vinculados: '+item.configuracao_metodo.grupo_exercicios.map(x=>x.nome).join(' → '))); const notas=criar('textarea','campo-nota');notas.rows=2;notas.placeholder='Observações de execução';notas.value=item.observacoes;notas.oninput=()=>item.observacoes=notas.value;const rotulo=criar('label','','Observações');corpo.append(rotulo,notas,criar('h4','','Séries · Repetições · Carga · Intervalo'));const series=criar('div','area-series');function desenharSeries(){series.replaceChildren();item.series.forEach((s,j)=>{const linha=criar('div','serie');const n=criar('div');n.append(criar('label','','Série'),criar('strong','',String(j+1)));const reps=campo('Repetições','text',s.repeticoes);reps.input.maxLength=40;reps.input.oninput=()=>s.repeticoes=reps.input.value;const carga=campo('Carga (kg)','number',s.carga_kg??'');carga.input.placeholder='—';carga.input.oninput=()=>s.carga_kg=carga.input.value===''?null:carga.input.value;const descanso=campo('Intervalo (s)','number',s.descanso_segundos);descanso.input.step='1';descanso.input.oninput=()=>s.descanso_segundos=descanso.input.value;linha.append(n,reps.div,carga.div,descanso.div);const del=criar('button','remover','🗑 Excluir série');del.type='button';del.onclick=()=>{if(item.series.length<=1){alert('O exercício precisa ter ao menos uma série.');return;}item.series.splice(j,1);desenharSeries();};linha.append(del);series.append(linha);});}desenharSeries();corpo.append(series);const acoes=criar('div','botoes');const mais=criar('button','secundario','+ Adicionar série');mais.type='button';mais.onclick=()=>{const ultima=item.series.at(-1);item.series.push({repeticoes:ultima?.repeticoes||'12',carga_kg:null,descanso_segundos:ultima?.descanso_segundos??60});desenharSeries();};const replicar=criar('button','secundario','Replicar última série');replicar.type='button';replicar.onclick=()=>{const ultima=item.series.at(-1);if(ultima){item.series.push({...ultima});desenharSeries();}};acoes.append(mais,replicar);corpo.append(acoes);const mover=criar('div','botoes');for(const [texto,d] of [['↑ Subir',-1],['↓ Descer',1]]){const b=criar('button','secundario',texto);b.type='button';b.disabled=d<0?i===0:i===selecionados.length-1;b.onclick=()=>moverSelecionado(item,d);mover.append(b);}const remover=criar('button','remover','Remover exercício');remover.type='button';remover.onclick=()=>removerSelecionado(item);mover.append(remover);if(!forceOpen)corpo.append(mover);bloco.append(corpo);}area.append(bloco);}
 
 function blocosPrescricao(){const blocos=[];for(const item of selecionados){const id=item.configuracao_metodo?.grupo_prescricao_id;const ultimo=blocos.at(-1);if(id&&ultimo&&ultimo[0].configuracao_metodo?.grupo_prescricao_id===id)ultimo.push(item);else blocos.push([item]);}return blocos;}
 function renderConfig(){
