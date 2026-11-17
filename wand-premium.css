@@ -1,0 +1,21 @@
+/* WAND METHOD — Tema premium unificado v1. Cores, relevo e acessibilidade. */
+:root{--wand-black:#080808;--wand-gold:#eac052;--wand-gold-light:#ffe6a0;--wand-silver:#aeb2bb;--wand-silver-edge:#737983;--wand-panel:#151515}
+html{color-scheme:dark}
+body{background:radial-gradient(ellipse at 95% 7%,rgba(117,76,18,.18),transparent 35%),radial-gradient(ellipse at 2% 80%,rgba(80,55,19,.13),transparent 40%),#080808;color:#f5f4f0}
+header{border-bottom-color:#777b83!important;background:linear-gradient(140deg,#171717,#090909 55%,#201809);box-shadow:0 4px 20px #0009,0 1px 13px #c7962420}
+header img,.logo{filter:drop-shadow(0 4px 9px #d6a33538)}
+h1,h2,h3,.gold{color:#f2c65b}
+.card,.subcard,.metric,.welcome,.wt-smart-card,.treino-item,.exercicio,.grupo-conjugado,.item-bib,.wc-row,.wc-person,.aluno,.pedido,.notice,.sub-card,.status-card,.panel-card,.modal-content,.modal-card,.form-card{background:linear-gradient(145deg,#252322 0%,#181818 35%,#111 78%,#20190e 100%);border:1px solid #8f949e;border-radius:17px;box-shadow:inset 0 1px 0 #e9edf359,inset 0 -2px 6px #d5a53a16,0 8px 19px #0008,0 0 13px #cfa02c14}
+.nav-tile,.wc-tile,.menu-perfil button,.nav-grid>a,.nav-grid>button{background:linear-gradient(145deg,#32302e 0%,#191919 35%,#111 74%,#2a1e0e 100%);border:1px solid #9fa4ac;border-radius:18px;color:#f6f3eb;box-shadow:inset 0 2px 1px #f7f8fa88,inset 0 -3px 7px #bc8d2940,0 9px 17px #000a,0 0 15px #cda03526;transition:transform .17s ease,box-shadow .17s ease,border-color .17s ease}
+.nav-tile:hover,.nav-tile:focus-visible,.wc-tile:hover,.wc-tile:focus-visible,.menu-perfil button:hover,.nav-grid>a:hover,.nav-grid>button:hover{transform:translateY(-2px);border-color:#f7d16e;background:linear-gradient(145deg,#39332a,#191919 60%,#291c0b);box-shadow:inset 0 2px #fff5ce,0 11px 23px #000b,0 0 20px #dbad4260}
+.nav-icon,.wc-icon{color:#f5c75d;filter:drop-shadow(0 2px 5px #dca63685)}
+.nav-name,.wc-name{color:#fff0cd}.nav-desc,.wc-desc{color:#c7c3ba}
+button:not(.nav-tile):not(.wc-tile):not(.wc-row):not(.eye):not(.wand-excluir):not(.remover):not(.danger):not(.perigo):not(.secundario):not(.secondary):not(.back-btn):not(.wc-back):not([data-home]):not([aria-label="Fechar"]),a.button:not(.secondary),a.botao:not(.secundario),a.botao-link:not(.secundario),.btn.primary,.button:not(.secondary){background:linear-gradient(120deg,#a97114 0%,#e6af38 22%,#ffe6a0 48%,#e2ac33 80%,#ae7412 100%);border:1px solid #ffe19a;border-radius:12px;color:#1b1307;box-shadow:inset 0 2px 1px #fff9e5bb,inset 0 -3px 6px #92620c77,0 6px 14px #0008,0 0 15px #c99a3040;text-shadow:0 1px #fff1c47a}
+button.secundario,button.secondary,.secondary,.back-btn,.wc-back,button[data-home],.btn.secondary,.botao-link.secundario{background:linear-gradient(145deg,#292725,#121212 70%,#21190e)!important;border:1px solid #a8abb2!important;color:#f3cd72!important;border-radius:12px;box-shadow:inset 0 1px #f6f8fb66,inset 0 -2px 5px #c29a2d22,0 5px 13px #0008}
+button.remover,button.danger,button.perigo,.wand-excluir{background:linear-gradient(145deg,#542323,#241515)!important;border:1px solid #c56a6a!important;color:#ffe1e1!important;text-shadow:none}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
+input:not([type="checkbox"]):not([type="radio"]),select,textarea{background:linear-gradient(180deg,#101010,#1c1c1c);color:#fff;border:1px solid #777d86;border-radius:10px;box-shadow:inset 0 2px 6px #0009,inset 0 1px #d7d7d722}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #ffe08a;outline-offset:2px}
+details{border-color:#7d8189}summary,a{accent-color:#e8b84e}
+@media(max-width:600px){.card,.subcard{border-radius:15px}.nav-tile,.wc-tile{border-radius:16px}}
+@media(prefers-reduced-motion:reduce){.nav-tile,.wc-tile,.menu-perfil button,.nav-grid>a,.nav-grid>button{transition:none}}
