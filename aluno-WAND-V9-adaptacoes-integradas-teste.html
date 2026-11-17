@@ -230,7 +230,7 @@ main{max-width:850px;padding:22px 16px 90px}
 <div id="painel" class="hidden">
   <section id="homeView" aria-label="Menu do aluno">
     <div class="welcome"><strong>Meu acompanhamento</strong><p>Acesse seus dados, avaliações e evolução física.</p></div>
-    <section id="wtProximoCard" class="wt-smart-card" aria-label="Treino de hoje"><h2>Preparado para o treino de hoje?</h2><p id="wtProximoEstado" class="muted">Consultando sua prescrição e histórico...</p><div id="wtProximoAcoes"></div><div id="wtProgressoAdaptacoes" aria-live="polite" style="margin-top:14px"></div></section>
+    <section id="wtProximoCard" class="wt-smart-card" aria-label="Treino de hoje"><h2>Preparado para o treino de hoje?</h2><p id="wtProximoEstado" class="muted">Consultando sua prescrição e histórico...</p><div id="wtProximoAcoes"></div></section>
     <nav class="nav-grid" aria-label="Áreas do aluno">
       <button type="button" class="nav-tile" data-view="treinos"><span class="nav-icon">🏋</span><span class="nav-name">Meus Treinos</span><span class="nav-desc">Exercícios e séries</span></button>
       <button type="button" class="nav-tile" data-view="ficha"><span class="nav-icon">▤</span><span class="nav-name">Minha Ficha</span><span class="nav-desc">Dados e saúde</span></button>
@@ -960,7 +960,7 @@ import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@su
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
 let wtProgramasAbertos=new Set(),wtProgramas=[],wtFichasPrograma=[],wtAvisoProgramas="",wtGruposMeta={},wtBlocoAberto=0,wtAlteracoesPendentes=0,wtVista="nenhuma",wtAdaptacoes=[],wtTreinos=[],wtHistorico=[],wtSessao=null,wtTreino=null,wtSerieSalva={},wtInicio=0,wtTimerFim=0,wtTimerId=null,wtBusy=false,wtAudio=null,wtAlarmId=null,wtAlarmAtivo=false,wtAlarmArea=null,wtClock=null,wtAlarmTexto=null,wtPararBotao=null;
-const WT_BUILD='2026.11.16.9';
+const WT_BUILD='2026.11.17.9.1';
 const wtStoreKey=()=>`wand-exec-${(wandDb.auth.getUser ? wtAlunoUserId : 'anon')||'anon'}`;
 let wtAlunoUserId=null;
 const wtVistaKey=()=>`wand-treinos-vista-${wtAlunoUserId||'anon'}`;
@@ -1066,39 +1066,6 @@ function wtOriginalDaConclusao(h){
 }
 function wtAdaptacaoConcluidaHoje(a){
  return wtHistorico.some(h=>h.situacao==='concluido'&&h.finalizada_em&&wtDiaSP(h.finalizada_em)===wtHoje()&&String(h.treino_id)===String(a.treino_alternativo_id));
-}
-function wtRenderProgressoAdaptacoes(){
- const area=document.getElementById('wtProgressoAdaptacoes');
- if(!area)return;
- area.replaceChildren();
- const concluidos=(wtHistorico||[]).filter(h=>h.situacao==='concluido'&&h.finalizada_em);
- if(!concluidos.length)return;
- const adaptados=concluidos.filter(h=>{
-   const dia=wtDiaSP(h.iniciada_em||h.finalizada_em);
-   return (wtMapaAdaptacoes||[]).some(a=>String(a.treino_alternativo_id)===String(h.treino_id)&&String(a.dia)===String(dia)&&['programada','aplicada'].includes(String(a.status||'').toLowerCase()));
- }).length;
- const total=concluidos.length,originais=total-adaptados;
- const pct=n=>Math.round(100*n/total);
- const box=document.createElement('div');
- box.style.cssText='padding:12px;border:1px solid rgba(212,175,55,.4);border-radius:12px;';
- const titulo=document.createElement('strong');
- titulo.textContent='Execuções concluídas · Original x Adaptado';
- box.appendChild(titulo);
- const linha=document.createElement('p');
- linha.style.cssText='margin:8px 0 4px';
- linha.textContent=`Original: ${pct(originais)}% (${originais}) · Adaptado: ${pct(adaptados)}% (${adaptados})`;
- box.appendChild(linha);
- const faixa=document.createElement('div');
- faixa.style.cssText='display:flex;height:9px;overflow:hidden;border-radius:9px;background:#555';
- const original=document.createElement('div');
- original.style.cssText=`width:${pct(originais)}%;background:#d4af37`;
- const adaptado=document.createElement('div');
- adaptado.style.cssText=`width:${100-pct(originais)}%;background:#929292`;
- faixa.append(original,adaptado);box.appendChild(faixa);
- const aviso=document.createElement('small');
- aviso.textContent='Percentuais por sessões concluídas, não por séries ou intensidade.';
- aviso.style.cssText='display:block;margin-top:6px;opacity:.8';
- box.appendChild(aviso);area.appendChild(box);
 }
 function wtSmartRender(){
  const card=document.getElementById('wtProximoCard');
@@ -1263,7 +1230,7 @@ async function wtCarregar(){
     if(!wtRestauroFeito){wtRestauroFeito=true;window.wandMostrarVista?.('treinos');}
    }
   else{wtSessao=null;wtTreino=null;wtSerieSalva={};wtPersistir();}
-  wtMsg('');wtRender();wtSmartRender();wtRenderProgressoAdaptacoes();if(wtSessao){wtRestaurarCampos();wtAtualizarTimer();if(wtTimerFim>Date.now()&&!wtTimerId)wtTimerId=setInterval(wtAtualizarTimer,250);}
+  wtMsg('');wtRender();wtSmartRender();if(wtSessao){wtRestaurarCampos();wtAtualizarTimer();if(wtTimerFim>Date.now()&&!wtTimerId)wtTimerId=setInterval(wtAtualizarTimer,250);}
  }catch(e){wtMsg('Não foi possível carregar os treinos: '+e.message,true);const st=document.getElementById('wtProximoEstado');if(st)st.textContent='Não foi possível verificar o próximo treino: '+e.message;}
 }
 function wtRender(){
