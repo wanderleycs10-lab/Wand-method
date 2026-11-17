@@ -221,7 +221,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 @media(max-width:430px){.nav-tile{min-height:122px;padding:14px 11px}.wand-overview{gap:7px}.wand-overview-item{padding:11px 8px}.wand-overview-label{font-size:11px}.wand-overview-note{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.nav-tile{transition:none}}
 </style>
-<link rel="stylesheet" href="./wand-premium.css?v=20261117-1">
+<link rel="stylesheet" href="./wand-premium.css?v=20261117-2">
 </head>
 
 <body>
@@ -243,7 +243,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 
 <div id="painel" class="hidden">
   <section id="homeView" aria-label="Menu do aluno">
-    <div class="welcome"><strong>Seu espaço de evolução</strong><p>Treine com estratégia. Evolua com propósito.</p></div><div class="wand-overview" aria-label="Resumo do aluno"><div class="wand-overview-item"><button type="button" data-view="treinos"><div class="wand-overview-label">✦ Treino disponível</div><div class="wand-overview-value">Ver treino</div><div class="wand-overview-note">Sua próxima sessão</div></button></div><div class="wand-overview-item"><button type="button" data-view="coins"><div class="wand-overview-label">◉ WAND Coins</div><div class="wand-overview-value">Em breve</div><div class="wand-overview-note">Recompensas em preparação</div></button></div><div class="wand-overview-item"><button type="button" data-view="evolucao"><div class="wand-overview-label">↗ Sua evolução</div><div class="wand-overview-value">Ver gráficos</div><div class="wand-overview-note">Dados do seu progresso</div></button></div></div>
+    <div class="welcome"><strong>Seu espaço de evolução</strong><p>Treine com estratégia. Evolua com propósito.</p></div><div class="wand-overview" aria-label="Resumo do aluno"><div class="wand-overview-item"><button type="button" data-view="treinos"><div class="wand-overview-label">Treino disponível</div><div class="wand-overview-value">Ver treino</div><div class="wand-overview-note">Sua próxima sessão</div></button></div><div class="wand-overview-item"><button type="button" data-view="coins"><div class="wand-overview-label">WAND Coins</div><div class="wand-overview-value">Em breve</div><div class="wand-overview-note">Recompensas em preparação</div></button></div><div class="wand-overview-item"><button type="button" data-view="evolucao"><div class="wand-overview-label">Sua evolução</div><div class="wand-overview-value">Ver gráficos</div><div class="wand-overview-note">Dados do seu progresso</div></button></div></div>
     <section id="wtProximoCard" class="wt-smart-card" aria-label="Treino de hoje"><h2>Preparado para o treino de hoje?</h2><p id="wtProximoEstado" class="muted">Consultando sua prescrição e histórico...</p><div id="wtProximoAcoes"></div></section>
     <nav class="nav-grid" aria-label="Áreas do aluno">
       <button type="button" class="nav-tile" data-view="treinos"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="11" width="3.5" height="10" rx="1"/><rect x="6.5" y="8.5" width="5" height="15" rx="1.2"/><path d="M11.5 16h9"/><rect x="20.5" y="8.5" width="5" height="15" rx="1.2"/><rect x="26" y="11" width="3.5" height="10" rx="1"/></svg></span><span class="nav-name">Meus Treinos</span><span class="nav-desc">Exercícios e séries</span></button>
@@ -1753,7 +1753,17 @@ const wbPodeCalendario=()=>!!wbData.preferencias?.ciclo_ativo && !['sem_menstrua
 async function wbLoad(){try{wbStatus('Carregando...');await wbIdentificarPerfil();wbData=await wbRpc('wand_bemestar_meu_painel');wbCiclos=[];if(wbSaudeFeminina()&&wbData.preferencias?.ciclo_ativo){wbCiclos=await wbRpc('wand_ciclo_meus_registros')||[];}wbStatus('');wbRender()}catch(e){wbStatus('Não foi possível carregar: '+e.message,true)}}
 let wbArea='menu',wbSub='menu';
 const wbBack=(label='Voltar')=>`<button type="button" class="back-btn" id="wbVoltarMenu">← ${label}</button>`;
-const wbTile=(id,ico,title,desc)=>`<button type="button" class="wb-choice wb-icon-choice" id="${id}"><span class="wb-ico" aria-hidden="true">${ico}</span><span><strong>${title}</strong><small>${desc}</small></span><span aria-hidden="true">❯</span></button>`;
+const wbIconPaths={
+ calendario:'<rect x="4" y="6" width="16" height="15" rx="2"/><path d="M8 3v6M16 3v6M4 11h16M8 15h3M14 15h3"/>',
+ registro:'<path d="M4 20l4-.8L20 7a2 2 0 0 0-3-3L5 16zM13 7l4 4M4 22h16"/>',
+ sintomas:'<path d="M20.8 4.6a5.3 5.3 0 0 0-7.5 0L12 5.9l-1.3-1.3a5.3 5.3 0 0 0-7.5 7.5L12 21l8.8-8.9a5.3 5.3 0 0 0 0-7.5z"/>',
+ historico:'<path d="M4 20V4M4 20h17M8 16v-5M13 16V7M18 16V4"/>',
+ preferencias:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+ solicitar:'<path d="M5 20l4-.8L20 8a2 2 0 0 0-3-3L6 16zM4 22h16"/>',
+ pedidos:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 7 9-7"/>'
+};
+const wbVector=(id,ico)=>{if(ico.includes('<svg'))return ico;const kind=/Calendario|Calendário/.test(id)?'calendario':/Registro|Solicitar/.test(id)?'registro':/Sintomas/.test(id)?'sintomas':/Historico|Histórico/.test(id)?'historico':/Preferencias|Preferências/.test(id)?'preferencias':/Pedidos/.test(id)?'pedidos':/Saude/.test(id)?'sintomas':'solicitar';return '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+wbIconPaths[kind]+'</svg>';};
+const wbTile=(id,ico,title,desc)=>`<button type="button" class="wb-choice wb-icon-choice" id="${id}"><span class="wb-ico" aria-hidden="true">${wbVector(id,ico)}</span><span><strong>${title}</strong><small>${desc}</small></span><span aria-hidden="true">❯</span></button>`;
 const wbAviso='<p class="wb-note"><strong>Atenção:</strong> este calendário fornece apenas estimativas, que podem variar bastante. Não é método contraceptivo nem previsão confiável de fertilidade; não o utilize para evitar ou planejar gravidez.</p>';
 function wbRender(){
  const p=wbData.preferencias||{},active=!!p.ativo,cycle=!!p.ciclo_ativo,fem=wbSaudeFeminina();
