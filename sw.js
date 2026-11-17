@@ -43,8 +43,8 @@ self.addEventListener('push', event => {
   event.waitUntil(
     self.registration.showNotification(title, {
       body: 'Seu intervalo terminou. Volte para a próxima série! 💪',
-      icon: './icons/icon-192.png',
-      badge: './icons/icon-192.png',
+      icon: './wand-icon-192-premium(1)-1.png',
+      badge: './wand-icon-192-premium(1)-1.png',
       tag: 'wand-descanso-' + String(data.alert_id || ''),
       renotify: true,
       data: {
