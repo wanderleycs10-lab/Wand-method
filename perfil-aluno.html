@@ -141,7 +141,7 @@ body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!
 
 <main>
 <div class="actions">
-<a class="button secondary" href="admin.html">← Voltar ao painel</a>
+<a class="button secondary" id="voltarOrigemPerfil" href="admin.html">← Voltar ao painel</a>
 </div>
 <p id="statusPagina">Carregando perfil...</p>
 
@@ -263,6 +263,13 @@ const alunoId=parametrosRetorno.get("id");
 const abaRetorno=parametrosRetorno.get("aba");
 const modoAnamneseExclusiva=abaRetorno==="anamnese";
 if(modoAnamneseExclusiva)document.documentElement.classList.add("wand-anamnese-exclusiva");
+document.addEventListener('DOMContentLoaded',()=>{
+  const voltar=document.getElementById('voltarOrigemPerfil');
+  if(modoAnamneseExclusiva&&voltar){
+    voltar.href='admin.html#wc/anamnese';
+    voltar.textContent='← Voltar para Anamneses';
+  }
+});
 const programaRetorno=parametrosRetorno.get("programa_id");
 const treinoRetorno=parametrosRetorno.get("treino_id");
 const CAMPOS=[
@@ -867,7 +874,7 @@ function configurarMenuPerfil(){
     if(orientacao)orientacao.classList.toggle('hidden',Boolean(atual));
   }
   const voltar=$('voltarSecoesPerfil');
-  if(voltar)voltar.addEventListener('click',()=>{if(modoAnamneseExclusiva){location.href='admin.html';return;}selecionar(null)});
+  if(voltar)voltar.addEventListener('click',()=>{if(modoAnamneseExclusiva){location.href='admin.html#wc/anamnese';return;}selecionar(null)});
   botoes.forEach(b=>b.addEventListener('click',()=>{if(modoAnamneseExclusiva)return;
     selecionar(atual===b.dataset.painel?null:b.dataset.painel);
   }));
