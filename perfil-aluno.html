@@ -51,8 +51,8 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 .painel-perfil{display:none}
 .painel-perfil.ativo{display:block}
 /* Recursos externos ficam ocultos até serem colocados em sua aba. */
-#wand-fotos{display:none!important}
-#painel-fotos.ativo #wand-fotos{display:block!important}
+body #wand-fotos{display:none!important;visibility:hidden!important}
+body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!important}
 @media(max-width:420px){.menu-perfil button{font-size:13px;padding:10px;min-height:70px}}
 #wandBotaoAcompanhamento.tem-pendencia{background:#352a0c;border:2px solid #e9bb32;color:#ffdc68;box-shadow:0 0 0 2px #5a451a}
 #wandContadorPendencias{display:inline-block;background:#d4af37;color:#111;padding:3px 7px;border-radius:14px;font-size:12px;margin-left:4px}
@@ -161,7 +161,8 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <button type="button" data-painel="fotos" aria-controls="painel-fotos">📷 Avaliação fotográfica</button>
 <button type="button" id="wandBotaoAcompanhamento" data-painel="acompanhamento" aria-controls="painel-acompanhamento">♡ Acompanhamento <span id="wandContadorPendencias" hidden></span></button>
 </nav>
-<button type="button" id="voltarSecoesPerfil" class="wand-voltar hidden">← Voltar às seções do aluno</button>\n<p id="orientacaoPerfil" class="muted">Selecione uma opção acima para visualizar os detalhes.</p>
+<button type="button" id="voltarSecoesPerfil" class="wand-voltar hidden">← Voltar às seções do aluno</button>
+<p id="orientacaoPerfil" class="muted">Selecione uma opção acima para visualizar os detalhes.</p>
 
 <section id="painel-anamnese" class="card painel-perfil">
 <h2>Anamnese</h2>
@@ -1315,8 +1316,3 @@ document.getElementById('wandSemanaAtualizar')?.addEventListener('click',wceLoad
 </script>
 </body>
 </html>
-
-
-
-
-0
