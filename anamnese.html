@@ -293,6 +293,8 @@
           rotina e preferências.
         </p>
 
+        <p id="estado_anamnese" class="status" aria-live="polite"></p>
+        <button type="button" class="button oculto" id="editar_anamnese">EDITAR ANAMNESE</button>
         <form id="form_anamnese">
           <div id="campos_anamnese"></div>
 
@@ -1065,6 +1067,32 @@
       $("form_triagem").scrollIntoView({behavior:"smooth",block:"start"});
     });
 
+    let anamneseEmEdicao = false;
+    function atualizarModoAnamnese() {
+      const concluida = anamneseCompleta(respostasSalvas.anamnese_personalizada);
+      const consulta = concluida && !anamneseEmEdicao;
+      $("form_anamnese").querySelectorAll("input,select,textarea").forEach(c => c.disabled = consulta);
+      $("salvar_anamnese").classList.toggle("oculto",consulta);
+      $("editar_anamnese").classList.toggle("oculto",!consulta);
+      $("estado_anamnese").textContent = consulta
+        ? "✓ Anamnese personalizada concluída — respostas salvas. Clique em Editar anamnese para alterar."
+        : concluida ? "Editando anamnese personalizada." : "Anamnese personalizada pendente.";
+    }
+    $("editar_anamnese").addEventListener("click",()=>{
+      anamneseEmEdicao=true;
+      atualizarModoAnamnese();
+      $("resultado_anamnese").textContent="";
+      $("form_anamnese").scrollIntoView({behavior:"smooth",block:"start"});
+    });
+    function compararAlteracoes(tipo,antes,depois) {
+      const campos = tipo==="triagem_saude"
+        ? perguntasTriagem.flatMap(p=>[{chave:p.nome,rotulo:p.pergunta},{chave:p.detalhe,rotulo:"Detalhes: "+p.pergunta}])
+        : camposAnamnese.flatMap(sec=>sec.campos.map(c=>({chave:c.nome,rotulo:c.pergunta})));
+      return campos.filter(c=>String(antes?.[c.chave]===undefined?"":typeof antes[c.chave]==="object"?JSON.stringify(antes[c.chave]):antes[c.chave])!==String(depois?.[c.chave]===undefined?"":typeof depois[c.chave]==="object"?JSON.stringify(depois[c.chave]):depois[c.chave])).map(c=>({
+        campo:c.chave,pergunta:c.rotulo,
+        anterior:antes?.[c.chave]??null,novo:depois?.[c.chave]??null
+      }));
+    }
     function atualizarStatusVisual() {
       const nomes = {
         pendente: "Pendente",
@@ -1167,6 +1195,8 @@
         atualizarStatusVisual();
         triagemEmEdicao = false;
         atualizarModoTriagem();
+        anamneseEmEdicao = false;
+        atualizarModoAnamnese();
         return;
       }
 
@@ -1188,6 +1218,8 @@
       atualizarStatusVisual();
       triagemEmEdicao = false;
       atualizarModoTriagem();
+      anamneseEmEdicao = false;
+      atualizarModoAnamnese();
     }
 
     async function salvarRespostas(tipo, respostas) {
@@ -1229,9 +1261,21 @@
           );
         }
 
+        const anteriores = consulta.data.respostas || {};
+        const etapaAnterior = anteriores[tipo];
+        const diferencas = compararAlteracoes(tipo,etapaAnterior,respostas);
+        const jaConcluida = tipo==="triagem_saude"
+          ? triagemCompleta(etapaAnterior) : anamneseCompleta(etapaAnterior);
+        const historico = Array.isArray(anteriores._historico_alteracoes)
+          ? anteriores._historico_alteracoes : [];
+        const evento = jaConcluida && diferencas.length ? {
+          id:crypto.randomUUID(),tipo,aluno_id:alunoId,
+          data:new Date().toISOString(),alteracoes:diferencas
+        } : null;
         const atualizadas = {
-          ...(consulta.data.respostas || {}),
-          [tipo]: respostas
+          ...anteriores,
+          [tipo]: respostas,
+          _historico_alteracoes:evento?[...historico,evento]:historico
         };
 
         const novoStatus = calcularStatus(
@@ -1371,6 +1415,8 @@
             "anamnese_personalizada",
             respostas
           );
+          anamneseEmEdicao = false;
+          atualizarModoAnamnese();
 
           const alertas = alertasDeMedidas(
             respostas
