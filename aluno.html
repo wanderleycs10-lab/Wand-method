@@ -802,7 +802,7 @@ function abrirGerenciamentoFicha(acao){
     if(!nome||!nascimento||!sexo)throw Error("Preencha nome, nascimento e sexo.");
     const {data:{user},error:authError}=await supabase.auth.getUser();if(authError||!user)throw Error("Sessão expirada. Entre novamente.");
     const {data,error}=await supabase.from("alunos").update({nome_completo:nome,data_nascimento:nascimento,sexo,whatsapp}).eq("id",alunoAtual.id).eq("user_id",user.id).select("nome_completo,data_nascimento,sexo,whatsapp").single();
-    if(error)throw error;Object.assign(fichaDados,data);alunoAtual.nome_completo=data.nome_completo;const primeiro=nome.split(/\\s+/)[0];$("saudacao").textContent="Olá, "+primeiro+"! 👋";fichaMensagem(area,"Dados atualizados com sucesso.");
+    if(error)throw error;Object.assign(fichaDados,data);alunoAtual.nome_completo=data.nome_completo;const primeiro=nome.split(/\s+/)[0];$("saudacao").textContent="Olá, "+primeiro+"! 👋";fichaMensagem(area,"Dados atualizados com sucesso.");
    }else{
     const senha=form.elements.senha.value,conf=form.elements.confirmar.value;
     if(senha.length<8||senha!==conf)throw Error("A senha precisa ter pelo menos 8 caracteres e coincidir com a confirmação.");
