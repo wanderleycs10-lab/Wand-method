@@ -231,6 +231,17 @@ body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!
 </div>
 </main>
 
+<script>
+/* Proteção contra falhas de inicialização: nunca deixar a tela eternamente carregando. */
+window.__wandPerfilPronto=false;
+window.setTimeout(function(){
+  var status=document.getElementById('statusPagina');
+  if(!window.__wandPerfilPronto && status && status.textContent.includes('Carregando')){
+    status.textContent='O perfil demorou mais que o esperado. Atualize a página. Se persistir, volte ao WandCoach e selecione novamente a aluna.';
+    status.classList.add('error');
+  }
+},12000);
+</script>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
@@ -318,22 +329,22 @@ return b;
 }
 
 async function autenticar(){
-const {data:{user},error}=await db.auth.getUser();
+const {data:{user},error}=await Promise.race([db.auth.getUser(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Tempo excedido ao verificar login. Atualize a página.")),10000))]);
 if(error||!user){
 location.replace("login.html");
 return false;
 }
-const {data:perfil,error:erro}=await db.from("profiles")
-.select("role").eq("id",user.id).single();
+const {data:perfil,error:erro}=await Promise.race([db.from("profiles")
+.select("role").eq("id",user.id).single(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Tempo excedido ao verificar permissão.")),10000))]);
 if(erro||perfil?.role!=="admin")
 throw Error("Acesso restrito ao treinador.");
 return true;
 }
 
 async function carregarAluno(){
-const {data,error}=await db.from("alunos")
+const {data,error}=await Promise.race([db.from("alunos")
 .select("nome_completo,modalidade,Status")
-.eq("id",Number(alunoId)).single();
+.eq("id",Number(alunoId)).single(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Tempo excedido ao consultar a aluna. Tente novamente.")),10000))]);
 if(error)throw error;
 $("nome").textContent=data.nome_completo||"—";
 $("modalidade").textContent=data.modalidade||"—";
@@ -856,9 +867,11 @@ function configurarMenuPerfil(){
 
 async function iniciar(){
 try{
+$("statusPagina").textContent="Verificando acesso ao perfil...";
 if(!alunoId||!/^\d+$/.test(alunoId))
 throw Error("Aluno não selecionado. Abra o perfil pelo painel.");
 if(!await autenticar())return;
+$("statusPagina").textContent="Consultando dados da aluna...";
 await carregarAluno();
 configurarGestaoAluno();
 $("novaAvaliacao").href=
@@ -870,6 +883,7 @@ $("treinosAluno").href=
 $("historicoAluno").href="gerenciar-treinos.html?aluno_id="+encodeURIComponent(alunoId)+"&visao=historico";
 $("conteudo").classList.remove("hidden");
 configurarMenuPerfil();
+window.__wandPerfilPronto=true;
 $("statusPagina").textContent="";
 await Promise.all([
 carregarAnamneses(),
@@ -877,6 +891,7 @@ carregarAvaliacoes(),
 carregarEvolucao()
 ]);
 }catch(erro){
+window.__wandPerfilPronto=true;
 console.error(erro);
 mostrarErro($("statusPagina"),erro);
 }
