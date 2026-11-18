@@ -250,6 +250,8 @@
           exigir cuidados durante o exercício.
         </p>
 
+        <p id="estado_triagem" class="status" aria-live="polite"></p>
+        <button type="button" class="button oculto" id="editar_triagem">EDITAR TRIAGEM</button>
         <form id="form_triagem">
           <div id="perguntas_triagem"></div>
 
@@ -1042,6 +1044,27 @@
       return "pendente";
     }
 
+    let triagemEmEdicao = false;
+    function atualizarModoTriagem() {
+      const concluida = triagemCompleta(respostasSalvas.triagem_saude);
+      const consulta = concluida && !triagemEmEdicao;
+      const form = $("form_triagem");
+      form.querySelectorAll("input,select,textarea").forEach(campo => {
+        campo.disabled = consulta;
+      });
+      $("validar_triagem").classList.toggle("oculto", consulta);
+      $("editar_triagem").classList.toggle("oculto", !consulta);
+      $("estado_triagem").textContent = consulta
+        ? "✓ Triagem de saúde concluída — respostas salvas. Para alterar, selecione Editar triagem."
+        : concluida ? "Editando triagem já concluída." : "Triagem pendente de conclusão.";
+    }
+    $("editar_triagem").addEventListener("click", () => {
+      triagemEmEdicao = true;
+      atualizarModoTriagem();
+      $("resultado_triagem").textContent = "";
+      $("form_triagem").scrollIntoView({behavior:"smooth",block:"start"});
+    });
+
     function atualizarStatusVisual() {
       const nomes = {
         pendente: "Pendente",
@@ -1142,6 +1165,8 @@
         respostasSalvas = {};
         statusRegistro = "pendente";
         atualizarStatusVisual();
+        triagemEmEdicao = false;
+        atualizarModoTriagem();
         return;
       }
 
@@ -1161,6 +1186,8 @@
       );
 
       atualizarStatusVisual();
+      triagemEmEdicao = false;
+      atualizarModoTriagem();
     }
 
     async function salvarRespostas(tipo, respostas) {
@@ -1286,6 +1313,8 @@
             respostas
           );
 
+          triagemEmEdicao = false;
+          atualizarModoTriagem();
           const existeSim = Object.values(
             respostas
           ).some(item => item.resposta === "sim");
@@ -1293,9 +1322,9 @@
           mostrarResultado(
             "resultado_triagem",
             existeSim
-              ? "Triagem salva. Suas condições serão " +
+              ? "Triagem concluída e salva. Suas condições serão " +
                 "analisadas pelo treinador."
-              : "Triagem salva com sucesso."
+              : "Triagem de saúde concluída com sucesso."
           );
 
         } catch (erro) {
