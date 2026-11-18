@@ -823,9 +823,6 @@ function configurarMenuPerfil(){
   const botoes=[...document.querySelectorAll('.menu-perfil button[data-painel]')];
   const paineis=[...document.querySelectorAll('.painel-perfil')];
   const validos=new Set(botoes.map(b=>b.dataset.painel));
-  // Estado isolado por aluno e por guia. Sobrevive a F5, mas não mistura alunos.
-  const chave='wandcoach:perfil:aba:'+alunoId;
-  const recarregamento=performance.getEntriesByType('navigation')[0]?.type==='reload';
   let atual=null;
   function selecionar(nome){
     atual=validos.has(nome)?nome:null;
@@ -835,22 +832,24 @@ function configurarMenuPerfil(){
       b.setAttribute('aria-expanded',String(ativo));
       b.setAttribute('aria-pressed',String(ativo));
     });
-    paineis.forEach(p=>p.classList.toggle('ativo',p.id==='painel-'+atual));\n    const menu=document.querySelector('.menu-perfil');if(menu)menu.classList.toggle('hidden',Boolean(atual));\n    const voltar=$('voltarSecoesPerfil');if(voltar)voltar.classList.toggle('hidden',!atual);
+    paineis.forEach(p=>p.classList.toggle('ativo',p.id==='painel-'+atual));
+    const menu=document.querySelector('.menu-perfil');
+    if(menu)menu.classList.toggle('hidden',Boolean(atual));
+    const voltar=$('voltarSecoesPerfil');
+    if(voltar)voltar.classList.toggle('hidden',!atual);
     const orientacao=$('orientacaoPerfil');
     if(orientacao)orientacao.classList.toggle('hidden',Boolean(atual));
-    try{sessionStorage.setItem(chave,atual||'');}catch(e){}
   }
-  const voltar=$('voltarSecoesPerfil');if(voltar)voltar.addEventListener('click',()=>selecionar(null));\n  botoes.forEach(b=>b.addEventListener('click',()=>{
+  const voltar=$('voltarSecoesPerfil');
+  if(voltar)voltar.addEventListener('click',()=>selecionar(null));
+  botoes.forEach(b=>b.addEventListener('click',()=>{
     selecionar(atual===b.dataset.painel?null:b.dataset.painel);
   }));
-  let salva=null;
-  try{salva=sessionStorage.getItem(chave);}catch(e){}
-  // Um link de retorno abre a aba indicada apenas ao navegar, não ao atualizar.
-  // Em F5, a escolha feita pelo treinador tem prioridade sobre a URL antiga.
+  // A tela inicial mostra apenas os cartões. Abertura direta só quando
+  // outra funcionalidade solicita expressamente uma aba pela URL.
   const solicitada=validos.has(abaRetorno)?abaRetorno:
     (parametrosRetorno.get('historico_execucao')==='1'?'treinos':null);
-  const inicial=recarregamento&&salva!==null?salva:(solicitada||salva||null);
-  selecionar(inicial);
+  selecionar(solicitada);
   return {selecionar,ativa:()=>atual};
 }
 
