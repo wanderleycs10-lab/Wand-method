@@ -47,11 +47,27 @@
     .aviso { color: #bbb; font-size: 14px; }
   </style>
 <link rel="stylesheet" href="./wand-premium.css?v=20261117-2">
-</head>
+<style id="wand-cadastro-premium">
+body{margin:0!important;padding:0!important;min-height:100vh;background:radial-gradient(ellipse at 95% 5%,#62451c30,transparent 45%),#080808!important;color:#f6f4ef!important;font-family:system-ui,-apple-system,"Segoe UI",sans-serif!important}
+main{max-width:940px!important;padding:26px clamp(16px,4vw,32px) 150px!important;margin:auto!important}
+.wand-brand{display:flex;align-items:center;justify-content:center;gap:18px;margin:10px auto 26px;padding:20px;background:linear-gradient(135deg,#24201b,#0d0d0d 65%,#2b2011);border:1px solid #999ca4;border-radius:24px;box-shadow:inset 0 2px #ffffff65,0 10px 24px #0008}
+.wand-brand img{width:72px;height:72px;object-fit:contain}.wand-brand h1{margin:0!important;font-size:clamp(24px,4vw,34px);letter-spacing:2px;color:#f0c35a!important}.wand-brand p{margin:5px 0 0;color:#c8c4bb;letter-spacing:1px;font-size:13px}
+.card{background:linear-gradient(145deg,#2b2927,#181818 45%,#101010 78%,#281d10)!important;border:1px solid #a0a4ad!important;border-radius:24px!important;padding:clamp(22px,4vw,36px)!important;box-shadow:inset 0 2px #ffffff6e,inset 0 -4px 8px #d4a43e25,0 14px 27px #000a!important;margin:22px 0!important}
+.card h2{font-size:clamp(23px,3vw,28px);color:#f0c35a!important;margin:0 0 18px}
+label{display:block;color:#f4e4c1;font-weight:600;margin:19px 0 8px}
+input,select{background:#141414!important;border:1px solid #92969f!important;border-radius:14px!important;box-shadow:inset 0 2px 6px #0009!important;color:#fff!important;min-height:54px;padding:13px 16px!important;width:100%;font-size:16px}
+input:focus-visible,select:focus-visible{outline:2px solid #f0c35a;outline-offset:2px}
+button[type="submit"],.wand-voltar{display:inline-flex;justify-content:center;align-items:center;min-height:52px;padding:14px 20px!important;background:linear-gradient(145deg,#34312e,#171717 60%,#2d200f)!important;border:1px solid #a0a4ad!important;border-radius:17px!important;box-shadow:inset 0 2px #ffffff72,inset 0 -2px 7px #d4a43e30,0 7px 15px #0009!important;color:#f4cd71!important;font:inherit;font-weight:700;text-decoration:none!important;cursor:pointer}
+button[type="submit"]{width:100%;margin-top:26px}.wand-voltar{margin:0 0 12px}
+.aviso{color:#c6c2ba!important;line-height:1.5}
+.wand-cadastro-dock{position:fixed;z-index:999;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100% - 30px),600px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:9px;background:linear-gradient(135deg,#44321c,#171717 55%,#30220f);border:1px solid #d7b66b;border-radius:26px;box-shadow:inset 0 2px #ffffff70,0 12px 30px #000b}
+.wand-cadastro-dock a{min-width:0;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none;color:#f6e5c3;border:1px solid #999da6;border-radius:17px;background:linear-gradient(150deg,#33312f,#151515 80%,#251a0d);box-shadow:inset 0 2px #ffffff50;font-size:22px}.wand-cadastro-dock a[aria-current="page"]{background:linear-gradient(130deg,#49351d,#271c0d);border-color:#e6c06a}.wand-cadastro-dock small{font-size:12px}
+@media(max-width:480px){.wand-brand{gap:10px;padding:15px}.wand-brand img{width:54px;height:54px}.wand-brand h1{font-size:23px}.wand-brand p{font-size:10px}.card{padding:18px!important}}
+</style></head>
 <body>
   <main>
-    <h1>WAND METHOD</h1>
-    <p style="text-align:center">CADASTRO DE ALUNO</p>
+    <div class="wand-brand"><img src="LogoNova.png" alt="Logo WAND METHOD"><div><h1>WAND METHOD</h1><p>WANDCOACH · CADASTRO DE ALUNO</p></div></div>
+    <a class="wand-voltar" href="admin.html#wc/alunos">← Voltar para Meus Alunos</a>
 
     <div class="card">
       <h2>Novo aluno</h2>
@@ -98,12 +114,12 @@
       </form>
 
       <p id="mensagem" class="aviso">
-        Formulário em preparação. Nenhum dado será enviado nesta etapa.
+        Preencha os dados e confirme para cadastrar o aluno.
       </p>
     </div>
 
-    <p><a href="admin.html">← Voltar ao painel</a></p>
-  </main>
+    <a class="wand-voltar" href="admin.html#wc/alunos">← Voltar para Meus Alunos</a>
+  </main><nav class="wand-cadastro-dock" aria-label="Navegação do WandCoach"><a href="admin.html"><span aria-hidden="true">⌂</span><small>Início</small></a><a href="admin.html#wc/alunos"><span aria-hidden="true">♙</span><small>Meus Alunos</small></a><a href="cadastro-aluno.html" aria-current="page"><span aria-hidden="true">＋</span><small>Cadastrar</small></a></nav>
 
   
 <script type="module">
