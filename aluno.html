@@ -786,7 +786,26 @@ function fichaMensagem(pai,msg,erro=false){let p=pai.querySelector(".ficha-feedb
 function abrirGerenciamentoFicha(acao){
  const area=$("fichaGerenciarDetalhe");area.replaceChildren();
  const h=document.createElement("h4");h.textContent=({editar:"Editar meus dados",senha:"Alterar minha senha",privacidade:"Privacidade e meus dados"})[acao];area.append(h);
- if(acao==="privacidade"){const p=document.createElement("p");p.className="muted";p.textContent="Seus dados cadastrais são utilizados para identificação e acompanhamento na plataforma. Para solicitar acesso, correção de informações não editáveis ou exclusão de dados, entre em contato com seu treinador. Informações de saúde devem permanecer nas áreas específicas e protegidas.";area.append(p);return;}
+ if(acao==="privacidade"){
+ const aviso=document.createElement("p");aviso.className="muted";aviso.textContent="Consulte as informações sobre privacidade e contratos. Solicitações, autorizações e assinaturas digitais estarão disponíveis após a implantação segura do serviço.";area.append(aviso);
+ const itens=[
+  ["Meus contratos","Informações contratuais e documentos individuais — em preparação."],
+  ["Política de Privacidade","Como seus dados são utilizados, protegidos e conservados — minuta em revisão."],
+  ["Dados de saúde","Informações sobre avaliações, anamnese e acesso restrito — em preparação."],
+  ["Autorização de imagem","Uso publicitário opcional; antes e depois exigirá aprovação para cada publicação."],
+  ["Solicitações de privacidade","Pedidos de acesso, correção e exclusão — serviço ainda não disponível."],
+  ["Histórico de documentos","Versões, autorizações e assinaturas — serviço ainda não disponível."]
+ ];
+ const menu=document.createElement("div");menu.className="ficha-nav";menu.setAttribute("aria-label","Documentos e privacidade");
+ const conteudo=document.createElement("div");conteudo.className="ficha-detail";conteudo.hidden=true;
+ for(const [nome,descricao] of itens){
+  const botao=document.createElement("button");botao.type="button";botao.className="ficha-tile";botao.style.minHeight="110px";botao.setAttribute("aria-expanded","false");
+  const rotulo=document.createElement("span");rotulo.textContent=nome;const pequeno=document.createElement("small");pequeno.textContent=descricao;botao.append(rotulo,pequeno);
+  botao.addEventListener("click",()=>{menu.querySelectorAll("button").forEach(b=>b.setAttribute("aria-expanded","false"));botao.setAttribute("aria-expanded","true");conteudo.hidden=false;conteudo.replaceChildren();const titulo=document.createElement("h4");titulo.textContent=nome;const texto=document.createElement("p");texto.className="muted";texto.textContent=descricao+" Nenhum pedido ou autorização será registrado nesta tela nesta etapa.";conteudo.append(titulo,texto);});
+  menu.append(botao);
+ }
+ area.append(menu,conteudo);return;
+}
  const form=document.createElement("form");form.className="ficha-form";area.append(form);
  if(acao==="editar"){
   fichaCampo(form,"Nome completo","nome_completo",fichaDados.nome_completo);
