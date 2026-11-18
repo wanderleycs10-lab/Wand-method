@@ -659,52 +659,7 @@
         ]
       },
       {
-        titulo: "6. Medidas corporais",
-        campos: [
-          {
-            nome: "peso",
-            tipo: "number",
-            pergunta: "Peso atual (kg)"
-          },
-          {
-            nome: "altura",
-            tipo: "number",
-            pergunta: "Altura (cm)"
-          },
-          {
-            nome: "cintura",
-            tipo: "number",
-            pergunta: "Cintura (cm)"
-          },
-          {
-            nome: "quadril",
-            tipo: "number",
-            pergunta: "Quadril (cm)"
-          },
-          {
-            nome: "braco_direito",
-            tipo: "number",
-            pergunta: "Braço direito (cm)"
-          },
-          {
-            nome: "braco_esquerdo",
-            tipo: "number",
-            pergunta: "Braço esquerdo (cm)"
-          },
-          {
-            nome: "coxa_direita",
-            tipo: "number",
-            pergunta: "Coxa direita (cm)"
-          },
-          {
-            nome: "coxa_esquerda",
-            tipo: "number",
-            pergunta: "Coxa esquerda (cm)"
-          }
-        ]
-      },
-      {
-        titulo: "7. Informações adicionais",
+        titulo: "6. Informações adicionais",
         campos: [
           {
             nome: "observacoes",
@@ -802,17 +757,6 @@
         destino.appendChild(
           elemento("h3", secao.titulo)
         );
-
-        if (secao.titulo.includes("Medidas")) {
-          destino.appendChild(
-            elemento(
-              "p",
-              "Preencha apenas as medidas que souber. " +
-              "Utilize centímetros nas circunferências.",
-              "small"
-            )
-          );
-        }
 
         secao.campos.forEach(campo => {
           const bloco = elemento(
