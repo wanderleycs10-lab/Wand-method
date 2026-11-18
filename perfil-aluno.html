@@ -400,14 +400,32 @@ function configurarGestaoAluno(){
  });
 }
 
-const CAMPOS_MEDIDAS_LEGADAS=new Set(["peso","altura","cintura","quadril","braco","braco_d","braco_e","coxa","coxa_d","coxa_e","panturrilha","torax","abdomen","pescoco","percentual_gordura","gordura_corporal","imc","circunferencia"]);
+const CAMPOS_MEDIDAS_LEGADAS=new Set(["peso","altura","cintura","quadril","braco","braco_d","braco_e","braco_direito","braco_esquerdo","coxa","coxa_d","coxa_e","coxa_direita","coxa_esquerda","panturrilha","torax","abdomen","pescoco","percentual_gordura","gordura_corporal","imc","circunferencia","circunferencias","perimetro","perimetros"]);
+function normalizarChaveAnamnese(chave){
+return String(chave).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+}
 function ehMedidaLegada(chave){
-const k=String(chave).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
-return CAMPOS_MEDIDAS_LEGADAS.has(k)||/^(?:medida|circunferencia|dobra)_/.test(k);
+const k=normalizarChaveAnamnese(chave);
+return CAMPOS_MEDIDAS_LEGADAS.has(k)
+|| /^(?:medida|medidas|circunferencia|circunferencias|perimetro|perimetros|dobra|dobras)(?:_|$)/.test(k)
+|| /^(?:braco|coxa|panturrilha|antebraco|torax|cintura|quadril|abdomen|pescoco)(?:_|$)/.test(k)
+|| /^(?:percentual|porcentagem)_(?:de_)?gordura/.test(k);
 }
 function semMedidasNaAnamnese(registro){
 if(!registro||typeof registro!=="object")return registro;
-return Object.fromEntries(Object.entries(registro).filter(([chave])=>!ehMedidaLegada(chave)).map(([chave,valor])=>[chave,valor&&typeof valor==="object"&&!Array.isArray(valor)?semMedidasNaAnamnese(valor):valor]));
+if(Array.isArray(registro))return registro.map(semMedidasNaAnamnese);
+return Object.fromEntries(Object.entries(registro).filter(([chave])=>!ehMedidaLegada(chave)).map(([chave,valor])=>[chave,valor&&typeof valor==="object"?semMedidasNaAnamnese(valor):valor]));
+}
+function formatarValorAnamnese(chave,valor){
+const texto=String(valor??"—").trim();
+const k=normalizarChaveAnamnese(chave);
+if(/(?:^|_)(?:horas?_?sono|sono_?horas?|duracao_?sono|tempo_?sono)(?:_|$)/.test(k)){
+const limpo=texto.toLowerCase().replace(/\s*(?:horas?|hrs?|h)\b/g,"").trim();
+const intervalo=limpo.match(/^(\d{1,2})\s*(?:_|-|a|ate|à)\s*(\d{1,2})$/);
+if(intervalo)return `Entre ${intervalo[1]}h e ${intervalo[2]}h de sono por noite`;
+if(/^\d{1,2}$/.test(limpo))return `${limpo}h de sono por noite`;
+}
+return texto;
 }
 
 function exibirRespostas(destino,objeto){
@@ -430,7 +448,7 @@ texto="resposta" in resposta
 (resposta.descricao?" — "+resposta.descricao:"")
 :JSON.stringify(resposta);
 }else texto=String(resposta??"—");
-adicionarTexto(item,"div",texto);
+adicionarTexto(item,"div",formatarValorAnamnese(chave,texto));
 grade.appendChild(item);
 }
 bloco.appendChild(grade);
@@ -479,7 +497,7 @@ const outras=valores.filter(([,v])=>!["sim","yes","nao","não","no"].includes(St
 for(const [chave,valor] of [...positivas,...outras]){
 const bloco=elemento("div","wand-anamnese-nota");
 adicionarTexto(bloco,"strong",chave.replaceAll("_"," "));
-adicionarTexto(bloco,"p",String(valor));
+adicionarTexto(bloco,"p",formatarValorAnamnese(chave,valor));
 notas.appendChild(bloco);
 }
 if(!positivas.length&&!outras.length)adicionarTexto(notas,"p","Nenhuma resposta personalizada registrada neste histórico, ou apenas respostas negativas.","muted");
