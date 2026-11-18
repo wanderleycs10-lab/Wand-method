@@ -482,6 +482,16 @@ destino.appendChild(bloco);
 }
 }
 
+const perguntasTriagemCoach={
+ triagem_coracao:"Algum médico já informou que você possui uma condição cardíaca ou precisa de cuidados específicos para praticar exercícios?",
+ triagem_peito:"Você sente dor ou desconforto no peito durante a prática de atividades físicas?",
+ triagem_tontura:"Você já apresentou tontura intensa, desmaio ou perda de equilíbrio durante atividades físicas?",
+ triagem_articular:"Você possui alguma condição óssea, muscular ou articular que possa ser agravada pela prática de exercícios?",
+ triagem_pressao:"Algum profissional de saúde já informou que você possui pressão arterial elevada ou outra condição cardiovascular?",
+ triagem_respiratoria:"Você possui alguma condição respiratória que provoque falta de ar, chiado ou dificuldade para respirar durante esforços?",
+ triagem_metabolica:"Você possui diabetes ou outra condição metabólica que precise ser considerada durante a prática de exercícios?",
+ triagem_medicamentos:"Você utiliza medicamentos que possam afetar frequência cardíaca, pressão arterial, equilíbrio ou resposta ao exercício?"
+};
 function resumoInteligenteAnamnese(registro){
 const painel=elemento("div","wand-anamnese-resumo");
 const respostas=registro&&typeof registro==="object"?semMedidasNaAnamnese(registro):{};
@@ -506,7 +516,8 @@ adicionarTexto(alertas,"h4","Triagem de saúde · pontos para revisar");
 if(sim.length){
 for(const [chave,valor] of sim){
 const bloco=elemento("div","wand-anamnese-alerta");
-adicionarTexto(bloco,"strong","● SIM · "+chave.replace(/^triagem_/,"").replaceAll("_"," "));
+adicionarTexto(bloco,"strong",perguntasTriagemCoach[chave]||chave.replace(/^triagem_/,"").replaceAll("_"," "));
+adicionarTexto(bloco,"p","Resposta: SIM");
 adicionarTexto(bloco,"p",String(valor.descricao||"Sem detalhamento informado."));
 alertas.appendChild(bloco);
 }
