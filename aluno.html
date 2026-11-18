@@ -765,12 +765,21 @@ function fichaTexto(valor){return valor===null||valor===undefined||String(valor)
 function fichaLinha(pai,rotulo,valor){const linha=document.createElement("div");linha.className="ficha-line";const titulo=document.createElement("span");titulo.textContent=rotulo;const dado=document.createElement("strong");dado.textContent=fichaTexto(valor);linha.append(titulo,dado);pai.append(linha);}
 function fichaIdade(data){if(!/^\d{4}-\d{2}-\d{2}$/.test(data||""))return "Não informado";const [ano,mes,dia]=data.split("-").map(Number);const hoje=new Date();let idade=hoje.getFullYear()-ano;if(hoje.getMonth()+1<mes||(hoje.getMonth()+1===mes&&hoje.getDate()<dia))idade--;return idade>=0&&idade<125?idade+" anos":"Não informado";}
 function fichaData(data){if(!/^\d{4}-\d{2}-\d{2}$/.test(data||""))return "Não informado";const [ano,mes,dia]=data.split("-");return dia+"/"+mes+"/"+ano;}
+function rolarParaDetalheFicha(){
+ const detalhe=document.getElementById("dadosFicha");
+ if(!detalhe||detalhe.hidden)return;
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const margem=18;
+  const topo=detalhe.getBoundingClientRect().top+window.scrollY-margem;
+  window.scrollTo({top:Math.max(0,top),behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+ }));
+}
 function mostrarAbaFicha(aba){
 const detalhe=$("dadosFicha");const botoes=document.querySelectorAll("[data-ficha-tab]");
-if(fichaAbaAberta===aba){fichaAbaAberta=null;detalhe.hidden=true;botoes.forEach(b=>b.setAttribute("aria-expanded","false"));return;}
+if(fichaAbaAberta===aba){rolarParaDetalheFicha();return;}
 fichaAbaAberta=aba;botoes.forEach(b=>b.setAttribute("aria-expanded",String(b.dataset.fichaTab===aba)));detalhe.hidden=false;detalhe.replaceChildren();
 const titulo=document.createElement("h3");titulo.textContent=({pessoais:"Dados pessoais",contato:"Contato e conta",seguranca:"Gerenciar minha conta"})[aba]||"Minha Ficha";detalhe.append(titulo);
-if(!fichaDados){const p=document.createElement("p");p.className="muted";p.textContent="Não foi possível consultar os dados cadastrais agora.";detalhe.append(p);return;}
+if(!fichaDados){const p=document.createElement("p");p.className="muted";p.textContent="Não foi possível consultar os dados cadastrais agora.";detalhe.append(p);rolarParaDetalheFicha();return;}
 if(aba==="pessoais"){fichaLinha(detalhe,"Nome completo",fichaDados.nome_completo);fichaLinha(detalhe,"Data de nascimento",fichaData(fichaDados.data_nascimento));fichaLinha(detalhe,"Idade",fichaIdade(fichaDados.data_nascimento));fichaLinha(detalhe,"Sexo",fichaDados.sexo);}
 if(aba==="contato"){fichaLinha(detalhe,"E-mail cadastrado",fichaDados.email);fichaLinha(detalhe,"WhatsApp",fichaDados.whatsapp);fichaLinha(detalhe,"Situação do cadastro",fichaDados.Status==="Ativo"?"Ativo":fichaDados.Status==="Inativo"?"Inativo":"Não informado");}
 if(aba==="seguranca"){
@@ -778,6 +787,7 @@ if(aba==="seguranca"){
  for(const [rotulo,acao] of opcoes){const b=document.createElement("button");b.type="button";b.className="ficha-option";b.textContent=rotulo+" ›";b.addEventListener("click",()=>abrirGerenciamentoFicha(acao));detalhe.append(b);}
  const area=document.createElement("div");area.id="fichaGerenciarDetalhe";detalhe.append(area);
 }
+rolarParaDetalheFicha();
 }
 function fichaCampo(form,rotulo,nome,valor,tipo="text"){
  const label=document.createElement("label");label.className="ficha-input-label";label.textContent=rotulo;
