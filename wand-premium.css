@@ -42,3 +42,20 @@ details{border-color:#7d8189}summary,a{accent-color:#e8b84e}
 .wand-overview>button.wand-overview-item .wand-overview-note{color:#d3cbc0!important}
 .wand-overview>button.wand-overview-item:focus-visible{outline:2px solid #ffd16b;outline-offset:3px}
 @media(max-width:430px){.wand-overview>button.wand-overview-item{padding:11px 8px!important}}
+
+/* WAND METHOD — Sistema visual unificado v5 (18/11/2026).
+   Aplicável às páginas que importam wand-premium.css.
+   Componentes de leitura e detalhes preservam semântica e comportamento. */
+:root{--wand-surface:linear-gradient(148deg,#2e2d2b 0%,#1b1b1b 28%,#101010 75%,#271d12 100%);--wand-border:#a0a3a9;--wand-glow:#d7a74435;--wand-radius:22px;--wand-shadow:inset 0 2px 1px #f5f6f777,inset 0 -3px 8px #d5a54424,0 11px 23px #000b,0 0 12px #c69a2d20}
+.card,.subcard,.metric,.welcome,.wt-smart-card,.treino-item,.exercicio,.grupo-conjugado,.item-bib,.wc-row,.wc-person,.aluno,.pedido,.notice,.sub-card,.status-card,.panel-card,.modal-content,.modal-card,.form-card,.wand-anamnese-destaques,.wand-anamnese-contador{background:var(--wand-surface);border:1px solid var(--wand-border);border-radius:var(--wand-radius);box-shadow:var(--wand-shadow);min-width:0}
+.card>.grid,.subcard>.grid{min-width:0}
+.card .metric,.subcard .metric{background:linear-gradient(150deg,#222,#111 75%,#251b10);border-color:#898d96;border-radius:19px;box-shadow:inset 0 2px #f0f1f34c,inset 0 -3px 8px #c5962e20,0 7px 15px #0009}
+.card .metric strong,.subcard .metric strong{color:#eac15f}
+.card .metric span,.subcard .metric span{color:#f7f5f0}
+.card details,.subcard details{border-radius:17px}
+.card summary,.subcard summary{cursor:pointer;color:#f0c55f}
+.wand-anamnese-resumo .wand-anamnese-contador,.wand-anamnese-resumo .wand-anamnese-destaques{background:var(--wand-surface);border-color:#92969e;box-shadow:var(--wand-shadow)}
+.wand-anamnese-resumo .wand-anamnese-destaques>div,.wand-anamnese-resumo .wand-anamnese-destaques article{border-radius:16px}
+main,section,article{min-width:0}
+@media(max-width:600px){.card,.subcard,.metric,.wand-anamnese-destaques{border-radius:19px}main{padding-bottom:max(115px,env(safe-area-inset-bottom))}}
+@media print{.card,.subcard,.metric{box-shadow:none!important;background:#fff!important;color:#111!important;border:1px solid #999!important}}
