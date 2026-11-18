@@ -242,7 +242,7 @@ async function wcMostrarHistoricoAcompanhamentos(){
   resumo.textContent=(aluno?.nome_completo||e.aluno_nome||'Aluno '+(e.aluno_id||''))+' · '+dataFormatada;card.append(resumo);const descricao=document.createElement('p');descricao.textContent=tipo;descricao.style.color='#f2d18b';card.append(descricao);
   if(e._pedido){
    const p=document.createElement('p');p.textContent='Situação: '+(e.status||e.situacao||'Não informada');card.append(p);
-   const link=document.createElement('a');link.href='#wc/bemestar/item/3';link.textContent='Consultar solicitação';card.append(link);
+   const link=document.createElement('a');link.href='#wc/comunicacao/item/2';link.textContent='Consultar solicitação';card.append(link);
   }else{
    for(const m of e.alteracoes||[]){
     const p=document.createElement('p');p.style.cssText='border-top:1px solid #51442d;padding-top:10px';
@@ -267,7 +267,7 @@ async function wcCarregarAlteracoesSaude(){
  $('wcAlteracoesSaude').hidden=totalPendentes===0;
  estado.textContent=pendentes.length?pendentes.length+' alteração(ões) de saúde para revisar.':'Nenhuma alteração de saúde pendente.';
  const pedidosPendentes=pedidosCarregados.filter(p=>String(p.status||p.situacao||'').toLowerCase()==='pendente');
- if(pedidosPendentes.length){const resumo=document.createElement('p');resumo.textContent=pedidosPendentes.length+' solicitação(ões) de adaptação pendente(s).';lista.append(resumo);const link=document.createElement('a');link.href='#wc/bemestar/item/3';link.textContent='Abrir solicitações para analisar';lista.append(link);}
+ if(pedidosPendentes.length){const resumo=document.createElement('p');resumo.textContent=pedidosPendentes.length+' solicitação(ões) de adaptação pendente(s).';lista.append(resumo);const link=document.createElement('a');link.href='#wc/comunicacao/item/2';link.textContent='Abrir solicitações para analisar';lista.append(link);}
  const mostrarRevisadas=false;
  for(const e of eventos){
   const chave=e.id||e.data+e.tipo;
