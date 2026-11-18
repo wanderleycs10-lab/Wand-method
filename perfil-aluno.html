@@ -275,8 +275,10 @@ if(modoAnamneseExclusiva)document.documentElement.classList.add("wand-anamnese-e
 document.addEventListener('DOMContentLoaded',()=>{
   const voltar=document.getElementById('voltarOrigemPerfil');
   if(modoAnamneseExclusiva&&voltar){
-    voltar.href='admin.html#wc/anamnese';
-    voltar.textContent='← Voltar para Anamneses';
+    const origem=parametrosRetorno.get('origem');
+    const rotaSegura=origem&&/^#wc\/(?:anamnese|avaliacao|fotografica|evolucao|treinos)(?:\/[a-zA-Z0-9_/%-]+)*$/.test(origem)?origem:'#wc/anamnese';
+    voltar.href='admin.html'+rotaSegura;
+    voltar.textContent='← Voltar à lista de alunos';
   }
 });
 const programaRetorno=parametrosRetorno.get("programa_id");
