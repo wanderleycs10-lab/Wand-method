@@ -174,7 +174,7 @@ footer{
 .ficha-tile[aria-expanded="true"]{border-color:#eac56c;box-shadow:inset 0 2px 1px #ffffff2b,0 0 14px #d6a53b38,0 9px 18px #0009}
 .ficha-tile small{color:#bdbdbd;font-size:12px;font-weight:400;line-height:1.35}
 .ficha-icon{color:#e8bc5c;font-size:26px;line-height:1}
-.ficha-detail{margin-top:16px;border:1px solid #92918e;border-radius:19px;padding:18px;background:linear-gradient(145deg,#242322,#121212 65%,#211b14);box-shadow:inset 0 1px #ffffff20,0 8px 18px #0008}
+.ficha-detail{scroll-margin-top:18px;margin-top:16px;border:1px solid #92918e;border-radius:19px;padding:18px;background:linear-gradient(145deg,#242322,#121212 65%,#211b14);box-shadow:inset 0 1px #ffffff20,0 8px 18px #0008}
 .ficha-detail h3{color:#f2f2f2;margin:0 0 14px;font-size:17px}
 .ficha-line{padding:11px 0;border-bottom:1px solid #ffffff20;overflow-wrap:anywhere}
 .ficha-line:last-child{border-bottom:0}
@@ -768,10 +768,10 @@ function fichaData(data){if(!/^\d{4}-\d{2}-\d{2}$/.test(data||""))return "Não i
 function rolarParaDetalheFicha(){
  const detalhe=document.getElementById("dadosFicha");
  if(!detalhe||detalhe.hidden)return;
+ // Rola o próprio conteúdo para trazer a seção aberta à tela, mesmo
+ // quando o navegador usa um contêiner de rolagem diferente de window.
  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-  const margem=18;
-  const topo=detalhe.getBoundingClientRect().top+window.scrollY-margem;
-  window.scrollTo({top:Math.max(0,top),behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+  detalhe.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start",inline:"nearest"});
  }));
 }
 function mostrarAbaFicha(aba){
