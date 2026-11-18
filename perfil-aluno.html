@@ -274,9 +274,9 @@ const modoAnamneseExclusiva=abaRetorno==="anamnese";
 if(modoAnamneseExclusiva)document.documentElement.classList.add("wand-anamnese-exclusiva");
 document.addEventListener('DOMContentLoaded',()=>{
   const voltar=document.getElementById('voltarOrigemPerfil');
-  if(modoAnamneseExclusiva&&voltar){
+  if(voltar){
     const origem=parametrosRetorno.get('origem');
-    const rotaSegura=origem&&/^#wc\/(?:anamnese|avaliacao|fotografica|evolucao|treinos)(?:\/[a-zA-Z0-9_/%-]+)*$/.test(origem)?origem:'#wc/anamnese';
+    const rotaSegura=origem&&/^#wc\/(?:alunos|anamnese|avaliacao|fotografica|evolucao|treinos)(?:\/[a-zA-Z0-9_/%-]+)*$/.test(origem)?origem:(modoAnamneseExclusiva?'#wc/anamnese':'#wc/alunos/students/ativos');
     voltar.href='admin.html'+rotaSegura;
     voltar.textContent='← Voltar à lista de alunos';
   }
