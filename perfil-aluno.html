@@ -534,6 +534,30 @@ painel.appendChild(completos);
 return painel;
 }
 
+function painelAlteracoesAnamnese(registros){
+ const eventos=registros.flatMap(r=>Array.isArray(r.respostas?._historico_alteracoes)?r.respostas._historico_alteracoes:[]);
+ const unicos=[...new Map(eventos.map(e=>[e.id||e.data+e.tipo,e])).values()].sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+ const bloco=elemento("section","wand-anamnese-destaques");
+ bloco.appendChild(elemento("h4",null,"Alterações de saúde e anamnese"));
+ if(!unicos.length){bloco.appendChild(elemento("p","muted","Nenhuma alteração posterior à conclusão registrada."));return bloco;}
+ bloco.appendChild(elemento("p","muted",unicos.length+" atualização(ões) registrada(s). Confira somente as respostas modificadas abaixo."));
+ for(const e of unicos){
+  const detalhe=elemento("details","wand-anamnese-alerta");
+  const data=e.data?new Date(e.data).toLocaleString("pt-BR"):"Data não informada";
+  detalhe.appendChild(elemento("summary",null,(e.tipo==="triagem_saude"?"Triagem de saúde alterada":"Anamnese personalizada alterada")+" · "+data));
+  for(const mudanca of e.alteracoes||[]){
+   const linha=elemento("div","ficha-line");
+   linha.appendChild(elemento("strong",null,mudanca.pergunta||mudanca.campo||"Campo"));
+   const fmt=v=>v==null||v===""?"Não informado":typeof v==="object"?(v.resposta||"—")+(v.descricao?" — "+v.descricao:""):String(v);
+   linha.appendChild(elemento("p",null,"Anterior: "+fmt(mudanca.anterior)));
+   linha.appendChild(elemento("p",null,"Novo: "+fmt(mudanca.novo)));
+   detalhe.appendChild(linha);
+  }
+  bloco.appendChild(detalhe);
+ }
+ return bloco;
+}
+
 async function carregarAnamneses(){
 const area=$("anamneses");
 const {data,error}=await db.from("anamneses")
@@ -546,6 +570,7 @@ if(!data?.length){
 adicionarTexto(area,"p","Este aluno ainda não possui anamnese.","muted");
 return;
 }
+area.appendChild(painelAlteracoesAnamnese(data));
 for(const [i,a] of data.entries()){
 const detalhe=elemento("details");
 const resumo=elemento("summary",null,
