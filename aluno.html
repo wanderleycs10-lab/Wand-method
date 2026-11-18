@@ -225,6 +225,16 @@ body{background:radial-gradient(ellipse at 90% 12%,#38220745,transparent 34%),ra
 #homeView .nav-name{font-size:14px;color:#f6f1e7}
 #homeView .nav-desc{font-size:11px;color:#c9c1b5}
 @media(max-width:620px){#homeView .nav-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#homeView .wand-overview{gap:7px}#homeView .wand-overview>button.wand-overview-item{padding:11px 8px!important;min-height:165px!important;border-radius:16px!important}#homeView .wand-metric-heading{font-size:11px;flex-wrap:wrap}#homeView .wand-metric-heading svg{width:19px;height:19px}#homeView .wand-overview-value{font-size:19px}#homeView .wand-overview-note{font-size:11px}#homeView .wt-smart-card{padding:19px}}
+
+/* Navegação premium por ilha fixa — aluno */
+main{padding-bottom:135px!important}
+.wand-dock{position:fixed;z-index:1200;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(95vw,650px);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:9px 7px;border:1px solid #d3a54c;border-radius:23px;background:linear-gradient(145deg,#30210f,#080808 55%,#291c0d);box-shadow:inset 0 1px #ffe8a999,0 0 23px #dca53644,0 12px 24px #000e}
+.wand-dock button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:52px;padding:5px 1px;border:0;border-radius:13px;background:transparent!important;color:#f6c85e!important;box-shadow:none!important;font:inherit;cursor:pointer}
+.wand-dock button span{font-size:25px;line-height:1.1}.wand-dock button small{font-size:10px;color:#f0dfbd}.wand-dock button:focus-visible{outline:2px solid #ffe7a1}
+.wand-drawer[hidden]{display:none!important}.wand-drawer{position:fixed;z-index:1199;bottom:calc(91px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(95vw,650px);max-height:min(70dvh,680px);overflow:auto;padding:17px;border:1px solid #d0a44b;border-radius:22px;background:linear-gradient(150deg,#21170d,#090909 75%);box-shadow:0 0 30px #000,0 0 18px #e2ae3b55}
+.wand-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px;color:#f6cf74}.wand-drawer-head button{background:#20180c;border:1px solid #ae873c;border-radius:10px;padding:8px;color:#f6cf74}
+.wand-drawer .nav-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.wand-drawer .nav-tile{min-height:110px;justify-content:center;align-items:center;text-align:center;padding:10px}.wand-drawer .nav-name{font-size:13px}.wand-drawer .nav-desc{font-size:11px}
+@media(max-width:400px){.wand-dock button small{font-size:9px}}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#080808">
@@ -247,7 +257,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 @media(max-width:430px){.nav-tile{min-height:122px;padding:14px 11px}.wand-overview{gap:7px}.wand-overview-item{padding:11px 8px}.wand-overview-label{font-size:11px}.wand-overview-note{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.nav-tile{transition:none}}
 </style>
-<link rel="stylesheet" href="./wand-premium.css?v=20261117-5">
+<link rel="stylesheet" href="./wand-premium.css?v=20261117-9">
 </head>
 
 <body>
@@ -277,7 +287,9 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
     <div class="wand-section-heading"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M7 14h3m4 0h3"/></svg><h2>Treino de hoje</h2></div>
     <section id="wtProximoCard" class="wt-smart-card" aria-label="Treino de hoje"><h2>Preparado para o treino de hoje?</h2><p id="wtProximoEstado" class="muted">Consultando sua prescrição e histórico...</p><div id="wtProximoAcoes"></div></section>
     <section class="wand-progress-section" aria-label="Progresso mensal"><div class="wand-section-heading"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20V4M3 20h18M7 16v-5m5 5V8m5 8V5"/></svg><h2>Seu progresso</h2></div><div class="wand-progress-card"><div class="wand-progress-row"><strong id="wandProgressoTitulo">Consultando histórico...</strong><strong id="wandProgressoPercentual">—</strong></div><div class="wand-progress-track"><span id="wandProgressoBarra"></span></div><p id="wandProgressoNota">Acompanhamento dos treinos concluídos neste mês.</p></div></section>
-    <h2 class="wand-menu-heading">Seu espaço de treinamento</h2>
+  </section>
+
+<nav class="wand-dock" aria-label="Navegação do aluno"><button type="button" data-dock-home aria-label="Início"><span>⌂</span><small>Início</small></button><button type="button" data-view="treinos" aria-label="Treinos"><span>▤</span><small>Treinos</small></button><button type="button" data-view="evolucao" aria-label="Evolução"><span>▥</span><small>Evolução</small></button><button type="button" data-view="bemestar" aria-label="Bem-estar"><span>♡</span><small>Bem-estar</small></button><button type="button" id="wandDockMenu" aria-expanded="false" aria-label="Menu"><span>☷</span><small>Menu</small></button></nav><div id="wandDockDrawer" class="wand-drawer" hidden><div class="wand-drawer-head"><strong>Meu espaço de treinamento</strong><button type="button" id="wandDockClose">Fechar ×</button></div>    
     <nav class="nav-grid" aria-label="Áreas do aluno">
       <button type="button" class="nav-tile" data-view="treinos"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="11" width="3.5" height="10" rx="1"/><rect x="6.5" y="8.5" width="5" height="15" rx="1.2"/><path d="M11.5 16h9"/><rect x="20.5" y="8.5" width="5" height="15" rx="1.2"/><rect x="26" y="11" width="3.5" height="10" rx="1"/></svg></span><span class="nav-name">Meus Treinos</span><span class="nav-desc">Exercícios e séries</span></button>
       <button type="button" class="nav-tile" data-view="ficha"><span class="nav-icon">▤</span><span class="nav-name">Minha Ficha</span><span class="nav-desc">Dados e saúde</span></button>
@@ -289,8 +301,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
        <button type="button" class="nav-tile" data-view="coins"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="13"/><circle cx="16" cy="16" r="9.5"/><path d="M19.5 12.5c-1-1.2-2-1.6-3.6-1.6-2.1 0-3.5 1-3.5 2.6 0 3.7 7 1.3 7 5.1 0 1.6-1.5 2.6-3.6 2.6-1.5 0-2.8-.6-3.8-1.7M16 9v2M16 21v2"/></svg></span><span class="nav-name">WAND Coins</span><span class="nav-desc">Conquistas e recompensas</span></button>
       <button type="button" class="nav-tile" data-view="treinador"><span class="nav-icon">☏</span><span class="nav-name">Meu Treinador</span><span class="nav-desc">Contato e suporte</span></button>
     </nav>
-  </section>
-
+</div>
   <section class="panel-view" id="view-treinos" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meus Treinos</h2><p class="muted">Consulte suas prescrições agrupadas por programa e acompanhe seu histórico. Para começar, acesse o treino de hoje no painel inicial.</p><p id="wandTreinosMsg" role="status"></p><div id="wandAdaptacaoDia" class="notice" hidden></div><div id="wandProtocolosDisponiveis" class="subcard" hidden></div><div id="wandTreinosArea"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-ficha" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Ficha</h2><p class="muted">Dados do cadastro vinculado à sua conta.</p><div id="dadosFicha" class="subcard">Carregando dados...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
@@ -860,7 +871,13 @@ $("statusPagina").textContent=
 
 // Navegacao do painel: conserva os IDs e as rotinas de avaliacao originais.
 const VIEWS=["bemestar","treinos","ficha","avaliacoes","fotografica","evolucao","coins","treinador"];
+function wandToggleMenu(open){const drawer=document.getElementById('wandDockDrawer');drawer.hidden=!open;document.getElementById('wandDockMenu').setAttribute('aria-expanded',String(open));}
+document.getElementById('wandDockMenu').addEventListener('click',()=>wandToggleMenu(document.getElementById('wandDockDrawer').hidden));
+document.getElementById('wandDockClose').addEventListener('click',()=>wandToggleMenu(false));
+document.querySelector('[data-dock-home]').addEventListener('click',()=>mostrarVista(null));
+document.querySelectorAll('#wandDockDrawer a').forEach(a=>a.addEventListener('click',()=>wandToggleMenu(false)));
 function mostrarVista(nome, atualizarEndereco=true){
+  wandToggleMenu(false);
   const valido=VIEWS.includes(nome)?nome:null;
   if(atualizarEndereco){
     const url=new URL(location.href);
