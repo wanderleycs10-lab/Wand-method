@@ -36,8 +36,8 @@
       --fundo:#101010;
       --painel:#1d1d1d;
       --borda:#514627;
-      display:block!important;
-      visibility:visible!important;
+      display:block;
+      visibility:visible;
       opacity:1!important;
       position:relative!important;
       width:100%;
@@ -293,7 +293,7 @@
     }
 
     if (!container.isConnected) {
-      document.body.appendChild(container);
+      (document.getElementById("area-fotos") || document.body).appendChild(container);
     }
 
     container.replaceChildren();
