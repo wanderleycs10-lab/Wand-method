@@ -846,7 +846,7 @@ function abrirGerenciamentoFicha(acao){
   });
   menu.append(botao);
  }
- area.append(menu,conteudo);return;
+ const acesso=document.createElement("a");acesso.href="contratos-aluno.html";acesso.textContent="Abrir meus contratos e propostas";acesso.style.cssText="display:inline-block;background:#d4af37;color:#080808;padding:13px 16px;border-radius:10px;font-weight:bold;text-decoration:none;margin:12px 0";area.insertBefore(acesso,menu);area.append(menu,conteudo);return;
 }
  const form=document.createElement("form");form.className="ficha-form";area.append(form);
  if(acao==="editar"){
