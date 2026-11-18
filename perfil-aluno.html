@@ -395,8 +395,8 @@ destino.appendChild(bloco);
 function resumoInteligenteAnamnese(registro){
 const painel=elemento("div","wand-anamnese-resumo");
 const respostas=registro&&typeof registro==="object"?registro:{};
-const triagem=respostas.triagem&&typeof respostas.triagem==="object"?respostas.triagem:{};
-const personalizada=respostas.anamnese&&typeof respostas.anamnese==="object"?respostas.anamnese:{};
+const triagem=respostas.triagem_saude&&typeof respostas.triagem_saude==="object"?respostas.triagem_saude:{};
+const personalizada=respostas.anamnese_personalizada&&typeof respostas.anamnese_personalizada==="object"?respostas.anamnese_personalizada:{};
 const entradas=Object.entries(triagem);
 const sim=entradas.filter(([,v])=>v&&typeof v==="object"&&String(v.resposta).toLowerCase()==="sim");
 const nao=entradas.filter(([,v])=>v&&typeof v==="object"&&["nao","não"].includes(String(v.resposta).toLowerCase()));
