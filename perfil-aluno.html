@@ -161,7 +161,7 @@ summary{color:#d4af37;cursor:pointer;font-weight:bold}
 <button type="button" data-painel="fotos" aria-controls="painel-fotos">📷 Avaliação fotográfica</button>
 <button type="button" id="wandBotaoAcompanhamento" data-painel="acompanhamento" aria-controls="painel-acompanhamento">♡ Acompanhamento <span id="wandContadorPendencias" hidden></span></button>
 </nav>
-<p id="orientacaoPerfil" class="muted">Selecione uma opção acima para visualizar os detalhes.</p>
+<button type="button" id="voltarSecoesPerfil" class="wand-voltar hidden">← Voltar às seções do aluno</button>\n<p id="orientacaoPerfil" class="muted">Selecione uma opção acima para visualizar os detalhes.</p>
 
 <section id="painel-anamnese" class="card painel-perfil">
 <h2>Anamnese</h2>
@@ -363,7 +363,16 @@ function configurarGestaoAluno(){
  });
 }
 
-function exibirRespostas(destino,objeto){
+const CAMPOS_MEDIDAS_LEGADAS=new Set(["peso","altura","cintura","quadril","braco","braco_d","braco_e","coxa","coxa_d","coxa_e","panturrilha","torax","abdomen","pescoco","percentual_gordura","gordura_corporal","imc","circunferencia"]);
+function ehMedidaLegada(chave){
+const k=String(chave).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+return CAMPOS_MEDIDAS_LEGADAS.has(k)||/^(?:medida|circunferencia|dobra)_/.test(k);
+}
+function semMedidasNaAnamnese(registro){
+if(!registro||typeof registro!=="object")return registro;
+return Object.fromEntries(Object.entries(registro).filter(([chave])=>!ehMedidaLegada(chave)).map(([chave,valor])=>[chave,valor&&typeof valor==="object"&&!Array.isArray(valor)?semMedidasNaAnamnese(valor):valor]));
+}
+\nfunction exibirRespostas(destino,objeto){
 if(!objeto||typeof objeto!=="object"){
 adicionarTexto(destino,"p","Sem respostas registradas.","muted");
 return;
@@ -394,7 +403,7 @@ destino.appendChild(bloco);
 
 function resumoInteligenteAnamnese(registro){
 const painel=elemento("div","wand-anamnese-resumo");
-const respostas=registro&&typeof registro==="object"?registro:{};
+const respostas=registro&&typeof registro==="object"?semMedidasNaAnamnese(registro):{};
 const triagem=respostas.triagem_saude&&typeof respostas.triagem_saude==="object"?respostas.triagem_saude:{};
 const personalizada=respostas.anamnese_personalizada&&typeof respostas.anamnese_personalizada==="object"?respostas.anamnese_personalizada:{};
 const entradas=Object.entries(triagem);
@@ -826,12 +835,12 @@ function configurarMenuPerfil(){
       b.setAttribute('aria-expanded',String(ativo));
       b.setAttribute('aria-pressed',String(ativo));
     });
-    paineis.forEach(p=>p.classList.toggle('ativo',p.id==='painel-'+atual));
+    paineis.forEach(p=>p.classList.toggle('ativo',p.id==='painel-'+atual));\n    const menu=document.querySelector('.menu-perfil');if(menu)menu.classList.toggle('hidden',Boolean(atual));\n    const voltar=$('voltarSecoesPerfil');if(voltar)voltar.classList.toggle('hidden',!atual);
     const orientacao=$('orientacaoPerfil');
     if(orientacao)orientacao.classList.toggle('hidden',Boolean(atual));
     try{sessionStorage.setItem(chave,atual||'');}catch(e){}
   }
-  botoes.forEach(b=>b.addEventListener('click',()=>{
+  const voltar=$('voltarSecoesPerfil');if(voltar)voltar.addEventListener('click',()=>selecionar(null));\n  botoes.forEach(b=>b.addEventListener('click',()=>{
     selecionar(atual===b.dataset.painel?null:b.dataset.painel);
   }));
   let salva=null;
