@@ -232,17 +232,17 @@ async function wcMostrarHistoricoAcompanhamentos(){
  const eventos=[...new Map((data||[]).flatMap(r=>(Array.isArray(r.respostas?._historico_alteracoes)?r.respostas._historico_alteracoes:[]).map(e=>[e.id||e.data+e.tipo,{...e,aluno_id:r.aluno_id}]))).values()];
  const pedidos=pedidosCarregados.map(p=>({...p,_pedido:true,data:p.created_at||p.criado_em||p.data_solicitacao||p.dia||''}));
  const todos=[...eventos,...pedidos].sort((a,b)=>String(b.data).localeCompare(String(a.data)));
- info.textContent=todos.length?'Selecione uma notificação para visualizar os detalhes.':'Nenhuma notificação registrada no histórico.';
+ info.textContent=todos.length?todos.length+' notificação(ões) registradas no histórico. Toque em um aluno para consultar.':'Nenhuma notificação registrada no histórico.';
  for(const e of todos){
   const aluno=alunosCarregados.find(a=>String(a.id)===String(e.aluno_id));
   const card=document.createElement('details');card.style.cssText='border:1px solid #756342;border-radius:14px;margin:10px 0;padding:14px;background:linear-gradient(140deg,#252525,#121212);color:#f5f5f5';
   const resumo=document.createElement('summary');resumo.style.cssText='cursor:pointer;color:#f2d18b;font-weight:600;line-height:1.5';
   const tipo=e._pedido?'Solicitação de adaptação':e.tipo==='triagem_saude'?'Triagem de saúde alterada':'Anamnese personalizada alterada';
   const dataFormatada=e.data?new Date(e.data).toLocaleString('pt-BR'):'Data não informada';
-  resumo.textContent=tipo+' · '+(aluno?.nome_completo||'Aluno '+(e.aluno_id||''))+' · '+dataFormatada;card.append(resumo);
+  resumo.textContent=(aluno?.nome_completo||e.aluno_nome||'Aluno '+(e.aluno_id||''))+' · '+dataFormatada;card.append(resumo);const descricao=document.createElement('p');descricao.textContent=tipo;descricao.style.color='#f2d18b';card.append(descricao);
   if(e._pedido){
    const p=document.createElement('p');p.textContent='Situação: '+(e.status||e.situacao||'Não informada');card.append(p);
-   const link=document.createElement('a');link.href='#adaptacoes';link.textContent='Consultar solicitação';card.append(link);
+   const link=document.createElement('a');link.href='#wc/bemestar/item/3';link.textContent='Consultar solicitação';card.append(link);
   }else{
    for(const m of e.alteracoes||[]){
     const p=document.createElement('p');p.style.cssText='border-top:1px solid #51442d;padding-top:10px';
@@ -267,7 +267,7 @@ async function wcCarregarAlteracoesSaude(){
  $('wcAlteracoesSaude').hidden=totalPendentes===0;
  estado.textContent=pendentes.length?pendentes.length+' alteração(ões) de saúde para revisar.':'Nenhuma alteração de saúde pendente.';
  const pedidosPendentes=pedidosCarregados.filter(p=>String(p.status||p.situacao||'').toLowerCase()==='pendente');
- if(pedidosPendentes.length){const resumo=document.createElement('p');resumo.textContent=pedidosPendentes.length+' solicitação(ões) de adaptação pendente(s).';lista.append(resumo);const link=document.createElement('a');link.href='#adaptacoes';link.textContent='Abrir solicitações para analisar';lista.append(link);}
+ if(pedidosPendentes.length){const resumo=document.createElement('p');resumo.textContent=pedidosPendentes.length+' solicitação(ões) de adaptação pendente(s).';lista.append(resumo);const link=document.createElement('a');link.href='#wc/bemestar/item/3';link.textContent='Abrir solicitações para analisar';lista.append(link);}
  const mostrarRevisadas=false;
  for(const e of eventos){
   const chave=e.id||e.data+e.tipo;
