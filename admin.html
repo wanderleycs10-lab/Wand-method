@@ -113,6 +113,21 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
 #wcInner .wc-search{box-sizing:border-box;max-width:100%;min-height:54px;border:1px solid #86868b;border-radius:17px;background:linear-gradient(145deg,#252525,#101010);box-shadow:inset 0 2px 4px #0008;color:#fff;padding:14px 17px}
 #wcInner .wc-back{border-radius:16px!important;padding:14px 18px;background:linear-gradient(150deg,#393939,#181818 55%,#30251a)!important;border:1px solid #99999b!important;color:#f3d18e!important;box-shadow:inset 0 2px 1px #ffffff7a,inset 0 -3px 6px #ba90402b,0 7px 15px #0009}
 @media(max-width:600px){#wcInner{padding-bottom:135px}#wcInner .wc-student-list .wc-person{padding:17px 18px}}
+</style><style id="wand-visual-hierarchy-20261119">
+/* Hierarquia oficial: indicadores do painel mantidos; navegação grafite/prata; conclusão dourada. */
+#wcInner .wc-onboard-actions button.wc-onboard-contract,
+#wcInner .wc-onboard-actions a.botao-link {
+  background:linear-gradient(145deg,#35332f 0%,#1b1b1b 55%,#2b2116 100%)!important;
+  border:1px solid #a7acb4!important;
+  color:#f4d181!important;
+  text-shadow:none!important;
+  box-shadow:inset 0 2px 1px #ffffff60,inset 0 -3px 6px #c69a3030,0 7px 15px #0009!important;
+  font-weight:650!important;
+  border-radius:13px!important;
+}
+#wcInner .wc-onboard-actions button.wc-onboard-contract:disabled{opacity:.55}
+#wcInner .wc-onboard-actions button:focus-visible,
+#wcInner .wc-onboard-actions a:focus-visible{outline:2px solid #f0c65c;outline-offset:3px}
 </style></head>
 <body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><p>WANDCOACH · PAINEL DO TREINADOR</p></header>
 <main><p id="status" role="status">Verificando acesso...</p><section id="painel">
@@ -246,7 +261,7 @@ async function wcNovosAlunos(parent='alunos',index=1){
    const fase=document.createElement('p');fase.className='wc-onboard-phase';fase.textContent='Próxima etapa: contratação';
    const actions=document.createElement('div');actions.className='wc-onboard-actions';
    const contato=document.createElement('a');contato.className='botao-link secundario';contato.textContent='Conversar no WhatsApp';contato.target='_blank';contato.rel='noopener noreferrer';contato.href='https://wa.me/'+String(pedido.whatsapp||'').replace(/\\D/g,'')+'?text='+encodeURIComponent('Olá! Seu interesse no WAND METHOD foi aprovado. Vamos conversar sobre os próximos passos da contratação?');
-   const contratar=document.createElement('button');contratar.type='button';contratar.className='botao-link wc-onboard-contract';contratar.style.setProperty('background','linear-gradient(125deg,#b47d18 0%,#ffe49a 48%,#e1ad33 78%,#b47b13 100%)','important');contratar.style.setProperty('background-color','#d4af37','important');contratar.style.setProperty('color','#1a1205','important');contratar.style.setProperty('border','1px solid #ffdc77','important');contratar.style.setProperty('box-shadow','inset 0 2px #fff5d2,0 5px 14px #0009,0 0 13px #d4a02c35','important');contratar.textContent='Iniciar contratação';contratar.onclick=async()=>{if(!pedido.id){alert('Solicitação sem identificador. Atualize a página.');return}contratar.disabled=true;contratar.textContent='Preparando contratação...';try{const {data,error}=await supabase.rpc('wand_coach_iniciar_contratacao',{p_solicitacao_id:pedido.id});if(error)throw error;const id=Number(data);if(!Number.isSafeInteger(id)||id<=0)throw Error('A função não retornou um identificador válido de aluno.');location.href='contratos-admin.html?view=nova&aluno='+encodeURIComponent(id)}catch(e){alert('Não foi possível iniciar a contratação: '+(e.message||e));contratar.disabled=false;contratar.textContent='Iniciar contratação'}};
+   const contratar=document.createElement('button');contratar.type='button';contratar.className='botao-link wc-onboard-contract';contratar.textContent='Iniciar contratação';contratar.onclick=async()=>{if(!pedido.id){alert('Solicitação sem identificador. Atualize a página.');return}contratar.disabled=true;contratar.textContent='Preparando contratação...';try{const {data,error}=await supabase.rpc('wand_coach_iniciar_contratacao',{p_solicitacao_id:pedido.id});if(error)throw error;const id=Number(data);if(!Number.isSafeInteger(id)||id<=0)throw Error('A função não retornou um identificador válido de aluno.');location.href='contratos-admin.html?view=nova&aluno='+encodeURIComponent(id)}catch(e){alert('Não foi possível iniciar a contratação: '+(e.message||e));contratar.disabled=false;contratar.textContent='Iniciar contratação'}};
    actions.append(contato,contratar);
    const nota=document.createElement('p');nota.className='wc-onboard-note';nota.textContent='A conta ainda não foi criada. Conclua a contratação antes de liberar acesso.';
    const cadastrar=document.createElement('a');cadastrar.className='wc-onboard-register';cadastrar.href='cadastro-aluno.html';cadastrar.textContent='Cadastrar aluno após contratação →';
