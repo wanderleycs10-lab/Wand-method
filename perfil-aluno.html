@@ -75,6 +75,36 @@ body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!
 .wa-notification-fold>summary{gap:4px;padding:12px}
 .wa-notification-body{padding:12px}
 @media(max-width:390px){.wa-resumo-grade{gap:5px}.wa-resumo-card{padding:9px 3px}.wa-resumo-card small{font-size:11px}}
+
+/* Painel premium da avaliação física */
+.wand-avaliacao-recolhida{border:1px solid #8b7441;background:linear-gradient(145deg,#222 0%,#111 70%);box-shadow:0 8px 25px #0008}
+.wand-avaliacao-recolhida>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.wand-avaliacao-recolhida>summary::-webkit-details-marker{display:none}
+.wand-avaliacao-recolhida>summary:after{content:'⌄';font-size:24px;color:#e6bf58}
+.wand-avaliacao-recolhida[open]>summary:after{content:'⌃'}
+.wand-avaliacao-secao{margin:12px 0;border:1px solid #534a36;border-radius:12px;background:#141414;padding:13px}
+.wand-avaliacao-secao>summary{cursor:pointer;color:#f1c45c;font-weight:700;font-size:16px;padding:5px 2px}
+.wand-avaliacao-secao[open]>summary{margin-bottom:15px}
+.wand-avaliacao-secao .metric{background:linear-gradient(145deg,#252525,#111);border:1px solid #6e675a}
+.wand-comp-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.wand-comp-card{border:1px solid #72613c;border-radius:12px;background:linear-gradient(140deg,#24211c,#111);padding:14px}
+.wand-comp-card strong{display:block;color:#eac45e;font-size:12px;margin-bottom:6px}
+.wand-comp-card span{font-size:20px;font-weight:700}
+.wand-composicao-track{height:20px;background:#777;border-radius:20px;overflow:hidden;margin:14px 0 8px}
+.wand-composicao-fill{height:100%;background:linear-gradient(90deg,#ac7b1b,#f7d56e)}
+.wand-corpo-card{border:1px solid #6b572b;border-radius:16px;background:radial-gradient(ellipse at 50% 38%,#30302d,#0c0c0c 75%);padding:15px;margin:14px 0}
+.wand-corpo-card h4{color:#e9c45d;text-align:center;margin:0 0 8px}
+.wand-corpo-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,1.4fr) minmax(0,1fr);align-items:center;gap:6px}
+.wand-corpo-figura{width:100%;max-height:390px;filter:drop-shadow(0 0 10px #bfa05a44)}
+.wand-corpo-coluna{display:flex;flex-direction:column;gap:15px}
+.wand-corpo-coluna:first-child{text-align:right}
+.wand-corpo-tag{border:1px solid #79622c;border-radius:9px;background:#16130d;padding:8px 5px;color:#d5d5d5;font-size:12px;overflow-wrap:anywhere}
+.wand-corpo-tag strong{display:block;color:#f1c45c;font-size:12px}
+.wand-corpo-tag span{display:block;font-size:15px;font-weight:700;color:#fff}
+.wand-evolucao-tabela{width:100%;border-collapse:collapse;font-size:13px}
+.wand-evolucao-tabela th,.wand-evolucao-tabela td{padding:9px 5px;text-align:left;border-bottom:1px solid #444}
+.wand-evolucao-tabela th{color:#e9c45d}
+@media(max-width:520px){.wand-corpo-layout{grid-template-columns:minmax(0,1fr) minmax(110px,1.15fr) minmax(0,1fr)}.wand-corpo-tag{font-size:10px;padding:5px 3px}.wand-corpo-tag strong{font-size:10px}.wand-corpo-tag span{font-size:12px}}
 </style>
 <style>
 /* WAND METHOD: secoes compactas e recolhiveis no acompanhamento */
@@ -737,61 +767,56 @@ await carregarAvaliacoes();
 await carregarEvolucao();
 }
 
+function wandSecaoAvaliacao(titulo){const d=elemento("details","wand-avaliacao-secao");d.appendChild(elemento("summary",null,titulo));return d;}
+function wandNumero(a,campo){const v=a[campo];return v==null||v===""||!Number.isFinite(Number(v))?null:Number(v);}
+function wandComposicao(a,area){
+ const peso=wandNumero(a,"peso"),g=wandNumero(a,"percentual_gordura");
+ const massaG=wandNumero(a,"massa_gordura_kg")??(peso!==null&&g!==null?peso*g/100:null);
+ const massaL=wandNumero(a,"massa_livre_gordura_kg")??(peso!==null&&massaG!==null?peso-massaG:null);
+ const grade=elemento("div","wand-comp-cards");
+ for(const [rotulo,v,unidade] of [["Peso",peso,"kg"],["Gordura corporal",g,"%"],["Massa de gordura",massaG,"kg"],["Massa livre de gordura",massaL,"kg"]]){
+ const item=elemento("div","wand-comp-card");adicionarTexto(item,"strong",rotulo);adicionarTexto(item,"span",v===null?"—":valor(v)+(unidade?" "+unidade:""));grade.appendChild(item);
+ }area.appendChild(grade);
+ if(g!==null&&g>=0&&g<=100){const t=elemento("div","wand-composicao-track");t.setAttribute("role","img");t.setAttribute("aria-label","Gordura corporal: "+valor(g)+" por cento");const f=elemento("div","wand-composicao-fill");f.style.width=g+"%";t.appendChild(f);area.appendChild(t);adicionarTexto(area,"p",valor(g)+"% gordura corporal · "+valor(100-g)+"% massa livre de gordura","muted");}
+ adicionarTexto(area,"p","Estimativas de composição corporal conforme o protocolo registrado; não representam uma medição por bioimpedância.","muted");
+}
+function wandSilhueta(a,area){
+ const card=elemento("div","wand-corpo-card");adicionarTexto(card,"h4","Mapa corporal · circunferências");
+ const layout=elemento("div","wand-corpo-layout");
+ const col1=elemento("div","wand-corpo-coluna"),col2=elemento("div","wand-corpo-coluna");
+ const etiquetas=(col,campos)=>{for(const [chave,nome] of campos){const item=elemento("div","wand-corpo-tag");adicionarTexto(item,"strong",nome);adicionarTexto(item,"span",wandNumero(a,chave)===null?"—":valor(a[chave])+" cm");col.appendChild(item)}};
+ etiquetas(col1,[["braco_direito","Braço D"],["cintura","Cintura"],["coxa_direita","Coxa D"]]);
+ etiquetas(col2,[["braco_esquerdo","Braço E"],["quadril","Quadril"],["coxa_esquerda","Coxa E"]]);
+ const ns="http://www.w3.org/2000/svg";const svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 220 420");svg.setAttribute("class","wand-corpo-figura");svg.setAttribute("role","img");svg.setAttribute("aria-label","Silhueta humana ilustrativa com referências de braço, cintura, quadril e coxa");
+ const criar=(tag,attrs)=>{const e=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));svg.appendChild(e);return e};
+ criar("path",{d:"M110 16 C90 16 87 30 87 46 C87 61 97 70 102 73 L101 84 C83 89 68 90 57 100 C43 111 38 144 32 170 L20 218 Q17 232 24 235 Q30 236 33 226 L48 183 L63 134 L67 198 Q65 225 69 249 L73 316 L77 390 Q79 405 94 405 L101 397 L105 325 L110 268 L115 325 L119 397 L126 405 Q141 405 143 390 L147 316 L151 249 Q155 225 153 198 L157 134 L172 183 L187 226 Q190 236 196 235 Q203 232 200 218 L188 170 C182 144 177 111 163 100 C152 90 137 89 119 84 L118 73 C123 70 133 61 133 46 C133 30 130 16 110 16 Z",fill:"#b4b4ae",stroke:"#f3e6c3","stroke-width":2,opacity:".9"});
+ for(const [x1,y1,x2,y2] of [[48,150,69,150],[151,150,172,150],[65,205,155,205],[70,242,150,242],[75,302,105,302],[115,302,145,302]])criar("line",{x1,y1,x2,y2,stroke:"#f1c45c","stroke-width":3,"stroke-dasharray":"5 4"});
+ layout.append(col1,svg,col2);card.appendChild(layout);adicionarTexto(card,"p","Silhueta ilustrativa, não representa a forma corporal real do aluno.","muted");area.appendChild(card);
+}
+function wandComparacao(a,area){
+ const anteriores=avaliacoes.filter(x=>x.id!==a.id&&new Date(x.data_avaliacao)<=new Date(a.data_avaliacao)).sort((x,y)=>new Date(y.data_avaliacao)-new Date(x.data_avaliacao));const anterior=anteriores[0];
+ if(!anterior){adicionarTexto(area,"p","A evolução comparativa aparecerá após a próxima avaliação.","muted");return;}
+ const tabela=elemento("table","wand-evolucao-tabela");const thead=elemento("thead"),tr=elemento("tr");for(const h of ["Indicador","Anterior","Atual","Variação"])tr.appendChild(elemento("th",null,h));thead.appendChild(tr);tabela.appendChild(thead);const body=elemento("tbody");
+ for(const [campo,nome,unidade] of [...CAMPOS,...DOBRAS.map(([c,n])=>[c,n,"mm"])]){
+ const antes=wandNumero(anterior,campo),atual=wandNumero(a,campo);if(antes===null||atual===null)continue;
+ const linha=elemento("tr");const diff=atual-antes;const variacao=campo==="percentual_gordura"?((diff>0?"+":"")+valor(diff)+" p.p."):(antes===0?"—":(diff>0?"+":"")+valor(diff/antes*100)+"%");
+ for(const t of [nome,valor(antes)+" "+unidade,valor(atual)+" "+unidade,variacao])linha.appendChild(elemento("td",null,t));body.appendChild(linha);
+ }tabela.appendChild(body);if(body.children.length)area.appendChild(tabela);else adicionarTexto(area,"p","Ainda não há indicadores comparáveis.","muted");
+ adicionarTexto(area,"p","Para medidas e dobras, variação percentual relativa à avaliação anterior; para gordura corporal, diferença em pontos percentuais.","muted");
+}
 function montarAvaliacao(a){
-const card=elemento("details","subcard");
-card.classList.add("wand-avaliacao-recolhida");
-const cabecalho=elemento("summary",null,
-"Avaliação #"+a.id+" · "+dataBR(a.data_avaliacao));
-cabecalho.style.cssText="cursor:pointer;color:#f0c45c;font-size:1.1rem;font-weight:700;padding:5px 0;";
-card.appendChild(cabecalho);
-const conteudo=elemento("div");
-conteudo.style.marginTop="16px";
-const situacao=a.status_avaliacao||"rascunho";
-adicionarTexto(conteudo,"span",
-situacao==="liberada"?"Liberada ao aluno":
-situacao==="pendente"?"Pendente de aprovação":"Rascunho","status");
+const card=elemento("details","subcard wand-avaliacao-recolhida");
+const cabecalho=elemento("summary",null,"Avaliação #"+a.id+" · "+dataBR(a.data_avaliacao));card.appendChild(cabecalho);
+const conteudo=elemento("div");conteudo.style.marginTop="16px";
+const situacao=a.status_avaliacao||"rascunho";adicionarTexto(conteudo,"span",situacao==="liberada"?"Liberada ao aluno":situacao==="pendente"?"Pendente de aprovação":"Rascunho","status");
 if(a.liberada_em)adicionarTexto(conteudo,"p","Liberada em "+dataBR(a.liberada_em),"muted");
-const dobras=DOBRAS.filter(([campo])=>a[campo]!=null);
-if(dobras.length){
-const detalhe=elemento("details");
-detalhe.appendChild(elemento("summary",null,"Dobras cutâneas registradas"));
-gradeMedidas(detalhe,a,DOBRAS.map(([campo,nome])=>[campo,nome,"mm"]));
-conteudo.appendChild(detalhe);
-}
-const resultados=elemento("details");
-resultados.appendChild(elemento("summary",null,"Resultados"));
-gradeMedidas(resultados,a);
-alertaAssimetria(resultados,a);
-conteudo.appendChild(resultados);
-if(a.observacoes){
-const obs=elemento("details");
-obs.appendChild(elemento("summary",null,"Observações"));
-adicionarTexto(obs,"p",a.observacoes);
-conteudo.appendChild(obs);
-}
-const parecer=elemento("details");
-parecer.appendChild(elemento("summary",null,"Parecer profissional"));
-adicionarTexto(parecer,"p",a.parecer_profissional||"Parecer ainda não preenchido.",a.parecer_profissional?null:"muted");
-conteudo.appendChild(parecer);
-if(situacao!=="liberada"){
-const label=elemento("label");
-label.textContent="Parecer para liberação";
-const textarea=elemento("textarea");
-textarea.rows=4;
-textarea.value=a.parecer_profissional||"";
-label.appendChild(textarea);
-conteudo.appendChild(label);
-const feedback=elemento("p","muted");
-const botao=criarBotao("Finalizar e liberar ao aluno",()=>aprovarAvaliacao(a,botao,feedback));
-conteudo.append(botao,feedback);
-}else{
-const retificacao=criarRetificacao(a);
-const resumo=retificacao.querySelector("summary");
-if(resumo)resumo.textContent="Corrigir avaliação";
-conteudo.appendChild(retificacao);
-}
-card.appendChild(conteudo);
-return card;
+const dobras=wandSecaoAvaliacao("1. Dobras cutâneas registradas (mm)");gradeMedidas(dobras,a,DOBRAS.map(([campo,nome])=>[campo,nome,"mm"]));conteudo.appendChild(dobras);
+const medidas=wandSecaoAvaliacao("2. Medidas corporais (cm)");gradeMedidas(medidas,a,CAMPOS.slice(1,7));alertaAssimetria(medidas,a);conteudo.appendChild(medidas);
+const resultados=wandSecaoAvaliacao("3. Resultados da avaliação");wandComposicao(a,resultados);wandSilhueta(a,resultados);const comparativo=wandSecaoAvaliacao("Evolução comparativa");wandComparacao(a,comparativo);resultados.appendChild(comparativo);conteudo.appendChild(resultados);
+if(a.observacoes){const obs=wandSecaoAvaliacao("Observações");adicionarTexto(obs,"p",a.observacoes);conteudo.appendChild(obs);}
+const parecer=wandSecaoAvaliacao("4. Parecer profissional");adicionarTexto(parecer,"p",a.parecer_profissional||"Parecer ainda não preenchido.",a.parecer_profissional?null:"muted");conteudo.appendChild(parecer);
+if(situacao!=="liberada"){const label=elemento("label");label.textContent="Parecer para liberação";const textarea=elemento("textarea");textarea.rows=4;textarea.value=a.parecer_profissional||"";label.appendChild(textarea);conteudo.appendChild(label);const feedback=elemento("p","muted");const botao=criarBotao("Finalizar e liberar ao aluno",()=>aprovarAvaliacao(a,botao,feedback));conteudo.append(botao,feedback);}else{const retificacao=criarRetificacao(a);const resumo=retificacao.querySelector("summary");if(resumo)resumo.textContent="Corrigir avaliação";retificacao.classList.add("wand-avaliacao-secao");conteudo.appendChild(retificacao);}
+card.appendChild(conteudo);return card;
 }
 
 async function carregarAvaliacoes(){
