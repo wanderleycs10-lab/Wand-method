@@ -105,6 +105,25 @@ body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!
 .wand-evolucao-tabela th,.wand-evolucao-tabela td{padding:9px 5px;text-align:left;border-bottom:1px solid #444}
 .wand-evolucao-tabela th{color:#e9c45d}
 @media(max-width:520px){.wand-corpo-layout{grid-template-columns:minmax(0,1fr) minmax(110px,1.15fr) minmax(0,1fr)}.wand-corpo-tag{font-size:10px;padding:5px 3px}.wand-corpo-tag strong{font-size:10px}.wand-corpo-tag span{font-size:12px}}
+
+/* Acabamento WAND METHOD: métricas, composição e mapa corporal em relevo */
+.wand-comp-card{position:relative;overflow:hidden;border:1px solid #bca56c;border-top-color:#f7df9b;border-left-color:#d2c08e;border-radius:17px;background:linear-gradient(155deg,#383735 0%,#20201f 44%,#0e0d0c 76%,#382a16 100%);box-shadow:inset 0 2px 2px #ffffff3a,inset 0 -5px 9px #0009,0 7px 13px #000a,0 1px 0 #f6d78344;padding:18px 17px;min-height:85px}
+.wand-comp-card:before{content:"";position:absolute;inset:0 0 auto;height:45%;background:linear-gradient(180deg,#ffffff12,transparent);pointer-events:none}
+.wand-comp-card strong{color:#f8cf63;font-size:13px;text-shadow:0 1px 1px #000}
+.wand-comp-card span{font-size:24px;color:#fff;text-shadow:0 2px 3px #000}
+.wand-composicao-track{position:relative;height:31px;border:2px solid #a9a9a9;border-top-color:#f3f3f3;border-bottom-color:#555;border-radius:18px;background:linear-gradient(180deg,#f5f6f8 0%,#c4c7cc 18%,#92969c 47%,#bfc3c8 77%,#646971 100%);box-shadow:inset 0 4px 7px #0006,inset 0 -2px 3px #fff8,0 5px 12px #000b,0 1px 1px #fff5;overflow:hidden;margin:21px 0 14px}
+.wand-composicao-track:after{content:"";position:absolute;inset:3px 4px auto;height:36%;border-radius:15px;background:linear-gradient(180deg,#ffffff85,#ffffff00);pointer-events:none}
+.wand-composicao-fill{height:100%;background:linear-gradient(180deg,#fff3b0 0%,#fbd768 18%,#dca52a 48%,#b17a12 78%,#f5cb54 100%);box-shadow:inset 0 3px 4px #fff8,inset 0 -4px 5px #6a430c88,3px 0 5px #0008;position:relative}
+.wand-composicao-legenda{display:flex;flex-wrap:wrap;gap:12px 24px;margin:8px 0 16px}
+.wand-composicao-legenda-item{display:inline-flex;align-items:center;gap:9px;color:#eaeaea;font-size:14px}
+.wand-composicao-amostra{display:inline-block;width:18px;height:18px;flex:none;border-radius:5px;box-shadow:inset 0 2px 2px #ffffff77,inset 0 -2px 3px #0008,0 2px 5px #0009;border:1px solid #d4bb7b}
+.wand-composicao-amostra.gordura{background:linear-gradient(145deg,#ffea94,#bd851a)}
+.wand-composicao-amostra.livre{background:linear-gradient(145deg,#f0f2f5,#858b94);border-color:#c6c9ce}
+.wand-corpo-card{border:1px solid #bca36a;border-top-color:#f0d996;border-radius:20px;background:radial-gradient(ellipse at 50% 30%,#3d3c38 0%,#1c1b19 45%,#090909 85%);box-shadow:inset 0 2px 2px #ffffff33,inset 0 -8px 16px #000a,0 9px 20px #000b,0 0 14px #d6a73b17;padding:20px;margin:19px 0}
+.wand-corpo-card h4{font-size:19px;text-shadow:0 2px 5px #000}
+.wand-corpo-tag{border:1px solid #a18a54;border-top-color:#e6ce90;border-radius:12px;background:linear-gradient(145deg,#39332a,#1a1815 55%,#0e0d0c);box-shadow:inset 0 2px 2px #ffffff22,inset 0 -3px 6px #0009,0 4px 9px #0008;padding:11px 8px}
+.wand-corpo-tag strong{color:#f6d16c}
+@media(max-width:520px){.wand-comp-card{padding:12px;min-height:70px}.wand-comp-card span{font-size:19px}.wand-composicao-legenda{gap:10px}.wand-composicao-legenda-item{font-size:12px}.wand-corpo-card{padding:11px}.wand-corpo-tag{padding:6px 3px}}
 </style>
 <style>
 /* WAND METHOD: secoes compactas e recolhiveis no acompanhamento */
@@ -777,7 +796,7 @@ function wandComposicao(a,area){
  for(const [rotulo,v,unidade] of [["Peso",peso,"kg"],["Gordura corporal",g,"%"],["Massa de gordura",massaG,"kg"],["Massa livre de gordura",massaL,"kg"]]){
  const item=elemento("div","wand-comp-card");adicionarTexto(item,"strong",rotulo);adicionarTexto(item,"span",v===null?"—":valor(v)+(unidade?" "+unidade:""));grade.appendChild(item);
  }area.appendChild(grade);
- if(g!==null&&g>=0&&g<=100){const t=elemento("div","wand-composicao-track");t.setAttribute("role","img");t.setAttribute("aria-label","Gordura corporal: "+valor(g)+" por cento");const f=elemento("div","wand-composicao-fill");f.style.width=g+"%";t.appendChild(f);area.appendChild(t);adicionarTexto(area,"p",valor(g)+"% gordura corporal · "+valor(100-g)+"% massa livre de gordura","muted");}
+ if(g!==null&&g>=0&&g<=100){const t=elemento("div","wand-composicao-track");t.setAttribute("role","img");t.setAttribute("aria-label","Gordura corporal: "+valor(g)+" por cento");const f=elemento("div","wand-composicao-fill");f.style.width=g+"%";t.appendChild(f);area.appendChild(t);const legenda=elemento("div","wand-composicao-legenda");for(const [classe,rotulo] of [["gordura",valor(g)+"% gordura corporal"],["livre",valor(100-g)+"% massa livre de gordura"]]){const item=elemento("div","wand-composicao-legenda-item");const amostra=elemento("span","wand-composicao-amostra "+classe);amostra.setAttribute("aria-hidden","true");item.appendChild(amostra);adicionarTexto(item,"span",rotulo);legenda.appendChild(item);}area.appendChild(legenda);}
  adicionarTexto(area,"p","Estimativas de composição corporal conforme o protocolo registrado; não representam uma medição por bioimpedância.","muted");
 }
 function wandSilhueta(a,area){
