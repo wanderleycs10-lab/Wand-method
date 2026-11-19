@@ -118,9 +118,9 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
  <button type="button" class="wc-overview-item" id="wcGoAlunos"><span class="wc-kpi-icon" data-icon="users"></span><span>Meus alunos</span><strong id="wcResumoAlunos">—</strong><small>Ativos</small></button>
  <button type="button" class="wc-overview-item" id="wcGoTreinos"><span class="wc-kpi-icon" data-icon="dumbbell"></span><span>Treinos publicados</span><strong id="wcResumoTreinos">—</strong><small id="wcTreinosNota">Programas publicados</small></button>
  <button type="button" class="wc-overview-item" id="wcGoAdesao"><span class="wc-kpi-icon" data-icon="chart"></span><span>Taxa de adesão</span><strong id="wcResumoAdesao">—</strong><small>Indicador a integrar</small></button>
- <div class="wc-notify"><button type="button" id="wcNotificacoesBtn" class="secundario" aria-label="Ver solicitações pendentes">🔔 Solicitações pendentes <span id="wcNotificacoesCount">…</span></button><small id="wcNotificacoesInfo">Atualizado ao abrir o painel</small></div>
+ <button type="button" class="wc-overview-item wc-kpi-alert" id="wcGoPrioridades"><span class="wc-kpi-icon" data-icon="activity"></span><span>Alunos em atenção</span><strong id="wcResumoAtencao">—</strong><small>Adaptações pendentes</small></button>
 </div>
-<div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>Alunos em prioridade</h3><button type="button" id="wcVerPrioridades">Ver todos →</button></div><div id="wcPrioridadeLista" class="wc-priority-list"><p class="wc-subtitle">Consultando solicitações...</p></div></section><section class="wc-feature-card wc-demographics" aria-label="Perfil dos alunos"><h3>Perfil dos alunos</h3><p class="wc-demo-note">Distribuição dos alunos cadastrados <strong id="wcDemoTotal"></strong></p><h4>Distribuição por sexo</h4><div id="wcDemoSexo" class="wc-demo-bars"></div><h4>Faixa etária</h4><div id="wcDemoIdade" class="wc-demo-bars"></div></section></div>
+<div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>🔔 Notificações pendentes <span id="wcNotificacoesCount" class="chip">…</span></h3><button type="button" id="wcAtualizarNotificacoes" class="secundario">Atualizar</button></div><div id="wcNotificacoesInfo" class="wc-priority-list" aria-live="polite">Consultando notificações...</div></section><section class="wc-feature-card wc-demographics" aria-label="Perfil dos alunos"><h3>Perfil dos alunos</h3><p class="wc-demo-note">Distribuição dos alunos cadastrados <strong id="wcDemoTotal"></strong></p><h4>Distribuição por sexo</h4><div id="wcDemoSexo" class="wc-demo-bars"></div><h4>Faixa etária</h4><div id="wcDemoIdade" class="wc-demo-bars"></div></section></div>
 
 </section><nav class="wand-dock" aria-label="Navegação WandCoach"><button type="button" data-wc-dock="home" aria-label="Início">⌂<small>Início</small></button><button type="button" data-wc-dock="alunos" aria-label="Alunos">♙<small>Alunos</small></button><button type="button" data-wc-dock="treinos" aria-label="Treinos">▤<small>Treinos</small></button><button type="button" data-wc-dock="evolucoes" aria-label="Evolução">▥<small>Evolução</small></button><button type="button" data-wc-dock="menu" aria-label="Abrir menu" aria-expanded="false">☷<small>Menu</small></button></nav><div class="wand-drawer" id="wcDrawer" hidden><div class="wand-drawer-head"><strong>Áreas do WandCoach</strong><button type="button" id="wcDrawerClose">Fechar ×</button></div><nav id="wcGrid" class="wc-grid" aria-label="Áreas administrativas"></nav></div><section id="wcInner" hidden><button type="button" class="wc-back" id="wcBackTop">← Voltar ao painel</button><h2 id="wcTitle"></h2><p id="wcSubtitle" class="wc-subtitle"></p><div id="wcContent"></div><button type="button" class="wc-back" id="wcBackBottom">← Voltar ao painel</button></section><div id="wcLegacy" class="wc-legacy">
 
@@ -199,9 +199,7 @@ function wcAtualizarDashboard(){
  $('wcResumoAlunos').textContent=String(ativos.length);
  const pendentes=pedidosCarregados.filter(p=>String(p.status||p.situacao||'').toLowerCase()==='pendente');
  $('wcResumoAtencao').textContent=String(new Set(pendentes.map(p=>p.aluno_id).filter(Boolean)).size);
- const lista=$('wcPrioridadeLista');lista.replaceChildren();
- if(!pendentes.length){const p=document.createElement('p');p.className='wc-subtitle';p.textContent='Nenhuma solicitação de adaptação pendente no momento.';lista.append(p);return;}
- const vistos=new Set();for(const pedido of pendentes){if(!pedido.aluno_id||vistos.has(String(pedido.aluno_id)))continue;vistos.add(String(pedido.aluno_id));const aluno=alunosCarregados.find(a=>String(a.id)===String(pedido.aluno_id));const link=document.createElement('a');link.className='wc-priority-item';link.href='perfil-aluno.html?id='+encodeURIComponent(pedido.aluno_id);const nome=document.createElement('strong');nome.textContent=aluno?.nome_completo||'Aluno com solicitação';const motivo=document.createElement('small');motivo.textContent='Adaptação pendente ›';link.append(nome,motivo);lista.append(link);if(vistos.size>=4)break;}
+
 }
 const wcHome=$('wcHome'),wcInner=$('wcInner'),wcContent=$('wcContent'),wcLegacy=$('wcLegacy');
 const wcStatus=a=>String(a.Status||'').trim().toLowerCase();
@@ -284,17 +282,39 @@ function wcAction(item,parent,index){const dest=item[3];if(dest==='solicitacoes'
 async function wcCountSolicitacoes(badge){try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(!badge.isConnected)return;badge.textContent=String((data||[]).filter(p=>!['recusada','aprovada'].includes(String(p.status||'').toLowerCase())).length)}catch(e){console.warn('Contagem de solicitações indisponível:',e);if(badge.isConnected)badge.textContent='—'}}
 async function wcCountNovos(badge){const base=wcFiltered('novos').length;try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(badge.isConnected)badge.textContent=String(base+(data||[]).filter(p=>String(p.status||'').toLowerCase()==='aprovada').length)}catch(e){console.warn('Contagem de novos interessados indisponível:',e);if(badge.isConnected)badge.textContent=String(base)+'+'}}
 async function wcAtualizarNotificacoes(){
- const badge=document.getElementById('wcNotificacoesCount'),info=document.getElementById('wcNotificacoesInfo');
- if(!badge)return;
- try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;
- const pendentes=(data||[]).filter(p=>!['aprovada','recusada'].includes(String(p.status||'').toLowerCase()));
- badge.textContent=String(pendentes.length);info.textContent=pendentes.length?pendentes.length+' solicitação(ões) aguardando atendimento':'Nenhuma solicitação aguardando atendimento';
- }catch(e){console.warn('Notificações indisponíveis:',e);badge.textContent='—';info.textContent='Não foi possível consultar as solicitações'}
+ const badge=$('wcNotificacoesCount'),area=$('wcNotificacoesInfo');
+ if(!badge||!area)return;area.textContent='Consultando notificações...';
+ const entries=[];let falhas=0;
+ try{
+  const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;
+  for(const p of data||[]){if(['aprovada','recusada'].includes(String(p.status||'').toLowerCase()))continue;
+   entries.push({tipo:'cadastro',date:p.created_at||p.criado_em||'',title:'Nova solicitação de cadastro',detail:(p.nome_completo||'Interessado')+' · '+(p.modalidade||'Modalidade não informada'),url:'#wc/alunos/item/0'});}
+ }catch(e){console.warn('Não foi possível carregar cadastros:',e);falhas++;}
+ try{
+  const {data,error}=await supabase.from('anamneses').select('aluno_id,respostas').order('created_at',{ascending:false}).limit(500);if(error)throw error;
+  let revisadas=[];try{revisadas=JSON.parse(localStorage.getItem('wandcoach_notificacoes_revisadas')||'[]')}catch(e){console.warn('Histórico local inválido:',e)}
+  const seen=new Set(),reviewed=new Set(Array.isArray(revisadas)?revisadas:[]);
+  for(const r of data||[]){for(const e of (Array.isArray(r.respostas?._historico_alteracoes)?r.respostas._historico_alteracoes:[])){
+   const key=e.id||e.data+e.tipo;if(seen.has(key)||reviewed.has(key))continue;seen.add(key);
+   const aluno=alunosCarregados.find(a=>String(a.id)===String(r.aluno_id));
+   entries.push({tipo:'anamnese',date:e.data||'',title:e.tipo==='triagem_saude'?'Triagem de saúde alterada':'Anamnese alterada',detail:aluno?.nome_completo||'Aluno cadastrado',url:'perfil-aluno.html?id='+encodeURIComponent(r.aluno_id)+'&aba=anamnese'});
+  }}
+ }catch(e){console.warn('Não foi possível carregar alterações de anamnese:',e);falhas++;}
+ entries.sort((a,b)=>String(b.date).localeCompare(String(a.date)));badge.textContent=String(entries.length);area.replaceChildren();
+ if(!entries.length){const p=document.createElement('p');p.className='wc-subtitle';p.textContent=falhas?'Não foi possível consultar todas as notificações.':'Nenhuma notificação pendente no momento.';area.append(p)}
+ for(const n of entries.slice(0,20)){
+  const link=document.createElement('a');link.className='wc-priority-item';link.href=n.url;
+  const title=document.createElement('strong');title.textContent=n.title;
+  const detail=document.createElement('small');detail.textContent=n.detail+(n.date?' · '+new Date(n.date).toLocaleString('pt-BR'):'');
+  link.append(title,detail);area.append(link);
+ }
+ if(entries.length>20){const p=document.createElement('small');p.textContent='Mostrando as 20 notificações mais recentes.';area.append(p)}
+ if(falhas){const p=document.createElement('small');p.textContent='Algumas fontes de notificação não puderam ser consultadas.';area.append(p)}
 }
 function wcMenu(key){wcToggleDrawer(false);const m=wcMenus[key];if(!m)return;wcSetRoute([key]);wcOpen(m.name,m.desc);const list=document.createElement('div');list.className='wc-list';m.items.forEach((item,index)=>{const tipo=item[3],count=['solicitacoes','novos'].includes(tipo)?'…':['ativos','inativos','excluidos'].includes(tipo)?wcFiltered(tipo).length:undefined;const row=wcRow(item,()=>wcAction(item,key,index),count);list.append(row);if(tipo==='solicitacoes')wcCountSolicitacoes(row.querySelector('.wc-count'));if(tipo==='novos')wcCountNovos(row.querySelector('.wc-count'))});wcContent.append(list)}
 function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
-$('wcVerPrioridades').onclick=()=>wcMenu('bemestar');
-$('wcNotificacoesBtn').onclick=()=>wcSolicitacoesCadastro('alunos',0);$('wcGoAlunos').onclick=()=>wcMenu('alunos');$('wcGoTreinos').onclick=()=>location.assign('gerenciar-treinos.html');$('wcGoAdesao').onclick=()=>wcMenu('evolucoes');$('wcGoPrioridades').onclick=()=>wcMenu('bemestar');
+$('wcAtualizarNotificacoes').onclick=wcAtualizarNotificacoes;
+$('wcGoAlunos').onclick=()=>wcMenu('alunos');$('wcGoTreinos').onclick=()=>location.assign('gerenciar-treinos.html');$('wcGoAdesao').onclick=()=>wcMenu('evolucoes');$('wcGoPrioridades').onclick=()=>wcMenu('bemestar');
 const wcDrawer=$('wcDrawer');function wcToggleDrawer(open){wcDrawer.hidden=!open;document.querySelector('[data-wc-dock="menu"]').setAttribute('aria-expanded',String(open));} $('wcDrawerClose').onclick=()=>wcToggleDrawer(false);
 for(const b of document.querySelectorAll('[data-wc-dock]'))b.onclick=()=>{const key=b.dataset.wcDock;if(key==='menu'){wcToggleDrawer(wcDrawer.hidden);return}wcToggleDrawer(false);if(key==='home')wcBack();else wcMenu(key)};
 
