@@ -128,6 +128,22 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
 #wcInner .wc-onboard-actions button.wc-onboard-contract:disabled{opacity:.55}
 #wcInner .wc-onboard-actions button:focus-visible,
 #wcInner .wc-onboard-actions a:focus-visible{outline:2px solid #f0c65c;outline-offset:3px}
+
+/* Controles funcionais de Novos Alunos: acabamento 3D grafite/prata consistente. */
+#wcInner .wc-onboard-card .wc-onboard-comms{border:0;background:transparent;padding:0;margin-top:14px}
+#wcInner .wc-onboard-card .wc-onboard-comms summary,
+#wcInner .wc-onboard-card a.wc-onboard-register{
+ display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+ width:100%;min-height:50px;padding:12px 16px;margin-top:12px;
+ background:linear-gradient(145deg,#35332f 0%,#1b1b1b 55%,#2b2116 100%)!important;
+ border:1px solid #a7acb4!important;border-radius:13px!important;
+ color:#f4d181!important;box-shadow:inset 0 2px 1px #ffffff60,inset 0 -3px 6px #c69a3030,0 7px 15px #0009!important;
+ font-size:13px;font-weight:650;text-align:center;text-decoration:none!important;cursor:pointer;
+}
+#wcInner .wc-onboard-card .wc-onboard-comms summary{display:list-item;list-style-position:inside;text-align:center}
+#wcInner .wc-onboard-card .wc-onboard-comms[open] summary{margin-bottom:12px}
+#wcInner .wc-onboard-card .wc-onboard-comms summary:focus-visible,
+#wcInner .wc-onboard-card a.wc-onboard-register:focus-visible{outline:2px solid #f0c65c;outline-offset:3px}
 </style></head>
 <body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><p>WANDCOACH · PAINEL DO TREINADOR</p></header>
 <main><p id="status" role="status">Verificando acesso...</p><section id="painel">
