@@ -120,7 +120,7 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
  <button type="button" class="wc-overview-item" id="wcGoAdesao"><span class="wc-kpi-icon" data-icon="chart"></span><span>Taxa de adesão</span><strong id="wcResumoAdesao">—</strong><small>Indicador a integrar</small></button>
  <button type="button" class="wc-overview-item wc-kpi-alert" id="wcGoPrioridades"><span class="wc-kpi-icon" data-icon="activity"></span><span>Alunos em atenção</span><strong id="wcResumoAtencao">—</strong><small>Adaptações pendentes</small></button>
 </div>
-<div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>🔔 Notificações pendentes <span id="wcNotificacoesCount" class="chip">…</span></h3><button type="button" id="wcAtualizarNotificacoes" class="secundario">Atualizar</button></div><div id="wcNotificacoesInfo" class="wc-priority-list" aria-live="polite">Consultando notificações...</div></section><section class="wc-feature-card wc-demographics" aria-label="Perfil dos alunos"><h3>Perfil dos alunos</h3><p class="wc-demo-note">Distribuição dos alunos cadastrados <strong id="wcDemoTotal"></strong></p><h4>Distribuição por sexo</h4><div id="wcDemoSexo" class="wc-demo-bars"></div><h4>Faixa etária</h4><div id="wcDemoIdade" class="wc-demo-bars"></div></section></div>
+<div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>🔔 Notificações pendentes <span id="wcNotificacoesCount" class="chip">…</span></h3><button type="button" id="wcAtualizarNotificacoes" class="secundario">Acessar</button></div><div id="wcNotificacoesInfo" class="wc-priority-list" aria-live="polite">Consultando notificações...</div></section><section class="wc-feature-card wc-demographics" aria-label="Perfil dos alunos"><h3>Perfil dos alunos</h3><p class="wc-demo-note">Distribuição dos alunos cadastrados <strong id="wcDemoTotal"></strong></p><h4>Distribuição por sexo</h4><div id="wcDemoSexo" class="wc-demo-bars"></div><h4>Faixa etária</h4><div id="wcDemoIdade" class="wc-demo-bars"></div></section></div>
 
 </section><nav class="wand-dock" aria-label="Navegação WandCoach"><button type="button" data-wc-dock="home" aria-label="Início">⌂<small>Início</small></button><button type="button" data-wc-dock="alunos" aria-label="Alunos">♙<small>Alunos</small></button><button type="button" data-wc-dock="treinos" aria-label="Treinos">▤<small>Treinos</small></button><button type="button" data-wc-dock="evolucoes" aria-label="Evolução">▥<small>Evolução</small></button><button type="button" data-wc-dock="menu" aria-label="Abrir menu" aria-expanded="false">☷<small>Menu</small></button></nav><div class="wand-drawer" id="wcDrawer" hidden><div class="wand-drawer-head"><strong>Áreas do WandCoach</strong><button type="button" id="wcDrawerClose">Fechar ×</button></div><nav id="wcGrid" class="wc-grid" aria-label="Áreas administrativas"></nav></div><section id="wcInner" hidden><button type="button" class="wc-back" id="wcBackTop">← Voltar ao painel</button><h2 id="wcTitle"></h2><p id="wcSubtitle" class="wc-subtitle"></p><div id="wcContent"></div><button type="button" class="wc-back" id="wcBackBottom">← Voltar ao painel</button></section><div id="wcLegacy" class="wc-legacy">
 
@@ -281,39 +281,52 @@ async function wcSolicitacoesCadastro(parent='alunos',index=0){
 function wcAction(item,parent,index){const dest=item[3];if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
 async function wcCountSolicitacoes(badge){try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(!badge.isConnected)return;badge.textContent=String((data||[]).filter(p=>!['recusada','aprovada'].includes(String(p.status||'').toLowerCase())).length)}catch(e){console.warn('Contagem de solicitações indisponível:',e);if(badge.isConnected)badge.textContent='—'}}
 async function wcCountNovos(badge){const base=wcFiltered('novos').length;try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(badge.isConnected)badge.textContent=String(base+(data||[]).filter(p=>String(p.status||'').toLowerCase()==='aprovada').length)}catch(e){console.warn('Contagem de novos interessados indisponível:',e);if(badge.isConnected)badge.textContent=String(base)+'+'}}
-async function wcAtualizarNotificacoes(){
- const badge=$('wcNotificacoesCount'),area=$('wcNotificacoesInfo');
- if(!badge||!area)return;area.textContent='Consultando notificações...';
+function wcRevisadas(){try{const x=JSON.parse(localStorage.getItem('wandcoach_notificacoes_revisadas')||'[]');return new Set(Array.isArray(x)?x:[])}catch{return new Set()}}
+function wcMarcarRevisada(chave){const x=wcRevisadas();x.add(chave);localStorage.setItem('wandcoach_notificacoes_revisadas',JSON.stringify([...x]));}
+async function wcBuscarNotificacoes(){
  const entries=[];let falhas=0;
  try{
   const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;
   for(const p of data||[]){if(['aprovada','recusada'].includes(String(p.status||'').toLowerCase()))continue;
    entries.push({tipo:'cadastro',date:p.created_at||p.criado_em||'',title:'Nova solicitação de cadastro',detail:(p.nome_completo||'Interessado')+' · '+(p.modalidade||'Modalidade não informada'),url:'#wc/alunos/item/0'});}
- }catch(e){console.warn('Não foi possível carregar cadastros:',e);falhas++;}
+ }catch(e){console.warn('Falha ao consultar cadastros:',e);falhas++}
  try{
   const {data,error}=await supabase.from('anamneses').select('aluno_id,respostas').order('created_at',{ascending:false}).limit(500);if(error)throw error;
-  let revisadas=[];try{revisadas=JSON.parse(localStorage.getItem('wandcoach_notificacoes_revisadas')||'[]')}catch(e){console.warn('Histórico local inválido:',e)}
-  const seen=new Set(),reviewed=new Set(Array.isArray(revisadas)?revisadas:[]);
+  const seen=new Set(),reviewed=wcRevisadas();
   for(const r of data||[]){for(const e of (Array.isArray(r.respostas?._historico_alteracoes)?r.respostas._historico_alteracoes:[])){
    const key=e.id||e.data+e.tipo;if(seen.has(key)||reviewed.has(key))continue;seen.add(key);
    const aluno=alunosCarregados.find(a=>String(a.id)===String(r.aluno_id));
-   entries.push({tipo:'anamnese',date:e.data||'',title:e.tipo==='triagem_saude'?'Triagem de saúde alterada':'Anamnese alterada',detail:aluno?.nome_completo||'Aluno cadastrado',url:'perfil-aluno.html?id='+encodeURIComponent(r.aluno_id)+'&aba=anamnese'});
+   entries.push({tipo:'anamnese',key,date:e.data||'',title:e.tipo==='triagem_saude'?'Triagem de saúde alterada':'Anamnese alterada',detail:aluno?.nome_completo||'Aluno cadastrado',url:'perfil-aluno.html?id='+encodeURIComponent(r.aluno_id)+'&aba=anamnese'});
   }}
- }catch(e){console.warn('Não foi possível carregar alterações de anamnese:',e);falhas++;}
- entries.sort((a,b)=>String(b.date).localeCompare(String(a.date)));badge.textContent=String(entries.length);area.replaceChildren();
- if(!entries.length){const p=document.createElement('p');p.className='wc-subtitle';p.textContent=falhas?'Não foi possível consultar todas as notificações.':'Nenhuma notificação pendente no momento.';area.append(p)}
- for(const n of entries.slice(0,20)){
-  const link=document.createElement('a');link.className='wc-priority-item';link.href=n.url;
+ }catch(e){console.warn('Falha ao consultar anamneses:',e);falhas++}
+ entries.sort((a,b)=>String(b.date).localeCompare(String(a.date)));return {entries,falhas};
+}
+async function wcAtualizarNotificacoes(){
+ const badge=$('wcNotificacoesCount'),area=$('wcNotificacoesInfo');if(!badge||!area)return;area.textContent='Consultando notificações...';
+ const {entries,falhas}=await wcBuscarNotificacoes();badge.textContent=String(entries.length);area.replaceChildren();
+ const p=document.createElement('p');p.className='wc-subtitle';p.textContent=entries.length?entries.length+' notificação(ões) para analisar. Clique em Acessar para resolver.':falhas?'Não foi possível consultar todas as notificações.':'Tudo em dia! Nenhuma notificação pendente no momento.';area.append(p);
+ if(falhas){const aviso=document.createElement('small');aviso.textContent='Algumas fontes estão indisponíveis.';area.append(aviso)}
+}
+async function wcCentralNotificacoes(){
+ wcSetRoute(['notificacoes']);wcOpen('Notificações pendentes','Selecione uma notificação para analisar e resolver.');
+ const area=document.createElement('div');area.className='wc-student-list';area.textContent='Carregando notificações...';wcContent.append(area);
+ const {entries,falhas}=await wcBuscarNotificacoes();area.replaceChildren();
+ if(!entries.length){const p=document.createElement('p');p.textContent=falhas?'Não foi possível consultar todas as notificações.':'Tudo em dia! Nenhuma notificação pendente no momento.';area.append(p)}
+ for(const n of entries){
+  const card=document.createElement('article');card.className='wc-person';card.style.display='block';
   const title=document.createElement('strong');title.textContent=n.title;
-  const detail=document.createElement('small');detail.textContent=n.detail+(n.date?' · '+new Date(n.date).toLocaleString('pt-BR'):'');
-  link.append(title,detail);area.append(link);
+  const info=document.createElement('small');info.style.display='block';info.textContent=n.detail+(n.date?' · '+new Date(n.date).toLocaleString('pt-BR'):'');
+  const actions=document.createElement('div');actions.style.cssText='display:flex;flex-wrap:wrap;gap:9px;margin-top:12px';
+  const link=document.createElement('a');link.className='botao-link secundario';link.href=n.url;link.textContent=n.tipo==='cadastro'?'Analisar solicitação':'Ver anamnese';actions.append(link);
+  if(n.tipo==='anamnese'){const done=document.createElement('button');done.type='button';done.textContent='Marcar como revisada';done.onclick=()=>{if(!confirm('Você já analisou esta alteração de anamnese?'))return;wcMarcarRevisada(n.key);wcCentralNotificacoes();wcAtualizarNotificacoes()};actions.append(done)}
+  card.append(title,info,actions);area.append(card);
  }
- if(entries.length>20){const p=document.createElement('small');p.textContent='Mostrando as 20 notificações mais recentes.';area.append(p)}
- if(falhas){const p=document.createElement('small');p.textContent='Algumas fontes de notificação não puderam ser consultadas.';area.append(p)}
+ if(falhas){const aviso=document.createElement('p');aviso.textContent='Atenção: algumas fontes não puderam ser consultadas.';area.append(aviso)}
+ const refresh=document.createElement('button');refresh.type='button';refresh.className='secundario';refresh.textContent='Atualizar lista';refresh.onclick=wcCentralNotificacoes;area.append(refresh);
 }
 function wcMenu(key){wcToggleDrawer(false);const m=wcMenus[key];if(!m)return;wcSetRoute([key]);wcOpen(m.name,m.desc);const list=document.createElement('div');list.className='wc-list';m.items.forEach((item,index)=>{const tipo=item[3],count=['solicitacoes','novos'].includes(tipo)?'…':['ativos','inativos','excluidos'].includes(tipo)?wcFiltered(tipo).length:undefined;const row=wcRow(item,()=>wcAction(item,key,index),count);list.append(row);if(tipo==='solicitacoes')wcCountSolicitacoes(row.querySelector('.wc-count'));if(tipo==='novos')wcCountNovos(row.querySelector('.wc-count'))});wcContent.append(list)}
-function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
-$('wcAtualizarNotificacoes').onclick=wcAtualizarNotificacoes;
+function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
+$('wcAtualizarNotificacoes').onclick=wcCentralNotificacoes;
 $('wcGoAlunos').onclick=()=>wcMenu('alunos');$('wcGoTreinos').onclick=()=>location.assign('gerenciar-treinos.html');$('wcGoAdesao').onclick=()=>wcMenu('evolucoes');$('wcGoPrioridades').onclick=()=>wcMenu('bemestar');
 const wcDrawer=$('wcDrawer');function wcToggleDrawer(open){wcDrawer.hidden=!open;document.querySelector('[data-wc-dock="menu"]').setAttribute('aria-expanded',String(open));} $('wcDrawerClose').onclick=()=>wcToggleDrawer(false);
 for(const b of document.querySelectorAll('[data-wc-dock]'))b.onclick=()=>{const key=b.dataset.wcDock;if(key==='menu'){wcToggleDrawer(wcDrawer.hidden);return}wcToggleDrawer(false);if(key==='home')wcBack();else wcMenu(key)};
