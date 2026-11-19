@@ -738,48 +738,41 @@ await carregarEvolucao();
 }
 
 function montarAvaliacao(a){
-const card=elemento("article","subcard");
-adicionarTexto(card,"h3",
+const card=elemento("details","subcard");
+card.classList.add("wand-avaliacao-recolhida");
+const cabecalho=elemento("summary",null,
 "Avaliação #"+a.id+" · "+dataBR(a.data_avaliacao));
-
+cabecalho.style.cssText="cursor:pointer;color:#f0c45c;font-size:1.1rem;font-weight:700;padding:5px 0;";
+card.appendChild(cabecalho);
+const conteudo=elemento("div");
+conteudo.style.marginTop="16px";
 const situacao=a.status_avaliacao||"rascunho";
-adicionarTexto(card,"span",
+adicionarTexto(conteudo,"span",
 situacao==="liberada"?"Liberada ao aluno":
-situacao==="pendente"?"Pendente de aprovação":"Rascunho",
-"status");
-
-if(a.liberada_em){
-adicionarTexto(card,"p",
-"Liberada em "+dataBR(a.liberada_em),"muted");
-}
-
-adicionarTexto(card,"h3","Resultados");
-gradeMedidas(card,a);
-alertaAssimetria(card,a);
-
+situacao==="pendente"?"Pendente de aprovação":"Rascunho","status");
+if(a.liberada_em)adicionarTexto(conteudo,"p","Liberada em "+dataBR(a.liberada_em),"muted");
 const dobras=DOBRAS.filter(([campo])=>a[campo]!=null);
 if(dobras.length){
 const detalhe=elemento("details");
-detalhe.appendChild(elemento("summary",null,
-"Dobras cutâneas registradas"));
-gradeMedidas(detalhe,a,DOBRAS.map(
-([campo,nome])=>[campo,nome,"mm"]
-));
-card.appendChild(detalhe);
+detalhe.appendChild(elemento("summary",null,"Dobras cutâneas registradas"));
+gradeMedidas(detalhe,a,DOBRAS.map(([campo,nome])=>[campo,nome,"mm"]));
+conteudo.appendChild(detalhe);
 }
-
+const resultados=elemento("details");
+resultados.appendChild(elemento("summary",null,"Resultados"));
+gradeMedidas(resultados,a);
+alertaAssimetria(resultados,a);
+conteudo.appendChild(resultados);
 if(a.observacoes){
-adicionarTexto(card,"h3","Observações");
-adicionarTexto(card,"p",a.observacoes);
+const obs=elemento("details");
+obs.appendChild(elemento("summary",null,"Observações"));
+adicionarTexto(obs,"p",a.observacoes);
+conteudo.appendChild(obs);
 }
-
-adicionarTexto(card,"h3","Parecer profissional");
-if(a.parecer_profissional){
-adicionarTexto(card,"p",a.parecer_profissional);
-}else{
-adicionarTexto(card,"p","Parecer ainda não preenchido.","muted");
-}
-
+const parecer=elemento("details");
+parecer.appendChild(elemento("summary",null,"Parecer profissional"));
+adicionarTexto(parecer,"p",a.parecer_profissional||"Parecer ainda não preenchido.",a.parecer_profissional?null:"muted");
+conteudo.appendChild(parecer);
 if(situacao!=="liberada"){
 const label=elemento("label");
 label.textContent="Parecer para liberação";
@@ -787,14 +780,17 @@ const textarea=elemento("textarea");
 textarea.rows=4;
 textarea.value=a.parecer_profissional||"";
 label.appendChild(textarea);
-card.appendChild(label);
+conteudo.appendChild(label);
 const feedback=elemento("p","muted");
-const botao=criarBotao("Finalizar e liberar ao aluno",
-()=>aprovarAvaliacao(a,botao,feedback));
-card.append(botao,feedback);
+const botao=criarBotao("Finalizar e liberar ao aluno",()=>aprovarAvaliacao(a,botao,feedback));
+conteudo.append(botao,feedback);
 }else{
-card.appendChild(criarRetificacao(a));
+const retificacao=criarRetificacao(a);
+const resumo=retificacao.querySelector("summary");
+if(resumo)resumo.textContent="Corrigir avaliação";
+conteudo.appendChild(retificacao);
 }
+card.appendChild(conteudo);
 return card;
 }
 
