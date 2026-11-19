@@ -259,6 +259,12 @@ function wcBackContextual(){
 $('wcBackTop').onclick=wcBackContextual;$('wcBackBottom').onclick=wcBackContextual;
 function wcOpen(title,desc){wcHome.hidden=true;wcInner.hidden=false;wcLegacy.classList.remove('wc-open');$('wcTitle').textContent=title;$('wcSubtitle').textContent=desc||'';wcContent.replaceChildren();const parts=location.hash.startsWith(wcRoutePrefix)?location.hash.slice(wcRoutePrefix.length).split('/'):[];const isNotif=decodeURIComponent(parts[0]||'')==='notificacoes'&&parts.length>1;const isSub=parts.length>1&&!!wcMenus[decodeURIComponent(parts[0])];for(const id of ['wcBackTop','wcBackBottom'])$(id).textContent=isNotif?'← Voltar para Notificações':isSub?'← Voltar para '+wcMenus[decodeURIComponent(parts[0])].name:'← Voltar ao painel';window.scrollTo(0,0)}
 function wcRow(item,fn,count){const b=document.createElement('button');b.type='button';b.className='wc-row';b.innerHTML=wcIcon(item[2])+'<span class="wc-label"><strong></strong><small></small></span>'+(count===undefined?'':'<span class="wc-count"></span>')+'<span aria-hidden="true">›</span>';b.querySelector('strong').textContent=item[0];b.querySelector('small').textContent=item[1];if(count!==undefined)b.querySelector('.wc-count').textContent=count;b.onclick=fn;return b}
+function wcMesmoInteressado(pedido,aluno){
+ if(pedido.aluno_id!=null&&String(pedido.aluno_id)===String(aluno.id))return true;
+ const emailPedido=String(pedido.email||'').trim().toLowerCase();
+ const emailAluno=String(aluno.email||'').trim().toLowerCase();
+ return !!emailPedido&&emailPedido===emailAluno&&String(aluno.Status||'').toLowerCase()==='aguardando_contrato';
+}
 async function wcNovosAlunos(parent='alunos',index=1){
  wcSetRoute([parent,'item',String(index)]);
  wcOpen('Novos Alunos','Interessados aprovados e alunos em fase de contratação e integração.');
@@ -284,6 +290,7 @@ async function wcNovosAlunos(parent='alunos',index=1){
    card.append(header,info,fase,actions,nota,wcNotificacoesCadastro(pedido),cadastrar);area.append(card);
   }
   for(const a of cadastrados){
+   if(pedidos.some(p=>wcMesmoInteressado(p,a)))continue;
    const link=document.createElement('a');link.className='wc-person';link.href='perfil-aluno.html?id='+encodeURIComponent(a.id)+'&origem='+encodeURIComponent(location.hash);link.textContent=a.nome_completo||'Aluno sem nome';
    const small=document.createElement('small');small.textContent='Status: '+(a.Status||'Não informado')+' · Abrir perfil';link.append(small);area.append(link);
   }
@@ -323,7 +330,7 @@ async function wcSolicitacoesCadastro(parent='alunos',index=0){
 }
 function wcAction(item,parent,index){const dest=item[3];if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
 async function wcCountSolicitacoes(badge){try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(!badge.isConnected)return;badge.textContent=String((data||[]).filter(p=>!['recusada','aprovada'].includes(String(p.status||'').toLowerCase())).length)}catch(e){console.warn('Contagem de solicitações indisponível:',e);if(badge.isConnected)badge.textContent='—'}}
-async function wcCountNovos(badge){const base=wcFiltered('novos').length;try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(badge.isConnected)badge.textContent=String(base+(data||[]).filter(p=>String(p.status||'').toLowerCase()==='aprovada').length)}catch(e){console.warn('Contagem de novos interessados indisponível:',e);if(badge.isConnected)badge.textContent=String(base)+'+'}}
+async function wcCountNovos(badge){const base=wcFiltered('novos').length;try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(badge.isConnected){const aprovadas=(data||[]).filter(p=>String(p.status||'').toLowerCase()==='aprovada');badge.textContent=String(base+aprovadas.filter(p=>!wcFiltered('novos').some(a=>wcMesmoInteressado(p,a))).length)}}catch(e){console.warn('Contagem de novos interessados indisponível:',e);if(badge.isConnected)badge.textContent=String(base)+'+'}}
 function wcRevisadas(){try{const x=JSON.parse(localStorage.getItem('wandcoach_notificacoes_revisadas')||'[]');return new Set(Array.isArray(x)?x:[])}catch{return new Set()}}
 function wcMarcarRevisada(chave){const x=wcRevisadas();x.add(chave);localStorage.setItem('wandcoach_notificacoes_revisadas',JSON.stringify([...x]));}
 async function wcBuscarNotificacoes(){
