@@ -175,14 +175,12 @@ body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!
 <link rel="stylesheet" href="./wand-premium.css?v=20261118-visual5">
 <style id="wand-voltar-premium">.wand-voltar,.back-btn,.actions a.button.secondary[href="admin.html"],.actions a.button.secondary[href="aluno.html"]{display:inline-flex!important;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:11px 17px!important;margin:10px 0 18px;text-decoration:none!important;color:#f4d28b!important;font-weight:650!important;font-size:14px!important;line-height:1.35;border:1px solid #a8adb5!important;border-radius:13px!important;background:linear-gradient(145deg,#3b3935 0%,#191919 55%,#292115 100%)!important;box-shadow:inset 0 2px 1px #ffffff69,inset 0 -3px 6px #bc933c40,0 6px 13px #000a!important;cursor:pointer;transition:transform .15s,filter .15s}.wand-voltar:hover,.back-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}.wand-voltar:focus-visible,.back-btn:focus-visible{outline:2px solid #f4d28b;outline-offset:3px}@media(max-width:440px){.wand-voltar,.back-btn{font-size:13px!important}}@media print{.wand-voltar,.back-btn{display:none!important}}</style><style id="wand-resumo-anamnese-css">.wand-anamnese-resumo{padding:14px 0}.wand-anamnese-indicadores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 18px}.wand-anamnese-contador{padding:13px 8px;border:1px solid #7b7d83;border-radius:14px;background:linear-gradient(150deg,#343332,#151515);box-shadow:inset 0 2px #ffffff48,0 6px 12px #0007;text-align:center}.wand-anamnese-contador strong{display:block;color:#f2d28a;font-size:25px}.wand-anamnese-contador span{display:block;font-size:12px;color:#d0cdc6}.wand-anamnese-destaques{margin:14px 0;padding:16px;border:1px solid #777b84;border-radius:17px;background:linear-gradient(145deg,#2b2925,#121212 70%);box-shadow:inset 0 2px #ffffff36,0 8px 18px #0008}.wand-anamnese-destaques h4{color:#f2d18b;margin:0 0 14px}.wand-anamnese-alerta,.wand-anamnese-nota{border:1px solid #77776e;border-radius:12px;padding:12px;margin:10px 0;background:#171717}.wand-anamnese-alerta{border-left:4px solid #d5a744}.wand-anamnese-alerta strong{color:#f2cf7b}.wand-anamnese-nota strong{color:#e9d3a2;text-transform:capitalize}.wand-anamnese-alerta p,.wand-anamnese-nota p{margin:7px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}.wand-anamnese-completo{border:1px solid #898c94;border-radius:14px;padding:14px;background:linear-gradient(140deg,#2d2c2a,#121212);margin-top:18px}.wand-anamnese-completo>summary{color:#f3d28d;cursor:pointer;font-weight:650}@media(max-width:420px){.wand-anamnese-indicadores{gap:6px}.wand-anamnese-contador span{font-size:10px}}</style><style id="wand-avaliacao-exclusiva-estilo">
 /* Acesso pela aba Avaliação Física do WandCoach: somente esta funcionalidade. */
-.wand-avaliacao-exclusiva #voltarOrigemPerfil,
 .wand-avaliacao-exclusiva #voltarSecoesPerfil,
 .wand-avaliacao-exclusiva .menu-perfil,
 .wand-avaliacao-exclusiva #orientacaoPerfil,
 .wand-avaliacao-exclusiva #conteudo>section.card:first-child,
 .wand-avaliacao-exclusiva .painel-perfil:not(#painel-avaliacao){display:none!important}
 .wand-avaliacao-exclusiva #painel-avaliacao{display:block!important}
-.wand-avaliacao-exclusiva main>.actions:has(#voltarOrigemPerfil){display:none!important}
 </style><style id="wand-anamnese-exclusiva-estilo">
 .wand-anamnese-exclusiva .menu-perfil,
 .wand-anamnese-exclusiva #voltarSecoesPerfil,
@@ -360,9 +358,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   const voltar=document.getElementById('voltarOrigemPerfil');
   if(voltar){
     const origem=parametrosRetorno.get('origem');
-    const rotaSegura=origem&&/^#wc\/(?:alunos|anamnese|avaliacao|fotografica|evolucao|treinos)(?:\/[a-zA-Z0-9_/%-]+)*$/.test(origem)?origem:(modoAnamneseExclusiva?'#wc/anamnese':'#wc/alunos/students/ativos');
+    const rotaSegura=origem&&/^#wc\/(?:alunos|anamnese|avaliacao|fotografica|evolucao|treinos)(?:\/[a-zA-Z0-9_/%-]+)*$/.test(origem)?origem:(modoAnamneseExclusiva?'#wc/anamnese':modoAvaliacaoExclusiva?'#wc/avaliacao':'#wc/alunos/students/ativos');
     voltar.href='admin.html'+rotaSegura;
-    voltar.textContent='← Voltar à lista de alunos';
+    voltar.textContent=modoAvaliacaoExclusiva?'← Voltar à seleção de alunos':'← Voltar à lista de alunos';
   }
 });
 const programaRetorno=parametrosRetorno.get("programa_id");
