@@ -1,5 +1,30 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Avaliação Física | WandCoach</title><link rel="stylesheet" href="./wand-premium.css"><style>
-*{box-sizing:border-box}body{margin:0;background:#080808;color:#eee;font:15px Arial,sans-serif}header{text-align:center;padding:24px;border-bottom:1px solid #66551f}h1,h2{color:#d4af37}main{max-width:850px;margin:auto;padding:20px}button,.btn{display:block;width:100%;background:#191919;color:#f4d57a;border:1px solid #796126;border-radius:12px;padding:17px;text-align:left;cursor:pointer;text-decoration:none;font:inherit;margin:10px 0}button:hover,.btn:hover{background:#292417}.primary{background:#d4af37;color:#111;font-weight:bold;text-align:center}.back{width:auto;display:inline-block;padding:12px}.card{border:1px solid #655321;border-radius:14px;background:#151515;padding:20px;margin:14px 0}.muted,small{color:#bbb}small{display:block;margin-top:5px}select,input,textarea{background:#101010;color:#fff;border:1px solid #796126;border-radius:8px;padding:12px;width:100%;font:inherit;margin:8px 0 16px}label{display:block;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.metric{padding:12px;border:1px solid #453a24;border-radius:9px}.metric strong{display:block;color:#f4d57a}.error{color:#ff8585}.success{color:#92dba0}[hidden]{display:none!important}</style></head><body><header><h1>WAND METHOD</h1><div>WANDCOACH · AVALIAÇÃO FÍSICA</div></header><main><a class="btn back" id="back" href="admin.html">← Voltar</a><h2 id="heading">Carregando…</h2><p id="notice" role="status"></p><section id="view"></section></main>
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 90% 8%,#5e3a1052,transparent 32%),radial-gradient(ellipse at 5% 65%,#40290942,transparent 43%),#070707;color:#eee;font:15px Arial,sans-serif}
+header{text-align:center;padding:22px 16px;background:linear-gradient(135deg,#151007,#090909 50%,#211608);border-bottom:1px solid #b58a3866;box-shadow:0 5px 22px #bc8c211c}
+header img{display:block;width:68px;height:68px;object-fit:contain;margin:0 auto 8px;filter:drop-shadow(0 4px 9px #e2ac3333)}
+header h1{font-size:23px;letter-spacing:1px;margin:6px 0;color:#f3c95f}
+header .subtitle{color:#c4b8a4;font-size:12px;letter-spacing:1px}
+main{max-width:850px;margin:auto;padding:20px 16px}
+h2{color:#f3c95f;font-size:clamp(23px,5vw,30px);margin:16px 0 8px}
+button,.btn{display:block;width:100%;background:#191919;color:#f4d57a;border:1px solid #796126;border-radius:12px;padding:15px;text-align:left;cursor:pointer;text-decoration:none;font:inherit;margin:10px 0}
+button:hover,.btn:hover{background:#292417}
+.primary{background:#d4af37;color:#111;font-weight:bold;text-align:center}
+.back{width:auto;display:inline-flex;align-items:center;background:transparent!important;color:#d4af37!important;border:1px solid #a88b32!important;box-shadow:none!important;border-radius:10px;padding:11px 15px;font-size:14px;font-weight:500}
+.back:hover{background:#282116!important}
+.card{border:1px solid #655321;border-radius:14px;background:#151515;padding:20px;margin:14px 0}
+.muted,small{color:#aaa}small{display:block;margin-top:5px}
+select,input,textarea{background:#101010;color:#fff;border:1px solid #796126;border-radius:8px;padding:12px;width:100%;font:inherit;margin:8px 0 16px}
+label{display:block;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.metric{padding:12px;border:1px solid #453a24;border-radius:9px}.metric strong{display:block;color:#f4d57a}
+.error{color:#ff8585}.success{color:#92dba0}[hidden]{display:none!important}
+#view .action-card{display:flex;align-items:center;gap:14px;min-height:84px;width:100%;padding:15px 16px;text-align:left;color:#fff;font-weight:400;border:1px solid #a17c36;border-radius:19px;background:linear-gradient(145deg,#33220d 0%,#1c1915 28%,#111 70%,#2a1a08 100%);box-shadow:inset 0 2px 1px #ffdb8c73,inset 0 -3px 7px #d19b2840,0 10px 20px #0009,0 0 14px #d4a32b24}
+#view .action-card:hover{border-color:#e4b956;background:linear-gradient(145deg,#3b2a13,#24201b 40%,#171717 80%,#35220d)}
+.action-icon{display:grid;place-items:center;flex:none;width:42px;height:42px;border:1px solid #9c7a3e;border-radius:13px;background:linear-gradient(145deg,#594018,#20180c);color:#f3c95f}
+.action-icon svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.action-text{flex:1;min-width:0}.action-text strong{display:block;font-size:16px;color:#fff;font-weight:600}.action-text small{font-size:13px;line-height:1.4;color:#aaa;margin-top:5px}.action-arrow{font-size:24px;color:#d4af37}
+#heading small{font-size:14px;color:#c4b8a4;font-weight:400;margin-top:8px}
+</style></head><body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><div class="subtitle">WANDCOACH · AVALIAÇÃO FÍSICA</div></header><main><a class="btn back" id="back" href="admin.html">← Voltar</a><h2 id="heading">Carregando…</h2><p id="notice" role="status"></p><section id="view"></section></main>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
@@ -11,7 +36,7 @@ const el=(tag,txt,cls)=>{const n=document.createElement(tag);if(txt!==undefined)
 const add=(parent,tag,txt,cls)=>{const n=el(tag,txt,cls);parent.append(n);return n};
 const fmt=(n,u='')=>n==null||n===''?'Não informado':Number.isFinite(Number(n))?Number(n).toLocaleString('pt-BR',{maximumFractionDigits:2})+' '+u:String(n);
 const date=d=>d?String(d).slice(0,10).split('-').reverse().join('/'):'Sem data';
-const button=(parent,title,subtitle,fn)=>{const b=add(parent,'button',title);if(subtitle)add(b,'small',subtitle);b.onclick=fn;return b};
+const button=(parent,title,subtitle,fn,iconName)=>{const b=add(parent,'button');if(iconName){b.className='action-card';const icon=add(b,'span',undefined,'action-icon');icon.setAttribute('aria-hidden','true');icon.innerHTML=iconName==='edit'?'<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16 4l4 4L9 19H5v-4z"/></svg>':'<svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>';const wrap=add(b,'span',undefined,'action-text');add(wrap,'strong',title);if(subtitle)add(wrap,'small',subtitle);add(b,'span','›','action-arrow').setAttribute('aria-hidden','true')}else{b.textContent=title;if(subtitle)add(b,'small',subtitle)}b.onclick=fn;return b};
 function navigate(next){history.pushState({mode:next},'',location.pathname+'?id='+encodeURIComponent(id)+'&modo='+encodeURIComponent(next)+'&origem='+encodeURIComponent(origin));render(next)}
 function setBack(fn,label='← Voltar'){back.textContent=label;back.onclick=e=>{e.preventDefault();fn()};}
 function cardRecord(a,parent){const c=add(parent,'div',undefined,'card');add(c,'h3','Avaliação de '+date(a.data_avaliacao));add(c,'p','Situação: '+(a.status_avaliacao||'Registro existente'),'muted');const g=add(c,'div',undefined,'grid');for(const [key,label,unit] of fields){const m=add(g,'div',undefined,'metric');add(m,'strong',label);add(m,'span',fmt(a[key],unit))}if(a.parecer_profissional)add(c,'p','Parecer profissional: '+a.parecer_profissional);if(a.observacoes)add(c,'p','Observações: '+a.observacoes);return c}
@@ -21,8 +46,8 @@ function render(m=mode){
  setBack(()=>location.assign('admin.html'+(origin.startsWith('#wc/')?origin:'#wc/avaliacao')),'← Voltar à Avaliação Física');
  if(m==='nova'){
   add(view,'p','Escolha como deseja realizar a avaliação.','muted');
-  button(view,'Realizar Avaliação','Preencher pessoalmente os dados do aluno',()=>location.assign('avaliacao-fisica.html?id='+encodeURIComponent(id)+'&origem='+encodeURIComponent(location.hash)));
-  button(view,'Enviar Avaliação ao Aluno','Solicitar medidas corporais, sem dobras cutâneas',()=>navigate('solicitar'));
+  button(view,'Realizar Avaliação','Preencher pessoalmente os dados do aluno',()=>location.assign('avaliacao-fisica.html?id='+encodeURIComponent(id)+'&origem='+encodeURIComponent(location.hash)),'edit');
+  button(view,'Enviar Avaliação ao Aluno','Solicitar medidas corporais, sem dobras cutâneas',()=>navigate('solicitar'),'send');
   return;
  }
  if(m==='solicitar'){
