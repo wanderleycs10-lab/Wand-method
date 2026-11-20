@@ -2,7 +2,7 @@
 -- O aluno não tem acesso a esta tabela nesta etapa. A futura área Minha Evolução terá política específica.
 create table if not exists public.wand_avaliacoes_posturais (
  id uuid primary key default gen_random_uuid(),
- aluno_id uuid not null references public.alunos(id) on delete cascade,
+ aluno_id bigint not null references public.alunos(id) on delete cascade,
  avaliado_em date not null default current_date,
  observacoes jsonb not null default '[]'::jsonb,
  prioridades text not null default '',
