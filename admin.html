@@ -336,9 +336,15 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
  }
  function draw(){
   const term=normalize(input.value);
-  grid.style.display=term?'none':'grid';
+  grid.style.display=(term||selected)?'none':'grid';
   for(const b of grid.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.modalidade===selected));
   list.replaceChildren();
+  if(selected&&!term){
+   const trocar=document.createElement('button');
+   trocar.type='button';trocar.className='wc-back';trocar.textContent='← Escolher outra modalidade';
+   trocar.addEventListener('click',()=>{selected=null;draw();});
+   list.append(trocar);
+  }
   if(!term&&!selected){
    const p=document.createElement('p');p.className='wc-student-hint';
    p.textContent='Selecione uma modalidade ou pesquise diretamente pelo nome.';list.append(p);return;
@@ -363,7 +369,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
   const icons={presencial:'atendimentoPresencial',online:'atendimentoOnline',semipresencial:'atendimentoSemi',pacote:'pacoteAulas'};
   const desc={presencial:'Alunos com atendimento presencial',online:'Alunos com consultoria online',semipresencial:'Atendimento presencial e online',pacote:'Alunos com pacote de aulas'};
   const count=wcFiltered(tipo).filter(a=>categoria(a)===id).length;
-  const b=wcRow([label,desc[id],icons[id]],()=>{selected=selected===id?null:id;draw();},count);
+  const b=wcRow([label,desc[id],icons[id]],()=>{selected=id;input.value='';draw();},count);
   b.dataset.modalidade=id;b.setAttribute('aria-pressed','false');
   grid.append(b);
  }
