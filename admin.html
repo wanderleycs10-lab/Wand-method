@@ -257,7 +257,10 @@ function wcBack(){wcToggleDrawer(false);wcSetRoute([]);wcInner.hidden=true;wcHom
 function wcBackContextual(){
  const hash=location.hash;
  const partes=hash.startsWith(wcRoutePrefix)?hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent):[];
- if(partes[0]==='anamnese'&&partes[1]==='pendencias'){wcPendenciasAnamnese();return;}
+ if(partes[0]==='anamnese'&&partes[1]==='pendencias'){
+  if(partes.length>2)wcPendenciasAnamnese();else wcMenu('anamnese');
+  return;
+ }
  if(partes[0]==='notificacoes'&&partes.length>1){wcCentralNotificacoes();return;}
  if(partes[0]&&partes.length>1&&wcMenus[partes[0]]){wcMenu(partes[0]);return;}
  wcBack();
@@ -437,11 +440,13 @@ async function wcPendenciasAnamnese(parent='anamnese',index=1){
    }
   }
   avaliacoes.sort((x,y)=>String(y.data).localeCompare(String(x.data)));
+  if(!area.isConnected)return;
   cards.get('pedidos').querySelector('.wc-count').textContent=String(pedidos.length);
   cards.get('avaliacoes').querySelector('.wc-count').textContent=String(avaliacoes.length);
 
  }catch(e){
   console.error('Erro ao consultar pendências de anamnese',e);
+  if(!area.isConnected)return;
   cards.get('pedidos').querySelector('.wc-count').textContent='0';
   cards.get('avaliacoes').querySelector('.wc-count').textContent='—';
   const aviso=document.createElement('p');aviso.textContent='Não foi possível consultar as avaliações pendentes.';area.append(aviso);
