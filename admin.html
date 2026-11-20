@@ -344,7 +344,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
    p.textContent='Selecione uma modalidade ou pesquise diretamente pelo nome.';list.append(p);return;
   }
   const students=wcFiltered(tipo).filter(a=>
-   (term?normalize(a.nome_completo).includes(term):categoria(a)===selected)
+   (term?normalize(a.nome_completo).startsWith(term):categoria(a)===selected)
   ).sort((a,b)=>String(a.nome_completo||'').localeCompare(String(b.nome_completo||''),'pt-BR'));
   if(!students.length){
    const p=document.createElement('p');p.textContent='Nenhum aluno encontrado para esta seleção.';list.append(p);return;
