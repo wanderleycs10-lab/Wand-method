@@ -336,7 +336,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
  }
  function draw(){
   const term=normalize(input.value);
-  grid.style.display=(term||selected)?'none':'grid';
+  grid.hidden=Boolean(term||selected);grid.style.setProperty('display',term||selected?'none':'grid','important');
   for(const b of grid.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.modalidade===selected));
   list.replaceChildren();
   if(selected&&!term){
@@ -369,7 +369,17 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
   const icons={presencial:'atendimentoPresencial',online:'atendimentoOnline',semipresencial:'atendimentoSemi',pacote:'pacoteAulas'};
   const desc={presencial:'Alunos com atendimento presencial',online:'Alunos com consultoria online',semipresencial:'Atendimento presencial e online',pacote:'Alunos com pacote de aulas'};
   const count=wcFiltered(tipo).filter(a=>categoria(a)===id).length;
-  const b=wcRow([label,desc[id],icons[id]],()=>{selected=id;input.value='';draw();},count);
+  const b=wcRow([label,desc[id],icons[id]],null,count);
+  b.onclick=null;
+  b.addEventListener('click',function(ev){
+   ev.preventDefault();ev.stopPropagation();
+   selected=id;input.value='';
+   try{draw();}catch(err){
+    console.error('WandCoach: falha ao selecionar modalidade',id,err);
+    grid.style.display='none';list.replaceChildren();
+    const aviso=document.createElement('p');aviso.textContent='Não foi possível abrir os alunos. Atualize a página e tente novamente.';list.append(aviso);
+   }
+  });
   b.dataset.modalidade=id;b.setAttribute('aria-pressed','false');
   grid.append(b);
  }
