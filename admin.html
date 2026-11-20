@@ -144,6 +144,18 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
 #wcInner .wc-onboard-card .wc-onboard-comms[open] summary{margin-bottom:12px}
 #wcInner .wc-onboard-card .wc-onboard-comms summary:focus-visible,
 #wcInner .wc-onboard-card a.wc-onboard-register:focus-visible{outline:2px solid #f0c65c;outline-offset:3px}
+
+/* WANDCOACH — padrão visual único aprovado: telas internas, cartões e retornos */
+body:has(#wcInner:not([hidden]))>header{display:none!important}
+#wcInner .wc-row{display:flex;align-items:center;gap:14px;min-height:84px;padding:15px 16px;color:#fff!important;background:linear-gradient(145deg,#33220d 0%,#1c1915 28%,#111 70%,#2a1a08 100%)!important;border:1px solid #a17c36!important;border-radius:19px!important;box-shadow:inset 0 2px 1px #ffdb8c73,inset 0 -3px 7px #d19b2840,0 10px 20px #0009,0 0 14px #d4a32b24!important}
+#wcInner .wc-row:hover{border-color:#e4b956!important}
+#wcInner .wc-row .wc-action-icon{display:grid;place-items:center;flex:0 0 43px;width:43px;height:43px;border:1px solid #9c7a3e;border-radius:13px;background:linear-gradient(145deg,#594018,#20180c);color:#f3c95f}
+#wcInner .wc-row .wc-action-icon svg{width:25px;height:25px;max-width:25px;max-height:25px}
+#wcInner .wc-row .wc-label strong{color:#fff;font-size:16px;font-weight:600}
+#wcInner .wc-row .wc-label small{color:#aaa;font-size:13px;line-height:1.4}
+#wcInner .wc-row>span:last-child{color:#d4af37;font-size:23px}
+#wcInner .wc-back{display:inline-flex!important;width:auto!important;max-width:100%;align-items:center;min-height:44px;padding:11px 15px!important;margin:12px 0!important;background:transparent!important;color:#d4af37!important;border:1px solid #a88b32!important;border-radius:10px!important;box-shadow:none!important;font-weight:500!important;text-shadow:none!important}
+#wcInner .wc-back:hover{background:#282116!important}
 </style></head>
 <body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><p>WANDCOACH · PAINEL DO TREINADOR</p></header>
 <main><p id="status" role="status">Verificando acesso...</p><section id="painel">
@@ -267,7 +279,7 @@ function wcBackContextual(){
 }
 $('wcBackTop').onclick=wcBackContextual;$('wcBackBottom').onclick=wcBackContextual;
 function wcOpen(title,desc){wcHome.hidden=true;wcInner.hidden=false;wcLegacy.classList.remove('wc-open');$('wcTitle').textContent=title;$('wcSubtitle').textContent=desc||'';wcContent.replaceChildren();const parts=location.hash.startsWith(wcRoutePrefix)?location.hash.slice(wcRoutePrefix.length).split('/'):[];const isNotif=decodeURIComponent(parts[0]||'')==='notificacoes'&&parts.length>1;const isSub=parts.length>1&&!!wcMenus[decodeURIComponent(parts[0])];for(const id of ['wcBackTop','wcBackBottom'])$(id).textContent=isNotif?'← Voltar para Notificações':isSub?'← Voltar para '+wcMenus[decodeURIComponent(parts[0])].name:'← Voltar ao painel';window.scrollTo(0,0)}
-function wcRow(item,fn,count){const b=document.createElement('button');b.type='button';b.className='wc-row';b.innerHTML=wcIcon(item[2])+'<span class="wc-label"><strong></strong><small></small></span>'+(count===undefined?'':'<span class="wc-count"></span>')+'<span aria-hidden="true">›</span>';b.querySelector('strong').textContent=item[0];b.querySelector('small').textContent=item[1];if(count!==undefined)b.querySelector('.wc-count').textContent=count;b.onclick=fn;return b}
+function wcRow(item,fn,count){const b=document.createElement('button');b.type='button';b.className='wc-row';b.innerHTML='<span class="wc-action-icon" aria-hidden="true">'+wcIcon(item[2])+'</span><span class="wc-label"><strong></strong><small></small></span>'+(count===undefined?'':'<span class="wc-count"></span>')+'<span aria-hidden="true">›</span>';b.querySelector('strong').textContent=item[0];b.querySelector('small').textContent=item[1];if(count!==undefined)b.querySelector('.wc-count').textContent=count;b.onclick=fn;return b}
 function wcMesmoInteressado(pedido,aluno){
  if(pedido.aluno_id!=null&&String(pedido.aluno_id)===String(aluno.id))return true;
  const emailPedido=String(pedido.email||'').trim().toLowerCase();
