@@ -27,6 +27,9 @@
   let processando = false;
   let exibirTermos = false;
   let guia = "masculino";
+  let guiaAberto = false;
+  let instrucoesAbertas = false;
+  let autorizacoesAbertas = false;
 
   const estilo = document.createElement("style");
 
@@ -227,6 +230,18 @@
       color:#bcbcbc;
       font-size:12px;
     }
+
+    #wand-fotos .wf-disclosure{border:1px solid #63543b;border-radius:14px;background:linear-gradient(145deg,#292522,#151515 72%,#271c10);margin:12px 0;overflow:hidden}
+    #wand-fotos .wf-disclosure>summary{cursor:pointer;list-style:none;padding:15px 17px;color:#f3d18a;font-size:16px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+    #wand-fotos .wf-disclosure>summary::-webkit-details-marker{display:none}
+    #wand-fotos .wf-disclosure>summary:after{content:'⌄';font-size:22px;color:#eac067}
+    #wand-fotos .wf-disclosure[open]>summary:after{content:'⌃'}
+    #wand-fotos .wf-disclosure-body{padding:0 15px 14px}
+    #wand-fotos .wf-disclosure-body>.wf-box{margin:4px 0}
+    #wand-fotos .wf-compact-status{margin:12px 0;padding:13px 16px;border:1px solid #655439;border-radius:13px;background:#211e19}
+    #wand-fotos .wf-compact-status .wf-status{margin:0;font-size:15px}
+    #wand-fotos .wf-guide-choice{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+    #wand-fotos .wf-guide-choice .wf-button{flex:1;min-width:130px}
 
     @media(max-width:600px) {
       #wand-fotos {
@@ -1051,48 +1066,15 @@ as condições legais aplicáveis.
 
     const status = statusAtual();
 
-    const topo = adicionar(
-      container,
-      "div",
-      "wf-box"
-    );
-
-    adicionar(
-      topo,
-      "p",
-      "wf-status",
-      "Avaliação fotográfica: " +
-      (
-        status === "autorizada"
-          ? "AUTORIZADA"
-          : status === "recusada"
-            ? "RECUSADA"
-            : "PENDENTE"
-      )
-    );
-
-    adicionar(
-      topo,
-      "p",
-      "wf-muted",
-      "Divulgação: " +
-      (
-        consentimento?.divulgacao_autorizada
-          ? "Autorização inicial registrada. " +
-            "Publicação depende de aprovação específica."
-          : "Não autorizada."
-      )
-    );
-
-    if (pagina === "perfil-aluno.html") {
-      adicionar(
-        topo,
-        "p",
-        "wf-small",
-        "As autorizações devem ser registradas " +
-        "pelo próprio aluno na conta dele."
-      );
-    }
+    const topo = adicionar(container,"div","wf-compact-status");
+    adicionar(topo,"p","wf-status","Avaliação fotográfica: "+(status==="autorizada"?"AUTORIZADA":status==="recusada"?"RECUSADA":"PENDENTE"));
+    const autorizacoes=adicionar(container,"details","wf-disclosure");
+    autorizacoes.open=autorizacoesAbertas;
+    autorizacoes.addEventListener("toggle",()=>{autorizacoesAbertas=autorizacoes.open;});
+    adicionar(autorizacoes,"summary",null,"Privacidade e autorizações");
+    const corpoAutorizacoes=adicionar(autorizacoes,"div","wf-disclosure-body");
+    adicionar(corpoAutorizacoes,"p","wf-muted","Divulgação: "+(consentimento?.divulgacao_autorizada?"Autorização inicial registrada. Publicação depende de aprovação específica.":"Não autorizada."));
+    if(pagina==="perfil-aluno.html")adicionar(corpoAutorizacoes,"p","wf-small","As autorizações devem ser registradas pelo próprio aluno na conta dele.");
 
     if (status === "recusada") {
       avisoRecusa(container);
@@ -1109,57 +1091,23 @@ as condições legais aplicáveis.
     }
 
     if (status === "autorizada") {
-      const guiaBox = adicionar(
-        container,
-        "div",
-        "wf-box"
-      );
+      // Fotos em destaque; orientações e opções ficam recolhidas até o usuário solicitar.
+      const guiaBox=adicionar(container,"details","wf-disclosure");
+      guiaBox.open=guiaAberto;
+      guiaBox.addEventListener("toggle",()=>{guiaAberto=guiaBox.open;});
+      adicionar(guiaBox,"summary",null,"Guia visual · Modelo "+(guia==="masculino"?"masculino":"feminino"));
+      const guiaConteudo=adicionar(guiaBox,"div","wf-disclosure-body");
+      const botoes=adicionar(guiaConteudo,"div","wf-guide-choice");
+      botoes.appendChild(botao("Modelo masculino",()=>{guia="masculino";guiaAberto=true;renderizar();},guia!=="masculino"));
+      botoes.appendChild(botao("Modelo feminino",()=>{guia="feminino";guiaAberto=true;renderizar();},guia!=="feminino"));
 
-      adicionar(
-        guiaBox,
-        "h3",
-        null,
-        "Guia visual"
-      );
+      const instrucoesBox=adicionar(container,"details","wf-disclosure");
+      instrucoesBox.open=instrucoesAbertas;
+      instrucoesBox.addEventListener("toggle",()=>{instrucoesAbertas=instrucoesBox.open;});
+      adicionar(instrucoesBox,"summary",null,"Como tirar suas fotografias");
+      const instrucoesConteudo=adicionar(instrucoesBox,"div","wf-disclosure-body");
+      instrucoes(instrucoesConteudo);
 
-      const botoes = adicionar(
-        guiaBox,
-        "div",
-        "wf-actions"
-      );
-
-      botoes.appendChild(
-        botao(
-          "Modelo masculino",
-          () => {
-            guia = "masculino";
-            renderizar();
-          },
-          guia !== "masculino"
-        )
-      );
-
-      botoes.appendChild(
-        botao(
-          "Modelo feminino",
-          () => {
-            guia = "feminino";
-            renderizar();
-          },
-          guia !== "feminino"
-        )
-      );
-
-      adicionar(
-        guiaBox,
-        "p",
-        "wf-small",
-        "As imagens são referências de posição, " +
-        "não de biotipo. Mantenha sua postura natural."
-      );
-
-      // Primeiro as orientações, depois as imagens.
-      instrucoes(container);
       cartoes(container);
 
       if (
