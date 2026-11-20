@@ -408,7 +408,7 @@ async function wcSolicitacoesCadastro(parent='alunos',index=0){
 }
 async function wcPendenciasAnamnese(parent='anamnese',index=1){
  wcSetRoute([parent,'item',String(index)]);
- wcOpen('Acompanhar Pendências','Anamneses que aguardam sua análise. Sem filtros de modalidade.');
+ wcOpen('Acompanhar Pendências','');
  const area=document.createElement('div');area.className='wc-student-list';
  area.textContent='Consultando pendências de anamnese…';wcContent.append(area);
  try{
