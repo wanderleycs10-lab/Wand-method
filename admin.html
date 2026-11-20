@@ -171,6 +171,11 @@ const status=document.getElementById('status'),painel=document.getElementById('p
 const $=id=>document.getElementById(id);
 
 const wcIcons={
+atendimentoPresencial:'<circle cx="7" cy="5" r="2"/><path d="M3.5 18v-5a3.5 3.5 0 0 1 7 0v5M14 10h7M14 14h7M15.5 8.5v7M19.5 8.5v7"/>',
+atendimentoOnline:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M1.5 20h21M9 10.5a4.5 4.5 0 0 1 6 0M10.5 12.5a2.3 2.3 0 0 1 3 0M12 14.5h.01"/>',
+atendimentoSemi:'<rect x="11" y="5" width="11" height="12" rx="1.5"/><path d="M10 20h13M15 11a3 3 0 0 1 4 0M17 13h.01"/><circle cx="5" cy="7" r="2"/><path d="M1.5 19v-5a3.5 3.5 0 0 1 7 0v5"/>',
+pacoteAulas:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M7 14h3M14 14h3M7 18h3M14 18h3"/>',
+
 dumbbell:'<path d="m6.5 6.5 11 11M4 9l5-5M2.5 7.5l5-5M15 20l5-5M16.5 21.5l5-5"/>',
 users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
 clipboard:'<rect x="5" y="4" width="14" height="18" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/>',
@@ -355,7 +360,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
   });
  }
  for(const [id,label] of categories){
-  const icons={presencial:'dumbbell',online:'message',semipresencial:'activity',pacote:'book'};
+  const icons={presencial:'atendimentoPresencial',online:'atendimentoOnline',semipresencial:'atendimentoSemi',pacote:'pacoteAulas'};
   const desc={presencial:'Alunos com atendimento presencial',online:'Alunos com consultoria online',semipresencial:'Atendimento presencial e online',pacote:'Alunos com pacote de aulas'};
   const count=wcFiltered(tipo).filter(a=>categoria(a)===id).length;
   const b=wcRow([label,desc[id],icons[id]],()=>{selected=selected===id?null:id;draw();},count);
