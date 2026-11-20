@@ -20,7 +20,37 @@ const link=(name,desc,url,parent=area)=>{const a=make('a',name,parent,'person');
 const card=(title,sub,icon,count,fn)=>{const b=make('button',undefined,area,'action');b.type='button';make('span',icon,b,'symbol');const copy=make('span',undefined,b,'copy');make('strong',title,copy);make('small',sub,copy);make('span',count===null?'›':String(count),b,'count');b.onclick=fn;return b};
 const goBack=()=>{location.href='admin.html'+(origin.startsWith('#wc/')?origin:'#wc/fotografica')};
 function view(title,sub,fn){area.replaceChildren();$('heading').textContent=title;$('subtitle').textContent=sub;$('back').onclick=fn||goBack;info('')}
-function list(title,sub,items,fn,empty){view(title,sub,()=>home());const search=make('input');search.placeholder='Buscar aluno pelo nome';search.setAttribute('aria-label','Buscar aluno');const holder=make('div');function draw(){holder.replaceChildren();const term=norm(search.value);const rows=items.filter(a=>norm(a.nome_completo).includes(term)).sort((a,b)=>a.nome_completo.localeCompare(b.nome_completo,'pt-BR'));if(!rows.length){make('p',empty||'Nenhum aluno encontrado.',holder,'muted');return}for(const a of rows)link(a.nome_completo,fn.description(a),fn.url(a),holder)}search.oninput=draw;draw()}
+function categoria(a){const m=norm(a.modalidade).replace(/[\\s_-]+/g,' ');if(m.includes('semi')&&m.includes('presencial'))return 'semipresencial';if(m.includes('pacote')||m.includes('aula avulsa'))return 'pacote';if(m.includes('online')||m.includes('on line'))return 'online';if(m.includes('presencial'))return 'presencial';return 'outros'}
+function list(title,sub,items,fn,empty){
+ view(title,sub,()=>home());
+ const search=make('input');search.placeholder='Buscar aluno pelo nome';search.setAttribute('aria-label','Buscar aluno');
+ const filtro=make('button',undefined,area,'action');filtro.type='button';filtro.style.minHeight='70px';
+ const options=make('div');options.className='card';options.hidden=true;
+ const holder=make('div');
+ const names={todos:'Todos',presencial:'Presencial',online:'Online',semipresencial:'Semipresencial',pacote:'Pacote de aulas',outros:'Outras modalidades'};
+ let selected='todos',open=false;
+ function draw(){
+  filtro.replaceChildren();
+  make('span','☷',filtro,'symbol');
+  const copy=make('span',undefined,filtro,'copy');
+  make('strong',names[selected],copy);make('small','Filtrar por modalidade',copy);
+  make('span',open?'⌃':'⌄',filtro,'count');
+  filtro.setAttribute('aria-expanded',String(open));
+  options.hidden=!open;options.replaceChildren();
+  if(open)for(const [key,label] of Object.entries(names)){
+   if(key==='outros'&&!items.some(a=>categoria(a)==='outros'))continue;
+   const opt=make('button',(selected===key?'✓  ':'')+label,options,'person');opt.type='button';
+   opt.onclick=()=>{selected=key;open=false;draw()};
+  }
+  holder.replaceChildren();
+  const term=norm(search.value);
+  const rows=items.filter(a=>(selected==='todos'||categoria(a)===selected)&&norm(a.nome_completo).includes(term)).sort((a,b)=>a.nome_completo.localeCompare(b.nome_completo,'pt-BR'));
+  if(!rows.length){make('p',empty||'Nenhum aluno encontrado para esta busca ou modalidade.',holder,'muted');return}
+  for(const a of rows)link(a.nome_completo,fn.description(a),fn.url(a),holder);
+ }
+ filtro.onclick=()=>{open=!open;draw()};
+ search.oninput=draw;draw();
+}
 function home(){if(mode==='postural'){view('Análise Postural','Avalie as fotografias, registre observações e libere pareceres ao aluno.');if(!available.postural)info('A tabela de análises posturais não está disponível. Configure o SQL correspondente no Supabase.',true);card('Avaliações Pendentes','Fotografias aguardando análise profissional','◷',pendingStudents().length,()=>list('Avaliações Pendentes','Alunos com fotos e sem parecer postural publicado.',pendingStudents(),{url:a=>href('avaliacao-postural.html',a.id),description:a=>groups(a.id)+' registro(s) fotográfico(s)'},'Nenhuma avaliação pendente.'));card('Avaliações Concluídas','Pareceres publicados e histórico','✓',new Set(posturals.filter(p=>p.status==='publicado').map(p=>String(p.aluno_id))).size,()=>list('Avaliações Concluídas','Selecione um aluno para consultar suas análises.',students.filter(a=>published(a.id).length),{url:a=>href('avaliacao-postural.html',a.id),description:a=>published(a.id).length+' parecer(es) publicado(s)'},'Nenhuma avaliação concluída.'));card('Nova Análise Postural','Selecionar aluno e iniciar avaliação','+',null,()=>list('Nova Análise Postural','Selecione um aluno para iniciar ou continuar.',students,{url:a=>href('avaliacao-postural.html',a.id),description:a=>a.modalidade||'Modalidade não informada'},'Nenhum aluno disponível.'));return}
 if(mode==='comparar'){view('Comparar Fotografias','Acompanhe a evolução visual do aluno ao longo do tempo.');card('Nova Comparação','Escolher aluno, duas datas e posição','⇄',null,()=>list('Nova Comparação','Alunos com pelo menos duas datas de fotografias.',students.filter(a=>groups(a.id)>=2),{url:a=>href('avaliacao-fotografica-painel.html',a.id,'&modo=comparar'),description:a=>groups(a.id)+' datas disponíveis'},'Nenhum aluno possui duas datas de fotografias para comparar.'));card('Histórico de Comparações','Comparações salvas anteriormente','▤',null,()=>{view('Histórico de Comparações','Registro de comparações profissionais.');make('p','Ainda não há um histórico persistente de comparações configurado. As comparações visuais atuais não são salvas automaticamente.',area,'card')});card('Linha do Tempo Fotográfica','Registros organizados por data','▦',null,()=>list('Linha do Tempo Fotográfica','Escolha o aluno para visualizar as datas registradas.',students.filter(a=>groups(a.id)>0),{url:a=>href('avaliacao-fotografica-painel.html',a.id,'&modo=consultar'),description:a=>groups(a.id)+' data(s) fotográfica(s)'},'Nenhum registro fotográfico disponível.'));return}
 if(mode==='autorizacoes'){view('Autorizações Fotográficas','Acompanhe consentimentos de uso interno e divulgação.');if(!available.consent){info('Tabela de autorizações não disponível. Execute o SQL e integre a concessão pelo aluno para habilitar os contadores.',true);card('Autorizações Pendentes','Dados indisponíveis','◷','—',()=>{view('Autorizações Pendentes','Dados indisponíveis.');make('p','Não é possível identificar pendências sem a tabela de consentimentos.',area,'card')});card('Autorizações Concedidas','Dados indisponíveis','✓','—',()=>{view('Autorizações Concedidas','Dados indisponíveis.');make('p','Não é possível confirmar autorizações sem registros válidos.',area,'card')});return}const waiting=students.filter(a=>!consented(a.id)),done=students.filter(a=>consented(a.id));card('Autorizações Pendentes','Alunos sem autorização interna válida','◷',waiting.length,()=>list('Autorizações Pendentes','Alunos que ainda não autorizaram o uso interno das imagens.',waiting,{url:a=>href('avaliacao-fotografica-painel.html',a.id,'&modo=autorizacoes'),description:a=>'Autorização interna pendente'},'Nenhuma autorização pendente.'));card('Autorizações Concedidas','Alunos com autorização interna válida','✓',done.length,()=>list('Autorizações Concedidas','Alunos com autorização de avaliação registrada.',done,{url:a=>href('avaliacao-fotografica-painel.html',a.id,'&modo=autorizacoes'),description:a=>{const c=consents.find(c=>String(c.aluno_id)===String(a.id)&&c.tipo==='avaliacao'&&!c.revogada_em);return 'Autorizada em '+date(c?.concedida_em||c?.criado_em)}},'Nenhuma autorização concedida.'));return}}
