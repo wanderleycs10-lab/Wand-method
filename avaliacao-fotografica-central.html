@@ -13,7 +13,7 @@ const active=s=>!['inativo','excluido','excluído'].includes(norm(s.Status));
 const photoKey=p=>String(p.aluno_id)+'|'+String(p.criado_em||'').slice(0,10);
 const groups=id=>new Set(photos.filter(p=>String(p.aluno_id)===String(id)).map(photoKey)).size;
 const published=id=>posturals.filter(p=>String(p.aluno_id)===String(id)&&p.status==='publicado');
-const pending=id=>photos.some(p=>String(p.aluno_id)===String(id))&&!published(id).length;
+const pending=id=>{const fotos=photos.filter(p=>String(p.aluno_id)===String(id));if(!fotos.length)return false;const ultimaFoto=fotos.map(p=>String(p.criado_em||'').slice(0,10)).sort().at(-1);const ultimaPublicada=published(id).map(p=>String(p.avaliado_em||'').slice(0,10)).sort().at(-1);return !ultimaPublicada||ultimaFoto>ultimaPublicada};
 const consented=id=>consents.some(c=>String(c.aluno_id)===String(id)&&c.tipo==='avaliacao'&&!c.revogada_em);
 const href=(page,id,extra='')=>page+'?id='+encodeURIComponent(id)+extra+'&origem='+encodeURIComponent(location.href);
 const link=(name,desc,url,parent=area)=>{const a=make('a',name,parent,'person');a.href=url;make('small',desc,a);return a};
