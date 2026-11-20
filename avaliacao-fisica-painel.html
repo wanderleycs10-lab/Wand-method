@@ -1,11 +1,11 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Avaliação Física | WandCoach</title><link rel="stylesheet" href="./wand-premium.css"><style>
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(ellipse at 90% 8%,#5e3a1052,transparent 32%),radial-gradient(ellipse at 5% 65%,#40290942,transparent 43%),#070707;color:#eee;font:15px Arial,sans-serif}
-header{text-align:center;padding:22px 16px;background:linear-gradient(135deg,#151007,#090909 50%,#211608);border-bottom:1px solid #b58a3866;box-shadow:0 5px 22px #bc8c211c}
+header{display:none!important;text-align:center;padding:22px 16px;background:linear-gradient(135deg,#151007,#090909 50%,#211608);border-bottom:1px solid #b58a3866;box-shadow:0 5px 22px #bc8c211c}
 header img{display:block;width:68px;height:68px;object-fit:contain;margin:0 auto 8px;filter:drop-shadow(0 4px 9px #e2ac3333)}
 header h1{font-size:23px;letter-spacing:1px;margin:6px 0;color:#f3c95f}
 header .subtitle{color:#c4b8a4;font-size:12px;letter-spacing:1px}
-main{max-width:850px;margin:auto;padding:20px 16px}
+main{max-width:850px;margin:auto;padding:20px 16px 120px}
 h2{color:#f3c95f;font-size:clamp(23px,5vw,30px);margin:16px 0 8px}
 button,.btn{display:block;width:100%;background:#191919;color:#f4d57a;border:1px solid #796126;border-radius:12px;padding:15px;text-align:left;cursor:pointer;text-decoration:none;font:inherit;margin:10px 0}
 button:hover,.btn:hover{background:#292417}
@@ -24,7 +24,7 @@ label{display:block;margin:12px 0}.grid{display:grid;grid-template-columns:repea
 .action-icon svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .action-text{flex:1;min-width:0}.action-text strong{display:block;font-size:16px;color:#fff;font-weight:600}.action-text small{font-size:13px;line-height:1.4;color:#aaa;margin-top:5px}.action-arrow{font-size:24px;color:#d4af37}
 #heading small{font-size:14px;color:#c4b8a4;font-weight:400;margin-top:8px}
-</style></head><body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><div class="subtitle">WANDCOACH · AVALIAÇÃO FÍSICA</div></header><main><a class="btn back" id="back" href="admin.html">← Voltar</a><h2 id="heading">Carregando…</h2><p id="notice" role="status"></p><section id="view"></section></main>
+ .wand-dock{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:min(96%,600px);z-index:20;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:9px;border:1px solid #ad873c;border-radius:22px;background:linear-gradient(135deg,#21190c,#0e0e0e 55%,#24190b);box-shadow:0 4px 18px #000c}.wand-dock a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:65px;padding:8px 2px;text-decoration:none;color:#eee;border:1px solid #777;border-radius:14px;background:linear-gradient(145deg,#292929,#101010);font-size:13px}.wand-dock a span{font-size:27px;line-height:1}.wand-dock a small{color:#eee;font-size:11px;margin:0}</style></head><body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><h1>WAND METHOD</h1><div class="subtitle">WANDCOACH · AVALIAÇÃO FÍSICA</div></header><main><a class="btn back" id="back" href="admin.html">← Voltar</a><h2 id="heading">Carregando…</h2><p id="notice" role="status"></p><section id="view"></section></main><nav class="wand-dock" aria-label="Navegação WandCoach"><a href="admin.html" aria-label="Início"><span>⌂</span><small>Início</small></a><a href="admin.html#wc/alunos" aria-label="Alunos"><span>♙</span><small>Alunos</small></a><a href="admin.html#wc/treinos" aria-label="Treinos"><span>▤</span><small>Treinos</small></a><a href="admin.html#wc/evolucao" aria-label="Evolução"><span>▥</span><small>Evolução</small></a><a href="admin.html#wc/avaliacao" aria-label="Menu"><span>☷</span><small>Menu</small></a></nav>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
