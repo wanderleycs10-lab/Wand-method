@@ -422,7 +422,12 @@ async function wcPendenciasAnamnese(parent='anamnese',index=1){
  const detalhe=document.createElement('div');detalhe.className='wc-student-list';detalhe.style.marginTop='18px';wcContent.append(detalhe);
  let avaliacoes=[],pedidos=[];
  function abrir(tipo){
+  area.hidden=true;
   detalhe.replaceChildren();
+  const voltar=document.createElement('button');voltar.type='button';voltar.className='wc-back';
+  voltar.textContent='← Voltar às pendências';
+  voltar.addEventListener('click',()=>{detalhe.replaceChildren();area.hidden=false;});
+  detalhe.append(voltar);
   const titulo=document.createElement('h3');titulo.textContent=tipo==='pedidos'?'Pedidos de Anamnese':'Avaliação de Anamneses';detalhe.append(titulo);
   const registros=tipo==='pedidos'?pedidos:avaliacoes;
   if(!registros.length){
