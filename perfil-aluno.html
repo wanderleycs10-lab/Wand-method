@@ -628,8 +628,10 @@ function painelAlteracoesAnamnese(registros){
  const eventos=registros.flatMap(r=>Array.isArray(r.respostas?._historico_alteracoes)?r.respostas._historico_alteracoes:[]);
  const unicos=[...new Map(eventos.map(e=>[e.id||e.data+e.tipo,e])).values()].sort((a,b)=>String(b.data).localeCompare(String(a.data)));
  const bloco=elemento("section","wand-anamnese-destaques");
- bloco.appendChild(elemento("h4",null,"Alterações de saúde e anamnese"));
- if(!unicos.length){bloco.appendChild(elemento("p","muted","Nenhuma alteração posterior à conclusão registrada."));return bloco;}
+ const inicial=registros.length?registros[registros.length-1]:null;
+ bloco.appendChild(elemento("h4",null,"Histórico de Alterações"));
+ if(inicial)bloco.appendChild(elemento("p","muted","Ficha inicial registrada em "+dataBR(inicial.created_at)+"."));
+ if(!unicos.length){bloco.appendChild(elemento("p","muted","Nenhuma alteração registrada até o momento."));return bloco;}
  bloco.appendChild(elemento("p","muted",unicos.length+" atualização(ões) registrada(s). Confira somente as respostas modificadas abaixo."));
  for(const e of unicos){
   const detalhe=elemento("details","wand-anamnese-alerta");
@@ -660,14 +662,24 @@ if(!data?.length){
 adicionarTexto(area,"p","Este aluno ainda não possui anamnese.","muted");
 return;
 }
+// Uma ficha principal por aluno; preservar registros anteriores sem duplicar a navegação.
+const atual=data[0];
+const ficha=elemento("details");
+ficha.open=true;
+ficha.appendChild(elemento("summary",null,"Ficha de Saúde · Atualizada em "+dataBR(atual.created_at)+" · "+(atual.status||"—")));
+ficha.appendChild(resumoInteligenteAnamnese(atual.respostas));
+area.appendChild(ficha);
 area.appendChild(painelAlteracoesAnamnese(data));
-for(const [i,a] of data.entries()){
-const detalhe=elemento("details");
-const resumo=elemento("summary",null,
-"Anamnese "+(i+1)+" · "+dataBR(a.created_at)+" · "+(a.status||"—"));
-detalhe.appendChild(resumo);
-detalhe.appendChild(resumoInteligenteAnamnese(a.respostas));
-area.appendChild(detalhe);
+if(data.length>1){
+ const anteriores=elemento("details");
+ anteriores.appendChild(elemento("summary",null,"Registros anteriores preservados ("+(data.length-1)+")"));
+ for(const [i,registro] of data.slice(1).entries()){
+  const detalhe=elemento("details");
+  detalhe.appendChild(elemento("summary",null,"Registro anterior "+(i+1)+" · "+dataBR(registro.created_at)));
+  detalhe.appendChild(resumoInteligenteAnamnese(registro.respostas));
+  anteriores.appendChild(detalhe);
+ }
+ area.appendChild(anteriores);
 }
 }
 
