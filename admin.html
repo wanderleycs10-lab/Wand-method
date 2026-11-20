@@ -409,38 +409,59 @@ async function wcSolicitacoesCadastro(parent='alunos',index=0){
 async function wcPendenciasAnamnese(parent='anamnese',index=1){
  wcSetRoute([parent,'item',String(index)]);
  wcOpen('Acompanhar Pendências','');
- const area=document.createElement('div');area.className='wc-student-list';
- area.textContent='Consultando pendências de anamnese…';wcContent.append(area);
+ const area=document.createElement('div');area.className='wc-list';wcContent.append(area);
+ const categorias=[
+  {titulo:'Pedidos de Anamnese',descricao:'Aguardando envio da ficha',icon:'clipboard',tipo:'pedidos'},
+  {titulo:'Avaliação de Anamneses',descricao:'Respostas que precisam de revisão',icon:'activity',tipo:'avaliacoes'}
+ ];
+ const cards=new Map();
+ for(const c of categorias){
+  const btn=wcRow([c.titulo,c.descricao,c.icon],()=>abrir(c.tipo),'…');
+  area.append(btn);cards.set(c.tipo,btn);
+ }
+ const detalhe=document.createElement('div');detalhe.className='wc-student-list';detalhe.style.marginTop='18px';wcContent.append(detalhe);
+ let avaliacoes=[],pedidos=[];
+ function abrir(tipo){
+  detalhe.replaceChildren();
+  const titulo=document.createElement('h3');titulo.textContent=tipo==='pedidos'?'Pedidos de Anamnese':'Avaliação de Anamneses';detalhe.append(titulo);
+  const registros=tipo==='pedidos'?pedidos:avaliacoes;
+  if(!registros.length){
+   const vazio=document.createElement('div');vazio.className='wc-person';
+   vazio.textContent=tipo==='pedidos'?'Nenhum pedido de anamnese pendente no momento.':'Nenhuma anamnese aguardando análise no momento.';
+   detalhe.append(vazio);return;
+  }
+  for(const p of registros){
+   const aluno=alunosCarregados.find(a=>String(a.id)===String(p.aluno_id));
+   const link=document.createElement('a');link.className='wc-person';
+   link.href='perfil-aluno.html?id='+encodeURIComponent(p.aluno_id)+'&aba=anamnese&origem='+encodeURIComponent(location.hash);
+   const nome=document.createElement('strong');nome.textContent=aluno?.nome_completo||'Aluno cadastrado';
+   const info=document.createElement('small');info.textContent=p.tipo+(p.data?' · '+new Date(p.data).toLocaleDateString('pt-BR'):'');
+   link.append(nome,info);detalhe.append(link);
+  }
+ }
  try{
+  // Pedidos exigem uma solicitação registrada; não considerar todos os alunos sem ficha como pedidos.
+  pedidos=[];
   const {data,error}=await supabase.from('anamneses').select('aluno_id,respostas,created_at').order('created_at',{ascending:false}).limit(500);
   if(error)throw error;
-  const revisadas=wcRevisadas(),seen=new Set(),pendencias=[];
+  const revisadas=wcRevisadas(),seen=new Set();
   for(const registro of data||[]){
    const alteracoes=Array.isArray(registro.respostas?._historico_alteracoes)?registro.respostas._historico_alteracoes:[];
    for(const evento of alteracoes){
     const chave=evento.id||evento.data+evento.tipo;
     if(!chave||seen.has(chave)||revisadas.has(chave))continue;
     seen.add(chave);
-    pendencias.push({chave,aluno_id:registro.aluno_id,data:evento.data||registro.created_at||'',tipo:evento.tipo==='triagem_saude'?'Triagem de saúde atualizada':'Anamnese atualizada'});
+    avaliacoes.push({chave,aluno_id:registro.aluno_id,data:evento.data||registro.created_at||'',tipo:evento.tipo==='triagem_saude'?'Triagem de saúde atualizada':'Anamnese atualizada'});
    }
   }
-  pendencias.sort((a,b)=>String(b.data).localeCompare(String(a.data)));
-  area.replaceChildren();
-  if(!pendencias.length){
-   const vazio=document.createElement('div');vazio.className='wc-person';
-   vazio.textContent='Nenhuma anamnese aguardando análise no momento.';area.append(vazio);return;
-  }
-  for(const p of pendencias){
-   const aluno=alunosCarregados.find(a=>String(a.id)===String(p.aluno_id));
-   const link=document.createElement('a');link.className='wc-person';
-   link.href='perfil-aluno.html?id='+encodeURIComponent(p.aluno_id)+'&aba=anamnese&origem='+encodeURIComponent(location.hash);
-   const nome=document.createElement('strong');nome.textContent=aluno?.nome_completo||'Aluno cadastrado';
-   const detalhe=document.createElement('small');detalhe.textContent=p.tipo+' · Pendente de análise'+(p.data?' · '+new Date(p.data).toLocaleDateString('pt-BR'):'');
-   link.append(nome,detalhe);area.append(link);
-  }
+  avaliacoes.sort((x,y)=>String(y.data).localeCompare(String(x.data)));
+  cards.get('pedidos').querySelector('.wc-count').textContent=String(pedidos.length);
+  cards.get('avaliacoes').querySelector('.wc-count').textContent=String(avaliacoes.length);
  }catch(e){
-  console.error('Erro ao carregar pendências de anamnese',e);
-  area.textContent='Não foi possível consultar as pendências. Tente atualizar a página.';
+  console.error('Erro ao consultar pendências de anamnese',e);
+  cards.get('pedidos').querySelector('.wc-count').textContent='0';
+  cards.get('avaliacoes').querySelector('.wc-count').textContent='—';
+  detalhe.textContent='Não foi possível consultar as avaliações pendentes.';
  }
 }
 function wcAction(item,parent,index){const dest=item[3];if(dest==='pendencias-anamnese'){wcPendenciasAnamnese(parent,index);return}if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
