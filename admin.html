@@ -200,7 +200,7 @@ const wcMenus={
 treinos:{name:'Treinos',desc:'Prescrição e gestão',icon:'dumbbell',items:[['Prescrever Treino','Criar programas para alunos','clipboard','students'],['Gerenciar Treinos','Ativos, rascunhos e arquivados','book','gerenciar-treinos.html'],['Biblioteca de Exercícios','Consultar e cadastrar exercícios','dumbbell','biblioteca-exercicios.html'],['Modelos de Treino','Programas reutilizáveis','book','gerenciar-treinos.html'],['Iniciar Treino Assistido','Acompanhar sessão presencial','play','treino-presencial.html'],['Histórico de Treinos','Execuções e interrupções','history','students']]},
 contratos:{name:'Contratos',desc:'Propostas, aceites e pagamentos',icon:'book',items:[['Todos os contratos','Consultar e acompanhar propostas','book','contratos-admin.html?view=lista'],['Contrato por aluno','Selecionar aluno e consultar documentos','users','contratos-admin.html?view=lista'],['Nova proposta','Gerar e enviar contrato','plus','contratos-admin.html']]},
 alunos:{name:'Meus Alunos',desc:'Cadastros e status',icon:'users',items:[['Solicitações de Cadastro','Interessados aguardando aprovação','plus','solicitacoes'],['Novos Alunos','Contratação e integração inicial','users','novos'],['Alunos Ativos','Alunos em acompanhamento','check','ativos'],['Alunos Inativos','Cadastros desativados','archive','inativos'],['Alunos Excluídos','Registros excluídos','trash','excluidos'],['Cadastrar Aluno','Novo cadastro','plus','cadastro-aluno.html']]},
-anamnese:{name:'Anamneses',desc:'Saúde, respostas e acompanhamento',icon:'clipboard',items:[['Consultar Anamnese','Abrir a ficha de saúde de um aluno','clipboard','students'],['Acompanhar Pendências','Verificar respostas e solicitações por aluno','activity','students'],['Histórico de Anamneses','Consultar registros anteriores','history','students']]},
+anamnese:{name:'Anamneses',desc:'Saúde, respostas e acompanhamento',icon:'clipboard',items:[['Consultar Anamnese','Abrir a ficha de saúde de um aluno','clipboard','students'],['Acompanhar Pendências','Anamneses recebidas que precisam de análise','activity','pendencias-anamnese'],['Histórico de Anamneses','Consultar registros anteriores','history','students']]},
 avaliacao:{name:'Avaliação Física',desc:'Medidas, resultados e reavaliações',icon:'activity',items:[['Nova Avaliação','Registrar medidas e resultados','plus','students'],['Consultar Resultados','Visualizar avaliação física do aluno','chart','students'],['Reavaliações','Acompanhar novas medições','history','students']]},
 fotografica:{name:'Avaliação Fotográfica',desc:'Fotografias e análise postural',icon:'camera',items:[['Fotografias do Aluno','Consultar e registrar fotografias','camera','students'],['Comparar Fotografias','Conferir registros de diferentes datas','book','students'],['Análise Postural','Analisar imagens e revisar observações','activity','avaliacao-postural.html'],['Autorizações Fotográficas','Consultar consentimento no perfil do aluno','check','students']]},
 evolucao:{name:'Evoluções',desc:'Gráficos dos alunos',icon:'chart',items:[['Selecionar Aluno','Gráficos individuais','users','students'],['Progressão de Cargas','Desempenho','chart','students'],['Frequência de Treinos','Adesão semanal e mensal','activity','students'],['Evolução Corporal','Peso e circunferências','chart','students']]},
@@ -406,7 +406,44 @@ async function wcSolicitacoesCadastro(parent='alunos',index=0){
   }
  }catch(e){console.error(e);area.textContent='Solicitações indisponíveis. Aplique primeiro a migração SQL de solicitações no Supabase.';}
 }
-function wcAction(item,parent,index){const dest=item[3];if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
+async function wcPendenciasAnamnese(parent='anamnese',index=1){
+ wcSetRoute([parent,'item',String(index)]);
+ wcOpen('Acompanhar Pendências','Anamneses que aguardam sua análise. Sem filtros de modalidade.');
+ const area=document.createElement('div');area.className='wc-student-list';
+ area.textContent='Consultando pendências de anamnese…';wcContent.append(area);
+ try{
+  const {data,error}=await supabase.from('anamneses').select('aluno_id,respostas,created_at').order('created_at',{ascending:false}).limit(500);
+  if(error)throw error;
+  const revisadas=wcRevisadas(),seen=new Set(),pendencias=[];
+  for(const registro of data||[]){
+   const alteracoes=Array.isArray(registro.respostas?._historico_alteracoes)?registro.respostas._historico_alteracoes:[];
+   for(const evento of alteracoes){
+    const chave=evento.id||evento.data+evento.tipo;
+    if(!chave||seen.has(chave)||revisadas.has(chave))continue;
+    seen.add(chave);
+    pendencias.push({chave,aluno_id:registro.aluno_id,data:evento.data||registro.created_at||'',tipo:evento.tipo==='triagem_saude'?'Triagem de saúde atualizada':'Anamnese atualizada'});
+   }
+  }
+  pendencias.sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+  area.replaceChildren();
+  if(!pendencias.length){
+   const vazio=document.createElement('div');vazio.className='wc-person';
+   vazio.textContent='Nenhuma anamnese aguardando análise no momento.';area.append(vazio);return;
+  }
+  for(const p of pendencias){
+   const aluno=alunosCarregados.find(a=>String(a.id)===String(p.aluno_id));
+   const link=document.createElement('a');link.className='wc-person';
+   link.href='perfil-aluno.html?id='+encodeURIComponent(p.aluno_id)+'&aba=anamnese&origem='+encodeURIComponent(location.hash);
+   const nome=document.createElement('strong');nome.textContent=aluno?.nome_completo||'Aluno cadastrado';
+   const detalhe=document.createElement('small');detalhe.textContent=p.tipo+' · Pendente de análise'+(p.data?' · '+new Date(p.data).toLocaleDateString('pt-BR'):'');
+   link.append(nome,detalhe);area.append(link);
+  }
+ }catch(e){
+  console.error('Erro ao carregar pendências de anamnese',e);
+  area.textContent='Não foi possível consultar as pendências. Tente atualizar a página.';
+ }
+}
+function wcAction(item,parent,index){const dest=item[3];if(dest==='pendencias-anamnese'){wcPendenciasAnamnese(parent,index);return}if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
 async function wcCountSolicitacoes(badge){try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(!badge.isConnected)return;badge.textContent=String((data||[]).filter(p=>!['recusada','aprovada'].includes(String(p.status||'').toLowerCase())).length)}catch(e){console.warn('Contagem de solicitações indisponível:',e);if(badge.isConnected)badge.textContent='—'}}
 async function wcCountNovos(badge){const base=wcFiltered('novos').length;try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(badge.isConnected){const aprovadas=(data||[]).filter(p=>String(p.status||'').toLowerCase()==='aprovada');badge.textContent=String(base+aprovadas.filter(p=>!wcFiltered('novos').some(a=>wcMesmoInteressado(p,a))).length)}}catch(e){console.warn('Contagem de novos interessados indisponível:',e);if(badge.isConnected)badge.textContent=String(base)+'+'}}
 function wcRevisadas(){try{const x=JSON.parse(localStorage.getItem('wandcoach_notificacoes_revisadas')||'[]');return new Set(Array.isArray(x)?x:[])}catch{return new Set()}}
