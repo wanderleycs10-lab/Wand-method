@@ -257,6 +257,7 @@ function wcBack(){wcToggleDrawer(false);wcSetRoute([]);wcInner.hidden=true;wcHom
 function wcBackContextual(){
  const hash=location.hash;
  const partes=hash.startsWith(wcRoutePrefix)?hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent):[];
+ if(partes[0]==='anamnese'&&partes[1]==='pendencias'){wcPendenciasAnamnese();return;}
  if(partes[0]==='notificacoes'&&partes.length>1){wcCentralNotificacoes();return;}
  if(partes[0]&&partes.length>1&&wcMenus[partes[0]]){wcMenu(partes[0]);return;}
  wcBack();
@@ -407,7 +408,7 @@ async function wcSolicitacoesCadastro(parent='alunos',index=0){
  }catch(e){console.error(e);area.textContent='Solicitações indisponíveis. Aplique primeiro a migração SQL de solicitações no Supabase.';}
 }
 async function wcPendenciasAnamnese(parent='anamnese',index=1){
- wcSetRoute([parent,'item',String(index)]);
+ wcSetRoute([parent,'pendencias']);
  wcOpen('Acompanhar Pendências','');
  const area=document.createElement('div');area.className='wc-list';wcContent.append(area);
  const categorias=[
@@ -416,34 +417,10 @@ async function wcPendenciasAnamnese(parent='anamnese',index=1){
  ];
  const cards=new Map();
  for(const c of categorias){
-  const btn=wcRow([c.titulo,c.descricao,c.icon],()=>abrir(c.tipo),'…');
+  const btn=wcRow([c.titulo,c.descricao,c.icon],()=>wcDetalhePendenciaAnamnese(c.tipo),'…');
   area.append(btn);cards.set(c.tipo,btn);
  }
- const detalhe=document.createElement('div');detalhe.className='wc-student-list';detalhe.style.marginTop='18px';wcContent.append(detalhe);
  let avaliacoes=[],pedidos=[];
- function abrir(tipo){
-  area.hidden=true;
-  detalhe.replaceChildren();
-  const voltar=document.createElement('button');voltar.type='button';voltar.className='wc-back';
-  voltar.textContent='← Voltar às pendências';
-  voltar.addEventListener('click',()=>{detalhe.replaceChildren();area.hidden=false;});
-  detalhe.append(voltar);
-  const titulo=document.createElement('h3');titulo.textContent=tipo==='pedidos'?'Pedidos de Anamnese':'Avaliação de Anamneses';detalhe.append(titulo);
-  const registros=tipo==='pedidos'?pedidos:avaliacoes;
-  if(!registros.length){
-   const vazio=document.createElement('div');vazio.className='wc-person';
-   vazio.textContent=tipo==='pedidos'?'Nenhum pedido de anamnese pendente no momento.':'Nenhuma anamnese aguardando análise no momento.';
-   detalhe.append(vazio);return;
-  }
-  for(const p of registros){
-   const aluno=alunosCarregados.find(a=>String(a.id)===String(p.aluno_id));
-   const link=document.createElement('a');link.className='wc-person';
-   link.href='perfil-aluno.html?id='+encodeURIComponent(p.aluno_id)+'&aba=anamnese&origem='+encodeURIComponent(location.hash);
-   const nome=document.createElement('strong');nome.textContent=aluno?.nome_completo||'Aluno cadastrado';
-   const info=document.createElement('small');info.textContent=p.tipo+(p.data?' · '+new Date(p.data).toLocaleDateString('pt-BR'):'');
-   link.append(nome,info);detalhe.append(link);
-  }
- }
  try{
   // Pedidos exigem uma solicitação registrada; não considerar todos os alunos sem ficha como pedidos.
   pedidos=[];
@@ -462,12 +439,48 @@ async function wcPendenciasAnamnese(parent='anamnese',index=1){
   avaliacoes.sort((x,y)=>String(y.data).localeCompare(String(x.data)));
   cards.get('pedidos').querySelector('.wc-count').textContent=String(pedidos.length);
   cards.get('avaliacoes').querySelector('.wc-count').textContent=String(avaliacoes.length);
+
  }catch(e){
   console.error('Erro ao consultar pendências de anamnese',e);
   cards.get('pedidos').querySelector('.wc-count').textContent='0';
   cards.get('avaliacoes').querySelector('.wc-count').textContent='—';
-  detalhe.textContent='Não foi possível consultar as avaliações pendentes.';
+  const aviso=document.createElement('p');aviso.textContent='Não foi possível consultar as avaliações pendentes.';area.append(aviso);
  }
+}
+async function wcDetalhePendenciaAnamnese(tipo){
+ wcSetRoute(['anamnese','pendencias',tipo]);
+ wcOpen(tipo==='pedidos'?'Pedidos de Anamnese':'Avaliação de Anamneses','');
+ const area=document.createElement('div');area.className='wc-student-list';wcContent.append(area);
+ if(tipo==='pedidos'){
+  const vazio=document.createElement('div');vazio.className='wc-person';
+  vazio.textContent='Nenhum pedido de anamnese pendente no momento.';area.append(vazio);return;
+ }
+ area.textContent='Consultando avaliações pendentes…';
+ try{
+  const {data,error}=await supabase.from('anamneses').select('aluno_id,respostas,created_at').order('created_at',{ascending:false}).limit(500);
+  if(error)throw error;
+  const revisadas=wcRevisadas(),seen=new Set(),pendentes=[];
+  for(const registro of data||[]){
+   const alteracoes=Array.isArray(registro.respostas?._historico_alteracoes)?registro.respostas._historico_alteracoes:[];
+   for(const evento of alteracoes){
+    const chave=evento.id||evento.data+evento.tipo;
+    if(!chave||seen.has(chave)||revisadas.has(chave))continue;
+    seen.add(chave);
+    pendentes.push({aluno_id:registro.aluno_id,data:evento.data||registro.created_at||'',tipo:evento.tipo==='triagem_saude'?'Triagem de saúde atualizada':'Anamnese atualizada'});
+   }
+  }
+  pendentes.sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+  area.replaceChildren();
+  if(!pendentes.length){const vazio=document.createElement('div');vazio.className='wc-person';vazio.textContent='Nenhuma avaliação de anamnese pendente no momento.';area.append(vazio);return;}
+  for(const p of pendentes){
+   const aluno=alunosCarregados.find(a=>String(a.id)===String(p.aluno_id));
+   const link=document.createElement('a');link.className='wc-person';
+   link.href='perfil-aluno.html?id='+encodeURIComponent(p.aluno_id)+'&aba=anamnese&origem='+encodeURIComponent(location.hash);
+   const nome=document.createElement('strong');nome.textContent=aluno?.nome_completo||'Aluno cadastrado';
+   const info=document.createElement('small');info.textContent=p.tipo+(p.data?' · '+new Date(p.data).toLocaleDateString('pt-BR'):'');
+   link.append(nome,info);area.append(link);
+  }
+ }catch(e){console.error(e);area.textContent='Não foi possível consultar as avaliações pendentes.';}
 }
 function wcAction(item,parent,index){const dest=item[3];if(dest==='pendencias-anamnese'){wcPendenciasAnamnese(parent,index);return}if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
 async function wcCountSolicitacoes(badge){try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(!badge.isConnected)return;badge.textContent=String((data||[]).filter(p=>!['recusada','aprovada'].includes(String(p.status||'').toLowerCase())).length)}catch(e){console.warn('Contagem de solicitações indisponível:',e);if(badge.isConnected)badge.textContent='—'}}
@@ -516,7 +529,7 @@ async function wcCentralNotificacoes(){
  const refresh=document.createElement('button');refresh.type='button';refresh.className='secundario';refresh.textContent='Atualizar lista';refresh.onclick=wcCentralNotificacoes;area.append(refresh);
 }
 function wcMenu(key){wcToggleDrawer(false);const m=wcMenus[key];if(!m)return;wcSetRoute([key]);wcOpen(m.name,m.desc);const list=document.createElement('div');list.className='wc-list';m.items.forEach((item,index)=>{const tipo=item[3],count=['solicitacoes','novos'].includes(tipo)?'…':['ativos','inativos','excluidos'].includes(tipo)?wcFiltered(tipo).length:undefined;const row=wcRow(item,()=>wcAction(item,key,index),count);list.append(row);if(tipo==='solicitacoes')wcCountSolicitacoes(row.querySelector('.wc-count'));if(tipo==='novos')wcCountNovos(row.querySelector('.wc-count'))});wcContent.append(list)}
-function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){if(kind==='solicitacoes')wcSolicitacoesCadastro('notificacoes',0);else wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
+function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){if(kind==='solicitacoes')wcSolicitacoesCadastro('notificacoes',0);else wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(key==='anamnese'&&kind==='pendencias'){if(value==='pedidos'||value==='avaliacoes')wcDetalhePendenciaAnamnese(value);else wcPendenciasAnamnese();}else if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
 $('wcAtualizarNotificacoes').onclick=wcCentralNotificacoes;
 $('wcGoAlunos').onclick=()=>wcMenu('alunos');$('wcGoTreinos').onclick=()=>location.assign('gerenciar-treinos.html');$('wcGoAdesao').onclick=()=>wcMenu('evolucao');$('wcGoPrioridades').onclick=()=>wcMenu('bemestar');
 const wcDrawer=$('wcDrawer');function wcToggleDrawer(open){wcDrawer.hidden=!open;document.querySelector('[data-wc-dock="menu"]').setAttribute('aria-expanded',String(open));} $('wcDrawerClose').onclick=()=>wcToggleDrawer(false);
