@@ -317,19 +317,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
   ['presencial','Presencial'],['online','Online'],
   ['semipresencial','Semipresencial'],['pacote','Pacote de aulas']
  ];
- const grid=document.createElement('div');grid.className='wc-modalidade-grid';
- const style=document.createElement('style');style.textContent=
-  '.wc-modalidade-grid{display:flex;flex-direction:column;gap:14px;margin:20px 0 24px}'+
-  '.wc-modalidade-btn{width:100%;min-height:104px;display:flex;align-items:center;text-align:left;gap:20px;padding:20px 22px;border:1px solid #a9a4a0;border-radius:27px;background:linear-gradient(145deg,#302d29 0%,#1b1b1b 38%,#141414 68%,#2b1e0e 100%);color:#f5f1e9;font:inherit;font-size:19px;font-weight:600;cursor:pointer;box-shadow:inset 0 2px 2px #ffffff66,inset 0 -2px 6px #b4872640,0 9px 19px #000a}'+
-  '.wc-modalidade-btn:active,.wc-modalidade-btn[aria-pressed=true]{border-color:#e3b95e;background:linear-gradient(145deg,#41331e,#1d1b19 65%,#3b290e)}'+
-  '.wc-modalidade-icon{width:46px;min-width:46px;color:#f1c35d;display:flex;align-items:center;justify-content:center}'+
-  '.wc-modalidade-icon svg{width:40px;height:40px;stroke:#f1c35d;stroke-width:2.1;fill:none;stroke-linecap:round;stroke-linejoin:round}'+
-  '.wc-modalidade-label{flex:1;min-width:0;line-height:1.25}'+
-  '.wc-modalidade-count{display:inline-flex;justify-content:center;align-items:center;min-width:42px;padding:7px 10px;background:#393128;border-radius:12px;color:#f4cb74;font-size:16px;font-weight:700}'+
-  '.wc-modalidade-arrow{color:#eee;font-size:23px;font-weight:400;margin-left:4px}'+
-  '.wc-modalidade-btn[hidden],.wc-modalidade-grid[hidden]{display:none!important}'+
-  '@media(max-width:380px){.wc-modalidade-btn{padding:16px;gap:12px;font-size:17px}.wc-modalidade-icon{min-width:38px;width:38px}.wc-modalidade-icon svg{width:34px;height:34px}}';
- wcContent.append(style,grid);
+ const grid=document.createElement('div');grid.className='wc-list';grid.style.margin='16px 0 20px';wcContent.append(grid);
  const list=document.createElement('div');list.className='wc-student-list';wcContent.append(list);
  let selected=null;
  const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
@@ -367,16 +355,11 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
   });
  }
  for(const [id,label] of categories){
-  const b=document.createElement('button');b.type='button';b.className='wc-modalidade-btn';
-  b.dataset.modalidade=id;b.setAttribute('aria-pressed','false');
   const icons={presencial:'dumbbell',online:'message',semipresencial:'activity',pacote:'book'};
-  const symbol=document.createElement('span');symbol.className='wc-modalidade-icon';symbol.innerHTML=wcIcon(icons[id]);
-  const name=document.createElement('span');name.className='wc-modalidade-label';name.textContent=label;
-  const count=document.createElement('span');count.className='wc-modalidade-count';
-  count.textContent=String(wcFiltered(tipo).filter(a=>categoria(a)===id).length);
-  const arrow=document.createElement('span');arrow.className='wc-modalidade-arrow';arrow.setAttribute('aria-hidden','true');arrow.textContent='›';
-  b.append(symbol,name,count,arrow);
-  b.addEventListener('click',()=>{selected=selected===id?null:id;draw();});
+  const desc={presencial:'Alunos com atendimento presencial',online:'Alunos com consultoria online',semipresencial:'Atendimento presencial e online',pacote:'Alunos com pacote de aulas'};
+  const count=wcFiltered(tipo).filter(a=>categoria(a)===id).length;
+  const b=wcRow([label,desc[id],icons[id]],()=>{selected=selected===id?null:id;draw();},count);
+  b.dataset.modalidade=id;b.setAttribute('aria-pressed','false');
   grid.append(b);
  }
  input.addEventListener('input',()=>{if(input.value.trim())selected=null;draw();});
