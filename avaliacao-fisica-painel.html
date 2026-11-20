@@ -1,0 +1,55 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Avaliação Física | WandCoach</title><link rel="stylesheet" href="./wand-premium.css"><style>
+*{box-sizing:border-box}body{margin:0;background:#080808;color:#eee;font:15px Arial,sans-serif}header{text-align:center;padding:24px;border-bottom:1px solid #66551f}h1,h2{color:#d4af37}main{max-width:850px;margin:auto;padding:20px}button,.btn{display:block;width:100%;background:#191919;color:#f4d57a;border:1px solid #796126;border-radius:12px;padding:17px;text-align:left;cursor:pointer;text-decoration:none;font:inherit;margin:10px 0}button:hover,.btn:hover{background:#292417}.primary{background:#d4af37;color:#111;font-weight:bold;text-align:center}.back{width:auto;display:inline-block;padding:12px}.card{border:1px solid #655321;border-radius:14px;background:#151515;padding:20px;margin:14px 0}.muted,small{color:#bbb}small{display:block;margin-top:5px}select,input,textarea{background:#101010;color:#fff;border:1px solid #796126;border-radius:8px;padding:12px;width:100%;font:inherit;margin:8px 0 16px}label{display:block;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.metric{padding:12px;border:1px solid #453a24;border-radius:9px}.metric strong{display:block;color:#f4d57a}.error{color:#ff8585}.success{color:#92dba0}[hidden]{display:none!important}</style></head><body><header><h1>WAND METHOD</h1><div>WANDCOACH · AVALIAÇÃO FÍSICA</div></header><main><a class="btn back" id="back" href="admin.html">← Voltar</a><h2 id="heading">Carregando…</h2><p id="notice" role="status"></p><section id="view"></section></main>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const db=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
+const params=new URLSearchParams(location.search),id=Number(params.get('id')),mode=params.get('modo')||'nova',origin=params.get('origem')||'#wc/avaliacao';
+const heading=document.getElementById('heading'),view=document.getElementById('view'),notice=document.getElementById('notice'),back=document.getElementById('back');
+const fields=[['peso','Peso','kg'],['cintura','Cintura','cm'],['quadril','Quadril','cm'],['braco_direito','Braço direito','cm'],['braco_esquerdo','Braço esquerdo','cm'],['coxa_direita','Coxa direita','cm'],['coxa_esquerda','Coxa esquerda','cm'],['percentual_gordura','Gordura corporal','%']];
+let records=[],student;
+const el=(tag,txt,cls)=>{const n=document.createElement(tag);if(txt!==undefined)n.textContent=txt;if(cls)n.className=cls;return n};
+const add=(parent,tag,txt,cls)=>{const n=el(tag,txt,cls);parent.append(n);return n};
+const fmt=(n,u='')=>n==null||n===''?'Não informado':Number.isFinite(Number(n))?Number(n).toLocaleString('pt-BR',{maximumFractionDigits:2})+' '+u:String(n);
+const date=d=>d?String(d).slice(0,10).split('-').reverse().join('/'):'Sem data';
+const button=(parent,title,subtitle,fn)=>{const b=add(parent,'button',title);if(subtitle)add(b,'small',subtitle);b.onclick=fn;return b};
+function navigate(next){history.pushState({mode:next},'',location.pathname+'?id='+encodeURIComponent(id)+'&modo='+encodeURIComponent(next)+'&origem='+encodeURIComponent(origin));render(next)}
+function setBack(fn,label='← Voltar'){back.textContent=label;back.onclick=e=>{e.preventDefault();fn()};}
+function cardRecord(a,parent){const c=add(parent,'div',undefined,'card');add(c,'h3','Avaliação de '+date(a.data_avaliacao));add(c,'p','Situação: '+(a.status_avaliacao||'Registro existente'),'muted');const g=add(c,'div',undefined,'grid');for(const [key,label,unit] of fields){const m=add(g,'div',undefined,'metric');add(m,'strong',label);add(m,'span',fmt(a[key],unit))}if(a.parecer_profissional)add(c,'p','Parecer profissional: '+a.parecer_profissional);if(a.observacoes)add(c,'p','Observações: '+a.observacoes);return c}
+async function fetchRecords(){const {data,error}=await db.from('avaliacoes_fisicas').select('*').eq('aluno_id',id).order('data_avaliacao',{ascending:false}).order('id',{ascending:false});if(error)throw error;records=data||[]}
+function render(m=mode){
+ view.replaceChildren();notice.textContent='';heading.textContent=m==='nova'?'Nova Avaliação Física':m==='resultados'?'Consultar Resultados':m==='reavaliacoes'?'Reavaliações':m==='solicitar'?'Enviar Avaliação ao Aluno':m==='revisar'?'Avaliações aguardando revisão':'Avaliação Física';
+ setBack(()=>location.assign('admin.html'+origin),'← Voltar à Avaliação Física');
+ if(m==='nova'){
+  add(view,'p','Escolha como deseja realizar a avaliação.','muted');
+  button(view,'Realizar Avaliação','Preencher pessoalmente os dados do aluno',()=>location.assign('avaliacao-fisica.html?id='+encodeURIComponent(id)+'&origem='+encodeURIComponent(location.hash)));
+  button(view,'Enviar Avaliação ao Aluno','Solicitar medidas corporais, sem dobras cutâneas',()=>navigate('solicitar'));
+  return;
+ }
+ if(m==='solicitar'){
+  add(view,'p','O aluno receberá a solicitação na área de avaliações do aplicativo. Não são solicitadas dobras cutâneas.','muted');
+  const b=button(view,'Confirmar envio da solicitação','',async()=>{b.disabled=true;try{const {error}=await db.rpc('wand_solicitar_avaliacao_fisica',{p_aluno_id:id});if(error)throw error;notice.className='success';notice.textContent='Solicitação enviada. Aguardando preenchimento do aluno.';b.remove()}catch(e){notice.className='error';notice.textContent='Não foi possível enviar: '+e.message}finally{b.disabled=false}});
+  return;
+ }
+ if(m==='resultados'){
+  add(view,'p','Avaliações por data, da mais recente para a mais antiga.','muted');
+  if(!records.length){add(view,'div','Nenhuma avaliação física cadastrada.','card');return}
+  for(const a of records)button(view,date(a.data_avaliacao)+' · '+(a.status_avaliacao||'Registro'), 'Abrir medidas, cálculos e parecer',()=>{view.replaceChildren();heading.textContent='Avaliação de '+date(a.data_avaliacao);setBack(()=>render('resultados'),'← Voltar aos resultados');cardRecord(a,view)});
+  return;
+ }
+ if(m==='reavaliacoes'){
+  if(records.length<2){add(view,'div','São necessárias pelo menos duas avaliações para comparar resultados.','card');return}
+  add(view,'p','Selecione duas datas para comparar as medidas disponíveis.','muted');
+  const selects=[];
+  for(let j=0;j<2;j++){const label=add(view,'label',j===0?'Primeira avaliação':'Segunda avaliação');const sel=add(label,'select');for(const a of records){const opt=add(sel,'option',date(a.data_avaliacao)+' · #'+a.id);opt.value=a.id}sel.value=records[j].id;selects.push(sel)}
+  const output=add(view,'div');const compare=()=>{output.replaceChildren();const a=records.find(x=>String(x.id)===selects[0].value),b=records.find(x=>String(x.id)===selects[1].value);if(!a||!b||a.id===b.id){add(output,'p','Selecione duas avaliações diferentes.');return}const grid=add(output,'div',undefined,'grid');for(const [key,label,unit] of fields){if(a[key]==null||b[key]==null)continue;const diff=Number(b[key])-Number(a[key]);const c=add(grid,'div',undefined,'metric');add(c,'strong',label);add(c,'div',fmt(a[key],unit)+' → '+fmt(b[key],unit));add(c,'small','Variação: '+(diff>0?'+':'')+fmt(diff,unit))}if(!grid.children.length)add(output,'p','Não há medidas em comum para comparar.')};
+  selects.forEach(x=>x.onchange=compare);compare();return;
+ }
+ if(m==='revisar'){
+  add(view,'p','Registros enviados pelos alunos para análise profissional.','muted');
+  const holder=add(view,'div','Consultando solicitações…');
+  db.rpc('wand_coach_avaliacoes_pendentes',{p_aluno_id:id}).then(({data,error})=>{holder.replaceChildren();if(error){holder.textContent='Configure o SQL das solicitações para habilitar a revisão: '+error.message;return}if(!data?.length){holder.textContent='Nenhuma avaliação aguardando revisão.';return}for(const req of data){const c=add(holder,'div',undefined,'card');add(c,'h3','Enviada em '+date(req.enviada_em));for(const [key,label,unit] of fields.slice(0,7)){if(req.medidas?.[key]!=null)add(c,'p',label+': '+fmt(req.medidas[key],unit))}const label=add(c,'label','Parecer profissional');const parecer=add(label,'textarea');parecer.rows=4;const b=button(c,'Validar e registrar avaliação','',async()=>{if(!parecer.value.trim()){notice.className='error';notice.textContent='Informe o parecer profissional.';return}b.disabled=true;const {error:e}=await db.rpc('wand_validar_avaliacao_aluno',{p_solicitacao_id:req.id,p_parecer:parecer.value.trim()});if(e){notice.className='error';notice.textContent=e.message;b.disabled=false;return}notice.className='success';notice.textContent='Avaliação validada e registrada.';await fetchRecords();render('revisar')})}});return;
+ }
+}
+async function init(){try{const {data:{user}}=await db.auth.getUser();if(!user)throw Error('Faça login no WandCoach.');const {data:profile,error:pe}=await db.from('profiles').select('role').eq('id',user.id).single();if(pe||profile?.role!=='admin')throw Error('Acesso exclusivo do treinador.');if(!Number.isSafeInteger(id)||id<=0)throw Error('Aluno inválido.');const {data,error}=await db.from('alunos').select('nome_completo').eq('id',id).single();if(error)throw error;student=data;await fetchRecords();render();add(heading,'small',student.nome_completo)}catch(e){heading.textContent='Não foi possível abrir a avaliação';notice.className='error';notice.textContent=e.message}}
+window.onpopstate=()=>render(new URLSearchParams(location.search).get('modo')||'nova');init();
+</script></body></html>
