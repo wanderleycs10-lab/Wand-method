@@ -336,7 +336,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
  }
  function draw(){
   const term=normalize(input.value);
-  grid.hidden=Boolean(term);
+  grid.style.display=term?'none':'grid';
   for(const b of grid.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.modalidade===selected));
   list.replaceChildren();
   if(!term&&!selected){
