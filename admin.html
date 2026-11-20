@@ -350,6 +350,58 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
   if(m.includes('presencial'))return 'presencial';
   return null;
  }
+ if(parent==='fotografica'){
+  grid.remove();
+  let filtro='todos',aberto=false;
+  const seletor=document.createElement('button');
+  seletor.type='button';seletor.className='wc-row';
+  seletor.style.width='100%';seletor.style.margin='14px 0 6px';
+  const opcoes=document.createElement('div');
+  opcoes.className='wc-list';opcoes.hidden=true;opcoes.style.margin='0 0 16px';
+  wcContent.insertBefore(seletor,list);
+  wcContent.insertBefore(opcoes,list);
+  const nomes={todos:'Todos',presencial:'Presencial',online:'Online',semipresencial:'Semipresencial',pacote:'Pacote de aulas'};
+  function renderFotos(){
+   seletor.replaceChildren();
+   const ic=document.createElement('span');ic.className='wc-action-icon';ic.innerHTML=wcIcon('users');
+   const label=document.createElement('span');label.className='wc-label';
+   const titulo=document.createElement('strong');titulo.textContent=nomes[filtro];
+   const detalhe=document.createElement('small');detalhe.textContent='Filtrar alunos por modalidade';
+   label.append(titulo,detalhe);
+   const seta=document.createElement('span');seta.textContent=aberto?'⌃':'⌄';
+   seletor.append(ic,label,seta);
+   seletor.setAttribute('aria-expanded',String(aberto));
+   opcoes.hidden=!aberto;opcoes.style.display=aberto?'grid':'none';
+   opcoes.replaceChildren();
+   if(aberto)for(const [chave,nome] of Object.entries(nomes)){
+    const opc=document.createElement('button');opc.type='button';opc.className='wc-row';
+    opc.textContent=(filtro===chave?'✓ ':'')+nome;
+    opc.addEventListener('click',()=>{filtro=chave;aberto=false;renderFotos()});
+    opcoes.append(opc);
+   }
+   list.replaceChildren();
+   const term=normalize(input.value);
+   const alunos=wcFiltered(tipo).filter(a=>
+    (!term||normalize(a.nome_completo).includes(term))&&
+    (filtro==='todos'||categoria(a)===filtro)
+   ).sort((a,b)=>String(a.nome_completo||'').localeCompare(String(b.nome_completo||''),'pt-BR'));
+   if(!alunos.length){const vazio=document.createElement('p');vazio.className='wc-student-hint';vazio.textContent='Nenhum aluno encontrado para esta busca ou modalidade.';list.append(vazio);return}
+   for(const a of alunos){
+    const link=document.createElement('a');link.className='wc-person';
+    link.href='avaliacao-fotografica-painel.html?id='+encodeURIComponent(a.id)+
+     '&modo='+['fotos','postural','comparar','autorizacoes'][index]+
+     '&origem='+encodeURIComponent(location.hash);
+    link.textContent=a.nome_completo||'Aluno sem nome';
+    const detalhe=document.createElement('small');
+    detalhe.textContent=[a.modalidade||'Modalidade não informada','Status: '+(a.Status||'Não informado'),'Selecionar aluno'].join(' · ');
+    link.append(detalhe);list.append(link);
+   }
+  }
+  seletor.addEventListener('click',()=>{aberto=!aberto;renderFotos()});
+  input.addEventListener('input',renderFotos);
+  renderFotos();
+  return;
+ }
  function draw(){
   const term=normalize(input.value);
   grid.hidden=Boolean(term||selected);grid.style.setProperty('display',term||selected?'none':'grid','important');
