@@ -18,7 +18,7 @@ function cardRecord(a,parent){const c=add(parent,'div',undefined,'card');add(c,'
 async function fetchRecords(){const {data,error}=await db.from('avaliacoes_fisicas').select('*').eq('aluno_id',id).order('data_avaliacao',{ascending:false}).order('id',{ascending:false});if(error)throw error;records=data||[]}
 function render(m=mode){
  view.replaceChildren();notice.textContent='';heading.textContent=m==='nova'?'Nova Avaliação Física':m==='resultados'?'Consultar Resultados':m==='reavaliacoes'?'Reavaliações':m==='solicitar'?'Enviar Avaliação ao Aluno':m==='revisar'?'Avaliações aguardando revisão':'Avaliação Física';
- setBack(()=>location.assign('admin.html'+origin),'← Voltar à Avaliação Física');
+ setBack(()=>location.assign('admin.html'+(origin.startsWith('#wc/')?origin:'#wc/avaliacao')),'← Voltar à Avaliação Física');
  if(m==='nova'){
   add(view,'p','Escolha como deseja realizar a avaliação.','muted');
   button(view,'Realizar Avaliação','Preencher pessoalmente os dados do aluno',()=>location.assign('avaliacao-fisica.html?id='+encodeURIComponent(id)+'&origem='+encodeURIComponent(location.hash)));
@@ -32,6 +32,8 @@ function render(m=mode){
  }
  if(m==='resultados'){
   add(view,'p','Avaliações por data, da mais recente para a mais antiga.','muted');
+  button(view,'Avaliações enviadas aguardando revisão','Analisar e validar medidas informadas pelo aluno',()=>navigate('revisar'));
+
   if(!records.length){add(view,'div','Nenhuma avaliação física cadastrada.','card');return}
   for(const a of records)button(view,date(a.data_avaliacao)+' · '+(a.status_avaliacao||'Registro'), 'Abrir medidas, cálculos e parecer',()=>{view.replaceChildren();heading.textContent='Avaliação de '+date(a.data_avaliacao);setBack(()=>render('resultados'),'← Voltar aos resultados');cardRecord(a,view)});
   return;
@@ -45,6 +47,7 @@ function render(m=mode){
   selects.forEach(x=>x.onchange=compare);compare();return;
  }
  if(m==='revisar'){
+  setBack(()=>render('resultados'),'← Voltar aos resultados');
   add(view,'p','Registros enviados pelos alunos para análise profissional.','muted');
   const holder=add(view,'div','Consultando solicitações…');
   db.rpc('wand_coach_avaliacoes_pendentes',{p_aluno_id:id}).then(({data,error})=>{holder.replaceChildren();if(error){holder.textContent='Configure o SQL das solicitações para habilitar a revisão: '+error.message;return}if(!data?.length){holder.textContent='Nenhuma avaliação aguardando revisão.';return}for(const req of data){const c=add(holder,'div',undefined,'card');add(c,'h3','Enviada em '+date(req.enviada_em));for(const [key,label,unit] of fields.slice(0,7)){if(req.medidas?.[key]!=null)add(c,'p',label+': '+fmt(req.medidas[key],unit))}const label=add(c,'label','Parecer profissional');const parecer=add(label,'textarea');parecer.rows=4;const b=button(c,'Validar e registrar avaliação','',async()=>{if(!parecer.value.trim()){notice.className='error';notice.textContent='Informe o parecer profissional.';return}b.disabled=true;const {error:e}=await db.rpc('wand_validar_avaliacao_aluno',{p_solicitacao_id:req.id,p_parecer:parecer.value.trim()});if(e){notice.className='error';notice.textContent=e.message;b.disabled=false;return}notice.className='success';notice.textContent='Avaliação validada e registrada.';await fetchRecords();render('revisar')})}});return;
