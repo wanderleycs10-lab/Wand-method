@@ -18,3 +18,11 @@ test('Falha na fonte fotografica nao oculta as outras notificacoes',()=>{
  assert.match(admin,/Falha ao consultar notificações fotográficas/);
  assert.match(admin,/falhas\+\+/);
 });
+
+test('Treinador marca notificacao fotografica como lida por RPC segura',()=>{
+ assert.match(admin,/notificacaoId:n\.id/);
+ assert.match(admin,/wand_marcar_notificacao_fotografica_lida/);
+ assert.match(admin,/p_notificacao_id:n\.notificacaoId/);
+ assert.match(admin,/data!==true/);
+ assert.match(admin,/done\.disabled=true/);
+});
