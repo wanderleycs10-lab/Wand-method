@@ -51,3 +51,10 @@ test('WandCoach exibe a data de conclusão e não duplica o histórico ao atuali
   assert.match(painel, /historicoArea\.replaceChildren\(\)/);
   assert.match(painel, /undefined,historicoArea,'card'/);
 });
+
+test('Cartão inicial sinaliza pedido pendente sem duplicar aviso', () => {
+  assert.match(aluno, /\[data-view="fotografica"\]/);
+  assert.match(aluno, /data-wand-foto-aviso/);
+  assert.match(aluno, /anterior\.remove\(\)/);
+  assert.match(aluno, /if \(!solicitacaoPendente\) return/);
+});
