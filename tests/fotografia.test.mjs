@@ -33,3 +33,15 @@ test('Envio das fotos preserva identidade do remetente e armazenamento privado',
 test('Não confundir criação de solicitação com notificação entregue ao aluno', () => {
   assert.match(painel, /O aviso na área do aluno será integrado na próxima etapa/);
 });
+
+test('Aluno consulta somente a solicitação pendente do próprio cadastro', () => {
+  assert.match(aluno, /from\("wand_solicitacoes_fotograficas"\)/);
+  assert.match(aluno, /\.eq\("aluno_id", aluno\.id\)/);
+  assert.match(aluno, /\.eq\("status", "pendente"\)/);
+  assert.match(aluno, /Solicitação de fotografias do treinador/);
+  assert.match(aluno, /solicitacaoPendente\.orientacoes/);
+});
+test('Falha na consulta de solicitações não impede a visualização das fotos', () => {
+  assert.match(aluno, /erroSolicitacao = Boolean\(consultaSolicitacao\.error\)/);
+  assert.match(aluno, /Suas fotografias continuam disponíveis/);
+});
