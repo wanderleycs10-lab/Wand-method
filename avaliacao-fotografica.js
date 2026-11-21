@@ -925,7 +925,7 @@ as condições legais aplicáveis.
     if(pagina==='aluno.html'){
       const pronto=['frente','perfil','costas'].every(p=>rascunhos.has(p));
       adicionar(pai,'p','wf-muted',pronto?'As três fotografias estão prontas. Revise e confirme o envio.':'Selecione as três fotografias. Nada será enviado antes da confirmação.');
-      const enviarBtn=botao('Enviar as três fotografias',enviarConjunto);
+      const enviarBtn=botao('Enviar fotografias',enviarConjunto);
       enviarBtn.disabled=!pronto||processando;pai.append(enviarBtn);
     }
   }
