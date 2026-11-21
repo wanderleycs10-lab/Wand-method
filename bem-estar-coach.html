@@ -12,7 +12,34 @@ const back=()=>location.href='admin.html'+(origin.startsWith('#wc/')?origin:'#wc
 function listing(){content.replaceChildren();$('title').textContent=(labels[mode]||labels.aluno)[0];$('description').textContent=(labels[mode]||labels.aluno)[1];$('back').onclick=back;const search=make('input');search.placeholder='Buscar aluno pelo nome';search.setAttribute('aria-label','Buscar aluno');const select=make('button',undefined,content,'filter');select.type='button';const choices=make('div',undefined,content,'choices');const rows=make('div');const names={todos:'Todos',presencial:'Presencial',online:'Online',semipresencial:'Semipresencial',pacote:'Pacote de aulas',outros:'Outras modalidades'};let chosen='todos',expanded=false;
 function draw(){select.replaceChildren();const symbol=make('span',undefined,select,'symbol');symbol.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="10" r="5"/><path d="M2 28v-3a10 10 0 0 1 20 0v3"/><path d="M24 7a5 5 0 0 1 0 10M25 20a8 8 0 0 1 5 8"/></svg>';const copy=make('span',undefined,select);make('strong',names[chosen],copy);make('small','Filtrar alunos por modalidade',copy);make('span',expanded?'⌃':'⌄',select,'arrow');select.setAttribute('aria-expanded',String(expanded));choices.hidden=!expanded;choices.style.display=expanded?'block':'none';choices.replaceChildren();if(expanded)for(const [key,name] of Object.entries(names)){if(key==='outros'&&!students.some(a=>(mode!=='feminina'||isFemale(a))&&category(a)==='outros'))continue;const b=make('button',(chosen===key?'✓ ':'')+name,choices);b.onclick=()=>{chosen=key;expanded=false;draw()}}
 rows.replaceChildren();const term=norm(search.value);const matches=students.filter(a=>(mode!=='feminina'||isFemale(a))&&(chosen==='todos'||category(a)===chosen)&&norm(a.nome_completo).includes(term));if(!matches.length){make('p',mode==='feminina'?'Nenhuma aluna encontrada para esta seleção.':'Nenhum aluno encontrado para esta seleção.',rows);return}for(const a of matches){const b=make('button',a.nome_completo||'Aluno',rows,'student');make('small',[a.modalidade||'Modalidade não informada','Status: '+(a.Status||'Não informado'),'Selecionar aluno'].join(' · '),b);b.onclick=()=>detail(a)}}select.onclick=()=>{expanded=!expanded;draw()};search.oninput=draw;draw()}
-function detail(a){if(mode==='feminina'&&!isFemale(a)){listing();return}content.replaceChildren();$('title').textContent=a.nome_completo||'Aluno';$('description').textContent=(labels[mode]||labels.aluno)[0];$('back').onclick=listing;const box=make('div',undefined,content,'panel');make('h2',(labels[mode]||labels.aluno)[0],box);const messages={aluno:'Painel individual de bem-estar: a integração dos registros será concluída na etapa técnica.',checkins:'Os check-ins deste aluno serão exibidos aqui após a integração dos registros.',feminina:'Somente informações expressamente compartilhadas pela aluna poderão ser exibidas aqui. O calendário menstrual privado não será apresentado.',historico:'O histórico individual de acompanhamento será conectado aos registros reais na etapa técnica.'};make('p',messages[mode]||messages.aluno,box)}
+async function detail(a){
+ if(mode==='feminina'&&!isFemale(a)){listing();return}
+ content.replaceChildren();$('title').textContent=a.nome_completo||'Aluno';$('description').textContent=(labels[mode]||labels.aluno)[0];$('back').onclick=listing;
+ const box=make('div',undefined,content,'panel');make('h2',(labels[mode]||labels.aluno)[0],box);
+ const status=make('p','Consultando registros autorizados…',box);
+ try{
+  const {data,error}=await db.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(a.id)});
+  if(error)throw error;
+  const bem=data||{};status.remove();
+  if(!bem.ativo){make('p','O aluno não ativou o acompanhamento de bem-estar.',box);return}
+  if(mode==='feminina'&&!bem.ciclo_compartilhado){make('p','A aluna não autorizou o compartilhamento de informações menstruais com o treinador. O calendário permanece privado.',box);return}
+  if(mode==='feminina')make('p','Exibindo somente informações compartilhadas voluntariamente. O calendário menstrual privado não é exibido.',box);
+  const registros=Array.isArray(bem.registros)?bem.registros:[];
+  if(!registros.length){make('p','Ainda não existem registros disponíveis.',box);return}
+  for(const registro of registros.slice(0,60)){
+   const item=make('div',undefined,box,'panel');
+   make('h2',registro.dia||'Registro',item);
+   if(mode!=='feminina'){
+    make('p','Energia: '+(registro.energia??'—')+'/5 · Sono: '+(registro.sono??'—')+'/5 · Disposição: '+(registro.disposicao??'—')+'/5 · Dor muscular: '+(registro.dor_muscular??'—')+'/5',item);
+    if(registro.observacoes)make('p',registro.observacoes,item);
+    if(registro.pedir_ajuste)make('p','Solicitação de conversa sobre adaptação registrada. A aprovação deve ser feita no fluxo próprio.',item);
+   }
+   if(bem.ciclo_compartilhado&&registro.menstruando!==null&&registro.menstruando!==undefined){
+    make('p','Menstruação: '+(registro.menstruando?'Sim':'Não')+(registro.colica!==null&&registro.colica!==undefined?' · Cólicas: '+registro.colica+'/5':''),item);
+   }else if(mode==='feminina'){make('p','Sem informações menstruais compartilhadas nesta data.',item)}
+  }
+ }catch(e){status.textContent='Não foi possível consultar os registros: '+e.message}
+}
 async function init(){try{const {data:{user}}=await db.auth.getUser();if(!user){location.replace('login.html');return}const {data:p,error:e}=await db.from('profiles').select('role').eq('id',user.id).single();if(e||p?.role!=='admin')throw Error('Acesso restrito ao treinador.');const {data,error}=await db.from('alunos').select('id,nome_completo,modalidade,Status,sexo').order('nome_completo');if(error)throw error;students=(data||[]).filter(a=>!['inativo','excluido','excluído'].includes(norm(a.Status)));listing()}catch(e){$('status').textContent='Não foi possível carregar os alunos: '+e.message}}
 init();
 </script></body></html>
