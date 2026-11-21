@@ -1153,21 +1153,7 @@ as condições legais aplicáveis.
 
       cartoes(container);
 
-      if (
-        pagina !== "perfil-aluno.html" &&
-        !exibirTermos
-      ) {
-        container.appendChild(
-          botao(
-            "Revisar autorizações",
-            () => {
-              exibirTermos = true;
-              renderizar();
-            },
-            true
-          )
-        );
-      }
+
     }
 
     if (pagina !== "aluno.html") historico(container);
