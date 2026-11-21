@@ -598,7 +598,7 @@ async function wcBuscarNotificacoes(){
   if(error)throw error;
   for(const n of data||[]){
    const aluno=alunosCarregados.find(a=>String(a.id)===String(n.aluno_id));
-   entries.push({tipo:'fotografia',date:n.criada_em||'',title:n.titulo||'Avaliação fotográfica recebida',
+   entries.push({tipo:'fotografia',notificacaoId:n.id,date:n.criada_em||'',title:n.titulo||'Avaliação fotográfica recebida',
     detail:aluno?.nome_completo||'Aluno cadastrado',
     url:'avaliacao-fotografica-painel.html?id='+encodeURIComponent(n.aluno_id)+'&modo=consultar'});
   }
@@ -622,6 +622,19 @@ async function wcCentralNotificacoes(){
   const info=document.createElement('small');info.style.display='block';info.textContent=n.detail+(n.date?' · '+new Date(n.date).toLocaleString('pt-BR'):'');
   const actions=document.createElement('div');actions.style.cssText='display:flex;flex-wrap:wrap;gap:9px;margin-top:12px';
   const link=document.createElement('a');link.className='botao-link secundario';link.href=n.url;link.textContent=n.tipo==='cadastro'?'Analisar solicitação':n.tipo==='fotografia'?'Ver fotografias':'Ver anamnese';if(n.tipo==='cadastro'){link.href='#wc/notificacoes/solicitacoes';link.onclick=e=>{e.preventDefault();wcSolicitacoesCadastro('notificacoes',0)}}actions.append(link);
+  if(n.tipo==='fotografia'){
+   const done=document.createElement('button');done.type='button';done.textContent='Marcar como lida';
+   done.onclick=async()=>{
+    if(!n.notificacaoId)return;
+    done.disabled=true;done.textContent='Registrando leitura...';
+    try{
+     const {data,error}=await supabase.rpc('wand_marcar_notificacao_fotografica_lida',{p_notificacao_id:n.notificacaoId});
+     if(error)throw error;
+     if(data!==true)throw new Error('A notificação não pôde ser marcada como lida.');
+     await wcCentralNotificacoes();await wcAtualizarNotificacoes();
+    }catch(e){console.warn('Falha ao marcar notificação fotográfica:',e);done.disabled=false;done.textContent='Tentar marcar como lida';alert('Não foi possível registrar a leitura. Tente novamente.');}
+   };actions.append(done);
+  }
   if(n.tipo==='anamnese'){const done=document.createElement('button');done.type='button';done.textContent='Marcar como revisada';done.onclick=()=>{if(!confirm('Você já analisou esta alteração de anamnese?'))return;wcMarcarRevisada(n.key);wcCentralNotificacoes();wcAtualizarNotificacoes()};actions.append(done)}
   card.append(title,info,actions);area.append(card);
  }
