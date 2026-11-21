@@ -298,14 +298,12 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 
 <div id="painel" class="hidden">
   <section id="homeView" aria-label="Menu do aluno">
-    <section id="wandAlunoNotificacoes" class="wand-aluno-notificacoes" aria-label="Notificações do treinador" hidden>
-      <button id="wandAlunoNotificacoesAbrir" type="button" aria-expanded="false" aria-controls="wandAlunoNotificacoesLista">
-        <span>♧ &nbsp; Notificações do treinador</span>
-        <span id="wandAlunoNotificacoesQtd" class="wand-aluno-notificacoes-qtd" hidden>0</span>
-        <span aria-hidden="true">⌄</span>
-      </button>
-      <div id="wandAlunoNotificacoesLista" class="wand-aluno-notificacoes-lista" hidden></div>
-    </section>
+    <button type="button" id="wandAlunoNotificacoesAbrir" class="wand-aluno-notificacoes-atalho" data-view="notificacoes">
+      <span class="wand-aluno-notificacoes-icone" aria-hidden="true">♧</span>
+      <span class="wand-aluno-notificacoes-texto"><strong>Notificações</strong><small>Solicitações e avisos do treinador</small></span>
+      <span id="wandAlunoNotificacoesQtd" class="wand-aluno-notificacoes-qtd" hidden>0</span>
+    </button>
+
 
     <div class="wand-overview" aria-label="Seu desempenho">
       <button type="button" class="wand-overview-item" data-view="treinos"><span class="wand-metric-heading"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9v6m3-9v12m3-7h6m0-5v12m3-9v6M1 9h2m18 0h2"/></svg><span>Treinos no mês</span></span><strong class="wand-overview-value" id="wandMetricMes">—</strong><span class="wand-overview-note" id="wandMetricMesNota">Consultando histórico</span><span class="wand-metric-track"><span id="wandMetricBarra"></span></span></button>
@@ -338,6 +336,12 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 <a class="ficha-tile" href="contratos-aluno.html" style="text-decoration:none;color:inherit"><span class="ficha-icon"><svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h9l4 4v14H7z"/><path d="M16 3v5h4M10 12h7M10 16h7"/></svg></span><span>Meus Contratos</span><small>Rever contrato aceito e salvar PDF</small></a>
 </div><div id="dadosFicha" class="ficha-detail" hidden aria-live="polite"></div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-avaliacoes" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minhas Avaliações Físicas</h2><p class="muted">Somente avaliações finalizadas e liberadas pelo treinador aparecem nesta área.</p><a class="nav-tile" href="minha-avaliacao-fisica.html"><span class="nav-icon">✎</span><span class="nav-name">Preencher medidas solicitadas</span><span class="nav-desc">Enviar sua avaliação ao treinador quando houver uma solicitação</span></a><div id="listaAvaliacoes">Carregando avaliações...</div></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
+  <section class="panel-view" id="view-notificacoes" hidden>
+    <button class="back-btn" type="button" data-home>← Voltar ao painel</button>
+    <h2>Notificações</h2>
+    <p class="muted">Solicitações pendentes enviadas pelo seu treinador.</p>
+    <div id="wandAlunoNotificacoesLista" class="wand-aluno-notificacoes-lista" aria-live="polite"></div>
+  </section>
   <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-evolucao" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Compare suas avaliações e acompanhe as mudanças nas medidas corporais.</p><div id="wandEvolucaoSemanal" class="wes-root"><p class="muted">Carregando desempenho semanal...</p></div><details class="wes-avaliacoes"><summary>Gráficos de avaliação física</summary><div id="graficos">Carregando evolução...</div></details></div><div class="back-bottom"><button class="back-btn" type="button" data-home>← Voltar ao painel</button></div></section>
   <section class="panel-view" id="view-bemestar" hidden><button class="back-btn" type="button" data-home>← Voltar ao painel</button><div class="card"><h2>Meu bem-estar</h2><p id="wbStatus" role="status"></p><div id="wbConteudo"></div></div></section>
@@ -1036,7 +1040,7 @@ $("statusPagina").textContent=
 
 
 // Navegacao do painel: conserva os IDs e as rotinas de avaliacao originais.
-const VIEWS=["bemestar","treinos","ficha","avaliacoes","fotografica","evolucao","coins","treinador"];
+const VIEWS=["notificacoes","bemestar","treinos","ficha","avaliacoes","fotografica","evolucao","coins","treinador"];
 function wandToggleMenu(open){const drawer=document.getElementById('wandDockDrawer');drawer.hidden=!open;document.getElementById('wandDockMenu').setAttribute('aria-expanded',String(open));}
 document.getElementById('wandDockMenu').addEventListener('click',()=>wandToggleMenu(document.getElementById('wandDockDrawer').hidden));
 document.getElementById('wandDockClose').addEventListener('click',()=>wandToggleMenu(false));
@@ -2201,14 +2205,17 @@ window.addEventListener('pageshow',()=>{wesLoaded=false});
 
 <script src="./pwa-init.js" defer></script>
 <style>
-.wand-aluno-notificacoes{margin:15px 0 22px;border:1px solid #b58a36;border-radius:17px;background:linear-gradient(140deg,#251b0e,#111 65%,#261b0b);box-shadow:inset 0 1px #ffdb8c66,0 7px 16px #0008;overflow:hidden}
-.wand-aluno-notificacoes[hidden],.wand-aluno-notificacoes-lista[hidden],.wand-aluno-notificacoes-qtd[hidden]{display:none!important}
-#wandAlunoNotificacoesAbrir{display:flex;align-items:center;gap:12px;width:100%;padding:16px;border:0;background:transparent;color:#f6d17b;font:inherit;font-weight:700;text-align:left;cursor:pointer}
-#wandAlunoNotificacoesAbrir>span:first-child{flex:1}
-.wand-aluno-notificacoes-qtd{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 7px;border:1px solid #b98d3b;border-radius:9px;background:#4a351a;color:#ffdb84;font-weight:800}
-.wand-aluno-notificacoes-lista{padding:0 13px 13px;border-top:1px solid #5e4925}
-.wand-aluno-notificacoes-lista p{color:#bbb;padding:8px 4px}
-.wand-aluno-notificacao-item{display:block;width:100%;margin-top:12px;padding:14px;border:1px solid #94723b;border-radius:12px;background:#1c1914;color:#f5f5f5;text-align:left;cursor:pointer}
+.wand-aluno-notificacoes-atalho{display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;margin:16px 0 22px;text-align:left;border:1px solid #c49b44;border-radius:19px;background:linear-gradient(135deg,#2c200f,#100d09 55%,#3b280e);box-shadow:inset 0 1px #ffe2a380,0 8px 18px #0009;color:#f5d37b;font:inherit;cursor:pointer}
+.wand-aluno-notificacoes-icone{display:grid;place-items:center;flex:none;width:49px;height:49px;border:1px solid #c89a40;border-radius:14px;background:linear-gradient(140deg,#65451a,#30200e);font-size:27px;color:#ffd36a}
+.wand-aluno-notificacoes-texto{display:grid;gap:5px;flex:1;min-width:0}
+.wand-aluno-notificacoes-texto strong{font-size:17px;color:#fff}
+.wand-aluno-notificacoes-texto small{font-size:12px;color:#ddc38d}
+.wand-aluno-notificacoes-qtd{display:grid;place-items:center;min-width:33px;height:33px;padding:0 7px;border:1px solid #e0b85c;border-radius:10px;background:#6b4718;color:#ffe6a2;font-weight:800}
+.wand-aluno-notificacoes-qtd[hidden]{display:none!important}
+.wand-aluno-notificacoes-lista{display:grid;gap:12px;margin-top:16px}
+.wand-aluno-notificacoes-lista p{color:#bbb}
+.wand-aluno-notificacao-item{display:flex;align-items:center;gap:13px;width:100%;padding:16px;border:1px solid #aa853c;border-radius:17px;background:linear-gradient(145deg,#251d13,#141414 65%,#281b0c);color:#f5f5f5;text-align:left;cursor:pointer;font:inherit}
+.wand-aluno-notificacao-item .wand-aluno-notificacoes-icone{width:44px;height:44px;font-size:23px}
 .wand-aluno-notificacao-item strong{display:block;margin-bottom:6px}
 .wand-aluno-notificacao-item small{color:#d2b57b}
 </style>
