@@ -723,6 +723,7 @@ as condições legais aplicáveis.
 
     let caminho = null;
     let arquivoEnviado = false;
+    let registroPersistido = false;
 
     try {
       if (statusAtual() !== "autorizada") {
@@ -773,15 +774,24 @@ as condições legais aplicáveis.
         throw registro.error;
       }
 
-      await buscar();
-      renderizar();
+      // O registro já existe: uma falha ao atualizar a tela não pode apagar
+      // o arquivo privado e deixar o banco apontando para uma foto inexistente.
+      registroPersistido = true;
+      try {
+        await buscar();
+        renderizar();
+      } catch (erroAtualizacao) {
+        console.warn('[WAND FOTOS] Foto salva, mas a tela não atualizou:', erroAtualizacao);
+        mostrarMensagem('Fotografia salva. Atualize a página para visualizar o registro.', false);
+        return;
+      }
 
       mostrarMensagem(
         "Fotografia enviada com sucesso."
       );
 
     } catch (erro) {
-      if (arquivoEnviado && caminho) {
+      if (arquivoEnviado && !registroPersistido && caminho) {
         await db.storage
           .from(BUCKET)
           .remove([caminho]);
