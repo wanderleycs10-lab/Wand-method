@@ -55,13 +55,24 @@ test('Cartão inicial sinaliza pedido pendente sem duplicar aviso', () => {
   assert.match(aluno, /if \(!solicitacaoPendente\) return/);
 });
 
-test('Falha ao atualizar a interface apos salvar nao apaga fotografia persistida', () => {
-  assert.match(aluno, /let registroPersistido = false/);
-  assert.match(aluno, /registroPersistido = true/);
-  assert.match(aluno, /if \(arquivoEnviado && !registroPersistido && caminho\)/);
-  assert.match(aluno, /Fotografia salva\. Atualize a página para visualizar o registro/);
+test('Aluno revisa tres fotos antes de confirmar o envio', () => {
+  assert.match(aluno, /const rascunhos = new Map/);
+  assert.match(aluno, /function cartoes\(pai\)/);
+  assert.match(aluno, /editarImagem\(posicao,input\.files\[0\]\)/);
+  assert.match(aluno, /Enviar as três fotografias/);
+  assert.match(aluno, /enviarConjunto/);
+  assert.match(aluno, /posicoes\.some\(p=>!rascunhos\.has\(p\)\)/);
+  assert.doesNotMatch(aluno, /enviar\(posicao, input\.files\[0\]\)/);
 });
-
+test('Editor permite zoom, arraste e recorte local', () => {
+  assert.match(aluno, /zoom\.max='3'/);
+  assert.match(aluno, /pointermove/);
+  assert.match(aluno, /tela\.toBlob/);
+  assert.match(aluno, /Trocar fotografia/);
+});
+test('Historico duplicado nao aparece na area de envio do aluno', () => {
+  assert.match(aluno, /if \(pagina !== "aluno\.html"\) historico\(container\)/);
+});
 test('Menu do WandCoach separa solicitacao, analise, comparacao e documentos', () => {
   const admin = readFileSync(resolve('admin.html'), 'utf8');
   assert.match(admin, /\['Solicitar Fotografias','Pedir ao aluno imagens de frente, lado e costas'/);
