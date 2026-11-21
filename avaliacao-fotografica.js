@@ -1082,6 +1082,11 @@ as condições legais aplicáveis.
 
   function renderizar() {
     atualizarAvisoSolicitacao();
+    if (pagina === "aluno.html") {
+      document.dispatchEvent(new CustomEvent("wand:solicitacao-fotografica", {
+        detail: { pendente: Boolean(solicitacaoPendente), id: solicitacaoPendente?.id || null }
+      }));
+    }
     container.replaceChildren();
 
     adicionar(
