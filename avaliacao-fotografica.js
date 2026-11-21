@@ -792,7 +792,6 @@ as condições legais aplicáveis.
     if(statusAtual()!=='autorizada'){mostrarMensagem('É necessário autorizar a avaliação.',true);return;}
     processando=true;
     const registros=[];
-    let concluido=false;
     try{
       for(const posicao of posicoes){
         const arquivo=rascunhos.get(posicao).arquivo;
@@ -810,16 +809,22 @@ as condições legais aplicáveis.
         }
         registros.push({id:registro.data.id,caminho});
       }
-      concluido=true;
       for(const item of rascunhos.values())URL.revokeObjectURL(item.url);
       rascunhos.clear();
       try{await buscar();renderizar();document.dispatchEvent(new Event('wand:fotografias-atualizadas'))}
       catch(e){console.warn('[WAND FOTOS] Fotos salvas, mas atualização falhou:',e)}
       mostrarMensagem('As três fotografias foram enviadas com sucesso.');
     }catch(e){
-      // Não apaga registros que o servidor já confirmou: evitar referências quebradas.
-      mostrarMensagem('Envio interrompido: '+e.message+'. As fotos já registradas podem ter sido salvas. Atualize a página antes de tentar novamente.',true);
-      console.warn('[WAND FOTOS] Envio parcial:',registros,e);
+      // Se houve falha antes da terceira foto, remover os registros parciais.
+      // A conclusão só é disparada com as três posições confirmadas.
+      let limpezaOk=true;
+      for(const item of registros){
+        const del=await db.from('fotos_avaliacao').delete().eq('id',item.id).eq('aluno_id',aluno.id);
+        if(del.error){limpezaOk=false;console.warn('[WAND FOTOS] Falha ao limpar registro parcial:',del.error);continue;}
+        const arquivo=await db.storage.from(BUCKET).remove([item.caminho]);
+        if(arquivo.error){limpezaOk=false;console.warn('[WAND FOTOS] Falha ao limpar arquivo parcial:',arquivo.error);}
+      }
+      mostrarMensagem('Não foi possível enviar as fotografias: '+e.message+(limpezaOk?' Nenhuma fotografia parcial foi mantida. Você pode tentar novamente.':' Alguns registros podem ter sido salvos; entre em contato com o treinador antes de reenviar.'),true);
     }finally{processando=false;}
   }
 
