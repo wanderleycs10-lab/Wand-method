@@ -27,6 +27,7 @@
   let solicitacaoPendente = null;
   let erroSolicitacao = false;
   let processando = false;
+  const rascunhos = new Map(); // Apenas no aparelho, até confirmar envio.
   let exibirTermos = false;
   let guia = "masculino";
   let guiaAberto = false;
@@ -714,95 +715,112 @@ as condições legais aplicáveis.
     }
   }
 
-  // ENVIO DE FOTOGRAFIAS
+  const estiloEditor=document.createElement('style');
+  estiloEditor.textContent=`
+    .wf-editor-overlay{position:fixed;inset:0;z-index:99999;background:#000e;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+    .wf-editor-panel{width:min(95vw,480px);max-height:94dvh;overflow:auto;background:#181818;color:#fff;border:2px solid #d4af37;border-radius:18px;padding:17px;text-align:center}
+    .wf-editor-panel h3{color:#f5cc37;margin:4px 0 8px}
+    .wf-editor-panel p{font-size:13px}
+    .wf-editor-canvas{display:block;width:min(100%,280px);aspect-ratio:3/4;margin:10px auto;border:1px solid #d4af37;border-radius:9px;touch-action:none;background:#222}
+    .wf-editor-panel input[type=range]{display:block;width:90%;margin:16px auto;accent-color:#d4af37}
+    .wf-editor-panel .wf-actions{display:flex;gap:10px;justify-content:center}
+    .wf-editor-panel button{background:#d4af37;border:1px solid #d4af37;border-radius:9px;padding:12px;color:#111;font-weight:bold}
+    .wf-editor-panel button.secondary{background:transparent;color:#d4af37}
+  `;
+  document.head.append(estiloEditor);
+  // PREPARAR, RECORTAR E CONFIRMAR: nenhuma foto vai ao servidor antes do botão Enviar.
+  async function editarImagem(posicao, arquivo) {
+    try { validarArquivo(arquivo); } catch(e) { mostrarMensagem(e.message,true); return; }
+    const url=URL.createObjectURL(arquivo);
+    const imagem=new Image();
+    imagem.onload=()=>{
+      const camada=document.createElement('div');
+      camada.className='wf-editor-overlay';
+      camada.setAttribute('role','dialog');
+      camada.setAttribute('aria-modal','true');
+      camada.setAttribute('aria-label','Ajustar fotografia de '+posicao);
+      const painel=document.createElement('div');painel.className='wf-editor-panel';camada.append(painel);
+      adicionar(painel,'h3',null,'Ajustar fotografia · '+posicao);
+      adicionar(painel,'p','wf-muted','Arraste para enquadrar e use o zoom. Confira antes de confirmar.');
+      const tela=document.createElement('canvas');tela.width=600;tela.height=800;tela.className='wf-editor-canvas';painel.append(tela);
+      const ctx=tela.getContext('2d');
+      const zoom=document.createElement('input');zoom.type='range';zoom.min='1';zoom.max='3';zoom.step='0.05';zoom.value='1';zoom.setAttribute('aria-label','Zoom da fotografia');painel.append(zoom);
+      let deslocX=0,deslocY=0,inicio=null;
+      const desenhar=()=>{
+        const base=Math.max(tela.width/imagem.width,tela.height/imagem.height);
+        const escala=base*Number(zoom.value);
+        const largura=imagem.width*escala,altura=imagem.height*escala;
+        const limiteX=Math.max(0,(largura-tela.width)/2),limiteY=Math.max(0,(altura-tela.height)/2);
+        deslocX=Math.max(-limiteX,Math.min(limiteX,deslocX));
+        deslocY=Math.max(-limiteY,Math.min(limiteY,deslocY));
+        ctx.clearRect(0,0,tela.width,tela.height);
+        ctx.drawImage(imagem,(tela.width-largura)/2+deslocX,(tela.height-altura)/2+deslocY,largura,altura);
+      };
+      zoom.addEventListener('input',desenhar);
+      tela.addEventListener('pointerdown',e=>{inicio={x:e.clientX,y:e.clientY};tela.setPointerCapture(e.pointerId)});
+      tela.addEventListener('pointermove',e=>{
+        if(!inicio)return;
+        const escala=tela.width/tela.getBoundingClientRect().width;
+        deslocX+=(e.clientX-inicio.x)*escala;deslocY+=(e.clientY-inicio.y)*escala;
+        inicio={x:e.clientX,y:e.clientY};desenhar();
+      });
+      tela.addEventListener('pointerup',()=>inicio=null);
+      tela.addEventListener('pointercancel',()=>inicio=null);
+      const acoes=adicionar(painel,'div','wf-actions');
+      const fechar=()=>{camada.remove();URL.revokeObjectURL(url)};
+      acoes.append(botao('Cancelar',fechar,true));
+      acoes.append(botao('Usar esta foto',()=>{
+        tela.toBlob(blob=>{
+          if(!blob){mostrarMensagem('Não foi possível recortar a imagem.',true);return;}
+          const anterior=rascunhos.get(posicao);
+          if(anterior)URL.revokeObjectURL(anterior.url);
+          const foto=new File([blob],posicao+'.jpg',{type:'image/jpeg'});
+          rascunhos.set(posicao,{arquivo:foto,url:URL.createObjectURL(foto)});
+          fechar();renderizar();mostrarMensagem('Fotografia preparada. Confirme as três antes de enviar.');
+        },'image/jpeg',0.9);
+      }));
+      document.body.append(camada);desenhar();
+    };
+    imagem.onerror=()=>{URL.revokeObjectURL(url);mostrarMensagem('Não foi possível abrir esta imagem.',true)};
+    imagem.src=url;
+  }
 
-  async function enviar(posicao, arquivo) {
-    if (processando) return;
-
-    processando = true;
-
-    let caminho = null;
-    let arquivoEnviado = false;
-    let registroPersistido = false;
-
-    try {
-      if (statusAtual() !== "autorizada") {
-        throw new Error(
-          "É necessário autorizar a avaliação."
-        );
+  async function enviarConjunto() {
+    if(processando)return;
+    const posicoes=['frente','perfil','costas'];
+    if(posicoes.some(p=>!rascunhos.has(p))){mostrarMensagem('Selecione e revise as três fotografias antes de enviar.',true);return;}
+    if(statusAtual()!=='autorizada'){mostrarMensagem('É necessário autorizar a avaliação.',true);return;}
+    processando=true;
+    const registros=[];
+    let concluido=false;
+    try{
+      for(const posicao of posicoes){
+        const arquivo=rascunhos.get(posicao).arquivo;
+        validarArquivo(arquivo);
+        const caminho=aluno.id+'/'+crypto.randomUUID()+'.jpg';
+        mostrarMensagem('Enviando fotografia de '+posicao+'...');
+        const upload=await db.storage.from(BUCKET).upload(caminho,arquivo,{contentType:'image/jpeg',upsert:false});
+        if(upload.error)throw upload.error;
+        const registro=await db.from('fotos_avaliacao').insert({
+          aluno_id:aluno.id,posicao,caminho,enviado_por:usuario.id
+        }).select('id').single();
+        if(registro.error){
+          await db.storage.from(BUCKET).remove([caminho]);
+          throw registro.error;
+        }
+        registros.push({id:registro.data.id,caminho});
       }
-
-      validarArquivo(arquivo);
-
-      const extensao = {
-        "image/jpeg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp"
-      }[arquivo.type];
-
-      caminho =
-        aluno.id + "/" +
-        crypto.randomUUID() + "." + extensao;
-
-      mostrarMensagem(
-        "Enviando foto de " + posicao + "..."
-      );
-
-      const upload = await db.storage
-        .from(BUCKET)
-        .upload(caminho, arquivo, {
-          contentType: arquivo.type,
-          upsert: false
-        });
-
-      if (upload.error) {
-        throw upload.error;
-      }
-
-      arquivoEnviado = true;
-
-      const registro = await db
-        .from("fotos_avaliacao")
-        .insert({
-          aluno_id: aluno.id,
-          posicao: posicao,
-          caminho: caminho,
-          enviado_por: usuario.id
-        });
-
-      if (registro.error) {
-        throw registro.error;
-      }
-
-      // O registro já existe: uma falha ao atualizar a tela não pode apagar
-      // o arquivo privado e deixar o banco apontando para uma foto inexistente.
-      registroPersistido = true;
-      try {
-        await buscar();
-        renderizar();
-        document.dispatchEvent(new Event('wand:fotografias-atualizadas'));
-      } catch (erroAtualizacao) {
-        console.warn('[WAND FOTOS] Foto salva, mas a tela não atualizou:', erroAtualizacao);
-        mostrarMensagem('Fotografia salva. Atualize a página para visualizar o registro.', false);
-        return;
-      }
-
-      mostrarMensagem(
-        "Fotografia enviada com sucesso."
-      );
-
-    } catch (erro) {
-      if (arquivoEnviado && !registroPersistido && caminho) {
-        await db.storage
-          .from(BUCKET)
-          .remove([caminho]);
-      }
-
-      mostrarMensagem(erro.message, true);
-
-    } finally {
-      processando = false;
-    }
+      concluido=true;
+      for(const item of rascunhos.values())URL.revokeObjectURL(item.url);
+      rascunhos.clear();
+      try{await buscar();renderizar();document.dispatchEvent(new Event('wand:fotografias-atualizadas'))}
+      catch(e){console.warn('[WAND FOTOS] Fotos salvas, mas atualização falhou:',e)}
+      mostrarMensagem('As três fotografias foram enviadas com sucesso.');
+    }catch(e){
+      // Não apaga registros que o servidor já confirmou: evitar referências quebradas.
+      mostrarMensagem('Envio interrompido: '+e.message+'. As fotos já registradas podem ter sido salvas. Atualize a página antes de tentar novamente.',true);
+      console.warn('[WAND FOTOS] Envio parcial:',registros,e);
+    }finally{processando=false;}
   }
 
   // EXCLUIR FOTOGRAFIA
@@ -875,74 +893,35 @@ as condições legais aplicáveis.
     local.replaceChildren(imagem);
   }
 
-  // CARDS DE FRENTE, PERFIL E COSTAS
-
+  // Cartões de preparação: substituições permanecem locais até Enviar.
   function cartoes(pai) {
-    const grade = adicionar(pai, "div", "wf-grid");
-
-    for (const posicao of [
-      "frente",
-      "perfil",
-      "costas"
-    ]) {
-      const card = adicionar(
-        grade,
-        "div",
-        "wf-card"
-      );
-
-      const area = adicionar(
-        card,
-        "div",
-        "wf-image"
-      );
-
-      const foto = ultimaFoto(posicao);
-
-      if (foto) {
-        exibirImagem(area, foto);
-      } else {
-        area.innerHTML = desenho(posicao);
+    const grade=adicionar(pai,'div','wf-grid');
+    for(const posicao of ['frente','perfil','costas']){
+      const card=adicionar(grade,'div','wf-card');
+      const area=adicionar(card,'div','wf-image');
+      const rascunho=rascunhos.get(posicao);
+      if(rascunho){
+        const img=document.createElement('img');img.src=rascunho.url;img.alt='Prévia de '+posicao;area.append(img);
+      }else{area.innerHTML=desenho(posicao)}
+      adicionar(card,'strong',null,posicao.charAt(0).toUpperCase()+posicao.slice(1));
+      const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.style.display='none';
+      input.onchange=()=>{if(input.files?.[0])editarImagem(posicao,input.files[0])};
+      card.append(input);
+      if(pagina==='aluno.html'){
+        card.append(botao(rascunho?'Trocar fotografia':'Selecionar fotografia',()=>input.click()));
+        if(rascunho)card.append(botao('Remover seleção',()=>{
+          URL.revokeObjectURL(rascunho.url);rascunhos.delete(posicao);renderizar();
+        },true));
+      }else{
+        const foto=ultimaFoto(posicao);
+        if(foto)exibirImagem(area,foto);
       }
-
-      adicionar(
-        card,
-        "strong",
-        null,
-        posicao.charAt(0).toUpperCase() +
-        posicao.slice(1)
-      );
-
-      const input = document.createElement("input");
-
-      input.type = "file";
-      input.accept = "image/jpeg,image/png,image/webp";
-      input.style.display = "none";
-
-      input.onchange = () => {
-        if (input.files?.[0]) {
-          enviar(posicao, input.files[0]);
-        }
-      };
-
-      card.appendChild(input);
-
-      card.appendChild(
-        botao(
-          foto ? "Nova foto" : "Tirar / enviar",
-          () => input.click()
-        )
-      );
-
-      if (foto) {
-        card.appendChild(
-          botao(
-            "Excluir",
-            () => excluir(foto),
-            true
-          )
-        );
-      }
+    }
+    if(pagina==='aluno.html'){
+      const pronto=['frente','perfil','costas'].every(p=>rascunhos.has(p));
+      adicionar(pai,'p','wf-muted',pronto?'As três fotografias estão prontas. Revise e confirme o envio.':'Selecione as três fotografias. Nada será enviado antes da confirmação.');
+      const enviarBtn=botao('Enviar as três fotografias',enviarConjunto);
+      enviarBtn.disabled=!pronto||processando;pai.append(enviarBtn);
     }
   }
 
@@ -1186,7 +1165,7 @@ as condições legais aplicáveis.
       }
     }
 
-    historico(container);
+    if (pagina !== "aluno.html") historico(container);
 
     if (fotos.length) {
       adicionar(
