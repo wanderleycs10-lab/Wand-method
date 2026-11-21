@@ -65,3 +65,11 @@ test('Falha ao atualizar a interface apos salvar nao apaga fotografia persistida
   assert.match(aluno, /if \(arquivoEnviado && !registroPersistido && caminho\)/);
   assert.match(aluno, /Fotografia salva\. Atualize a página para visualizar o registro/);
 });
+
+test('Menu do WandCoach separa solicitacao, analise, comparacao e documentos', () => {
+  const admin = readFileSync(resolve('admin.html'), 'utf8');
+  assert.match(admin, /\['Solicitar Fotografias','Pedir ao aluno imagens de frente, lado e costas'/);
+  assert.match(admin, /\['solicitar','postural','comparar','autorizacoes'\]\[index\]/);
+  assert.match(painel, /if\(m==='solicitar'\)/);
+  assert.match(painel, /if\(m==='autorizacoes'\)/);
+});
