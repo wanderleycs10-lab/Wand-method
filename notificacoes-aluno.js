@@ -16,7 +16,7 @@
   }
   function render(itens){
     contador.textContent=String(itens.length);
-    contador.hidden=itens.length===0;
+    contador.hidden=false;
     lista.replaceChildren();
     if(!itens.length){adicionar('p','Nenhuma solicitação pendente.',lista);return;}
     for(const item of itens){
