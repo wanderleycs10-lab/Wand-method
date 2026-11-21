@@ -58,3 +58,10 @@ test('Cartão inicial sinaliza pedido pendente sem duplicar aviso', () => {
   assert.match(aluno, /anterior\.remove\(\)/);
   assert.match(aluno, /if \(!solicitacaoPendente\) return/);
 });
+
+test('Falha ao atualizar a interface apos salvar nao apaga fotografia persistida', () => {
+  assert.match(aluno, /let registroPersistido = false/);
+  assert.match(aluno, /registroPersistido = true/);
+  assert.match(aluno, /if \(arquivoEnviado && !registroPersistido && caminho\)/);
+  assert.match(aluno, /Fotografia salva\. Atualize a página para visualizar o registro/);
+});
