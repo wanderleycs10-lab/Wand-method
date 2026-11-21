@@ -1052,9 +1052,25 @@ as condições legais aplicáveis.
     }
   }
 
+  // Indicador no cartão inicial: não envia push e não expõe fotos.
+  function atualizarAvisoSolicitacao() {
+    if (pagina !== "aluno.html") return;
+    const cartao = document.querySelector('[data-view="fotografica"]');
+    if (!cartao) return;
+    const anterior = cartao.querySelector('[data-wand-foto-aviso]');
+    if (anterior) anterior.remove();
+    if (!solicitacaoPendente) return;
+    const aviso = document.createElement("span");
+    aviso.setAttribute("data-wand-foto-aviso", "");
+    aviso.textContent = "● Solicitação pendente";
+    aviso.style.cssText = "display:block;color:#f5cc37;font-size:12px;font-weight:bold;margin-top:7px";
+    cartao.appendChild(aviso);
+  }
+
   // MONTAGEM DA INTERFACE
 
   function renderizar() {
+    atualizarAvisoSolicitacao();
     container.replaceChildren();
 
     adicionar(
