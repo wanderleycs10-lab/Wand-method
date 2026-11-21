@@ -780,6 +780,7 @@ as condições legais aplicáveis.
       try {
         await buscar();
         renderizar();
+        document.dispatchEvent(new Event('wand:fotografias-atualizadas'));
       } catch (erroAtualizacao) {
         console.warn('[WAND FOTOS] Foto salva, mas a tela não atualizou:', erroAtualizacao);
         mostrarMensagem('Fotografia salva. Atualize a página para visualizar o registro.', false);
