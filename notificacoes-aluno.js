@@ -5,16 +5,14 @@
   'use strict';
   if(window.__wandNotificacoesAluno)return;
   window.__wandNotificacoesAluno=true;
-  const barra=document.getElementById('wandAlunoNotificacoes');
   const contador=document.getElementById('wandAlunoNotificacoesQtd');
   const lista=document.getElementById('wandAlunoNotificacoesLista');
   const alternar=document.getElementById('wandAlunoNotificacoesAbrir');
-  if(!barra||!contador||!lista||!alternar)return;
+  if(!contador||!lista||!alternar)return;
   let db=null,alunoId=null,ocupado=false;
   const adicionar=(tag,texto,pai)=>{const el=document.createElement(tag);if(texto!==undefined)el.textContent=texto;pai.append(el);return el};
   function abrirFotografias(){
-    const botao=document.querySelector('[data-view="fotografica"]');
-    if(botao){botao.click();lista.hidden=true;alternar.setAttribute('aria-expanded','false');}
+    window.wandMostrarVista?.('fotografica');
   }
   function render(itens){
     contador.textContent=String(itens.length);
@@ -24,8 +22,11 @@
     for(const item of itens){
       const botao=adicionar('button',undefined,lista);
       botao.type='button';botao.className='wand-aluno-notificacao-item';
-      adicionar('strong',item.titulo,botao);
-      adicionar('small',item.detalhe,botao);
+      const icone=adicionar('span','▣',botao);
+      icone.className='wand-aluno-notificacoes-icone';
+      const texto=adicionar('span',undefined,botao);
+      adicionar('strong',item.titulo,texto);
+      adicionar('small',item.detalhe,texto);
       botao.addEventListener('click',item.abrir);
     }
   }
@@ -48,11 +49,6 @@
       adicionar('p','Não foi possível atualizar as notificações. Tente novamente.',lista);
     }finally{ocupado=false;}
   }
-  alternar.addEventListener('click',()=>{
-    lista.hidden=!lista.hidden;
-    alternar.setAttribute('aria-expanded',String(!lista.hidden));
-    if(!lista.hidden)atualizar();
-  });
   window.addEventListener('focus',()=>{if(!document.hidden)atualizar()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)atualizar()});
   document.addEventListener('wand:fotografias-atualizadas',atualizar);
@@ -64,7 +60,6 @@
     const {data,error}=await db.from('alunos').select('id').eq('user_id',user.id).single();
     if(error||!data)return;
     alunoId=data.id;
-    barra.hidden=false;
     await atualizar();
   }catch(e){console.warn('[WAND] Central do aluno indisponível:',e);}
 })();
