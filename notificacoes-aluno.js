@@ -49,6 +49,17 @@
       adicionar('p','Não foi possível atualizar as notificações. Tente novamente.',lista);
     }finally{ocupado=false;}
   }
+  // O modulo de fotografias ja consulta o pedido real. Reutilizamos esse
+  // resultado para impedir divergencia entre o aviso do menu e a central.
+  document.addEventListener('wand:solicitacao-fotografica',event=>{
+    if(event.detail?.pendente){
+      render([{titulo:'Fotografias solicitadas pelo treinador',
+        detalhe:'Toque para abrir a Avaliação Fotográfica.',abrir:abrirFotografias}]);
+    }else if(event.detail?.pendente===false){
+      render([]);
+    }
+  });
+  alternar.addEventListener('click',()=>{atualizar()});
   window.addEventListener('focus',()=>{if(!document.hidden)atualizar()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)atualizar()});
   document.addEventListener('wand:fotografias-atualizadas',atualizar);
