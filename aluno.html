@@ -299,7 +299,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 <div id="painel" class="hidden">
   <section id="homeView" aria-label="Menu do aluno">
     <button type="button" id="wandAlunoNotificacoesAbrir" class="wand-aluno-notificacoes-atalho" data-view="notificacoes">
-      <span class="wand-aluno-notificacoes-icone" aria-hidden="true">♧</span>
+      <span class="wand-aluno-notificacoes-icone" aria-hidden="true"><svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></span>
       <span class="wand-aluno-notificacoes-texto"><strong>Notificações</strong><small>Solicitações e avisos do treinador</small></span>
       <span id="wandAlunoNotificacoesQtd" class="wand-aluno-notificacoes-qtd" hidden>0</span>
     </button>
@@ -1133,7 +1133,7 @@ iniciar();
 <script type="module" src="analise-corporal.js"></script>
 
 
-<script defer src="./avaliacao-fotografica.js?v=2"></script>
+<script defer src="./avaliacao-fotografica.js?v=3"></script>
 
 <style>
 .wt-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.wt-row>*{min-width:0}
@@ -2205,7 +2205,7 @@ window.addEventListener('pageshow',()=>{wesLoaded=false});
 
 <script src="./pwa-init.js" defer></script>
 <style>
-.wand-aluno-notificacoes-atalho{display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;margin:16px 0 22px;text-align:left;border:1px solid #c49b44;border-radius:19px;background:linear-gradient(135deg,#2c200f,#100d09 55%,#3b280e);box-shadow:inset 0 1px #ffe2a380,0 8px 18px #0009;color:#f5d37b;font:inherit;cursor:pointer}
+#homeView #wandAlunoNotificacoesAbrir.wand-aluno-notificacoes-atalho{display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;margin:16px 0 22px;text-align:left;border:2px solid #d6a63d!important;border-radius:19px;background:linear-gradient(135deg,#2c200f,#100d09 55%,#3b280e)!important;box-shadow:inset 0 1px #ffe2a380,0 8px 18px #0009;color:#f5d37b;font:inherit;cursor:pointer}
 .wand-aluno-notificacoes-icone{display:grid;place-items:center;flex:none;width:49px;height:49px;border:1px solid #c89a40;border-radius:14px;background:linear-gradient(140deg,#65451a,#30200e);font-size:27px;color:#ffd36a}
 .wand-aluno-notificacoes-texto{display:grid;gap:5px;flex:1;min-width:0}
 .wand-aluno-notificacoes-texto strong{font-size:17px;color:#fff}
@@ -2219,6 +2219,6 @@ window.addEventListener('pageshow',()=>{wesLoaded=false});
 .wand-aluno-notificacao-item strong{display:block;margin-bottom:6px}
 .wand-aluno-notificacao-item small{color:#d2b57b}
 </style>
-<script defer src="./notificacoes-aluno.js?v=1"></script>
+<script defer src="./notificacoes-aluno.js?v=2"></script>
 </body>
 </html>
