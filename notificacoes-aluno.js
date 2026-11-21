@@ -38,7 +38,13 @@
         .select('id,criada_em').eq('aluno_id',alunoId)
         .eq('status','pendente').order('criada_em',{ascending:false}).limit(20);
       if(error)throw error;
-      render((data||[]).map(p=>({
+      // A avaliacao fotografica ja mostra o pedido no menu. Se a
+      // consulta paralela estiver atrasada, manter o mesmo aviso na central.
+      const pedidos=(data||[]).length ? data : (
+        document.querySelector('[data-view="fotografica"] [data-wand-foto-aviso]')
+          ? [{id:'pedido-visivel-no-modulo'}] : []
+      );
+      render(pedidos.map(p=>({
         titulo:'Fotografias solicitadas pelo treinador',
         detalhe:'Toque para abrir a Avaliação Fotográfica.',
         abrir:abrirFotografias
