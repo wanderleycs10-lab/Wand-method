@@ -30,8 +30,8 @@ test('Envio das fotos preserva identidade do remetente e armazenamento privado',
   assert.match(painel, /from\('avaliacoes-fotograficas'\)\.upload\(/);
   assert.match(aluno, /const BUCKET = "avaliacoes-fotograficas"/);
 });
-test('Não confundir criação de solicitação com notificação entregue ao aluno', () => {
-  assert.match(painel, /O aviso na área do aluno será integrado na próxima etapa/);
+test('Confirma apenas disponibilidade na área fotográfica, sem prometer push', () => {
+  assert.match(painel, /O pedido já pode ser consultado na área fotográfica do aluno/);
 });
 
 test('Aluno consulta somente a solicitação pendente do próprio cadastro', () => {
@@ -44,4 +44,10 @@ test('Aluno consulta somente a solicitação pendente do próprio cadastro', () 
 test('Falha na consulta de solicitações não impede a visualização das fotos', () => {
   assert.match(aluno, /erroSolicitacao = Boolean\(consultaSolicitacao\.error\)/);
   assert.match(aluno, /Suas fotografias continuam disponíveis/);
+});
+
+test('WandCoach exibe a data de conclusão e não duplica o histórico ao atualizar', () => {
+  assert.match(painel, /Concluída em /);
+  assert.match(painel, /historicoArea\.replaceChildren\(\)/);
+  assert.match(painel, /undefined,historicoArea,'card'/);
 });
