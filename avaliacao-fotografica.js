@@ -24,6 +24,8 @@
   let aluno;
   let consentimento = null;
   let fotos = [];
+  let solicitacaoPendente = null;
+  let erroSolicitacao = false;
   let processando = false;
   let exibirTermos = false;
   let guia = "masculino";
@@ -476,6 +478,21 @@ as condições legais aplicáveis.
     }
 
     fotos = consultaFotos.data || [];
+
+    // A solicitação é independente do consentimento. Falhas nesta consulta
+    // não devem impedir que o aluno consulte suas fotografias existentes.
+    if (pagina === "aluno.html") {
+      const consultaSolicitacao = await db
+        .from("wand_solicitacoes_fotograficas")
+        .select("id,orientacoes,criada_em,status")
+        .eq("aluno_id", aluno.id)
+        .eq("status", "pendente")
+        .order("criada_em", { ascending:false })
+        .limit(1);
+      erroSolicitacao = Boolean(consultaSolicitacao.error);
+      solicitacaoPendente = consultaSolicitacao.error ? null : (consultaSolicitacao.data?.[0] || null);
+      if (consultaSolicitacao.error) console.warn("[WAND FOTOS] Solicitação indisponível:", consultaSolicitacao.error);
+    }
   }
 
   // SALVAR CONSENTIMENTO
@@ -1062,6 +1079,16 @@ as condições legais aplicáveis.
         "wf-muted",
         "Aluno(a): " + aluno.nome_completo
       );
+    }
+
+    if (pagina === "aluno.html" && solicitacaoPendente) {
+      const pedido = adicionar(container, "div", "wf-box");
+      adicionar(pedido, "h3", null, "Solicitação de fotografias do treinador");
+      adicionar(pedido, "p", "wf-muted", "Solicitada em " + dataBR(solicitacaoPendente.criada_em) + ". Envie fotografias de frente, lado e costas seguindo as orientações abaixo.");
+      if (solicitacaoPendente.orientacoes) adicionar(pedido, "p", "wf-muted", solicitacaoPendente.orientacoes);
+      adicionar(pedido, "p", "wf-small", "O envio depende da sua autorização para avaliação interna. A divulgação é opcional e separada.");
+    } else if (pagina === "aluno.html" && erroSolicitacao) {
+      adicionar(container, "p", "wf-muted", "Não foi possível consultar as solicitações neste momento. Suas fotografias continuam disponíveis.");
     }
 
     const status = statusAtual();
