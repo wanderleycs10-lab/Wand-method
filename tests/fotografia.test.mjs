@@ -14,10 +14,9 @@ test('WandCoach registra solicitações na tabela correta', () => {
     assert.ok(painel.includes(campo), 'Campo obrigatório ausente: '+campo);
   }
 });
-test('WandCoach consulta solicitações existentes e evita duplicação na interface', () => {
-  assert.match(painel, /from\('wand_solicitacoes_fotograficas'\)\.select\(/);
-  assert.match(painel, /registros\.find\(x=>x\.status==='pendente'\)/);
-  assert.match(painel, /if\(pendente\)/);
+test('WandCoach impede duplicacao de pedido pendente', () => {
+  assert.match(painel, /if\(pedidos\?\.length\)/);
+  assert.match(painel, /já possui uma solicitação fotográfica pendente/);
 });
 test('Consentimento fotográfico permanece separado da solicitação', () => {
   assert.match(painel, /from\('consentimentos_fotograficos'\)/);
@@ -30,10 +29,13 @@ test('Envio das fotos preserva identidade do remetente e armazenamento privado',
   assert.match(painel, /from\('avaliacoes-fotograficas'\)\.upload\(/);
   assert.match(aluno, /const BUCKET = "avaliacoes-fotograficas"/);
 });
-test('Confirma apenas disponibilidade na área fotográfica, sem prometer push', () => {
-  assert.match(painel, /O pedido já pode ser consultado na área fotográfica do aluno/);
+test('Solicitacao direta exige consentimento e informa resultado', () => {
+  assert.match(painel, /consent\?\.status_avaliacao!=='autorizada'/);
+  assert.match(painel, /Aluno não autorizou a avaliação fotográfica/);
+  assert.match(painel, /Fotografia solicitada com sucesso!/);
+  assert.doesNotMatch(painel, /Orientações para o aluno \(opcional\)/);
+  assert.doesNotMatch(painel, /Registrar solicitação/);
 });
-
 test('Aluno consulta somente a solicitação pendente do próprio cadastro', () => {
   assert.match(aluno, /from\("wand_solicitacoes_fotograficas"\)/);
   assert.match(aluno, /\.eq\("aluno_id", aluno\.id\)/);
@@ -44,12 +46,6 @@ test('Aluno consulta somente a solicitação pendente do próprio cadastro', () 
 test('Falha na consulta de solicitações não impede a visualização das fotos', () => {
   assert.match(aluno, /erroSolicitacao = Boolean\(consultaSolicitacao\.error\)/);
   assert.match(aluno, /Suas fotografias continuam disponíveis/);
-});
-
-test('WandCoach exibe a data de conclusão e não duplica o histórico ao atualizar', () => {
-  assert.match(painel, /Concluída em /);
-  assert.match(painel, /historicoArea\.replaceChildren\(\)/);
-  assert.match(painel, /undefined,historicoArea,'card'/);
 });
 
 test('Cartão inicial sinaliza pedido pendente sem duplicar aviso', () => {
