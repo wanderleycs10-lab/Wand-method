@@ -790,6 +790,14 @@ as condições legais aplicáveis.
     const posicoes=['frente','perfil','costas'];
     if(posicoes.some(p=>!rascunhos.has(p))){mostrarMensagem('Selecione e revise as três fotografias antes de enviar.',true);return;}
     if(statusAtual()!=='autorizada'){mostrarMensagem('É necessário autorizar a avaliação.',true);return;}
+    // Revalidar no servidor: um pedido pode ter sido concluído ou cancelado enquanto o aluno editava.
+    const verificacao=await db.from('wand_solicitacoes_fotograficas')
+      .select('id').eq('aluno_id',aluno.id).eq('status','pendente').limit(1);
+    if(verificacao.error||!verificacao.data?.length){
+      mostrarMensagem('Não há solicitação fotográfica pendente do treinador. Aguarde um novo pedido.',true);
+      await buscar().then(renderizar).catch(console.warn);
+      return;
+    }
     processando=true;
     const registros=[];
     try{
@@ -912,7 +920,7 @@ as condições legais aplicáveis.
       const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.style.display='none';
       input.onchange=()=>{if(input.files?.[0])editarImagem(posicao,input.files[0])};
       card.append(input);
-      if(pagina==='aluno.html'){
+      if(pagina==='aluno.html' && solicitacaoPendente && !erroSolicitacao){
         card.append(botao(rascunho?'Trocar fotografia':'Selecionar fotografia',()=>input.click()));
         if(rascunho)card.append(botao('Remover seleção',()=>{
           URL.revokeObjectURL(rascunho.url);rascunhos.delete(posicao);renderizar();
@@ -922,7 +930,7 @@ as condições legais aplicáveis.
         if(foto)exibirImagem(area,foto);
       }
     }
-    if(pagina==='aluno.html'){
+    if(pagina==='aluno.html' && solicitacaoPendente && !erroSolicitacao){
       const pronto=['frente','perfil','costas'].every(p=>rascunhos.has(p));
       adicionar(pai,'p','wf-muted',pronto?'As três fotografias estão prontas. Revise e confirme o envio.':'Selecione as três fotografias. Nada será enviado antes da confirmação.');
       const enviarBtn=botao('Enviar fotografias',enviarConjunto);
@@ -1133,7 +1141,12 @@ as condições legais aplicáveis.
       criarTermos(container);
     }
 
-    if (status === "autorizada") {
+    if (status === "autorizada" && pagina === "aluno.html" && !solicitacaoPendente) {
+      adicionar(container,"p","wf-muted",erroSolicitacao
+        ? "Não foi possível verificar se há solicitação do treinador. O envio está temporariamente indisponível."
+        : "Nenhuma solicitação fotográfica pendente. Aguarde um pedido do treinador para enviar novas fotografias.");
+    }
+    if (status === "autorizada" && (pagina !== "aluno.html" || Boolean(solicitacaoPendente))) {
       // Fotos em destaque; orientações e opções ficam recolhidas até o usuário solicitar.
       const guiaBox=adicionar(container,"details","wf-disclosure");
       guiaBox.open=guiaAberto;
