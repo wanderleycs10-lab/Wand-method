@@ -26,3 +26,10 @@ test('Treinador marca notificacao fotografica como lida por RPC segura',()=>{
  assert.match(admin,/data!==true/);
  assert.match(admin,/done\.disabled=true/);
 });
+
+test('Contador reconsulta notificacoes ao retornar à aba com limite de frequencia',()=>{
+ assert.match(admin,/window\.addEventListener\('focus'/);
+ assert.match(admin,/agora-wcUltimaConsultaNotificacoes<30000/);
+ assert.match(admin,/if\(document\.hidden/);
+ assert.match(admin,/wcAtualizarNotificacoes\(\)/);
+});
