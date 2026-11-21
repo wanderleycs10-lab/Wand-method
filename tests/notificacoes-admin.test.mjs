@@ -33,3 +33,14 @@ test('Contador reconsulta notificacoes ao retornar à aba com limite de frequenc
  assert.match(admin,/if\(document\.hidden/);
  assert.match(admin,/wcAtualizarNotificacoes\(\)/);
 });
+
+test('A consulta de notificacoes nao marca avisos automaticamente como lidos',()=>{
+ const consulta=admin.slice(admin.indexOf('async function wcBuscarNotificacoes()'),admin.indexOf('async function wcAtualizarNotificacoes()'));
+ assert.doesNotMatch(consulta,/wand_marcar_notificacao_fotografica_lida/);
+ assert.doesNotMatch(consulta,/\.update\(/);
+});
+test('Botao de leitura nao confirma sucesso quando RPC falha',()=>{
+ assert.match(admin,/if\(error\)throw error;/);
+ assert.match(admin,/if\(data!==true\)throw new Error/);
+ assert.match(admin,/done\.disabled=false/);
+});
