@@ -22,8 +22,9 @@
     for(const item of itens){
       const botao=adicionar('button',undefined,lista);
       botao.type='button';botao.className='wand-aluno-notificacao-item';
-      const icone=adicionar('span','▣',botao);
+      const icone=adicionar('span',undefined,botao);
       icone.className='wand-aluno-notificacoes-icone';
+      icone.innerHTML='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h4l2-2h4l2 2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="3.5"/></svg>';
       const texto=adicionar('span',undefined,botao);
       adicionar('strong',item.titulo,texto);
       adicionar('small',item.detalhe,texto);
