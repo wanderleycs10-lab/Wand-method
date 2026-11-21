@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const admin=readFileSync('admin.html','utf8');
+test('Central consulta notificacoes fotograficas somente do treinador autenticado',()=>{
+ assert.match(admin,/from\('wand_notificacoes_internas'\)/);
+ assert.match(admin,/\.eq\('destinatario_id',user\.id\)/);
+ assert.match(admin,/\.eq\('tipo','fotografia_concluida'\)/);
+ assert.match(admin,/\.is\('lida_em',null\)/);
+});
+test('Notificacao abre fotografias do aluno correto',()=>{
+ assert.match(admin,/tipo:'fotografia'/);
+ assert.match(admin,/avaliacao-fotografica-painel\.html\?id=/);
+ assert.match(admin,/modo=consultar/);
+ assert.match(admin,/Ver fotografias/);
+});
+test('Falha na fonte fotografica nao oculta as outras notificacoes',()=>{
+ assert.match(admin,/Falha ao consultar notificações fotográficas/);
+ assert.match(admin,/falhas\+\+/);
+});
