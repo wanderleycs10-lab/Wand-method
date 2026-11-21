@@ -583,6 +583,26 @@ async function wcBuscarNotificacoes(){
    entries.push({tipo:'anamnese',key,date:e.data||'',title:e.tipo==='triagem_saude'?'Triagem de saúde alterada':'Anamnese alterada',detail:aluno?.nome_completo||'Aluno cadastrado',url:'perfil-aluno.html?id='+encodeURIComponent(r.aluno_id)+'&aba=anamnese'});
   }}
  }catch(e){console.warn('Falha ao consultar anamneses:',e);falhas++}
+ // Notificações fotográficas são persistidas pelo trigger SQL 21.
+ // A consulta é somente leitura: não modifica status nem fotos.
+ try{
+  const {data:{user},error:authError}=await supabase.auth.getUser();
+  if(authError||!user)throw authError||new Error('Sessão não autenticada');
+  const {data,error}=await supabase.from('wand_notificacoes_internas')
+   .select('id,aluno_id,tipo,referencia_id,titulo,criada_em,lida_em')
+   .eq('destinatario_id',user.id)
+   .eq('tipo','fotografia_concluida')
+   .is('lida_em',null)
+   .order('criada_em',{ascending:false})
+   .limit(100);
+  if(error)throw error;
+  for(const n of data||[]){
+   const aluno=alunosCarregados.find(a=>String(a.id)===String(n.aluno_id));
+   entries.push({tipo:'fotografia',date:n.criada_em||'',title:n.titulo||'Avaliação fotográfica recebida',
+    detail:aluno?.nome_completo||'Aluno cadastrado',
+    url:'avaliacao-fotografica-painel.html?id='+encodeURIComponent(n.aluno_id)+'&modo=consultar'});
+  }
+ }catch(e){console.warn('Falha ao consultar notificações fotográficas:',e);falhas++}
  entries.sort((a,b)=>String(b.date).localeCompare(String(a.date)));return {entries,falhas};
 }
 async function wcAtualizarNotificacoes(){
@@ -601,7 +621,7 @@ async function wcCentralNotificacoes(){
   const title=document.createElement('strong');title.textContent=n.title;
   const info=document.createElement('small');info.style.display='block';info.textContent=n.detail+(n.date?' · '+new Date(n.date).toLocaleString('pt-BR'):'');
   const actions=document.createElement('div');actions.style.cssText='display:flex;flex-wrap:wrap;gap:9px;margin-top:12px';
-  const link=document.createElement('a');link.className='botao-link secundario';link.href=n.url;link.textContent=n.tipo==='cadastro'?'Analisar solicitação':'Ver anamnese';if(n.tipo==='cadastro'){link.href='#wc/notificacoes/solicitacoes';link.onclick=e=>{e.preventDefault();wcSolicitacoesCadastro('notificacoes',0)}}actions.append(link);
+  const link=document.createElement('a');link.className='botao-link secundario';link.href=n.url;link.textContent=n.tipo==='cadastro'?'Analisar solicitação':n.tipo==='fotografia'?'Ver fotografias':'Ver anamnese';if(n.tipo==='cadastro'){link.href='#wc/notificacoes/solicitacoes';link.onclick=e=>{e.preventDefault();wcSolicitacoesCadastro('notificacoes',0)}}actions.append(link);
   if(n.tipo==='anamnese'){const done=document.createElement('button');done.type='button';done.textContent='Marcar como revisada';done.onclick=()=>{if(!confirm('Você já analisou esta alteração de anamnese?'))return;wcMarcarRevisada(n.key);wcCentralNotificacoes();wcAtualizarNotificacoes()};actions.append(done)}
   card.append(title,info,actions);area.append(card);
  }
