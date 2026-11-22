@@ -19,7 +19,14 @@
 .wc-onboard-card{display:block!important;padding:18px!important;border:1px solid #9b7938!important;border-radius:18px!important;background:linear-gradient(150deg,#25221d,#121212 70%,#211b13)!important;box-shadow:inset 0 1px #e9c36d55,0 8px 18px #0008!important}
 .wc-onboard-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px}.wc-onboard-header strong{font-size:19px;color:#f0cf79}.wc-onboard-status{border:1px solid #977d43;color:#f1d18a;border-radius:99px;padding:5px 10px;font-size:12px}.wc-onboard-info{color:#c5c2bc;font-size:13px;overflow-wrap:anywhere;margin:9px 0}.wc-onboard-phase{font-weight:700;color:#edc875;margin:15px 0 10px}.wc-onboard-actions{display:flex;flex-wrap:wrap;gap:10px}.wc-onboard-actions .botao-link{flex:1 1 180px;min-height:46px;padding:10px 12px;border-radius:11px;text-decoration:none;font-size:13px}.wc-onboard-actions button.wc-onboard-contract{background:linear-gradient(125deg,#b47d18,#ffe49a 48%,#e1ad33 78%,#b47b13)!important;color:#1a1205!important;border:1px solid #ffdc77!important;box-shadow:inset 0 2px #fff5d2,0 5px 14px #0009,0 0 13px #d4a02c35!important;font-weight:700!important}.wc-onboard-actions button.wc-onboard-contract:disabled{opacity:.65}.wc-onboard-note{color:#b9b4ab;font-size:13px;margin:14px 0 8px}.wc-onboard-register{display:inline-block;color:#e8c575;font-size:13px;font-weight:700;margin-top:12px;text-decoration:underline;text-underline-offset:4px}.wc-onboard-comms{margin-top:14px;border:1px solid #66532e;border-radius:12px;padding:11px 13px;background:#171512}.wc-onboard-comms summary{cursor:pointer;color:#e8c575;font-weight:700;font-size:14px}.wc-onboard-comms p,.wc-onboard-comms small{display:block;color:#bfb9af;font-size:12px;margin:8px 0}.wc-onboard-comms button{width:100%;margin-top:9px;font-size:12px}
 
-/* Resumo de notificações no desktop: cards compactos, sem alterar a apresentação mobile. */
+/* Ajuste exclusivo para desktop: painéis com altura igual. */
+@media(min-width:751px){
+ #wcHome .wc-feature-grid{align-items:stretch}
+ #wcHome .wc-feature-grid>.wc-feature-card:first-child{align-self:stretch;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+ #wcHome #wcNotificacoesInfo{flex:1;min-height:0;overflow:hidden;align-content:start}
+ #wcHome .wc-notificacoes-extras{flex-shrink:0;margin-top:auto;padding:10px 12px;border:1px solid #665238;border-radius:12px;color:#f3ce7b;text-align:center;font-size:12px;background:#241b12}
+}
+ /* Resumo de notificações no desktop: cards compactos, sem alterar a apresentação mobile. */
 @media(min-width:751px){
  #wcHome .wc-feature-grid{align-items:start}
  #wcHome .wc-feature-grid>.wc-feature-card:first-child{align-self:start}
@@ -626,6 +633,28 @@ async function wcAtualizarNotificacoes(){
   item.append(titulo,detalhe);area.append(item);
  }
  if(falhas){const aviso=document.createElement('small');aviso.textContent='Algumas fontes estão indisponíveis.';area.append(aviso)}
+ const painel=area.closest('.wc-feature-card');
+ if(painel){
+  let extras=painel.querySelector('.wc-notificacoes-extras');
+  if(!extras){extras=document.createElement('div');extras.className='wc-notificacoes-extras';extras.textContent='••• Há mais notificações. Clique em Acessar para ver todas.';extras.hidden=true;painel.append(extras)}
+  const ajustar=()=>{
+   const itens=[...area.querySelectorAll('.wc-notificacao-resumo')];
+   itens.forEach(item=>item.hidden=false);extras.hidden=true;
+   if(!window.matchMedia('(min-width:751px)').matches)return;
+   const limite=area.getBoundingClientRect().bottom;
+   const excesso=itens.some(item=>item.getBoundingClientRect().bottom>limite+1);
+   if(!excesso)return;
+   extras.hidden=false;
+   const reserva=extras.getBoundingClientRect().height+10;
+   for(const item of itens){if(item.getBoundingClientRect().bottom>limite-reserva+1)item.hidden=true}
+  };
+  if(!painel._wcNotificacoesResize){
+   painel._wcNotificacoesResize=new ResizeObserver(()=>requestAnimationFrame(ajustar));
+   painel._wcNotificacoesResize.observe(painel);
+   window.addEventListener('resize',ajustar);
+  }
+  requestAnimationFrame(ajustar);
+ }
 }
 async function wcCentralNotificacoes(){
  wcSetRoute(['notificacoes']);wcOpen('Notificações pendentes','Selecione uma notificação para analisar e resolver.');
