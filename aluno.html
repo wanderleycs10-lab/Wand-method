@@ -1055,6 +1055,7 @@ function mostrarVista(nome, atualizarEndereco=true){
     history.replaceState(null,'',url);
   }
   $("homeView").hidden=Boolean(valido);
+  $("sair").hidden=Boolean(valido);
   for(const id of VIEWS) $("view-"+id).hidden=id!==valido;
   acomodarModulos();
   window.scrollTo({top:0,behavior:"instant"});
