@@ -43,7 +43,11 @@ form.addEventListener('submit',async evento=>{
   const {data:{user},error:userError}=await supabase.auth.getUser();
   if(userError||!user)throw new Error('Não foi possível verificar sua conta.');
   const destino=await destinoDoUsuario(user);
-  window.location.replace(destino);
+  const proxima=new URLSearchParams(location.search).get('proxima');
+  const proposta=new URLSearchParams(location.search).get('proposta');
+  if(destino==='aluno.html' && proxima==='contrato' && /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(proposta||'')){
+    window.location.replace('contratos-aluno.html?proposta='+encodeURIComponent(proposta));
+  }else{window.location.replace(destino);}
  }catch(e){console.error('Falha no acesso:',e);aviso(e.message||'Não foi possível concluir o acesso. Tente novamente.');}
  finally{botao.disabled=false;}
 });
