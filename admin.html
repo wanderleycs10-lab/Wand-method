@@ -89,6 +89,11 @@ header img{filter:drop-shadow(0 4px 9px #e2ac3333)}h1,h2,.wc-panel-title{color:#
 #wcHome .wc-desc{font-size:11px;color:#d3c8b6}
 @media(max-width:650px){#wcHome .wc-overview{grid-template-columns:repeat(2,minmax(0,1fr))}#wcHome .wc-feature-grid{grid-template-columns:1fr}#wcHome .wc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#wcHome .wc-overview-item{min-height:140px}#wcHome .wc-hero{gap:12px}#wcHome .wc-avatar{width:60px;height:60px}}
 
+@media(min-width:751px){
+ #wcHome .wc-feature-grid{align-items:stretch}
+ #wcHome .wc-feature-grid>.wc-feature-card:first-child{align-self:stretch}
+ #wcHome .wc-notificacao-resumo[hidden],#wcHome .wc-notificacoes-extras[hidden]{display:none!important}
+}
 /* Perfil do público — gráficos reais, responsivos e legíveis */
 #wcHome .wc-feature-grid{grid-template-columns:minmax(0,1.1fr) minmax(280px,1fr)}
 #wcHome .wc-demographics h3{color:#f5e8ce;font-size:20px;margin:0 0 7px}
