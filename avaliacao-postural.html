@@ -9,7 +9,7 @@ const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const message=(s)=>{$('notice').textContent=s};
 const backupKey=id=>'wand-posture-draft-v2-'+id;
 function localBackup(){if(!current)return;try{localStorage.setItem(backupKey(current.id),JSON.stringify({observations,report:$('general').value,priority:$('priority').value,strategy:$('strategy').value,date:$('assessmentDate').value,updated:new Date().toISOString()}))}catch(e){console.warn('Backup local indisponível',e)}}
-function restoreDraft(d){if(!d)return;observations=Array.isArray(d.observations)?d.observations:[];$('general').value=d.report||'';$('priority').value=d.priority||'';$('strategy').value=d.strategy||'';$('assessmentDate').value=d.date||new Date().toLocaleDateString('en-CA');reportGenerated=$('general').value;reportDirty=true;renderObservations();if(selectedPhoto)showPhoto(selectedPhoto)}
+function restoreDraft(d){if(!d)return;observations=Array.isArray(d.observations)?d.observations:[];$('general').value=normalizeReportText(d.report||'');$('priority').value=d.priority||'';$('strategy').value=d.strategy||'';$('assessmentDate').value=d.date||new Date().toLocaleDateString('en-CA');reportGenerated=$('general').value;reportDirty=true;renderObservations();if(selectedPhoto)showPhoto(selectedPhoto)}
 function rowToDraft(h){return {observations:Array.isArray(h.observacoes)?h.observacoes:[],report:h.resumo||'',priority:h.prioridades||'',strategy:h.estrategia||'',date:h.avaliado_em}}
 function markChanged(){dirty=true;localBackup()}
 
@@ -28,7 +28,27 @@ const regionNames={cabeca:'Cabeça e cervical',ombro:'Ombro e escápula',coluna:
 const spots={frente:[['cabeca',50,12],['ombro',32,27],['ombro',68,27],['coluna',50,42],['pelve',50,53],['joelho',41,73],['joelho',59,73],['pe',41,94],['pe',59,94]],perfil:[['cabeca',51,12],['ombro',53,28],['coluna',53,43],['pelve',53,54],['joelho',53,73],['pe',53,94]],costas:[['cabeca',50,12],['ombro',32,27],['ombro',68,27],['coluna',50,42],['pelve',50,53],['joelho',41,73],['joelho',59,73],['pe',41,94],['pe',59,94]]};
 let activeView='',reportGenerated='',reportDirty=false,photoUrls={};
 $('general').addEventListener('input',()=>{reportDirty=true;markChanged()});for(const id of ['priority','strategy','assessmentDate'])$(id).addEventListener('input',markChanged);
-function reportText(){const lines=observations.map((o,i)=>{const side=o.lado==='bilateral'?'bilateralmente':o.lado==='não aplicável'?'':('no lado '+o.lado);return (i+1)+'. '+regionNames[o.chave]+' — vista '+o.posicao+': observa-se '+o.texto.toLowerCase()+(side?' '+side:'')+', conforme as referências visíveis na fotografia. Este achado deve ser correlacionado com a avaliação funcional.'});return 'RELATÓRIO DE AVALIAÇÃO POSTURAL\\n\\n'+(lines.join('\\n\\n')||'Nenhuma observação selecionada.')+'\\n\\nCONSIDERAÇÕES\\nOs achados são observações visuais, sujeitos a limitações de perspectiva e posicionamento, e não constituem diagnóstico clínico.'}
+function reportText(){
+ const name=current?.nome_completo||'Aluno(a)';
+ const date=$('assessmentDate').value;
+ const displayDate=date?date.split('-').reverse().join('/'):'Não informada';
+ const sections=[['frente','VISTA ANTERIOR (FRENTE)'],['perfil','VISTA LATERAL (PERFIL)'],['costas','VISTA POSTERIOR (COSTAS)']];
+ const parts=['RELATÓRIO DE AVALIAÇÃO POSTURAL','Aluno(a): '+name,'Data da avaliação: '+displayDate,''];
+ for(const [view,heading] of sections){
+  const items=observations.filter(o=>o.posicao===view);
+  if(!items.length)continue;
+  parts.push(heading,'');
+  for(const o of items){
+   const side=o.lado==='bilateral'?'bilateralmente':o.lado==='não aplicável'||!o.lado?'':(' — lado '+o.lado);
+   parts.push((regionNames[o.chave]||o.regiao||'Região avaliada')+side);
+   parts.push('Na avaliação fotográfica em vista '+(view==='frente'?'anterior':view==='perfil'?'lateral':'posterior')+', observa-se '+String(o.texto||'').toLowerCase()+'. O achado deve ser interpretado considerando as referências visíveis na fotografia e correlacionado com a avaliação funcional.','');
+  }
+ }
+ if(!observations.length)parts.push('Nenhuma observação selecionada.','');
+ parts.push('CONSIDERAÇÕES TÉCNICAS','Os achados descritos resultam de observação fotográfica estática. O posicionamento corporal, a perspectiva e a qualidade das imagens podem influenciar a interpretação. Este documento não constitui diagnóstico clínico nem substitui avaliação médica quando indicada.');
+ return parts.join(String.fromCharCode(10));
+}
+function normalizeReportText(value){return String(value||'').replace(/\\\\n/g,String.fromCharCode(10))}
 function updateReport(){const next=reportText(),field=$('general');if(!reportDirty||field.value===reportGenerated){field.value=next}else if(confirm('Atualizar o relatório com as novas seleções? As edições manuais feitas no texto serão substituídas.')){field.value=next;reportDirty=false}else{message('Observação atualizada. Revise o texto editado antes de enviar.')}reportGenerated=field.value;markChanged()}
 async function renderPhotos(){const area=$('photos');area.replaceChildren();photoUrls={};const unique=['frente','perfil','costas'].map(pos=>photos.find(p=>norm(p.posicao)===pos)).filter(Boolean);if(!unique.length){el('p','Ainda não há fotografias registradas para este aluno.',area);$('view').replaceChildren();return}for(const p of unique){const b=el('button',null,area);const im=el('img',null,b);im.alt='Foto '+p.posicao;const lab=el('span',p.posicao,b);try{const {data,error}=await db.storage.from('avaliacoes-fotograficas').createSignedUrl(p.caminho,3600);if(error)throw error;im.src=data.signedUrl;photoUrls[norm(p.posicao)]=data.signedUrl;b.onclick=()=>showPhoto(p)}catch(e){b.disabled=true;lab.textContent+=' · indisponível'}}if(unique.length)showPhoto(unique[0])}
 function showPhoto(p){selectedPhoto=p;activeView=norm(p.posicao);const v=$('view');v.replaceChildren();$('regionPicker').hidden=true;const wrapper=el('div',null,v);wrapper.className='region-photo';const img=el('img',null,wrapper);img.src=photoUrls[activeView];img.alt='Fotografia '+activeView;img.style.width='auto';img.style.maxWidth='100%';for(const [key,x,y] of spots[activeView]||[]){const bt=el('button','+',wrapper);bt.className='hotspot'+(observations.some(o=>o.posicao===activeView&&o.chave===key)?' marked':'');bt.style.left=x+'%';bt.style.top=y+'%';bt.title='Avaliar '+regionNames[key];bt.type='button';bt.onclick=()=>openRegion(key,x)}$('photoHelp').textContent='Vista '+activeView+': toque em um ponto dourado para escolher uma observação. Os pontos são referências interativas aproximadas, não medições anatômicas.'}
