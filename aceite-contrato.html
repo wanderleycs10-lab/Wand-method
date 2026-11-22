@@ -1,10 +1,33 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aceite de contrato | WAND METHOD</title>
-<style>*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 90% 0%,#4b301b55,transparent 45%),#080808;color:#f4f0e8;font:16px Arial,sans-serif;line-height:1.6}header{padding:20px;text-align:center;border-bottom:1px solid #806331}header strong{color:#f2c76b;letter-spacing:3px;font-size:20px}main{max-width:590px;margin:40px auto;padding:0 18px 100px}h1{font-size:27px;color:#e8b955}.card{border:1px solid #96743b;border-radius:18px;background:linear-gradient(145deg,#231c13,#121212);padding:25px}label{display:block;margin-top:18px;color:#e9c57b}input{width:100%;background:#111;color:#fff;border:1px solid #8c754a;border-radius:9px;padding:14px;font:inherit;margin-top:6px}button{background:#30291d;color:#f5d079;border:1px solid #b58d45;border-radius:11px;padding:13px 17px;margin-top:20px;font:inherit;font-weight:bold;cursor:pointer}button:disabled{opacity:.5}a{color:#f0c971}#status{min-height:25px;color:#d6c7a7}.muted{font-size:14px;color:#c8c0b3}[hidden]{display:none!important}</style></head>
-<body><header><strong>WAND METHOD</strong></header><main><a href="login.html">← Voltar</a><h1>Confirmação de contrato</h1><div class="card"><p>Para proteger seu contrato, confirme o e-mail vinculado à sua conta WAND METHOD.</p>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 92% 2%,#38250f22,transparent 42%),#080808;color:#f6f3ec;font:15px Arial,sans-serif;line-height:1.5}
+header{border-bottom:1px solid #66551f;padding:18px 16px;text-align:center;background:#080808}
+header img{width:74px;max-width:25%;height:auto;display:block;margin:0 auto 4px}
+header strong{display:block;color:#d4af37;letter-spacing:2px;font-size:18px}
+header small{display:block;color:#bbb;letter-spacing:1.5px;font-size:11px;margin-top:3px}
+main{max-width:950px;margin:0 auto;padding:22px 16px 60px}
+.content{max-width:640px;margin:0 auto}
+h1{font-size:25px;color:#d4af37;margin:22px 0 7px}
+.intro{color:#c8c8c8;margin:0 0 18px}
+.card{background:linear-gradient(145deg,#211b13,#151515 55%,#1c160f);border:1px solid #79602d;border-radius:17px;padding:22px;box-shadow:0 8px 20px #0006}
+.back{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 15px;text-decoration:none;color:#f0cf68;border:1px solid #b48b39;border-radius:10px;background:transparent;font-size:14px}
+label{display:block;margin:16px 0 5px;color:#e9c57b;font-weight:600}
+input{display:block;width:100%;background:#101010;color:#fff;border:1px solid #806b32;border-radius:9px;padding:12px;font:15px Arial,sans-serif;min-height:46px}
+button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;background:#d4af37;color:#080808;border:0;border-radius:9px;padding:12px 16px;margin-top:16px;font:700 14px Arial,sans-serif;cursor:pointer}
+button.secondary{background:#242424;color:#f0cf68;border:1px solid #9b812d}
+button:disabled{opacity:.5;cursor:not-allowed}
+#status{color:#f0cf68;margin:14px 0 0}
+.muted{font-size:13px;color:#bcb7ac}
+.notice{border-top:1px solid #66551f;padding-top:14px;margin-top:20px}
+[hidden]{display:none!important}
+@media(max-width:480px){header img{width:64px}main{padding:18px 16px 42px}h1{font-size:23px}.card{padding:18px}button{width:100%}}
+</style></head>
+<body><header><img src="LogoNova.png" alt="Logo WAND METHOD"><strong>WAND METHOD</strong><small>CONTRATOS</small></header><main><div class="content"><a class="back" href="login.html">← Voltar</a><h1>Confirmação de contrato</h1><p class="intro">Verificação de identidade para acesso ao documento</p><div class="card"><p>Para proteger seu contrato, confirme o e-mail vinculado à sua conta WAND METHOD.</p>
 <form id="emailForm"><label for="email">Seu e-mail</label><input id="email" type="email" autocomplete="email" required maxlength="254"><button id="send" type="submit">Enviar código de verificação</button></form>
-<form id="codeForm" hidden><label for="code">Código recebido por e-mail</label><input id="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,8}" maxlength="8" required><button id="verify" type="submit">Confirmar e abrir contrato</button><p class="muted">Não recebeu? Confira a caixa de spam ou solicite outro código.</p><button id="again" type="button">Reenviar código</button></form>
-<p id="status" role="status" aria-live="polite"></p><p class="muted">O link não concede acesso automático ao contrato. Somente o aluno vinculado à proposta pode visualizá-la e registrar a decisão. O acesso aos treinos permanece separado.</p></div></main>
+<form id="codeForm" hidden><label for="code">Código recebido por e-mail</label><input id="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,8}" maxlength="8" required><button id="verify" type="submit">Confirmar e abrir contrato</button><p class="muted">Não recebeu? Confira a caixa de spam ou solicite outro código.</p><button class="secondary" id="again" type="button">Reenviar código</button></form>
+<p id="status" role="status" aria-live="polite"></p><p class="muted notice">Por segurança, somente o titular da proposta poderá acessar o contrato após confirmar seu e-mail.</p></div></div></main>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
