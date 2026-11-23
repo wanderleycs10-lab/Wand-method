@@ -1,8 +1,10 @@
 // Supabase Edge Function: wand-enviar-contrato
 // Configure RESEND_API_KEY and WAND_EMAIL_FROM (verified domain) in Supabase secrets.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}});
+const cors={"Access-Control-Allow-Origin":"https://wandmethod.com.br","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS","Vary":"Origin"};
+const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store",...cors}});
 Deno.serve(async req=>{
+ if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors});
  if(req.method!=="POST")return json({error:"Método não permitido"},405);
  const auth=req.headers.get("Authorization")||"";
  if(!auth.startsWith("Bearer "))return json({error:"Sessão necessária"},401);
