@@ -39,6 +39,8 @@ Deno.serve(async req=>{
    const link=origin+"/contrato-aceite.html?proposta="+encodeURIComponent(id)+"&chave="+token;
    const response=await fetch("https://api.resend.com/emails",{method:"POST",headers:{"Authorization":"Bearer "+resend,"Content-Type":"application/json"},body:JSON.stringify({from,to:[email],subject:"Seu contrato WAND METHOD — confirmação segura",html:'<div style="font-family:Arial,sans-serif;background:#101010;color:#f5e9cf;padding:28px"><h2 style="color:#d8ad52">WAND METHOD</h2><p>Olá, '+esc(String(aluno?.nome_completo||""))+'.</p><p>Sua proposta está pronta. Abra o link e confirme o código enviado ao seu e-mail para visualizar e decidir.</p><p><a style="color:#e4bb65" href="'+link+'">Acessar meu contrato</a></p><p>O link expira em 7 dias. Não compartilhe.</p></div>'})});
    if(!response.ok){console.error("Resend falhou",response.status,await response.text());return json({error:"Provedor de e-mail recusou o envio"},502)}
+   const {error:marked}=await db.from("wand_propostas").update({email_enviado_em:new Date().toISOString()}).eq("id",id);
+   if(marked){console.error("E-mail entregue ao provedor, mas falhou registro do envio",marked.message);return json({error:"E-mail encaminhado, mas o histórico não foi atualizado. Verifique antes de reenviar."},500)}
    return json({ok:true,message:"E-mail enviado"});
   }
   const token=String(input.chave||"");
