@@ -8,6 +8,29 @@ const hash=async(s:string)=>hex(new Uint8Array(await crypto.subtle.digest("SHA-2
 const valid=(s:string)=>/^[0-9a-f-]{36}$/i.test(s);
 const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]||c));
 const errorMessage=(x:unknown)=>x instanceof Error?x.message:String(x);
+async function prepararConvite(db:ReturnType<typeof createClient>,alunoId:number,propostaId:string,email:string,nome:string,canal:"email"|"whatsapp",resend:string|undefined,from:string|undefined){
+ const destino="https://wandmethod.com.br/criar-senha.html";
+ const {data:aluno,error:alunoErro}=await db.from("alunos").select("id,user_id,email").eq("id",alunoId).maybeSingle();
+ if(alunoErro||!aluno||String(aluno.email||"").trim().toLowerCase()!==email)return {error:"E-mail do cadastro não corresponde ao contrato",status:409};
+ const existente=Boolean(aluno.user_id);
+ const {data:linkData,error:linkError}=await db.auth.admin.generateLink({type:existente?"recovery":"invite",email,options:{redirectTo:destino,data:{nome_completo:nome}}});
+ if(linkError||!linkData?.properties?.action_link||!linkData.user?.id){console.error("Falha ao gerar convite",linkError?.message);return {error:"Não foi possível preparar o convite de acesso",status:502}}
+ const uid=linkData.user.id;
+ if(existente&&aluno.user_id!==uid)return {error:"Conta vinculada não corresponde ao e-mail",status:409};
+ if(!existente){const {error:up}=await db.from("alunos").update({user_id:uid}).eq("id",alunoId).is("user_id",null);if(up){console.error("Falha ao vincular conta",up.message);return {error:"Não foi possível vincular a conta ao cadastro",status:500}}}
+ const url=linkData.properties.action_link;
+ const {error:trackError}=await db.from("wand_convites_acesso").upsert({aluno_id:alunoId,proposta_id:propostaId,email_destino:email,auth_uid:uid,status:"pendente",atualizado_em:new Date().toISOString()},{onConflict:"aluno_id"});
+ if(trackError){console.error("Falha ao registrar convite",trackError.message);return {error:"Não foi possível registrar o convite",status:500}}
+ if(canal==="whatsapp")return {ok:true,url,email};
+ if(!resend||!from)return {error:"E-mail de convite não configurado",status:503};
+ const primeiro=esc(nome.trim().split(/\s+/)[0]||"aluno");
+ const html='<div style="background:#0e0e0e;color:#f4e8d1;padding:36px 24px;font-family:Arial,sans-serif;max-width:620px;margin:auto"><img src="https://wandmethod.com.br/LogoNova.png" width="85" alt="WAND METHOD" style="display:block;margin:auto"><h1 style="text-align:center;color:#e2b95f">WAND METHOD</h1><h2 style="color:#f2d48f">Seu primeiro acesso está pronto</h2><p>Olá, '+primeiro+'!</p><p>Seu contrato foi aceito. Agora você pode definir sua senha e preparar seu acesso à plataforma WAND METHOD.</p><p>Seu login será o e-mail cadastrado. A senha será escolhida por você, em uma página segura.</p><p style="text-align:center;padding:20px"><a href="'+esc(url)+'" style="background:#ddb65c;color:#17120b;padding:16px 25px;border-radius:8px;text-decoration:none;font-weight:bold">CRIAR MINHA SENHA</a></p><p>O acesso aos treinos depende da confirmação de pagamento e da ativação pelo treinador.</p><p style="font-size:12px;color:#bcae90">Se você não reconhece esta solicitação, ignore a mensagem. Não compartilhe este link.</p></div>';
+ const response=await fetch("https://api.resend.com/emails",{method:"POST",headers:{"Authorization":"Bearer "+resend,"Content-Type":"application/json"},body:JSON.stringify({from,to:[email],subject:"WAND METHOD — crie sua senha de acesso",html})});
+ if(!response.ok){console.error("Falha no envio de convite",response.status);return {error:"Não foi possível enviar o convite por e-mail",status:502}}
+ await db.from("wand_convites_acesso").update({status:"enviado",enviado_em:new Date().toISOString(),erro_ultimo_envio:null}).eq("aluno_id",alunoId);
+ return {ok:true};
+}
+
 Deno.serve(async req=>{
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors});
  if(req.method!=="POST")return json({error:"Método não permitido"},405);
@@ -20,6 +43,22 @@ Deno.serve(async req=>{
  const id=String(input.proposta_id||"");
  if(!valid(id))return json({error:"Proposta inválida"},400);
  try{
+  if(action==="convite_whatsapp"||action==="reenviar_convite"){
+   const auth=req.headers.get("Authorization")||"";
+   if(!auth.startsWith("Bearer "))return json({error:"Sessão necessária"},401);
+   const {data:{user},error:authError}=await db.auth.getUser(auth.slice(7));
+   if(authError||!user)return json({error:"Sessão inválida"},401);
+   const {data:profile}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
+   if(profile?.role!=="admin")return json({error:"Acesso não autorizado"},403);
+   const {data:prop}=await db.from("wand_propostas").select("id,aluno_id,status").eq("id",id).maybeSingle();
+   if(!prop||prop.status!=="aceita")return json({error:"Contrato ainda não aceito"},409);
+   const {data:aluno}=await db.from("alunos").select("nome_completo,email").eq("id",prop.aluno_id).maybeSingle();
+   const email=String(aluno?.email||"").trim().toLowerCase();
+   if(!email)return json({error:"Aluno sem e-mail"},422);
+   const result=await prepararConvite(db,prop.aluno_id,id,email,String(aluno?.nome_completo||""),action==="convite_whatsapp"?"whatsapp":"email",resend,from);
+   if(!result.ok)return json({error:result.error},result.status||500);
+   return json(action==="convite_whatsapp"?{ok:true,url:result.url,email}:{ok:true,message:"Convite enviado por e-mail"});
+  }
   if(action==="enviar"){
    const auth=req.headers.get("Authorization")||"";
    if(!auth.startsWith("Bearer "))return json({error:"Sessão necessária"},401);
@@ -79,7 +118,16 @@ Deno.serve(async req=>{
    const {error:updateError}=await db.from("wand_propostas").update({status:aceitar?"aceita":"recusada",decidida_em:new Date().toISOString()}).eq("id",id).eq("status","enviada");
    if(updateError){console.error("Erro no status",updateError.message);return json({error:"Decisão registrada; contate o treinador para confirmar o status"},500)}
    await db.from("wand_contrato_verificacoes").update({acesso_utilizado_em:new Date().toISOString(),codigo_hash:null}).eq("proposta_id",id);
-   return json({ok:true,message:aceitar?"Contrato aceito e registrado":"Proposta recusada e registrada"});
+   if(aceitar){
+    const {data:aluno}=await db.from("alunos").select("nome_completo,email").eq("id",(await db.from("wand_propostas").select("aluno_id").eq("id",id).single()).data?.aluno_id).maybeSingle();
+    const email=String(aluno?.email||"").trim().toLowerCase();
+    const {data:propostaAluno}=await db.from("wand_propostas").select("aluno_id").eq("id",id).single();
+    if(propostaAluno?.aluno_id&&email){
+     const invite=await prepararConvite(db,propostaAluno.aluno_id,id,email,String(aluno?.nome_completo||""),"email",resend,from);
+     if(!invite.ok){console.error("Aceite registrado; convite pendente:",invite.error);return json({ok:true,message:"Contrato aceito e registrado. O convite de acesso ainda não pôde ser enviado; o treinador poderá reenviar."})}
+    }
+   }
+   return json({ok:true,message:aceitar?"Contrato aceito e convite de acesso enviado":"Proposta recusada e registrada"});
   }
   return json({error:"Operação inválida"},400);
  }catch(e){console.error("Falha no fluxo de contratos",errorMessage(e));return json({error:"Erro ao processar a solicitação"},500)}
