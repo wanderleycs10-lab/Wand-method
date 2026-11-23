@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const origin="https://wandmethod.com.br";
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"};
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store",...cors}});
 const hex=(b:Uint8Array)=>Array.from(b).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -26,8 +27,10 @@ Deno.serve(async req=>{
    if(error||!user)return json({error:"Sessão inválida"},401);
    const {data:profile}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
    if(profile?.role!=="admin")return json({error:"Acesso não autorizado"},403);
-   const {data:p}=await db.from("wand_propostas").select("id,aluno_id,status").eq("id",id).maybeSingle();
-   if(!p||p.status!=="enviada")return json({error:"Proposta indisponível"},404);
+   const {data:p,error:proposalError}=await db.from("wand_propostas").select("id,aluno_id,status").eq("id",id).maybeSingle();
+   if(proposalError){console.error("Erro ao consultar proposta",proposalError.code,proposalError.message);return json({error:"Falha ao consultar a proposta no banco ("+(proposalError.code||"desconhecido")+")"},500)}
+   if(!p)return json({error:"Proposta não localizada no banco consultado pela função"},404);
+   if(p.status!=="enviada")return json({error:"Proposta com status incompatível para envio"},409);
    const {data:aluno}=await db.from("alunos").select("nome_completo,email").eq("id",p.aluno_id).maybeSingle();
    const email=String(aluno?.email||"").trim().toLowerCase();
    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return json({error:"Interessado sem e-mail válido"},422);
