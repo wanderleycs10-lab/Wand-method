@@ -19,3 +19,7 @@ begin
 end $$;
 revoke all on function public.wand_contrato_admin_propostas() from public;
 grant execute on function public.wand_contrato_admin_propostas() to authenticated;
+
+-- Contratos com decisão anterior necessariamente foram disponibilizados ao destinatário.
+update public.wand_propostas set email_enviado_em=coalesce(decidida_em,enviada_em)
+where status in ('aceita','recusada') and email_enviado_em is null;
