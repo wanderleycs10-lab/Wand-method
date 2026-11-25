@@ -106,7 +106,56 @@ if(m==='solicitar'){
 if(m==='consultar'){back(()=>goto('fotos'));if(!photos.length){el('div','Nenhuma fotografia cadastrada para este aluno.',root,'card');return}for(const [date,arr] of groups())button(root,day(date),'Abrir fotografias registradas nesta data',async()=>{root.replaceChildren();$('title').textContent='Fotografias · '+day(date);back(()=>render('consultar'));await gallery(root,arr)},'▤');return}
 if(m==='comparar'){if(groups().length<2){el('div','São necessários registros fotográficos de pelo menos duas datas para comparar.',root,'card');return}el('p','Escolha duas datas e compare a mesma posição lado a lado.',root,'muted');const dates=groups();const selects=[];for(let i=0;i<2;i++){const label=el('label',i?'Avaliação recente':'Avaliação anterior');const select=el('select',undefined,label);for(const [d] of dates){const option=el('option',day(d),select);option.value=d}select.value=dates[i][0];selects.push(select)}const position=el('label','Posição fotográfica');const selectPos=el('select',undefined,position);for(const [value,label] of [['frente','Frente'],['perfil','Lado'],['costas','Costas']]){const option=el('option',label,selectPos);option.value=value}const output=el('div');const show=async()=>{output.replaceChildren();if(selects[0].value===selects[1].value){el('p','Selecione duas datas diferentes.',output);return}const grid=el('div',undefined,output,'grid');for(const sel of selects){const card=el('div',undefined,grid,'card');el('h2',day(sel.value),card);const arr=dates.find(([d])=>d===sel.value)?.[1]||[];const p=arr.find(x=>norm(x.posicao)===selectPos.value||(selectPos.value==='perfil'&&norm(x.posicao)==='lado'));if(!p){el('p','Sem fotografia nesta posição.',card);continue}try{const img=el('img',undefined,card,'photo');img.src=await signed(p);img.alt='Comparação '+day(sel.value)}catch(e){el('p',e.message,card,'error')}}};[...selects,selectPos].forEach(x=>x.onchange=show);show();return}
 if(m==='postural'){el('p','Análise profissional das fotografias, com registro de observações e histórico.',root,'muted');const a=el('a','Abrir Análise Postural',root,'btn');a.href='avaliacao-postural.html?aluno_id='+encodeURIComponent(id)+'&origem='+encodeURIComponent(location.href);return}
-if(m==='autorizacoes'){el('p','Consentimento para avaliação e autorização de divulgação são permissões diferentes. O uso externo deve ser opcional e específico.',root,'muted');const area=el('div','Consultando consentimentos…',root,'card');db.from('consentimentos_fotograficos').select('aluno_id,status_avaliacao,divulgacao_autorizada,versao_termo,atualizado_em').eq('aluno_id',id).then(({data,error})=>{area.replaceChildren();if(error){el('p','Não foi possível consultar o consentimento fotográfico. Nenhuma autorização foi presumida.',area,'muted');return}if(!data?.length){el('p','Nenhuma autorização registrada.',area);return}for(const a of data){for(const [titulo,estado] of [['Avaliação',a.status_avaliacao==='autorizada'?'Autorizada':a.status_avaliacao==='recusada'?'Recusada':'Pendente'],['Divulgação',a.divulgacao_autorizada?'Autorizada':'Não autorizada']]){const item=el('div',undefined,area,'card');el('strong',titulo+' · '+estado,item);el('p','Última atualização: '+day(a.atualizado_em)+' · Termo '+a.versao_termo,item,'muted')}}});return}}
+if(m==='autorizacoes'){
+ el('p','A autorização de avaliação é registrada pelo próprio aluno. A divulgação das imagens é uma permissão separada e opcional.',root,'muted');
+ const area=el('div','Consultando autorizações…',root,'card');
+ (async()=>{
+  area.replaceChildren();
+  try{
+   const {data,error}=await db.from('consentimentos_fotograficos').select('aluno_id,status_avaliacao,divulgacao_autorizada,versao_termo,atualizado_em').eq('aluno_id',id);
+   if(error)throw error;
+   const a=data?.[0];
+   const status=a?.status_avaliacao;
+   el('h3',status==='autorizada'?'Avaliação autorizada':status==='recusada'?'Autorização recusada':'Autorização pendente',area);
+   el('p',status==='autorizada'?'O aluno autorizou a avaliação fotográfica.':status==='recusada'?'O aluno recusou a avaliação fotográfica. Entre em contato com ele, se necessário.':'O aluno ainda não registrou autorização para a avaliação fotográfica.',area,'muted');
+   if(a){
+    el('p','Divulgação: '+(a.divulgacao_autorizada?'Autorizada pelo aluno':'Não autorizada')+'.',area,'muted');
+    el('p','Última atualização: '+day(a.atualizado_em)+' · Termo '+a.versao_termo,area,'muted');
+   }
+   if(status==='autorizada')return;
+   const {data:pendentes,error:pe}=await db.from('wand_pedidos_autorizacao_foto').select('id,solicitado_em').eq('aluno_id',id).eq('status','pendente').limit(1);
+   if(pe)throw pe;
+   if(pendentes?.length){el('p','Pedido de autorização já enviado. Aguardando resposta do aluno.',area,'muted');return;}
+   const solicitar=el('button','Enviar pedido de autorização',area);
+   solicitar.type='button';
+   solicitar.style.cssText='display:block;width:100%;margin-top:16px;text-align:center!important;background:linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)!important;color:#171005!important;border:1px solid #f6d98e!important;border-radius:12px;padding:14px;font-weight:700;box-shadow:inset 0 2px 2px #fff9,0 5px 12px #0009';
+   solicitar.onclick=async()=>{
+    if(solicitar.disabled)return;
+    solicitar.disabled=true;
+    try{
+     const {data:{user},error:authError}=await db.auth.getUser();
+     if(authError||!user)throw Error('Sua sessão expirou.');
+     const {error:insertError}=await db.from('wand_pedidos_autorizacao_foto').insert({aluno_id:id,solicitado_por:user.id});
+     if(insertError){
+      if(insertError.code==='23505'){await wandAvisoFotografico('Pedido já enviado','Já existe uma solicitação de autorização pendente para este aluno.');return;}
+      throw insertError;
+     }
+     solicitar.remove();
+     el('p','Pedido enviado. Aguardando o aluno responder nas notificações.',area,'muted');
+     await wandConclusaoLocal('Pedido de autorização fotográfica enviado ao aluno com sucesso.');
+    }catch(e){
+     console.warn('[WAND] Pedido de autorização fotográfica',e);
+     await wandAvisoFotografico('Não foi possível enviar','Não foi possível enviar o pedido de autorização. Tente novamente.');
+    }finally{solicitar.disabled=false;}
+   };
+  }catch(e){
+   console.warn('[WAND] Consulta de autorizações',e);
+   el('p','Não foi possível consultar as autorizações. Tente novamente.',area,'muted');
+  }
+ })();
+ return;
+}
+
 async function init(){try{const {data:{user}}=await db.auth.getUser();if(!user)throw Error('Entre no WandCoach.');const {data:p,error:pe}=await db.from('profiles').select('role').eq('id',user.id).single();if(pe||p?.role!=='admin')throw Error('Acesso exclusivo do treinador.');if(!Number.isSafeInteger(id)||id<1)throw Error('Aluno inválido.');const {data:a,error}=await db.from('alunos').select('nome_completo').eq('id',id).single();if(error)throw error;name=a.nome_completo;$('student').textContent=name;await load();render()}catch(e){notice('Não foi possível carregar: '+e.message,true)}}
 window.onpopstate=()=>render(new URLSearchParams(location.search).get('modo')||'fotos');init();
 </script><script>function wandConclusaoLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Concluído com sucesso');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #b8bcc4;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const ic=document.createElement('div');ic.setAttribute('aria-hidden','true');ic.style.cssText='width:58px;height:58px;margin:0 auto 14px;border:2px solid #e8c674;border-radius:50%;display:grid;place-items:center;color:#e8c674;font-size:34px;box-shadow:0 0 15px #d4af3740';ic.textContent='✓';const h=document.createElement('h2');h.textContent='Concluído com sucesso!';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='OK';b.style.cssText='width:100%!important;text-align:center!important;padding:14px!important;border:1px solid #f6d98e!important;border-radius:12px!important;background:linear-gradient(180deg,#fff0b0 0%,#e5bd58 35%,#b17d25 100%)!important;color:#171005!important;font-weight:700!important;font-size:16px!important;box-shadow:inset 0 2px 2px #fff9,inset 0 -3px 5px #70470c88,0 5px 12px #0009!important;text-shadow:none!important;cursor:pointer';d.append(ic,h,p,b);document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.style.setProperty('background','linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)','important');b.style.setProperty('color','#171005','important');b.onclick=()=>{d.close();d.remove();resolve()};d.showModal();b.focus()})}
