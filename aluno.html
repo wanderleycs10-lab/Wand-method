@@ -813,65 +813,26 @@ function abrirGerenciamentoFicha(acao){
  const h=document.createElement("h4");h.textContent=({editar:"Editar meus dados",senha:"Alterar minha senha",privacidade:"Privacidade e meus dados"})[acao];area.append(h);
  if(acao==="privacidade"){
  const sections=[
-  {title:"Meus contratos",intro:"Consulte seu contrato individual aceito, incluindo valores, condições e documento completo, no botão “Abrir meus contratos e propostas” abaixo.",paragraphs:[
-   ["Prestador","Wanderley Canedo Siqueira — CREF 058573-G/RJ. Serviços oferecidos sob a marca WAND METHOD."],
-   ["Modalidades","Consultoria Online; Semipresencial; Personal Individual; Personal Duo; pacotes de aulas. A modalidade, frequência e preço são definidos individualmente."],
-   ["Duração das sessões","Sessões presenciais ou assistidas de aproximadamente 50 a 60 minutos, conforme o serviço contratado."],
-   ["Vigência e renovação","Planos mensais com renovação até cancelamento; planos trimestrais e semestrais com renovação por acordo expresso; pacotes sem renovação automática."],
-   ["Faltas e reposições","Para planos mensais presenciais, até três reposições de faltas do aluno por mês, mediante aviso de pelo menos 24 horas e reagendamento em até 30 dias, sujeito a disponibilidade mútua. Cancelamentos do treinador não consomem essa franquia."],
-   ["Suspensão planejada","Em planos trimestrais e semestrais, até 30 dias cumulativos mediante acordo, com extensão correspondente da vigência; situações de saúde são avaliadas individualmente."],
-   ["Cancelamento","Planos mensais: aviso de 15 dias, sem multa de fidelidade. Pacotes: apuração proporcional das aulas realizadas pelo preço médio contratado. Condições específicas e direitos legais prevalecem conforme o instrumento assinado."],
-   ["Condições individuais","Preço, datas, forma de pagamento, horários, modalidade, vigência e eventuais condições de rescisão constarão no contrato individual, ainda não disponibilizado nesta versão."]
-  ]},
-  {title:"Política de Privacidade",intro:"Resumo informativo da política em preparação para publicação formal.",paragraphs:[
-   ["Responsável","Wanderley Canedo Siqueira, CREF 058573-G/RJ."],
-   ["Dados utilizados","Cadastro, contatos, contratos, pagamentos, treinos, avaliações, anamnese, registros de bem-estar e dados técnicos necessários à segurança da plataforma."],
-   ["Finalidades","Prestação do serviço, prescrição e acompanhamento de treinos, avaliações, administração contratual, proteção das contas e atendimento de direitos."],
-   ["Acesso","Dados de saúde acessíveis somente ao profissional responsável. Transferência ordinária a outro profissional requer confirmação expressa do aluno."],
-   ["Imagem","Fotos de avaliação não autorizam divulgação publicitária. Cada publicação de antes e depois exige aprovação específica."],
-   ["Conservação","Somente pelo tempo necessário à finalidade e às obrigações legais; solicitações de eliminação serão analisadas conforme a LGPD."],
-   ["Direitos","Acesso, correção, informações, revogação de consentimento e eliminação quando cabível. O canal de pedidos pelo aplicativo ainda será implementado."]
-  ]},
-  {title:"Dados de saúde",intro:"Informações sobre o tratamento de dados pessoais sensíveis.",paragraphs:[
-   ["Informações","Anamnese, lesões, limitações, avaliações, medidas, fotos posturais, histórico de treinos, intercorrências e bem-estar."],
-   ["Uso","Planejar, adaptar e acompanhar o treinamento e apoiar a segurança do atendimento, observadas as bases legais aplicáveis."],
-   ["Proteção","Acesso restrito ao profissional responsável; outras atribuições dependem de autorização e necessidade de atendimento."],
-   ["Saúde Feminina","Calendário e detalhes do ciclo privados para a aluna. Resumos relevantes ao treino são compartilhados somente mediante autorização específica."],
-   ["Transferência","O aluno deverá confirmar expressamente a transferência de acesso a dados de saúde para outro profissional."]
-  ]},
-  {title:"Autorização de imagem",intro:"A autorização para publicidade será opcional e separada das fotografias de avaliação.",paragraphs:[
-   ["Materiais","Fotos e vídeos de treinos, depoimentos com imagem ou voz e registros de evolução, conforme autorização específica."],
-   ["Antes e depois","Cada publicação exigirá que o aluno veja e aprove as imagens e os canais de divulgação propostos."],
-   ["Recusa e revogação","Recusar não prejudica o atendimento. O aluno poderá revogar autorizações, observadas as condições legais e técnicas."],
-   ["Situação","O registro eletrônico de autorização ainda não está ativo; nenhuma escolha feita nesta tela constitui consentimento."]
-  ]},
-  {title:"Solicitações de privacidade",intro:"O atendimento por protocolo dentro do aplicativo está em preparação.",paragraphs:[
-   ["Pedidos previstos","Acesso, correção, eliminação quando cabível, revogação de autorizações e informações sobre compartilhamentos."],
-   ["Situação","O envio e acompanhamento de solicitações ainda não estão disponíveis. Não insira dados sensíveis nesta tela."]
-  ]},
-  {title:"Histórico de documentos",intro:"O histórico eletrônico ainda não está conectado ao banco de dados.",paragraphs:[
-   ["Registros previstos","Versões de documentos, data e horário de aceites, autorizações específicas, revogações e assinaturas."],
-   ["Situação","Nenhum documento assinado ou autorização registrada é exibido nesta etapa."]
-  ]}
+ {id:"politica",title:"Política de privacidade",paragraphs:[["Responsável","WAND METHOD — Wanderley Canedo Siqueira, CREF 058573-G/RJ."],["Dados e finalidades","Utilizamos dados cadastrais, contatos, registros contratuais, treinos, avaliações e informações de saúde necessárias ao acompanhamento, à prestação do serviço e à segurança da conta."],["Compartilhamento e conservação","O acesso deve ser limitado às pessoas e fornecedores necessários à prestação do serviço. Os dados são conservados conforme a finalidade e as obrigações legais."],["Seus direitos","Você pode solicitar acesso, correção, informações sobre compartilhamento, revogação de consentimento e eliminação quando cabível. Entre em contato com seu treinador pelo canal habitual de atendimento para exercer seus direitos."]]},
+ {id:"dados",title:"Autorização de uso de dados",paragraphs:[["Finalidade","Autorizo o tratamento dos dados de saúde que eu fornecer, incluindo anamnese, avaliações e registros de bem-estar, para individualização e acompanhamento dos meus treinos."],["Escolha e revogação","A autorização é específica para essa finalidade e pode ser revogada a qualquer momento. A ausência de autorização pode limitar avaliações e adaptações que dependam desses dados. Outros tratamentos necessários ao contrato ou exigidos por lei possuem bases legais próprias."]]},
+ {id:"imagem",title:"Autorização de uso de imagem",paragraphs:[["Finalidade","Autorizo o uso das fotografias que eu fornecer para avaliação física e postural e acompanhamento da minha evolução pelo profissional responsável."],["Limites","Esta autorização não permite divulgação em redes sociais, publicidade ou publicação de antes e depois. Qualquer divulgação exige autorização específica e separada. Posso revogar esta autorização a qualquer momento."]]}
  ];
- const aviso=document.createElement("p");aviso.className="muted";aviso.textContent="Documentos informativos em preparação. Contratos individuais, assinaturas e solicitações ainda não estão ativos.";area.append(aviso);
- const menu=document.createElement("div");menu.className="ficha-nav";menu.setAttribute("aria-label","Documentos e privacidade");
- const conteudo=document.createElement("section");conteudo.className="ficha-detail";conteudo.hidden=true;conteudo.setAttribute("aria-live","polite");
- function voltar(){conteudo.hidden=true;menu.hidden=false;conteudo.replaceChildren();}
+ const menu=document.createElement("div");menu.className="ficha-nav";const detalhe=document.createElement("section");detalhe.className="ficha-detail";detalhe.hidden=true;let aberta=null;
  for(const sec of sections){
-  const botao=document.createElement("button");botao.type="button";botao.className="ficha-tile";botao.style.minHeight="110px";
-  const rotulo=document.createElement("span");rotulo.textContent=sec.title;const pequeno=document.createElement("small");pequeno.textContent="Abrir informações";botao.append(rotulo,pequeno);
-  botao.addEventListener("click",()=>{
-   menu.hidden=true;conteudo.hidden=false;conteudo.replaceChildren();
-   const back=document.createElement("button");back.type="button";back.className="back-btn";back.textContent="← Voltar aos documentos";back.addEventListener("click",voltar);conteudo.append(back);
-   const titulo=document.createElement("h4");titulo.textContent=sec.title;conteudo.append(titulo);
-   const intro=document.createElement("p");intro.className="muted";intro.textContent=sec.intro;conteudo.append(intro);
-   for(const [nome,descricao] of sec.paragraphs){const h=document.createElement("h4");h.textContent=nome;const p=document.createElement("p");p.textContent=descricao;conteudo.append(h,p);}
-   const backFinal=document.createElement("button");backFinal.type="button";backFinal.className="back-btn";backFinal.textContent="← Voltar aos documentos";backFinal.addEventListener("click",voltar);conteudo.append(backFinal);
-  });
-  menu.append(botao);
+ const b=document.createElement("button");b.type="button";b.className="ficha-tile";b.textContent=sec.title+" ›";b.setAttribute("aria-expanded","false");menu.append(b);
+ b.onclick=async()=>{const fechar=aberta===sec.id;aberta=fechar?null:sec.id;for(const x of menu.querySelectorAll("button"))x.setAttribute("aria-expanded",String(x===b&&!fechar));detalhe.replaceChildren();detalhe.hidden=fechar;if(fechar)return;
+ const h=document.createElement("h4");h.textContent=sec.title;detalhe.append(h);
+ for(const [nome,descricao] of sec.paragraphs){const t=document.createElement("h4");t.textContent=nome;const p=document.createElement("p");p.textContent=descricao;detalhe.append(t,p)}
+ if(sec.id==="politica")return;
+ const estado=document.createElement("p");estado.setAttribute("role","status");estado.textContent="Consultando autorização…";detalhe.append(estado);
+ const botao=document.createElement("button");botao.type="button";botao.className="ficha-tile";botao.disabled=true;detalhe.append(botao);
+ let ativo=false;const versao="2026-11-25-v1";
+ function mostrar(reg){ativo=reg?.aceito===true;estado.textContent=reg?(ativo?"Autorização concedida":"Autorização revogada")+" em "+new Date(reg.criado_em).toLocaleString("pt-BR"):"Autorização ainda não concedida";botao.textContent=ativo?"Revogar autorização":"Conceder autorização";botao.disabled=false}
+ try{const {data,error}=await supabase.from("wand_aluno_autorizacoes").select("aceito,criado_em").eq("tipo",sec.id).eq("versao",versao).order("id",{ascending:false}).limit(1).maybeSingle();if(error)throw error;mostrar(data)}catch(e){estado.textContent="Não foi possível consultar sua autorização. Tente novamente.";return}
+ botao.onclick=async()=>{botao.disabled=true;try{const {data:{user},error:authError}=await supabase.auth.getUser();if(authError||!user)throw Error();const {data,error}=await supabase.from("wand_aluno_autorizacoes").insert({user_id:user.id,tipo:sec.id,versao,aceito:!ativo}).select("aceito,criado_em").single();if(error)throw error;mostrar(data)}catch(e){estado.textContent="Não foi possível registrar sua escolha. Tente novamente.";botao.disabled=false}};
+ };
  }
- const acesso=document.createElement("a");acesso.href="contratos-aluno.html";acesso.textContent="Abrir meus contratos e propostas";acesso.style.cssText="display:inline-block;background:#d4af37;color:#080808;padding:13px 16px;border-radius:10px;font-weight:bold;text-decoration:none;margin:12px 0";area.insertBefore(acesso,menu);area.append(menu,conteudo);return;
+ area.append(menu,detalhe);return;
 }
  const form=document.createElement("form");form.className="ficha-form";area.append(form);
  if(acao==="editar"){
