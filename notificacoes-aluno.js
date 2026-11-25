@@ -50,6 +50,16 @@
         detalhe:'Toque para abrir a Avaliação Fotográfica.',
         abrir:abrirFotografias
       }));
+      const autorizacao=await db.from('wand_pedidos_autorizacao_foto')
+        .select('id,solicitado_em').eq('aluno_id',alunoId).eq('status','pendente')
+        .order('solicitado_em',{ascending:false}).limit(10);
+      if(!autorizacao.error){
+        for(const pedido of autorizacao.data||[])itens.push({
+          titulo:'Autorização fotográfica solicitada',
+          detalhe:'Seu treinador pediu sua autorização. Toque para ler o termo e escolher se deseja autorizar.',
+          abrir:abrirFotografias
+        });
+      }else console.warn('[WAND] Pedidos de autorização fotográfica indisponíveis',autorizacao.error);
       const fisica=await db.rpc('wand_aluno_avaliacoes_pendentes');
       if(!fisica.error)for(const p of fisica.data||[])itens.push({titulo:'Avaliação física solicitada',detalhe:'Toque para enviar suas medidas ao treinador.',abrir:()=>location.assign('minha-avaliacao-fisica.html')});
       else console.warn('[WAND] Avaliações físicas indisponíveis',fisica.error);
@@ -67,6 +77,7 @@
   window.addEventListener('focus',()=>{if(!document.hidden)atualizar()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)atualizar()});
   document.addEventListener('wand:fotografias-atualizadas',atualizar);
+  document.addEventListener('wand:autorizacao-fotografica-atualizada',atualizar);
   try{
     const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
     db=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
