@@ -615,10 +615,10 @@ async function wcBuscarNotificacoes(){
    entries.push({tipo:'cadastro',date:p.created_at||p.criado_em||'',title:'Nova solicitação de cadastro',detail:(p.nome_completo||'Interessado')+' · '+(p.modalidade||'Modalidade não informada'),url:'#wc/alunos/item/0'});}
  }catch(e){console.warn('Falha ao consultar cadastros:',e);falhas++}
  try{
-  const {data,error}=await supabase.from('anamneses').select('aluno_id,respostas,status,created_at,concluida_em').order('created_at',{ascending:false}).limit(500);if(error)throw error;
+  const {data,error}=await supabase.from('anamneses').select('aluno_id,respostas,status,created_at').order('created_at',{ascending:false}).limit(500);if(error)throw error;
   const seen=new Set(),reviewed=wcRevisadas();
   const latest=new Map();for(const r of data||[]){if(!latest.has(String(r.aluno_id)))latest.set(String(r.aluno_id),r)}
-  for(const r of latest.values()){if(r.status!=='concluida')continue;const key='jornada-inicial:'+r.aluno_id;if(reviewed.has(key))continue;const aluno=alunosCarregados.find(a=>String(a.id)===String(r.aluno_id));if(!aluno)continue;entries.push({tipo:'jornada',key,date:r.concluida_em||r.created_at||'',title:'Jornada inicial concluída',detail:aluno.nome_completo+' · Anamnese concluída. Aguardando análise do treinador.',url:'perfil-aluno.html?id='+encodeURIComponent(r.aluno_id)+'&aba=anamnese'});}
+  for(const r of latest.values()){if(r.status!=='concluida')continue;const key='jornada-inicial:'+r.aluno_id;if(reviewed.has(key))continue;const aluno=alunosCarregados.find(a=>String(a.id)===String(r.aluno_id));entries.push({tipo:'jornada',key,date:r.created_at||'',title:'Jornada inicial concluída',detail:(aluno?.nome_completo||'Aluno cadastrado')+' · Analisar aluno',url:'perfil-aluno.html?id='+encodeURIComponent(r.aluno_id)+'&aba=anamnese'});}
   for(const r of data||[]){for(const e of (Array.isArray(r.respostas?._historico_alteracoes)?r.respostas._historico_alteracoes:[])){
    const key=e.id||e.data+e.tipo;if(seen.has(key)||reviewed.has(key))continue;seen.add(key);
    const aluno=alunosCarregados.find(a=>String(a.id)===String(r.aluno_id));
