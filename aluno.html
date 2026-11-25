@@ -878,7 +878,7 @@ function abrirGerenciamentoFicha(acao){
   fichaCampo(form,"Nome completo","nome_completo",fichaDados.nome_completo);
   fichaCampo(form,"Data de nascimento","data_nascimento",fichaDados.data_nascimento,"date");
   const label=document.createElement("label");label.className="ficha-input-label";label.textContent="Sexo";const sel=document.createElement("select");sel.name="sexo";sel.className="ficha-input";for(const [v,t] of [["","Selecione"],["feminino","Feminino"],["masculino","Masculino"],["outro","Outro"],["prefiro_nao_informar","Prefiro não informar"]]){const o=document.createElement("option");o.value=v;o.textContent=t;sel.append(o);}sel.value=fichaDados.sexo||"";label.append(sel);form.append(label);
-  fichaCampo(form,"WhatsApp com DDD","whatsapp",fichaDados.whatsapp,"tel");
+  const campoWhats=fichaCampo(form,"WhatsApp com DDD","whatsapp",fichaDados.whatsapp_confirmado_pelo_aluno?fichaDados.whatsapp:"","tel");campoWhats.autocomplete="off";campoWhats.placeholder="Informe seu WhatsApp com DDD";
   const p=document.createElement("p");p.className="muted";p.textContent="O e-mail de acesso é gerenciado separadamente por segurança.";form.append(p);
  }else{
   const senha=fichaCampo(form,"Nova senha (mínimo 8 caracteres)","senha","","password");senha.minLength=8;senha.required=true;
@@ -892,8 +892,8 @@ function abrirGerenciamentoFicha(acao){
     const nome=form.elements.nome_completo.value.trim(),nascimento=form.elements.data_nascimento.value,sexo=form.elements.sexo.value,whatsapp=form.elements.whatsapp.value.trim();
     if(!nome||!nascimento||!sexo)throw Error("Preencha nome, nascimento e sexo.");
     const {data:{user},error:authError}=await supabase.auth.getUser();if(authError||!user)throw Error("Sessão expirada. Entre novamente.");
-    const {data,error}=await supabase.from("alunos").update({nome_completo:nome,data_nascimento:nascimento,sexo,whatsapp}).eq("id",alunoAtual.id).eq("user_id",user.id).select("nome_completo,data_nascimento,sexo,whatsapp").single();
-    if(error)throw error;Object.assign(fichaDados,data);alunoAtual.nome_completo=data.nome_completo;const primeiro=nome.split(/\s+/)[0];$("saudacao").textContent="Olá, "+primeiro+"!";fichaMensagem(area,"Dados atualizados com sucesso.");
+    const {data,error}=await supabase.rpc("wand_aluno_atualizar_dados_pessoais",{p_nome:nome,p_nascimento:nascimento,p_sexo:sexo,p_whatsapp:whatsapp});
+    if(error||!data||!data.nome_completo)throw Error("Não foi possível salvar seus dados. Tente novamente ou fale com o treinador.");Object.assign(fichaDados,data);alunoAtual.nome_completo=data.nome_completo;const primeiro=nome.split(/\s+/)[0];$("saudacao").textContent="Olá, "+primeiro+"!";fichaMensagem(area,"Dados atualizados com sucesso.");
    }else{
     const senha=form.elements.senha.value,conf=form.elements.confirmar.value;
     if(senha.length<8||senha!==conf)throw Error("A senha precisa ter pelo menos 8 caracteres e coincidir com a confirmação.");
@@ -904,7 +904,7 @@ function abrirGerenciamentoFicha(acao){
 }
 document.querySelectorAll("[data-ficha-tab]").forEach(b=>b.addEventListener("click",()=>mostrarAbaFicha(b.dataset.fichaTab)));
 async function carregarDadosFicha(user){
-const {data,error}=await supabase.from("alunos").select("nome_completo,data_nascimento,sexo,email,whatsapp,Status").eq("id",alunoAtual.id).eq("user_id",user.id).single();
+const {data,error}=await supabase.from("alunos").select("nome_completo,data_nascimento,sexo,email,whatsapp,Status,whatsapp_confirmado_pelo_aluno").eq("id",alunoAtual.id).eq("user_id",user.id).single();
 fichaDados=error?{nome_completo:alunoAtual.nome_completo,email:user.email}:data;
 fichaAbaAberta=null;$("dadosFicha").hidden=true;
 document.querySelectorAll("[data-ficha-tab]").forEach(b=>b.setAttribute("aria-expanded","false"));
