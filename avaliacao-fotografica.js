@@ -534,8 +534,8 @@ as condições legais aplicáveis.
 
       await buscar();
       renderizar();
-
-      mostrarMensagem("Sua escolha foi registrada.");
+      document.dispatchEvent(new CustomEvent('wand:autorizacao-fotografica-atualizada',{detail:{status}}));
+      mostrarMensagem(status==='recusada'?'Sua recusa foi registrada. Se desejar, converse com seu treinador.':'Sua autorização foi registrada.');
 
     } catch (erro) {
       mostrarMensagem(erro.message, true);
@@ -692,6 +692,7 @@ as condições legais aplicáveis.
           renderizar();
         })
       );
+      if(pagina==="aluno.html")caixa.appendChild(botao("Conversar com meu treinador",()=>window.wandMostrarVista?.("treinador"),true));
     }
   }
 
