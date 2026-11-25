@@ -45,11 +45,15 @@
         document.querySelector('[data-view="fotografica"] [data-wand-foto-aviso]')
           ? [{id:'pedido-visivel-no-modulo'}] : []
       );
-      render(pedidos.map(p=>({
+      const itens=pedidos.map(p=>({
         titulo:'Fotografias solicitadas pelo treinador',
         detalhe:'Toque para abrir a Avaliação Fotográfica.',
         abrir:abrirFotografias
-      })));
+      }));
+      const fisica=await db.rpc('wand_aluno_avaliacoes_pendentes');
+      if(!fisica.error)for(const p of fisica.data||[])itens.push({titulo:'Avaliação física solicitada',detalhe:'Toque para enviar suas medidas ao treinador.',abrir:()=>location.assign('minha-avaliacao-fisica.html')});
+      else console.warn('[WAND] Avaliações físicas indisponíveis',fisica.error);
+      render(itens);
     }catch(e){
       console.warn('[WAND] Falha ao consultar notificações do aluno:',e);
       lista.replaceChildren();
@@ -58,14 +62,7 @@
   }
   // O modulo de fotografias ja consulta o pedido real. Reutilizamos esse
   // resultado para impedir divergencia entre o aviso do menu e a central.
-  document.addEventListener('wand:solicitacao-fotografica',event=>{
-    if(event.detail?.pendente){
-      render([{titulo:'Fotografias solicitadas pelo treinador',
-        detalhe:'Toque para abrir a Avaliação Fotográfica.',abrir:abrirFotografias}]);
-    }else if(event.detail?.pendente===false){
-      render([]);
-    }
-  });
+  document.addEventListener('wand:solicitacao-fotografica',atualizar);
   alternar.addEventListener('click',()=>{atualizar()});
   window.addEventListener('focus',()=>{if(!document.hidden)atualizar()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)atualizar()});
