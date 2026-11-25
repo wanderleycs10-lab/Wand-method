@@ -244,7 +244,7 @@ body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!
  const pts=values.map((v,i)=>({x:values.length===1?(left+right)/2:left+16+i*(right-left-32)/(values.length-1),y:base-v/max*(base-top),v}));
  if(type==='line'&&pts.length>1){item(svg,'polygon',{points:pts.map(p=>p.x+','+p.y).join(' ')+' '+pts[pts.length-1].x+','+base+' '+pts[0].x+','+base,fill:'#d4af37',opacity:.09});item(svg,'polyline',{points:pts.map(p=>p.x+','+p.y).join(' '),stroke:'#e8c674','stroke-width':2.5,fill:'none','stroke-linejoin':'round'});}
  pts.forEach((p,i)=>{const mark=type==='bar'?item(svg,'rect',{x:p.x-12,y:p.y,width:24,height:Math.max(0,base-p.y),rx:3,fill:'#d4af37'}):item(svg,'circle',{cx:p.x,cy:p.y,r:4.5,fill:'#f5d578',stroke:'#111','stroke-width':1});item(mark,'title',{},labels[i]+': '+num(p.v)+' '+unidade);item(svg,'text',{x:p.x,y:p.y-9,'text-anchor':'middle',fill:'#f5d578','font-size':11},num(p.v));item(svg,'text',{x:p.x,y:194,'text-anchor':'middle',fill:'#c5c5c5','font-size':10},labels[i]);});
- if(type==='line'&&pts.length===1)add(card,'p','muted','Registro inicial. A linha de progressão aparecerá após o próximo registro.');
+ if(type==='line'&&pts.length===1&& !card.closest('#evolucao'))add(card,'p','muted','Registro inicial. A linha de progressão aparecerá após o próximo registro.');
  return card;
 }
 
@@ -301,6 +301,7 @@ window.wandGraficoPadrao=wandGraficoPadrao;</script><style>#evolucao{display:gri
 <section id="painel-evolucao" class="card painel-perfil">
 <h2>Evolução física</h2>
 <p class="muted">Histórico das avaliações físicas registradas.</p>
+<div id="wandResumoCorporal"></div>
 <div id="evolucao">Carregando gráficos...</div>
 </section>
 
@@ -919,7 +920,7 @@ area.appendChild(montarAvaliacao(a));
 
 function desenharGrafico(destino,registros,campo,titulo,unidade){
  const pontos=registros.filter(a=>a[campo]!=null&&String(a[campo]).trim()!==''&&Number.isFinite(Number(a[campo]))).map(a=>({data:a.data_avaliacao,valor:Number(a[campo])}));
- if(!pontos.length){const card=elemento("div","wand-grafico-padrao");adicionarTexto(card,"h3",titulo);adicionarTexto(card,"p","Sem medidas disponíveis.","muted");destino.append(card);return;}
+ if(!pontos.length)return;
  const recentes=pontos.slice(-8);
  const card=window.wandGraficoPadrao(destino,titulo,recentes.map(p=>p.valor),recentes.map(p=>dataBR(p.data).slice(0,5)),"line",unidade);
  const primeiro=pontos[0].valor,ultimo=pontos[pontos.length-1].valor;
@@ -929,6 +930,7 @@ function desenharGrafico(destino,registros,campo,titulo,unidade){
 }
 async function carregarEvolucao(){
 const area=$("evolucao");
+$("wandResumoCorporal").replaceChildren();
 area.textContent="Carregando evolução...";
 const {data,error}=await db.from("avaliacoes_fisicas")
 .select("id,data_avaliacao,peso,cintura,quadril,braco_direito,braco_esquerdo,coxa_direita,coxa_esquerda,percentual_gordura,massa_gordura_kg,massa_livre_gordura_kg")
@@ -941,9 +943,18 @@ if(!data?.length){
 adicionarTexto(area,"p","Nenhuma avaliação registrada.","muted");
 return;
 }
-for(const [campo,nome,unidade] of CAMPOS){
-desenharGrafico(area,data,campo,nome,unidade);
-}
+const resumo=$("wandResumoCorporal");
+resumo.replaceChildren();
+const tem=v=>v!=null&&String(v).trim()!==''&&Number.isFinite(Number(v));
+const registros=data.map(a=>{const r={...a};if(tem(r.peso)&&tem(r.percentual_gordura)&&Number(r.percentual_gordura)>=0&&Number(r.percentual_gordura)<=100){if(!tem(r.massa_gordura_kg))r.massa_gordura_kg=Number(r.peso)*Number(r.percentual_gordura)/100;if(!tem(r.massa_livre_gordura_kg))r.massa_livre_gordura_kg=Number(r.peso)*(100-Number(r.percentual_gordura))/100;}return r;});
+const atual=registros[registros.length-1];
+const campos=[["peso","Peso corporal","kg"],["percentual_gordura","Gordura corporal","%"],["massa_gordura_kg","Massa de gordura estimada","kg"],["massa_livre_gordura_kg","Massa livre de gordura estimada","kg"]];
+const disponiveis=campos.filter(([campo])=>tem(atual[campo]));
+if(disponiveis.length){const painel=elemento("div","subcard");adicionarTexto(painel,"h3","Análise da composição corporal");adicionarTexto(painel,"p","Avaliação: "+dataBR(atual.data_avaliacao),"muted");const grade=elemento("div","grid");for(const [campo,nome,unidade] of disponiveis){const m=elemento("div","metric");adicionarTexto(m,"strong",nome);adicionarTexto(m,"span",valor(Number(atual[campo]))+" "+unidade);grade.append(m);}painel.append(grade);resumo.append(painel);}
+const ordenados=[CAMPOS[0],CAMPOS[7],...CAMPOS.slice(1,7),...CAMPOS.slice(8)];
+for(const [campo,nome,unidade] of ordenados){desenharGrafico(area,registros,campo,campo==="percentual_gordura"?"Evolução da gordura corporal":nome,unidade);}
+if(!area.children.length)adicionarTexto(area,"p","Nenhuma medida registrada.","muted");
+
 }
 
 function configurarMenuPerfil(){
@@ -1065,7 +1076,7 @@ observadorRecursos.observe(document.body,{childList:true,subtree:true});
 organizarRecursosExternos();
 
 </script>
-<script type="module" src="analise-corporal.js"></script>
+
 
 
 <script defer src="./avaliacao-fotografica.js?v=2"></script>
