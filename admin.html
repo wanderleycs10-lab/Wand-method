@@ -519,7 +519,7 @@ async function wcSolicitacoesCadastro(parent='alunos',index=0){
    const contato=document.createElement('a');contato.textContent='Conversar pelo WhatsApp';contato.target='_blank';contato.rel='noopener noreferrer';contato.href='https://wa.me/'+String(pedido.whatsapp||'').replace(/\D/g,'')+'?text='+encodeURIComponent('Olá! Recebemos sua solicitação de cadastro no WAND METHOD.');
    const actions=document.createElement('div');actions.style.marginTop='12px';actions.style.display='flex';actions.style.flexWrap='wrap';actions.style.gap='8px';
    for(const [valor,rotulo] of [['em_contato','Em contato'],['aprovada','Aprovar interesse'],['recusada','Recusar']]){
-    const b=document.createElement('button');b.type='button';b.textContent=rotulo;b.style.padding='9px';b.onclick=async()=>{if(!confirm('Atualizar esta solicitação para '+rotulo+'?'))return;b.disabled=true;const {error:e}=await supabase.rpc('wand_coach_status_solicitacao',{p_id:pedido.id,p_status:valor});if(e){alert('Não foi possível atualizar: '+e.message);b.disabled=false;return}wcAtualizarNotificacoes();if(parent==='notificacoes'){wcCentralNotificacoes()}else if(valor==='aprovada'){wcNovosAlunos(parent,1)}else{wcSolicitacoesCadastro(parent,index)}};actions.append(b);
+    const b=document.createElement('button');b.type='button';b.textContent=rotulo;b.style.padding='9px';b.onclick=async()=>{if(!await wandConfirmarLocal('Atualizar esta solicitação para '+rotulo+'?'))return;b.disabled=true;const {error:e}=await supabase.rpc('wand_coach_status_solicitacao',{p_id:pedido.id,p_status:valor});if(e){alert('Não foi possível atualizar: '+e.message);b.disabled=false;return}wcAtualizarNotificacoes();if(parent==='notificacoes'){wcCentralNotificacoes()}else if(valor==='aprovada'){wcNovosAlunos(parent,1)}else{wcSolicitacoesCadastro(parent,index)}};actions.append(b);
    }
    card.append(nome,info,contato,actions);area.append(card);
   }
@@ -705,7 +705,7 @@ async function wcCentralNotificacoes(){
     }catch(e){console.warn('Falha ao marcar notificação fotográfica:',e);done.disabled=false;done.textContent='Tentar marcar como lida';alert('Não foi possível registrar a leitura. Tente novamente.');}
    };actions.append(done);
   }
-  if(n.tipo==='anamnese'||n.tipo==='jornada'){const done=document.createElement('button');done.type='button';done.textContent='Marcar como revisada';done.onclick=()=>{if(!confirm(n.tipo==='jornada'?'Você já analisou a jornada inicial deste aluno?':'Você já analisou esta alteração de anamnese?'))return;wcMarcarRevisada(n.key);wcCentralNotificacoes();wcAtualizarNotificacoes()};actions.append(done)}
+  if(n.tipo==='anamnese'||n.tipo==='jornada'){const done=document.createElement('button');done.type='button';done.textContent='Marcar como revisada';done.onclick=async()=>{if(!await wandConfirmarLocal(n.tipo==='jornada'?'Você já analisou a jornada inicial deste aluno?':'Você já analisou esta alteração de anamnese?'))return;wcMarcarRevisada(n.key);wcCentralNotificacoes();wcAtualizarNotificacoes()};actions.append(done)}
   card.append(title,info,actions);area.append(card);
  }
  if(falhas){const aviso=document.createElement('p');aviso.textContent='Atenção: algumas fontes não puderam ser consultadas.';area.append(aviso)}
@@ -899,7 +899,7 @@ if(p.status==='pendente'){
           if(!base||!alt){estadoSalvar.textContent='Selecione apenas treinos vigentes.';return;}
           if(base.validade_fim!==alt.validade_fim){estadoSalvar.textContent='A adaptação precisa ter a mesma data final do treino original. Ajuste a prescrição antes de cadastrar o protocolo.';return;}
           if(protocoloSalvoId){estadoSalvar.textContent='Este protocolo já foi salvo. Atualize as solicitações antes de criar outro.';return;}
-          if(!window.confirm('Salvar este protocolo para a aluna? Isso não aprova a solicitação.'))return;
+          if(!await wandConfirmarLocal('Salvar este protocolo para a aluna? Isso não aprova a solicitação.'))return;
           salvar.disabled=true;estadoSalvar.textContent='Salvando protocolo...';
           try{
             const {data:novo,error:erroCriar}=await supabase.rpc('wand_coach_criar_protocolo',{
@@ -941,7 +941,7 @@ if(p.status==='pendente'){
     }
     if(modo==='recusar'&&resposta.length<3){erroLocal.textContent='Informe uma justificativa de pelo menos 3 caracteres.';return;}
     const aviso=modo==='aprovar'?(modalidade==='novo'?'Aprovar a adaptação usando o protocolo já salvo?':'Confirmar aprovação desta adaptação para a sessão?'):'Confirmar recusa desta solicitação?';
-    if(!window.confirm(aviso))return;
+    if(!await wandConfirmarLocal(aviso))return;
     confirmar.disabled=true;cancelar.disabled=true;erroLocal.textContent='Registrando decisão...';
     try{
              if(modo==='aprovar'&&modalidade==='novo'&&!protocoloId)throw new Error('Salve e valide o protocolo antes de aprovar.');
@@ -955,4 +955,4 @@ const args=modo==='aprovar'?{p_solicitacao_id:p.id,p_protocolo_id:protocoloId,p_
  aprovar.addEventListener('click',()=>abrir('aprovar'));recusar.addEventListener('click',()=>abrir('recusar'));
 }lista.appendChild(card);});}
 $('filtroAlunos').addEventListener('change',mostrarAlunos);$('filtroPedidos').addEventListener('change',mostrarPedidos);$('atualizarPedidos').addEventListener('click',carregarPedidos);window.addEventListener('hashchange',()=>{if(painel.style.display==='block')wcRestore()});window.addEventListener('pageshow',()=>{if(painel.style.display==='block'){carregarAlunos();carregarPedidos();wcAtualizarNotificacoes();}});$('sair').addEventListener('click',async()=>{const botao=$('sair');botao.disabled=true;botao.textContent='Saindo...';const {error}=await supabase.auth.signOut();if(error){status.textContent='Não foi possível sair da conta. Tente novamente.';botao.disabled=false;botao.textContent='Sair da conta';return;}window.location.replace('login.html');});verificarAcesso();
-</script></body></html>
+</script><script>function wandConfirmarLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Confirmar ação');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #b8bcc4;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const ic=document.createElement('div');ic.setAttribute('aria-hidden','true');ic.style.cssText='width:58px;height:58px;margin:0 auto 14px;border:2px solid #e8c674;border-radius:50%;display:grid;place-items:center;color:#e8c674;font-size:34px;box-shadow:0 0 15px #d4af3740';ic.textContent='?';const h=document.createElement('h2');h.textContent='Concluído com sucesso!';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='Confirmar';b.style.cssText='width:100%!important;padding:14px!important;border:1px solid #f6d98e!important;border-radius:12px!important;background:linear-gradient(180deg,#fff0b0 0%,#e5bd58 35%,#b17d25 100%)!important;color:#171005!important;font-weight:700!important;font-size:16px!important;box-shadow:inset 0 2px 2px #fff9,inset 0 -3px 5px #70470c88,0 5px 12px #0009!important;text-shadow:none!important;cursor:pointer';const c=document.createElement('button');c.type='button';c.textContent='Cancelar';c.style.cssText='width:100%;margin-top:10px;padding:12px;border:1px solid #b8bcc4;border-radius:12px;background:#191919;color:#fff';d.append(ic,h,p,b,c);c.onclick=()=>{d.close();d.remove();resolve(false)};document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.style.setProperty('background','linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)','important');b.style.setProperty('color','#171005','important');b.onclick=()=>{d.close();d.remove();resolve(true)};d.showModal();b.focus()})}</script></body></html>
