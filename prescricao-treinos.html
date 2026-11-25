@@ -323,7 +323,7 @@ function confirmarConjugado(){
  });
  fecharConjugado();renderBiblioteca();renderSelecionados();mensagem(`Combinação ${registro.nome} adicionada com ${total} exercícios. Ajuste as cargas e repetições na montagem.`, 'sucesso');
 }
-function confirmarMetodo(id,nome){
+async function confirmarMetodo(id,nome){
  const registro=metodos.find(x=>x.id===id)||metodos.find(x=>normal(x.nome)===normal(nome));
  const modelo=id===null?{series:[1,2,3].map(()=>({repeticoes:'12',carga_kg:null,descanso_segundos:60})),observacoes:'Sem método',estrutura:{tipo:'series'},tipo:'series'}:modeloMetodo(registro);
  if(modelo.tipo==='exercicios_vinculados'){
@@ -332,12 +332,12 @@ function confirmarMetodo(id,nome){
  }
  if(editandoIndice!==null){
   const item=selecionados[editandoIndice];if(item.configuracao_metodo?.grupo_prescricao_id){alert('Um exercício conjugado só pode ser alterado removendo a combinação completa na primeira etapa.');return;}
-  if(!confirm('Aplicar este método substituirá as séries e observações atuais deste exercício. Continuar?'))return;
+  if(!await wandConfirmarLocal('Aplicar este método substituirá as séries e observações atuais deste exercício. Continuar?'))return;
   item.metodo_id=id;item.metodo_nome=nome;item.series=modelo.series.map(s=>({...s}));item.observacoes=modelo.observacoes;item.configuracao_metodo=structuredClone(modelo.estrutura);
  }else selecionados.push({exercicio:modalExercicio,metodo_id:id,metodo_nome:nome,series:modelo.series.map(s=>({...s})),observacoes:modelo.observacoes,configuracao_metodo:structuredClone(modelo.estrutura)});
  $('modalMetodo').classList.add('oculto');$('modalDetalheMetodo').classList.add('oculto');renderBiblioteca();renderSelecionados();if(passo===2)renderConfig();mensagem('Método aplicado. A configuração é uma cópia independente do aluno.','sucesso');
 }
-function removerSelecionado(item){const id=item.configuracao_metodo?.grupo_prescricao_id;if(id){if(!confirm('Remover toda a combinação '+item.metodo_nome+'?'))return;selecionados=selecionados.filter(x=>x.configuracao_metodo?.grupo_prescricao_id!==id);}else{if(!confirm('Remover '+item.exercicio.nome+'?'))return;selecionados=selecionados.filter(x=>x!==item);}expandidos.delete(item);renderBiblioteca();renderSelecionados();if(passo===2)renderConfig();}
+async function removerSelecionado(item){const id=item.configuracao_metodo?.grupo_prescricao_id;if(id){if(!await wandConfirmarLocal('Remover toda a combinação '+item.metodo_nome+'?'))return;selecionados=selecionados.filter(x=>x.configuracao_metodo?.grupo_prescricao_id!==id);}else{if(!await wandConfirmarLocal('Remover '+item.exercicio.nome+'?'))return;selecionados=selecionados.filter(x=>x!==item);}expandidos.delete(item);renderBiblioteca();renderSelecionados();if(passo===2)renderConfig();}
 function moverSelecionado(item,d){const id=item.configuracao_metodo?.grupo_prescricao_id;const blocos=[];for(const x of selecionados){const anterior=blocos.at(-1);if(x.configuracao_metodo?.grupo_prescricao_id&&anterior&&anterior[0].configuracao_metodo?.grupo_prescricao_id===x.configuracao_metodo?.grupo_prescricao_id)anterior.push(x);else blocos.push([x]);}const pos=blocos.findIndex(b=>b.includes(item));if(pos<0||pos+d<0||pos+d>=blocos.length)return;[blocos[pos],blocos[pos+d]]=[blocos[pos+d],blocos[pos]];selecionados=blocos.flat();renderConfig();}
 function renderSelecionados(){const area=$('listaSelecionados');area.replaceChildren();selecionados.forEach((item,i)=>{const d=criar('div','selecionado');const grupo=item.configuracao_metodo?.grupo_prescricao_id;d.append(criar('strong','',`${i+1}. ${item.exercicio.nome}`),criar('p','avisinho',`Método: ${item.metodo_nome} · ${item.series.length} série(s)`));if(grupo)d.append(criar('span','grupo-tag',`Combinação ${item.metodo_nome} · ${item.configuracao_metodo.grupo_posicao}/${item.configuracao_metodo.grupo_total}`));const excluir=criar('button','remover',grupo?'🗑 Remover combinação':'🗑 Remover');excluir.type='button';excluir.onclick=()=>removerSelecionado(item);d.append(excluir);area.append(d);});if(!selecionados.length)area.append(criar('p','info','Nenhum exercício adicionado.'));}
 async function criarMetodo(){const nome=$('nomeNovoMetodo').value.trim();if(!nome){$('erroMetodo').textContent='Informe o nome do método.';return;}if(metodos.some(m=>normal(m.nome)===normal(nome))){$('erroMetodo').textContent='Este método já existe. Selecione-o na lista.';return;}$('criarMetodo').disabled=true;try{const {data,error}=await supabase.from('wand_metodos').insert({nome,ativo:true}).select('id,nome,descricao,estrutura,personalizado').single();if(error)throw error;metodos.push(data);metodos.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));confirmarMetodo(data.id,data.nome);}catch(e){$('erroMetodo').textContent='Não foi possível criar o método: '+e.message+'; utilize o cadastro de métodos do WandCoach para configurar regras avançadas.';}finally{$('criarMetodo').disabled=false;}}
@@ -377,7 +377,7 @@ async function salvarTreino(status){const apenasRascunho=status==='rascunho';
  if(salvando)return;
  let dados;try{dados=validar();}catch(e){mensagem(e.message,'erro');return;}
  const emPrograma=!rascunhoId||!!wandProgramaId;
- if(emPrograma){status='rascunho';}else if(status==='ativo'&&!confirm('Concluir e publicar este treino para o aluno?'))return;
+ if(emPrograma){status='rascunho';}else if(status==='ativo'&&!await wandConfirmarLocal('Concluir e publicar este treino para o aluno?'))return;
  salvando=true;$('publicar').disabled=true;$('salvarRascunho').disabled=true;mensagem('Salvando treino...');
  let treinoId=idTreinoEmEdicao;
  try{
@@ -440,5 +440,5 @@ $('validadeTipo').onchange=()=>{$('validadeDatas').classList.toggle('oculto',$('
 
 iniciar();
 </script>
-</body>
+<script>function wandConfirmarLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Confirmar ação');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #b8bcc4;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const ic=document.createElement('div');ic.setAttribute('aria-hidden','true');ic.style.cssText='width:58px;height:58px;margin:0 auto 14px;border:2px solid #e8c674;border-radius:50%;display:grid;place-items:center;color:#e8c674;font-size:34px;box-shadow:0 0 15px #d4af3740';ic.textContent='?';const h=document.createElement('h2');h.textContent='Concluído com sucesso!';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='Confirmar';b.style.cssText='width:100%!important;padding:14px!important;border:1px solid #f6d98e!important;border-radius:12px!important;background:linear-gradient(180deg,#fff0b0 0%,#e5bd58 35%,#b17d25 100%)!important;color:#171005!important;font-weight:700!important;font-size:16px!important;box-shadow:inset 0 2px 2px #fff9,inset 0 -3px 5px #70470c88,0 5px 12px #0009!important;text-shadow:none!important;cursor:pointer';const c=document.createElement('button');c.type='button';c.textContent='Cancelar';c.style.cssText='width:100%;margin-top:10px;padding:12px;border:1px solid #b8bcc4;border-radius:12px;background:#191919;color:#fff';d.append(ic,h,p,b,c);c.onclick=()=>{d.close();d.remove();resolve(false)};document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.style.setProperty('background','linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)','important');b.style.setProperty('color','#171005','important');b.onclick=()=>{d.close();d.remove();resolve(true)};d.showModal();b.focus()})}</script></body>
 </html>
