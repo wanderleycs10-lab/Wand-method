@@ -42,7 +42,7 @@ const add=(parent,tag,txt,cls)=>{const n=el(tag,txt,cls);parent.append(n);return
 const fmt=(n,u='')=>n==null||n===''?'Não informado':Number.isFinite(Number(n))?Number(n).toLocaleString('pt-BR',{maximumFractionDigits:2})+' '+u:String(n);
 const date=d=>d?String(d).slice(0,10).split('-').reverse().join('/'):'Sem data';
 const button=(parent,title,subtitle,fn,iconName)=>{const b=add(parent,'button');if(iconName){b.className='action-card';const icon=add(b,'span',undefined,'action-icon');icon.setAttribute('aria-hidden','true');icon.innerHTML=iconName==='edit'?'<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16 4l4 4L9 19H5v-4z"/></svg>':'<svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>';const wrap=add(b,'span',undefined,'action-text');add(wrap,'strong',title);if(subtitle)add(wrap,'small',subtitle);add(b,'span','›','action-arrow').setAttribute('aria-hidden','true')}else{b.textContent=title;if(subtitle)add(b,'small',subtitle)}b.onclick=fn;return b};
-function navigate(next){history.pushState({mode:next},'',location.pathname+'?id='+encodeURIComponent(id)+'&modo='+encodeURIComponent(next)+'&origem='+encodeURIComponent(origin));render(next)}
+function navigate(next){history.pushState({mode:next},'',location.pathname+'?id='+encodeURIComponent(id)+'&modo='+encodeURIComponent(next)+'&origem='+encodeURIComponent(origin)+(params.get('voltar_perfil')==='1'?'&voltar_perfil=1':''));render(next)}
 function setBack(fn,label='← Voltar'){back.textContent=label;back.onclick=e=>{e.preventDefault();fn()};}
 function cardRecord(a,parent){const c=add(parent,'div',undefined,'card');add(c,'h3','Avaliação de '+date(a.data_avaliacao));add(c,'p','Situação: '+(a.status_avaliacao||'Registro existente'),'muted');const g=add(c,'div',undefined,'grid');for(const [key,label,unit] of fields){const m=add(g,'div',undefined,'metric');add(m,'strong',label);add(m,'span',fmt(a[key],unit))}if(a.parecer_profissional)add(c,'p','Parecer profissional: '+a.parecer_profissional);if(a.observacoes)add(c,'p','Observações: '+a.observacoes);return c}
 async function fetchRecords(){const {data,error}=await db.from('avaliacoes_fisicas').select('*').eq('aluno_id',id).order('data_avaliacao',{ascending:false}).order('id',{ascending:false});if(error)throw error;records=data||[]}
@@ -55,7 +55,7 @@ async function enviarSolicitacao(b){
 }
 function render(m=mode){
  view.replaceChildren();notice.textContent='';heading.textContent=m==='nova'?'Nova Avaliação Física':m==='resultados'?'Consultar Resultados':m==='reavaliacoes'?'Reavaliações':m==='solicitar'?'Enviar Avaliação ao Aluno':m==='revisar'?'Avaliações aguardando revisão':'Avaliação Física';
- setBack(()=>location.assign('admin.html'+(origin.startsWith('#wc/')?origin:'#wc/avaliacao')),'← Voltar à Avaliação Física');
+ setBack(()=>location.assign(params.get('voltar_perfil')==='1'?'perfil-aluno.html?id='+encodeURIComponent(id):'admin.html'+(origin.startsWith('#wc/')?origin:'#wc/avaliacao')),'← Voltar à Avaliação Física');
  if(m==='nova'){
   add(view,'p','Escolha como deseja realizar a avaliação.','muted');
   button(view,'Realizar Avaliação','Preencher pessoalmente os dados do aluno',()=>location.assign('avaliacao-fisica.html?id='+encodeURIComponent(id)+'&origem='+encodeURIComponent(location.hash)),'edit');
