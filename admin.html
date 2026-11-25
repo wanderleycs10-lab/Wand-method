@@ -477,7 +477,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
    link.href=(destinoAvaliacao||'perfil-aluno.html?id=')+encodeURIComponent(a.id)+
     (parent==='avaliacao'?'&modo='+['nova','resultados','reavaliacoes'][index]:parent==='fotografica'?'&modo='+['fotos','postural','comparar','autorizacoes'][index]:'')+
     '&origem='+encodeURIComponent(location.hash)+
-    (parent==='anamnese'?'&aba=anamnese':parent==='fotografica'?'':parent==='evolucao'?'&aba=evolucao':parent==='treinos'?'&aba=treinos':'');
+    (parent==='anamnese'?'&aba=anamnese':parent==='fotografica'?'':parent==='evolucao'?'&aba=evolucao&tipo_evolucao='+(['corporal','cargas','frequencia','corporal'][index]||'corporal'):parent==='treinos'?'&aba=treinos':'');
    link.textContent=a.nome_completo||'Aluno sem nome';
    const small=document.createElement('small');
    small.textContent=[a.modalidade||'Modalidade não informada','Status: '+(a.Status||'Não informado'),(parent==='avaliacao'||parent==='fotografica'?'Selecionar aluno':'Abrir perfil')].join(' · ');
