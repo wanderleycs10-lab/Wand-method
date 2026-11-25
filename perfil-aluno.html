@@ -277,6 +277,7 @@ window.wandGraficoPadrao=wandGraficoPadrao;</script><style>#evolucao{display:gri
 <button type="button" data-painel="anamnese" aria-controls="painel-anamnese"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 11h6m-6 4h6"/></svg> Anamnese</button>
 <button type="button" data-painel="avaliacao" aria-controls="painel-avaliacao"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 13-13 5 5L8 21zM13 6l3 3m-7 1 2 2m-6 2 3 3"/></svg> Avaliação física</button>
 
+<button type="button" data-painel="atalhos-evolucao" aria-controls="painel-atalhos-evolucao"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M6 15l5-5 4 3 6-8"/></svg> Evoluções</button>
 <button type="button" data-painel="treinos" aria-controls="painel-treinos"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="3" height="6" rx="1"/><rect x="5" y="6" width="4" height="12" rx="1"/><path d="M9 12h6"/><rect x="15" y="6" width="4" height="12" rx="1"/><rect x="19" y="9" width="3" height="6" rx="1"/></svg> Treinos</button>
 <button type="button" data-painel="fotos" aria-controls="painel-fotos"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h4l2-3h4l2 3h4v13H4z"/><circle cx="12" cy="13" r="4"/></svg> Avaliação fotográfica</button>
 <button type="button" id="wandBotaoAcompanhamento" data-painel="acompanhamento" aria-controls="painel-acompanhamento"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg> Acompanhamento <span id="wandContadorPendencias" hidden></span></button>
@@ -298,6 +299,7 @@ window.wandGraficoPadrao=wandGraficoPadrao;</script><style>#evolucao{display:gri
 <div id="avaliacoes">Carregando avaliações...</div>
 </section>
 
+<section id="painel-atalhos-evolucao" class="card painel-perfil"><h2>Evoluções</h2><div class="menu-perfil" id="wandAtalhosEvolucao"><button type="button" data-tipo-evolucao="cargas">Progressão de cargas</button><button type="button" data-tipo-evolucao="frequencia">Frequência de treinos</button><button type="button" data-tipo-evolucao="corporal">Evolução corporal</button></div></section>
 <section id="painel-evolucao" class="card painel-perfil">
 <h2>Evolução corporal</h2>
 <p class="muted">Histórico das avaliações físicas registradas.</p>
@@ -379,6 +381,8 @@ const abaRetorno=parametrosRetorno.get("aba");
 const modoAnamneseExclusiva=abaRetorno==="anamnese";
 const modoAvaliacaoExclusiva=abaRetorno==="avaliacao";
 const origemContextual=parametrosRetorno.get('origem')||'';
+const veioDoPerfil=parametrosRetorno.get('voltar_perfil')==='1';
+const urlPerfil=()=> 'perfil-aluno.html?id='+encodeURIComponent(alunoId);
 const abaContextual=['fotos','evolucao','treinos'].includes(abaRetorno)&&/^#wc\/(?:fotografica|evolucao|treinos)(?:\/|$)/.test(origemContextual);
 if(abaContextual){
  document.documentElement.classList.add('wand-contexto-exclusivo');
@@ -392,6 +396,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(voltar){
     const origem=parametrosRetorno.get('origem');
     const rotaSegura=origem&&/^#wc\/(?:alunos|anamnese|avaliacao|fotografica|evolucao|treinos)(?:\/[a-zA-Z0-9_/%-]+)*$/.test(origem)?origem:(modoAnamneseExclusiva?'#wc/anamnese':modoAvaliacaoExclusiva?'#wc/avaliacao':'#wc/alunos/students/ativos');
+    if(veioDoPerfil){voltar.href=urlPerfil();voltar.textContent='← Voltar ao perfil do aluno';return;}
     voltar.href='admin.html'+rotaSegura;
     voltar.textContent=abaContextual?(abaRetorno==='fotos'?'← Voltar para Avaliação Fotográfica':abaRetorno==='evolucao'?'← Voltar para Evoluções':'← Voltar para Treinos'):(modoAvaliacaoExclusiva?'← Voltar à seleção de alunos':'← Voltar à lista de alunos');
   }
@@ -981,10 +986,14 @@ function configurarMenuPerfil(){
     if(orientacao)orientacao.classList.toggle('hidden',Boolean(atual));
   }
   const voltar=$('voltarSecoesPerfil');
-  if(voltar)voltar.addEventListener('click',()=>{if(abaRetorno==='evolucao'){location.href='admin.html#wc/evolucao';return;}if(modoAnamneseExclusiva){location.href='admin.html#wc/anamnese';return;}selecionar(null)});
+  if(voltar)voltar.addEventListener('click',()=>{if(veioDoPerfil){location.href=urlPerfil();return;}if(abaRetorno==='evolucao'){location.href='admin.html#wc/evolucao';return;}if(modoAnamneseExclusiva){location.href='admin.html#wc/anamnese';return;}selecionar(null)});
   botoes.forEach(b=>b.addEventListener('click',()=>{if(modoAnamneseExclusiva||modoAvaliacaoExclusiva)return;
-    selecionar(atual===b.dataset.painel?null:b.dataset.painel);
+    const destino=b.dataset.painel;
+    if(destino==='anamnese'||destino==='treinos'){location.assign(urlPerfil()+'&aba='+destino+'&origem='+encodeURIComponent('#wc/'+destino)+'&voltar_perfil=1');return;}
+    if(destino==='avaliacao'||destino==='fotos'){location.assign((destino==='avaliacao'?'avaliacao-fisica-painel.html':'avaliacao-fotografica-painel.html')+'?id='+encodeURIComponent(alunoId)+'&voltar_perfil=1');return;}
+    selecionar(atual===destino?null:destino);
   }));
+  document.querySelectorAll('[data-tipo-evolucao]').forEach(b=>b.onclick=()=>location.assign(urlPerfil()+'&aba=evolucao&tipo_evolucao='+encodeURIComponent(b.dataset.tipoEvolucao)+'&origem='+encodeURIComponent('#wc/evolucao')+'&voltar_perfil=1'));
   // A tela inicial mostra apenas os cartões. Abertura direta só quando
   // outra funcionalidade solicita expressamente uma aba pela URL.
   const solicitada=validos.has(abaRetorno)?abaRetorno:
