@@ -155,6 +155,7 @@ if(m==='autorizacoes'){
  })();
  return;
 }
+}
 
 async function init(){try{const {data:{user}}=await db.auth.getUser();if(!user)throw Error('Entre no WandCoach.');const {data:p,error:pe}=await db.from('profiles').select('role').eq('id',user.id).single();if(pe||p?.role!=='admin')throw Error('Acesso exclusivo do treinador.');if(!Number.isSafeInteger(id)||id<1)throw Error('Aluno inválido.');const {data:a,error}=await db.from('alunos').select('nome_completo').eq('id',id).single();if(error)throw error;name=a.nome_completo;$('student').textContent=name;await load();render()}catch(e){notice('Não foi possível carregar: '+e.message,true)}}
 window.onpopstate=()=>render(new URLSearchParams(location.search).get('modo')||'fotos');init();
