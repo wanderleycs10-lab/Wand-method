@@ -521,6 +521,7 @@ if(Array.isArray(registro))return registro.map(semMedidasNaAnamnese);
 return Object.fromEntries(Object.entries(registro).filter(([chave])=>!ehMedidaLegada(chave)).map(([chave,valor])=>[chave,valor&&typeof valor==="object"?semMedidasNaAnamnese(valor):valor]));
 }
 function formatarValorAnamnese(chave,valor){
+if(chave==='experiencia_treino'&&String(valor)==='3_12_meses')return 'De três a doze meses';
 const texto=String(valor??"—").trim();
 const k=normalizarChaveAnamnese(chave);
 if(/(?:^|_)(?:horas?_?sono|sono_?horas?|duracao_?sono|tempo_?sono)(?:_|$)/.test(k)){
@@ -544,7 +545,7 @@ if(conteudo&&typeof conteudo==="object"){
 const grade=elemento("div","grid");
 for(const [chave,resposta] of Object.entries(conteudo)){
 const item=elemento("div","metric");
-adicionarTexto(item,"strong",chave.replaceAll("_"," "));
+adicionarTexto(item,"strong",chave==="experiencia_treino"?"Experiência de treino":chave.replaceAll("_"," "));
 let texto;
 if(resposta&&typeof resposta==="object"){
 texto="resposta" in resposta
@@ -611,7 +612,7 @@ const positivas=valores.filter(([,v])=>["sim","yes"].includes(String(v).toLowerC
 const outras=valores.filter(([,v])=>!["sim","yes","nao","não","no"].includes(String(v).toLowerCase()));
 for(const [chave,valor] of [...positivas,...outras]){
 const bloco=elemento("div","wand-anamnese-nota");
-adicionarTexto(bloco,"strong",chave.replaceAll("_"," "));
+adicionarTexto(bloco,"strong",chave==="experiencia_treino"?"Experiência de treino":chave.replaceAll("_"," "));
 adicionarTexto(bloco,"p",formatarValorAnamnese(chave,valor));
 notas.appendChild(bloco);
 }
