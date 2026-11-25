@@ -303,7 +303,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 <div id="painel" class="hidden">
   <section id="homeView" aria-label="Menu do aluno">
     <button type="button" id="wandAlunoNotificacoesAbrir" class="wand-aluno-notificacoes-atalho" data-view="notificacoes">
-      <span class="wand-aluno-notificacoes-icone" aria-hidden="true">🔔</span>
+      <span class="wand-aluno-notificacoes-icone" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></span>
       <span class="wand-aluno-notificacoes-texto"><strong>Notificações</strong><small>Solicitações e avisos do treinador</small></span>
       <span id="wandAlunoNotificacoesQtd" class="wand-aluno-notificacoes-qtd" hidden>0</span>
     </button>
@@ -893,7 +893,7 @@ function abrirGerenciamentoFicha(acao){
     if(!nome||!nascimento||!sexo)throw Error("Preencha nome, nascimento e sexo.");
     const {data:{user},error:authError}=await supabase.auth.getUser();if(authError||!user)throw Error("Sessão expirada. Entre novamente.");
     const {data,error}=await supabase.from("alunos").update({nome_completo:nome,data_nascimento:nascimento,sexo,whatsapp}).eq("id",alunoAtual.id).eq("user_id",user.id).select("nome_completo,data_nascimento,sexo,whatsapp").single();
-    if(error)throw error;Object.assign(fichaDados,data);alunoAtual.nome_completo=data.nome_completo;const primeiro=nome.split(/\s+/)[0];$("saudacao").textContent="Olá, "+primeiro+"! 👋";fichaMensagem(area,"Dados atualizados com sucesso.");
+    if(error)throw error;Object.assign(fichaDados,data);alunoAtual.nome_completo=data.nome_completo;const primeiro=nome.split(/\s+/)[0];$("saudacao").textContent="Olá, "+primeiro+"!";fichaMensagem(area,"Dados atualizados com sucesso.");
    }else{
     const senha=form.elements.senha.value,conf=form.elements.confirmar.value;
     if(senha.length<8||senha!==conf)throw Error("A senha precisa ter pelo menos 8 caracteres e coincidir com a confirmação.");
@@ -1017,7 +1017,7 @@ String(alunoAtual.nome_completo||"aluno")
 .split(/\s+/)[0];
 
 $("saudacao").textContent=
-"Olá, "+primeiroNome+"! 👋";
+"Olá, "+primeiroNome+"!";
 
 $("painel").classList.remove("hidden");
 
@@ -1823,7 +1823,7 @@ function wtExecucao(area){
  const timer=wtAdd(area,'div','wt-rest-dock');wtAlarmArea=timer;
  wtAdd(timer,'strong',null,'⏱ Descanso automático');wtClock=wtAdd(timer,'div','wt-timer','00:00');wtClock.setAttribute('role','timer');
  wtAlarmTexto=wtAdd(timer,'div','wt-alarm-message','');wtAlarmTexto.setAttribute('role','status');wtAlarmTexto.setAttribute('aria-live','assertive');
- const actions=wtAdd(timer,'div','actions');wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);const pushBtn=wtBtn(actions,'🔔 Ativar notificações',wtSolicitarNotificacoes,true);pushBtn.dataset.wtPushAtivar='1';wtAtualizarBotaoPush();wtAtualizarTimer();
+ const actions=wtAdd(timer,'div','actions');wtPararBotao=wtBtn(actions,'Parar descanso / alarme',wtPararDescanso,true);const pushBtn=wtBtn(actions,'Ativar notificações',wtSolicitarNotificacoes,true);pushBtn.dataset.wtPushAtivar='1';wtAtualizarBotaoPush();wtAtualizarTimer();
  blocos.forEach((bloco,indice)=>{
   const total=Math.max(...bloco.exercicios.map(({ex})=>(ex.series||[]).length),0);
   const concluido=wtCompleto(bloco),nRodadas=wtProximaRodada(bloco);
