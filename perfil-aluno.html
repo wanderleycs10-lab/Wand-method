@@ -238,8 +238,8 @@ body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!
  const card=add(parent,'div','wce-chart-card wand-grafico-padrao');add(card,'h3',null,title);
  const svg=makeSvg(card);svg.setAttribute('viewBox','0 0 440 220');svg.setAttribute('aria-label',title+' — '+values.map((v,i)=>labels[i]+': '+num(v)+' '+unidade).join('; '));
  const raw=Math.max(1,...values), target=raw*1.15/5, pow=10**Math.floor(Math.log10(target)), step=[1,2,2.5,5,10].map(n=>n*pow).find(n=>n>=target)||pow*10;
- const tick=unidade==='reps'?Math.max(1,Math.ceil(step)):step, max=tick*5,base=176,top=24,left=58,right=420;
- for(let i=0;i<=5;i++){const y=base-i*(base-top)/5;item(svg,'line',{x1:left,y1:y,x2:right,y2:y,stroke:'#383838','stroke-dasharray':'4 4'});item(svg,'text',{x:left-8,y:y+4,'text-anchor':'end',fill:'#c5c5c5','font-size':11},num(i*tick)+(unidade==='reps'?'':' '+unidade));}
+ const tick=['reps','treinos'].includes(unidade)?Math.max(1,Math.ceil(step)):step, max=tick*5,base=176,top=24,left=58,right=420;
+ for(let i=0;i<=5;i++){const y=base-i*(base-top)/5;item(svg,'line',{x1:left,y1:y,x2:right,y2:y,stroke:'#383838','stroke-dasharray':'4 4'});item(svg,'text',{x:left-8,y:y+4,'text-anchor':'end',fill:'#c5c5c5','font-size':11},num(i*tick)+(['reps','treinos'].includes(unidade)?'':' '+unidade));}
  item(svg,'path',{d:'M'+left+' '+top+' V'+base+' H'+right,stroke:'#a6a6a6',fill:'none','stroke-width':1});
  const pts=values.map((v,i)=>({x:values.length===1?(left+right)/2:left+16+i*(right-left-32)/(values.length-1),y:base-v/max*(base-top),v}));
  if(type==='line'&&pts.length>1){item(svg,'polygon',{points:pts.map(p=>p.x+','+p.y).join(' ')+' '+pts[pts.length-1].x+','+base+' '+pts[0].x+','+base,fill:'#d4af37',opacity:.09});item(svg,'polyline',{points:pts.map(p=>p.x+','+p.y).join(' '),stroke:'#e8c674','stroke-width':2.5,fill:'none','stroke-linejoin':'round'});}
@@ -248,7 +248,7 @@ body #painel-fotos.ativo #wand-fotos{display:block!important;visibility:visible!
  return card;
 }
 
-window.wandGraficoPadrao=wandGraficoPadrao;</script><style>#evolucao{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:12px;align-items:start}#evolucao .wand-grafico-padrao{margin:0 auto;width:100%}</style></head>
+window.wandGraficoPadrao=wandGraficoPadrao;</script><style>#evolucao{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:12px;align-items:start}#evolucao .wand-grafico-padrao{margin:0 auto;width:100%}</style><style id="wand-grade-graficos">#evolucao,.wand-grade-graficos{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin:14px 0}.wand-grade-graficos>.wand-grafico-padrao,#evolucao>.wand-grafico-padrao{width:100%;max-width:none;margin:0;min-width:0}.wand-grade-graficos>.muted{align-self:center}@media(max-width:767px){#evolucao,.wand-grade-graficos{grid-template-columns:minmax(0,1fr)}} </style></head>
 <body>
 <header class="wc-brand-header"><img class="wc-logo-oficial" src="wand-logo-completa-oficial.png" alt="WAND METHOD" onerror="this.onerror=null;this.src='LogoNova.png'"><p>PERFIL DO ALUNO</p></header>
 
@@ -1446,14 +1446,21 @@ function wceRender(){
    if(!grupos.size){wceAdd(wceRoot,'p','muted','Ainda não há exercícios executados com séries concluídas para este aluno.');return}
    wceAdd(wceRoot,'p','muted','Somente exercícios com séries efetivamente concluídas.');
    const seletor=wceAdd(wceRoot,'select',null);seletor.setAttribute('aria-label','Selecionar exercício');for(const nome of [...grupos.keys()].sort((a,b)=>a.localeCompare(b,'pt-BR'))){const o=wceAdd(seletor,'option',null,nome);o.value=nome;}
-   const resultado=wceAdd(wceRoot,'div');const mostrar=()=>{resultado.replaceChildren();const registros=grupos.get(seletor.value).sort((a,b)=>a.d-b.d);
-   for(const [campo,titulo,unidade] of [['kg','Progressão de carga — maior carga por dia','kg'],['reps','Progressão de repetições — maior número por série no dia','reps']]){const dias=new Map();for(const r of registros){if(r[campo]===null)continue;const k=r.d.toLocaleDateString('pt-BR');dias.set(k,Math.max(dias.get(k)??0,r[campo]));}const recentes=[...dias].slice(-8);if(recentes.length)wceChart(resultado,titulo,recentes.map(x=>x[1]),recentes.map(x=>x[0].slice(0,5)),'line',unidade);else wceAdd(resultado,'p','muted','Sem registros de '+(campo==='kg'?'carga':'repetições')+' para este exercício.');}
+   const resultado=wceAdd(wceRoot,'div');const mostrar=()=>{resultado.replaceChildren();const gradeGraficos=wceAdd(resultado,'div','wand-grade-graficos');const registros=grupos.get(seletor.value).sort((a,b)=>a.d-b.d);
+   for(const [campo,titulo,unidade] of [['kg','Progressão de carga — maior carga por dia','kg'],['reps','Progressão de repetições — maior número por série no dia','reps']]){const dias=new Map();for(const r of registros){if(r[campo]===null)continue;const k=r.d.toLocaleDateString('pt-BR');dias.set(k,Math.max(dias.get(k)??0,r[campo]));}const recentes=[...dias].slice(-8);if(recentes.length)wceChart(gradeGraficos,titulo,recentes.map(x=>x[1]),recentes.map(x=>x[0].slice(0,5)),'line',unidade);else wceAdd(gradeGraficos,'p','muted','Sem registros de '+(campo==='kg'?'carga':'repetições')+' para este exercício.');}
    wceAdd(resultado,'p','muted','Gráficos dos últimos oito dias com registros. Compare as cargas e repetições de cada série no histórico abaixo; os máximos diários podem corresponder a séries diferentes.');
    wceAdd(resultado,'h3',null,'Histórico de séries executadas');const tabela=wceAdd(resultado,'table','wand-evolucao-tabela');const cab=wceAdd(tabela,'tr');for(const h of ['Data','Carga','Repetições'])wceAdd(cab,'th',null,h);for(const r of registros.slice().reverse()){const tr=wceAdd(tabela,'tr');for(const v of [r.d.toLocaleDateString('pt-BR'),r.kg===null?'—':wceNum(r.kg)+' kg',String(r.reps??'—')])wceAdd(tr,'td',null,v);}};seletor.onchange=mostrar;mostrar();
   }else{
    const semanas=new Map(),meses=new Map();for(const r of wceRows){if(wceStatus(r)!=='concluido')continue;const d=wceDate(r.finalizada_em||r.iniciada_em);if(!d)continue;const w=wceKey(d),m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');semanas.set(w,(semanas.get(w)||0)+1);meses.set(m,(meses.get(m)||0)+1);}
    if(!semanas.size){wceAdd(wceRoot,'p','muted','Ainda não há treinos concluídos para este aluno.');return}
-   for(const [titulo,grupos] of [['Frequência semanal',semanas],['Frequência mensal',meses]]){const card=wceAdd(wceRoot,'div','wce-chart-card');wceAdd(card,'h3',null,titulo);const tabela=wceAdd(card,'table','wand-evolucao-tabela');const cab=wceAdd(tabela,'tr');wceAdd(cab,'th',null,'Período');wceAdd(cab,'th',null,'Treinos concluídos');for(const [k,v] of [...grupos].sort((a,b)=>b[0].localeCompare(a[0]))){const tr=wceAdd(tabela,'tr');wceAdd(tr,'td',null,k.length===10?k.split('-').reverse().join('/'):k.split('-').reverse().join('/'));wceAdd(tr,'td',null,String(v));}}
+   const gradeGraficos=wceAdd(wceRoot,'div','wand-grade-graficos');
+   for(const [titulo,grupos] of [['Frequência semanal',semanas],['Frequência mensal',meses]]){
+    const registros=[...grupos].sort((a,b)=>a[0].localeCompare(b[0]));
+    const rotulo=k=>k.length===10?k.slice(8,10)+'/'+k.slice(5,7):k.slice(5,7)+'/'+k.slice(2,4);
+    const recentes=registros.slice(-8);
+    wceChart(gradeGraficos,titulo,recentes.map(x=>x[1]),recentes.map(x=>rotulo(x[0])),'bar','treinos');
+   }
+   for(const [titulo,grupos] of [['Histórico semanal',semanas],['Histórico mensal',meses]]){const card=wceAdd(wceRoot,'div','wce-chart-card');wceAdd(card,'h3',null,titulo);const tabela=wceAdd(card,'table','wand-evolucao-tabela');const cab=wceAdd(tabela,'tr');wceAdd(cab,'th',null,'Período');wceAdd(cab,'th',null,'Treinos concluídos');for(const [k,v] of [...grupos].sort((a,b)=>b[0].localeCompare(a[0]))){const tr=wceAdd(tabela,'tr');wceAdd(tr,'td',null,k.split('-').reverse().join('/'));wceAdd(tr,'td',null,String(v));}}
   }return;
  }
 
