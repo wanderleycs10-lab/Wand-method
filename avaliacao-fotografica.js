@@ -1,3 +1,4 @@
+function wandConclusaoLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Concluído com sucesso');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #bda05c;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const h=document.createElement('h2');h.textContent='Concluído com sucesso!';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='OK';b.style.cssText='width:100%;padding:14px;border:1px solid #e8c674;border-radius:12px;background:linear-gradient(145deg,#f1d58a,#a77a2d);color:#111;font-weight:bold;font-size:16px;cursor:pointer';d.append(h,p,b);document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.onclick=()=>{d.close();d.remove();resolve()};d.showModal();b.focus()})}
 
 (() => {
   "use strict";
@@ -821,7 +822,7 @@ as condições legais aplicáveis.
       rascunhos.clear();
       try{await buscar();renderizar();document.dispatchEvent(new Event('wand:fotografias-atualizadas'))}
       catch(e){console.warn('[WAND FOTOS] Fotos salvas, mas atualização falhou:',e)}
-      mostrarMensagem('As três fotografias foram enviadas com sucesso.');
+      mostrarMensagem(''); await wandConclusaoLocal('As três fotografias foram enviadas com sucesso.');
     }catch(e){
       // Se houve falha antes da terceira foto, remover os registros parciais.
       // A conclusão só é disparada com as três posições confirmadas.
