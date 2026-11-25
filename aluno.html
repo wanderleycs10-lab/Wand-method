@@ -301,7 +301,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
 <p id="statusPagina" role="status"></p>
 
 <div id="painel" class="hidden">
-  <section id="homeView" aria-label="Menu do aluno">
+  <section id="homeView" aria-label="Menu do aluno"><article id="wandJornada" class="card" hidden><h2 style="color:#edc66e">Minha jornada</h2><p id="wandJornadaTexto">Prepare seu perfil para iniciar seu acompanhamento.</p><div id="wandJornadaEtapas"></div><button type="button" id="wandJornadaAcao" class="button" style="width:100%;margin-top:16px;background:linear-gradient(125deg,#ad7411,#e4ad30 20%,#ffe596 48%,#e8b43f 76%,#a86c0e)!important;color:#160e04!important;border:1px solid #ffda77!important;box-shadow:inset 0 2px 1px #fff6d1aa,inset 0 -3px 5px #84520a66,0 7px 17px #0009!important;font-weight:700">CONTINUAR MINHA JORNADA</button></article>
     <button type="button" id="wandAlunoNotificacoesAbrir" class="wand-aluno-notificacoes-atalho" data-view="notificacoes">
       <span class="wand-aluno-notificacoes-icone" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></span>
       <span class="wand-aluno-notificacoes-texto"><strong>Notificações</strong><small>Solicitações e avisos do treinador</small></span>
@@ -864,6 +864,20 @@ function abrirGerenciamentoFicha(acao){
  });
 }
 document.querySelectorAll("[data-ficha-tab]").forEach(b=>b.addEventListener("click",()=>mostrarAbaFicha(b.dataset.fichaTab)));
+async function wandAtualizarJornada(){
+ if(!alunoAtual)return;
+ const card=$("wandJornada"), lista=$("wandJornadaEtapas"), acao=$("wandJornadaAcao");
+ const [perfil,aut,anam]=await Promise.all([
+ supabase.from("alunos").select("nome_completo,data_nascimento,sexo,whatsapp,whatsapp_confirmado_pelo_aluno").eq("id",alunoAtual.id).single(),
+ supabase.from("wand_aluno_autorizacoes").select("tipo,aceito").eq("versao","2026-11-25-v1").order("id",{ascending:false}),
+ supabase.from("anamneses").select("status").eq("aluno_id",alunoAtual.id).order("created_at",{ascending:false}).limit(1).maybeSingle()]);
+ card.hidden=false;lista.replaceChildren();
+ if(perfil.error||aut.error||anam.error){$("wandJornadaTexto").textContent="Não foi possível consultar seu progresso. Tente novamente.";acao.textContent="TENTAR NOVAMENTE";acao.onclick=()=>wandAtualizarJornada();return;}
+ const p=perfil.data||{}, dados=aut.data.find(x=>x.tipo==="dados"), imagem=aut.data.find(x=>x.tipo==="imagem");
+ const etapas=[["Dados pessoais",Boolean(p.nome_completo&&p.data_nascimento&&p.sexo&&p.whatsapp&&p.whatsapp_confirmado_pelo_aluno),()=>{mostrarVista("ficha");const b=document.querySelector('[data-ficha-tab="seguranca"]');if(b.getAttribute("aria-expanded")!=="true")b.click();const e=document.querySelector('[data-ficha-acao="editar"]');if(e&&e.getAttribute("aria-expanded")!=="true")e.click()}],["Privacidade e autorizações",Boolean(dados&&imagem),()=>{mostrarVista("ficha");const b=document.querySelector('[data-ficha-tab="seguranca"]');if(b.getAttribute("aria-expanded")!=="true")b.click();document.querySelector('[data-ficha-acao="privacidade"]')?.click()}],["Anamnese",anam.data?.status==="concluida",()=>{if(dados?.aceito!==true){$("wandJornadaTexto").textContent="Converse com seu treinador sobre como realizar a anamnese sem autorização de dados de saúde.";return;}location.href="anamnese.html"}]];
+ for(const [nome,ok] of etapas){const row=document.createElement("p");row.style.cssText="display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #66512b;padding:10px 0;margin:0";const t=document.createElement("span");t.textContent=nome;const st=document.createElement("span");st.style.color=ok?"#edc66e":"#bbb";st.textContent=ok?"Concluído":"Pendente";row.append(t,st);lista.append(row)}
+ const next=etapas.find(x=>!x[1]);$("wandJornadaTexto").textContent=next?"Complete as etapas para preparar seu acompanhamento.":"Seu cadastro inicial está completo. Consulte seu treinador sobre pagamento e liberação do programa.";acao.textContent=next?"CONTINUAR MINHA JORNADA":"FALAR COM MEU TREINADOR";acao.onclick=next?next[2]:()=>mostrarVista("treinador");
+}
 async function carregarDadosFicha(user){
 const {data,error}=await supabase.from("alunos").select("nome_completo,data_nascimento,sexo,email,whatsapp,Status,whatsapp_confirmado_pelo_aluno").eq("id",alunoAtual.id).eq("user_id",user.id).single();
 fichaDados=error?{nome_completo:alunoAtual.nome_completo,email:user.email}:data;
@@ -1017,6 +1031,7 @@ $("wandAlunoIntro").hidden=false;
 $("painel").classList.remove("hidden");
 
 await carregarDadosFicha(user);
+wandAtualizarJornada().catch(()=>{});
 $("statusPagina").textContent="";
 
 await carregarAvaliacoes();
@@ -1050,7 +1065,7 @@ function mostrarVista(nome, atualizarEndereco=true){
     url.hash=valido?'#'+valido:'';
     history.replaceState(null,'',url);
   }
-  $("homeView").hidden=Boolean(valido);
+  $("homeView").hidden=Boolean(valido);if(!valido&&alunoAtual)wandAtualizarJornada().catch(()=>{});
   $("sair").closest(".actions").style.display=valido?"none":"";
   for(const id of VIEWS) $("view-"+id).hidden=id!==valido;
   acomodarModulos();
