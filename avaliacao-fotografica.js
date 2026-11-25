@@ -535,7 +535,7 @@ as condições legais aplicáveis.
       await buscar();
       renderizar();
       document.dispatchEvent(new CustomEvent('wand:autorizacao-fotografica-atualizada',{detail:{status}}));
-      mostrarMensagem(status==='recusada'?'Sua recusa foi registrada. Se desejar, converse com seu treinador.':'Sua autorização foi registrada.');
+      await wandConclusaoLocal(status==='recusada'?'Sua recusa foi registrada. Se desejar, converse com seu treinador.':'Sua autorização fotográfica foi registrada com sucesso.');
 
     } catch (erro) {
       mostrarMensagem(erro.message, true);
