@@ -51,6 +51,10 @@ test('Resumo apresenta XP, energia e a insígnia registrada pelo servidor', () =
   assert.equal(cards.length,10);
   assert.equal(cards[0].children[0].children[1].children[0].textContent,'Nível I — Iniciação');
   assert.equal(cards[9].children[0].children[1].children[1].textContent,'O nível máximo do WAND LEGACY.');
+  renderLegacy(panel, {xp:1500,energia:20,insignias:[]}, {currentLevelOnly:true});
+  const studentCards = panel.children[7].children[1].children;
+  assert.equal(studentCards.length,1);
+  assert.match(studentCards[0].children[0].children[1].children[0].textContent,/Nível III/);
 });
 
 const pglitePath = process.env.WAND_LEGACY_PGLITE;
