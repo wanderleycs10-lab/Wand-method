@@ -120,7 +120,8 @@ main,section,article{min-width:0}
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
   }
 }
-.wc-legacy-config > summary {
+.wc-legacy-config > summary,
+#wcInner .wand-legacy-summary > details > summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -131,15 +132,18 @@ main,section,article{min-width:0}
   text-decoration: none;
   outline: none;
 }
-.wc-legacy-config > summary:focus-visible {
+.wc-legacy-config > summary:focus-visible,
+#wcInner .wand-legacy-summary > details > summary:focus-visible {
   outline: 2px solid var(--wand-gold);
   outline-offset: 3px;
   border-radius: 4px;
 }
-.wc-legacy-config > summary::-webkit-details-marker {
+.wc-legacy-config > summary::-webkit-details-marker,
+#wcInner .wand-legacy-summary > details > summary::-webkit-details-marker {
   display: none;
 }
-.wc-legacy-config > summary::after {
+.wc-legacy-config > summary::after,
+#wcInner .wand-legacy-summary > details > summary::after {
   content: "";
   flex: 0 0 .5rem;
   height: .5rem;
@@ -148,7 +152,8 @@ main,section,article{min-width:0}
   border-block-end: 2px solid var(--wand-gold);
   transform: rotate(-45deg);
 }
-.wc-legacy-config[open] > summary::after {
+.wc-legacy-config[open] > summary::after,
+#wcInner .wand-legacy-summary > details[open] > summary::after {
   transform: rotate(45deg);
 }
 #wcInner .wc-legacy-config {
