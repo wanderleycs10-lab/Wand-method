@@ -1,14 +1,14 @@
 const exercises = [
-  ['079b68ab-ac22-4113-b67e-57f6170dd21c', 'Supino reto com barra', 'supino-reto-com-barra'],
-  ['fa5df6cc-3e91-4929-9b08-03d8b121da60', 'Agachamento livre', 'agachamento-livre'],
-  ['36e2370d-c28b-475d-8e30-d06a72502336', 'Puxada frontal', 'puxada-frontal'],
-  ['69f1303a-f9ef-407f-945e-df9e37de8270', 'Crucifixo com halteres', 'crucifixo-com-halteres'],
-  ['1b232d0f-dd12-492d-bf8e-f20f8d2b6ef4', 'Rosca Direta c/Barra W', 'rosca-direta-barra-w'],
-  ['f008e760-cdb5-46e8-abe7-8536c0ad8971', 'Tríceps na polia', 'triceps-na-polia'],
-  [null, 'Elevação lateral com halteres', 'elevacao-lateral-com-halteres'],
-  [null, 'Panturrilha em pé', 'panturrilha-em-pe'],
-  [null, 'Remada curvada com barra', 'remada-curvada-com-barra'],
-  [null, 'Desenvolvimento sentado com halteres', 'desenvolvimento-sentado-com-halteres'],
+  ['079b68ab-ac22-4113-b67e-57f6170dd21c', 'Supino reto com barra', 'supino-reto-com-barra', 'lateral', 'Pegada pronada na barra.'],
+  ['fa5df6cc-3e91-4929-9b08-03d8b121da60', 'Agachamento livre', 'agachamento-livre', 'frontal', 'Barra apoiada na parte alta das costas.'],
+  ['36e2370d-c28b-475d-8e30-d06a72502336', 'Puxada frontal', 'puxada-frontal', 'lateral', 'Pegada pronada aberta. A barra desce à frente do corpo.'],
+  ['69f1303a-f9ef-407f-945e-df9e37de8270', 'Crucifixo com halteres', 'crucifixo-com-halteres', '', 'Pegada neutra, sem rotação voluntária dos punhos durante o arco.'],
+  ['1b232d0f-dd12-492d-bf8e-f20f8d2b6ef4', 'Rosca Direta c/Barra W', 'rosca-direta-barra-w', 'frontal', 'Pegada semissupinada nas curvas da barra W.'],
+  ['f008e760-cdb5-46e8-abe7-8536c0ad8971', 'Tríceps na polia', 'triceps-na-polia', 'lateral', 'Pegada pronada no puxador reto.'],
+  [null, 'Elevação lateral com halteres', 'elevacao-lateral-com-halteres', 'frontal', 'Punhos alinhados aos antebraços.'],
+  [null, 'Panturrilha em pé', 'panturrilha-em-pe', 'lateral', 'A parte da frente dos pés permanece apoiada.'],
+  [null, 'Remada curvada com barra', 'remada-curvada-com-barra', 'lateral', 'Pegada pronada na barra.'],
+  [null, 'Desenvolvimento sentado com halteres', 'desenvolvimento-sentado-com-halteres', '', 'Pegada pronada do início ao fim, com as palmas voltadas para a frente.'],
 ];
 const normalize = value => String(value ?? '').trim().normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -17,7 +17,7 @@ export function showExercisePilot(container, exercise, source = 'library') {
   const match = exercises.find(([id, name]) =>
     source === 'training' || !id ? normalize(exercise.nome) === normalize(name) : exercise.id === id);
   if (!match) return false;
-  const [, name, slug] = match;
+  const [, name, slug, existingView, technique] = match;
   const assetPath = './imagens/exercicios/' + slug;
 
   const document = container.ownerDocument;
@@ -46,12 +46,24 @@ export function showExercisePilot(container, exercise, source = 'library') {
     model.append(option);
   }
   modelLabel.append(model);
+  const viewLabel = document.createElement('label');
+  viewLabel.textContent = 'Vista ';
+  const view = document.createElement('select');
+  for (const [value, description] of [['lateral', 'Lateral'], ['frontal', 'Frontal']]) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = description;
+    view.append(option);
+  }
+  viewLabel.append(view);
+  const guidance = document.createElement('p');
+  guidance.className = 'muted';
   const pose = document.createElement('button');
   pose.type = 'button';
   pose.className = 'secundario';
   const controls = document.createElement('div');
   controls.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;gap:8px';
-  controls.append(modelLabel, play, pose);
+  controls.append(modelLabel, viewLabel, play, pose);
   if (slug === 'supino-reto-com-barra') {
     const pdf = document.createElement('a');
     pdf.href = assetPath + '.pdf?v=2';
@@ -64,18 +76,30 @@ export function showExercisePilot(container, exercise, source = 'library') {
   function show(next) {
     mode = next;
     const file = { start: '-inicio.webp', end: '-fim.webp', loop: '.gif' }[mode];
-    image.src = assetPath + '-' + model.value + file;
+    const suffix = view.value === existingView ? '' : '-' + view.value;
+    image.src = assetPath + '-' + model.value + suffix + file;
+    image.alt = name + ', modelo ' + model.value + ', vista ' + view.value
+      + '. Músculos principais em dourado intenso e auxiliares em dourado suave.';
+    guidance.textContent = slug === 'agachamento-livre'
+      ? technique + (view.value === 'frontal' ? ' Observe a direção dos joelhos em relação aos pés.'
+        : ' Observe o movimento do quadril, do tronco e o apoio dos pés.')
+      : technique;
+    if (suffix === '' && ['puxada-frontal','triceps-na-polia','panturrilha-em-pe','remada-curvada-com-barra','supino-reto-com-barra','elevacao-lateral-com-halteres'].includes(slug)) {
+      guidance.textContent += ' Enquadramento em três quartos.';
+    }
     play.textContent = mode === 'loop' ? 'Parar sequência' : 'Reproduzir sequência';
     pose.textContent = mode === 'end' ? 'Ver posição inicial' : 'Ver posição final';
   }
   model.value = 'feminino';
+  view.value = 'lateral';
   model.onchange = () => show(mode);
+  view.onchange = () => show(mode);
   play.onclick = () => show(mode === 'loop' ? 'start' : 'loop');
   pose.onclick = () => show(mode === 'end' ? 'start' : 'end');
   details.addEventListener('toggle', () => { if (!details.open && mode === 'loop') show('start'); });
   show('start');
   details.open = source === 'library';
-  details.append(heading, image, controls);
+  details.append(heading, image, controls, guidance);
   container.append(details);
   return true;
 }
