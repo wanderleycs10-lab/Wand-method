@@ -224,6 +224,7 @@ header .wc-brand-wordmark span{font-weight:300;color:#f0e9db}
 </div><section id="wcAlteracoesSaude" class="card" hidden style="margin:18px 0;padding:12px;border:1px solid #a88748;border-radius:16px"><h3><button type="button" id="wcAbrirNotificacoes" aria-expanded="false">🔔 Acompanhamento <span id="wcNotificacoesContador"></span></button></h3><div id="wcNotificacoesDetalhes" hidden><p>Pendências dos alunos para revisar.</p><p id="wcAlteracoesEstado">Carregando alterações...</p><div id="wcAlteracoesLista"></div><button type="button" id="wcAtualizarAlteracoes">Atualizar</button></div></section><button id="sair" type="button">Sair da conta</button></section></main><footer>WAND METHOD · WandCoach</footer>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import {LEGACY_LEVELS, legacyProgress, loadLegacy, renderLegacy, renderLegacyRewards, renderLegacyMissions, renderLegacyHistory} from './wand-legacy.js';
 const supabase=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
 const status=document.getElementById('status'),painel=document.getElementById('painel');let alunosCarregados=[],pedidosCarregados=[];
 const $=id=>document.getElementById(id);
@@ -265,7 +266,7 @@ avaliacao:{name:'Avaliação Física',desc:'Medidas, resultados e reavaliações
 fotografica:{name:'Avaliação Fotográfica',desc:'Fotografias e análise postural',icon:'camera',items:[['Solicitar Fotografias','Pedir ao aluno imagens de frente, lado e costas','camera','fotografica-alunos'],['Análise Postural','Analisar imagens e registrar observações','activity','fotografica-alunos'],['Comparar Fotografias','Comparar registros de diferentes datas','book','fotografica-alunos'],['Autorizações Fotográficas','Gerenciar consentimentos e permissões','check','fotografica-alunos']]},
 evolucao:{name:'Evoluções',desc:'Gráficos dos alunos',icon:'chart',items:[['Selecionar Aluno','Gráficos individuais','users','students'],['Progressão de Cargas','Desempenho','chart','students'],['Frequência de Treinos','Adesão semanal e mensal','activity','students'],['Evolução Corporal','Peso e circunferências','chart','students']]},
 bemestar:{name:'Bem-estar',desc:'Saúde e acompanhamento',icon:'heart',items:[['Selecionar Aluno','Consultar informações','users','students'],['Check-ins','Bem-estar registrado','check','students'],['Saúde Feminina','Registros autorizados','heart','students'],['Histórico de Acompanhamentos','Solicitações e notificações anteriores','history','historico-notificacoes']]},
-coins:{name:'WAND LEGACY',desc:'Evolução, conquistas e recompensas',icon:'coin',items:[['Conquistas','Consultar alunos','coin','students'],['Recompensas','Gerenciar pelo perfil','coin','students'],['Pontos dos Alunos','Consultar saldos','users','students']]},
+coins:{name:'WAND LEGACY',desc:'Evolução, conquistas e recompensas',icon:'coin',items:[['Conquistas','Consultar alunos por nível','coin','legacy-niveis'],['Catálogo de recompensas','Editar itens, estoque e validade','coin','legacy-catalogo'],['Pontos dos Alunos','Consultar saldos por nível','users','legacy-niveis'],['Regras de XP e energia','Configurar pontuação','coin','legacy-regras']]},
 comunicacao:{name:'Comunicação',desc:'Mensagens e suporte',icon:'message',items:[['Mensagens no App','Contato pelo perfil','message','students'],['WhatsApp','Contato direto pelo perfil','message','students'],['Notificações','Alertas e solicitações','activity','adaptacoes']]}
 };
 function wcRenderDemographics(){
@@ -317,6 +318,10 @@ function wcBack(){wcToggleDrawer(false);wcSetRoute([]);wcInner.hidden=true;wcHom
 function wcBackContextual(){
  const hash=location.hash;
  const partes=hash.startsWith(wcRoutePrefix)?hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent):[];
+ if(partes[0]==='coins'&&partes[1]==='conquistas'&&partes[2]){
+  wcLegacyNiveis(partes[3]);
+  return;
+ }
  if(partes[0]==='anamnese'&&partes[1]==='pendencias'){
   if(partes.length>2)wcPendenciasAnamnese();else wcMenu('anamnese');
   return;
@@ -376,7 +381,266 @@ function wcNotificacoesCadastro(pedido){
  const btn=document.createElement('button');btn.type='button';btn.className='secundario';btn.textContent='Enviar por e-mail e WhatsApp';btn.disabled=true;
  box.append(title,desc,email,whats,btn);return box;
 }
-function wcStudents(title,tipo='ativos',parent='alunos',index=null){
+async function wcLegacyNiveis(nivel=''){
+ wcSetRoute(['coins','niveis',nivel]);
+ wcOpen('Conquistas','Escolha um nível para ver os alunos e suas conquistas.');
+ const lista=document.createElement('div');
+ lista.className='wc-list';
+ lista.textContent='Carregando níveis...';
+ wcContent.append(lista);
+ try{
+  const {data,error}=await supabase.rpc('wand_legacy_alunos');
+  if(error)throw error;
+  const grupos=new Map(LEGACY_LEVELS.map(level=>[level.roman,[]]));
+  for(const aluno of data)grupos.get(legacyProgress(Number(aluno.xp)).current.roman).push(aluno);
+  lista.replaceChildren();
+  for(const level of LEGACY_LEVELS){
+   const grupo=grupos.get(level.roman);
+   const detalhe=document.createElement('details');
+   detalhe.open=nivel===level.roman;
+   const titulo=document.createElement('summary');
+   titulo.className='wc-row';
+   titulo.textContent=level.roman+' — '+level.name+' · '+grupo.length+(grupo.length===1?' aluno':' alunos');
+   detalhe.append(titulo);
+   for(const aluno of grupo){
+    detalhe.append(wcRow([aluno.nome||'Aluno sem nome',Number(aluno.xp).toLocaleString('pt-BR')+' XP','coin'],
+     ()=>wcConquistasAluno(aluno.id,level.roman,aluno.nome)));
+   }
+   if(!grupo.length){
+    const vazio=document.createElement('p');
+    vazio.textContent='Nenhum aluno neste nível.';
+    detalhe.append(vazio);
+   }
+   detalhe.addEventListener('toggle',()=>{if(detalhe.open&&lista.isConnected)wcSetRoute(['coins','niveis',level.roman]);});
+   lista.append(detalhe);
+  }
+ }catch{lista.textContent='Não foi possível carregar os níveis. Abra Conquistas novamente para tentar.';}
+}
+async function wcLegacyConfig(section){
+ const catalogo=section==='legacy-catalogo';
+ const index=catalogo?1:3;
+ wcSetRoute(['coins','item',String(index)]);
+ wcOpen(catalogo?'Catálogo de recompensas':'Regras de XP e energia',
+  catalogo?'Gerencie o catálogo compartilhado do WAND METHOD.':'Os valores valem para os próximos créditos que você validar.');
+ const lista=document.createElement('div');
+ lista.className='wc-list';
+ lista.textContent='Carregando...';
+ wcContent.append(lista);
+ try{
+  const {data,error}=await supabase.rpc(catalogo?'wand_legacy_catalogo':'wand_legacy_regras');
+  if(error)throw error;
+  lista.replaceChildren();
+  const itens=catalogo?[...data,{ativa:true}]:data;
+  for(const item of itens){
+   const detalhe=document.createElement('details');
+   detalhe.className='card';
+   const titulo=document.createElement('summary');
+   titulo.textContent=catalogo?(item.nome||'Nova recompensa'):item.codigo.replaceAll('_',' ');
+   const form=document.createElement('form');
+   const campos={};
+   function campo(key,label,type,required=false){
+    const wrapper=document.createElement('label');
+    wrapper.textContent=label+' ';
+    const input=document.createElement('input');
+    input.type=type;
+    input.required=required;
+    if(type==='number'){input.min=key==='custo'?'1':'0';input.step='1';}
+    if(type==='checkbox')input.checked=Boolean(item[key]);
+    else input.value=item[key]??'';
+    wrapper.append(input);
+    form.append(wrapper,document.createElement('br'));
+    campos[key]=input;
+   }
+   if(catalogo){
+    campo('nome','Nome','text',true);
+    campo('descricao','Descrição','text');
+    campo('condicoes','Condições','text');
+    campo('custo','Custo em WAND ENERGY','number',true);
+    campo('estoque','Estoque disponível (vazio para ilimitado)','number');
+    campo('validade','Válida até','date');
+    campo('ativa','Ativa','checkbox');
+   }else{
+    campo('xp','XP','number',true);
+    campo('energia','WAND ENERGY','number',true);
+   }
+   const salvar=document.createElement('button');
+   salvar.type='submit';
+   salvar.textContent='Salvar';
+   const aviso=document.createElement('p');
+   aviso.setAttribute('role','status');
+   form.append(salvar,aviso);
+   form.onsubmit=async event=>{
+    event.preventDefault();
+    salvar.disabled=true;
+    try{
+     const args=catalogo?{p_id:item.id??null,p_nome:campos.nome.value,p_descricao:campos.descricao.value,
+      p_condicoes:campos.condicoes.value,p_custo:campos.custo.valueAsNumber,p_estoque:campos.estoque.value===''?null:campos.estoque.valueAsNumber,
+      p_validade:campos.validade.value||null,p_ativa:campos.ativa.checked}:
+      {p_codigo:item.codigo,p_xp:campos.xp.valueAsNumber,p_energia:campos.energia.valueAsNumber};
+     const {error}=await supabase.rpc(catalogo?'wand_legacy_salvar_recompensa':'wand_legacy_salvar_regra',args);
+     if(error)throw error;
+     if(catalogo&&!item.id){await wcLegacyConfig(section);return;}
+     if(catalogo)titulo.textContent=campos.nome.value.trim();
+     aviso.textContent='Alterações salvas.';
+    }catch{aviso.textContent='Não foi possível salvar. Confira os campos e tente novamente.';}
+    finally{salvar.disabled=false;}
+   };
+   detalhe.append(titulo,form);
+   lista.append(detalhe);
+  }
+ }catch{lista.textContent='Não foi possível carregar a configuração.';}
+}
+async function wcConquistasAluno(id,nivel='',nome='',destino=''){
+ wcSetRoute(['coins','conquistas',String(id),nivel,destino]);
+ wcOpen('Conquistas do aluno',nome);
+ for(const id of ['wcBackTop','wcBackBottom'])$(id).textContent='← Voltar aos níveis';
+ const resumo=document.createElement('section');
+ resumo.className='card';
+ const status=document.createElement('p');
+ status.setAttribute('role','status');
+ status.textContent='Carregando conquistas...';
+ wcContent.append(resumo,status);
+ async function atualizar(){
+  const data=await loadLegacy(supabase,id);
+  if(resumo.isConnected)$('wcSubtitle').textContent=data.nome||nome;
+  const rewardsOpen=resumo.querySelector('[data-legacy-rewards]')?.open;
+  const missionsOpen=resumo.querySelector('[data-legacy-missions]')?.open;
+  renderLegacy(resumo,data);
+  const rewards=renderLegacyRewards(resumo,data,{decide:async(resgate,estado)=>{
+   const {error}=await supabase.rpc('wand_legacy_decidir_resgate',{p_aluno_id:id,p_resgate_id:resgate,p_estado:estado});
+   if(error)throw error;
+   await atualizar();
+   status.textContent='Resgate atualizado.';
+  }});
+  rewards.open=Boolean(rewardsOpen)||destino==='recompensas';
+  const missions=renderLegacyMissions(resumo,data.missoes,{
+   assign:async(titulo,codigo)=>{
+    const {error}=await supabase.rpc('wand_legacy_atribuir_missao',{p_aluno_id:id,p_titulo:titulo,p_codigo:codigo});
+    if(error)throw error;
+    await atualizar();
+    status.textContent='Missão atribuída.';
+   },
+   update:async(missao,estado)=>{
+    const {error}=await supabase.rpc('wand_legacy_atualizar_missao',{p_aluno_id:id,p_missao_id:missao,p_estado:estado});
+    if(error)throw error;
+    await atualizar();
+    status.textContent='Missão validada.';
+   }
+  });
+  missions.open=Boolean(missionsOpen)||destino==='missoes';
+  renderLegacyHistory(resumo,data.historico);
+  wcLegacyPresentes(resumo,id,destino==='reconhecimento');
+  resumo.append(wcRow(['Validar acompanhamento','Conferir anamnese, avaliações liberadas e check-ins','coin'],async event=>{
+   const botao=event.currentTarget;
+   botao.disabled=true;
+   try{
+    const {error}=await supabase.rpc('wand_legacy_validar_acompanhamento',{p_aluno_id:id});
+    if(error)throw error;
+    await atualizar();
+    status.textContent='Acompanhamento conferido.';
+   }catch{status.textContent='Não foi possível conferir o acompanhamento.';}
+   finally{botao.disabled=false;}
+  }));
+  if(!data.treinos_para_validar.length)return;
+  const revisao=document.createElement('details');
+  const titulo=document.createElement('summary');
+  titulo.textContent='Treinos para validar';
+  revisao.append(titulo);
+  for(const sessao of data.treinos_para_validar){
+   const dia=new Date(sessao.finalizada_em).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
+   const botao=wcRow(['Validar '+sessao.nome,dia,'coin'],async()=>{
+    botao.disabled=true;
+    try{
+     const {data:creditado,error}=await supabase.rpc('wand_legacy_validar_treino',{p_aluno_id:id,p_sessao_id:sessao.id});
+     if(error)throw error;
+     status.textContent=creditado?'Treino validado. Pontuação registrada.':'Já existe uma validação para este dia.';
+     await atualizar();
+    }catch{
+     status.textContent='Não foi possível atualizar a validação. Consulte o resumo e tente novamente.';
+     botao.disabled=false;
+    }
+   });
+   revisao.append(botao);
+  }
+  resumo.append(revisao);
+ }
+ try{await atualizar();status.textContent='';}
+ catch{status.textContent='XP, WAND ENERGY e insígnias indisponíveis. Confira o vínculo do aluno ou tente novamente.';}
+}
+function wcLegacyPresentes(container,alunoId,abrir=false){
+ const area=document.createElement('details');
+ const titulo=document.createElement('summary');
+ titulo.textContent='Reconhecimento de alunos';
+ const conteudo=document.createElement('div');
+ area.append(titulo,conteudo);
+ container.append(area);
+ area.addEventListener('toggle',async()=>{
+  if(!area.open||conteudo.childElementCount)return;
+  conteudo.textContent='Carregando reconhecimento...';
+  try{
+   const {data,error}=await supabase.rpc('wand_legacy_presentes',{p_aluno_id:alunoId});
+   if(error)throw error;
+   conteudo.replaceChildren();
+   for(const [index,level] of LEGACY_LEVELS.entries()){
+    const nivel=index+1;
+    const registro=data.registros.find(item=>item.nivel===nivel);
+    const form=document.createElement('form');
+    form.className='card';
+    const nome=document.createElement('label');
+    nome.textContent=level.roman+' — '+level.name+' ';
+    const presente=document.createElement('input');
+    presente.required=true;
+    presente.maxLength=160;
+    presente.value=registro?.descricao??data.sugestoes[index];
+    nome.append(presente);
+    const estado=document.createElement('label');
+    const entregue=document.createElement('input');
+    entregue.type='checkbox';
+    entregue.checked=Boolean(registro?.entregue);
+    estado.append(entregue,' Entregue');
+    const salvar=document.createElement('button');
+    salvar.textContent='Salvar';
+    const status=document.createElement('p');
+    status.setAttribute('role','status');
+    form.append(nome,estado,salvar,status);
+    form.onsubmit=async event=>{
+     event.preventDefault();
+     salvar.disabled=true;
+     try{
+      const {error}=await supabase.rpc('wand_legacy_salvar_presente',{p_aluno_id:alunoId,p_nivel:nivel,p_descricao:presente.value,p_entregue:entregue.checked});
+      if(error)throw error;
+      status.textContent=entregue.checked?'Entrega registrada.':'Presente marcado como pendente.';
+      await carregarHistorico();
+     }catch{status.textContent='Não foi possível atualizar o reconhecimento.';}
+     finally{salvar.disabled=false;}
+    };
+    conteudo.append(form);
+   }
+   const historico=document.createElement('details');
+   const rotulo=document.createElement('summary');
+   rotulo.textContent='Histórico de reconhecimento';
+   const lista=document.createElement('ul');
+   historico.append(rotulo,lista);
+   conteudo.append(historico);
+   function mostrarHistorico(registros){
+    lista.replaceChildren();
+    for(const item of registros){
+     const linha=document.createElement('li');
+     linha.textContent=LEGACY_LEVELS[item.nivel-1].roman+' · '+item.descricao+' · '+(item.entregue?'Entregue':'Pendente')+
+      ' · '+new Date(item.atualizado_em).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
+     lista.append(linha);
+    }
+   }
+   async function carregarHistorico(){
+    const {data,error}=await supabase.rpc('wand_legacy_presentes',{p_aluno_id:alunoId});
+    if(!error)mostrarHistorico(data.historico);
+   }
+   mostrarHistorico(data.historico);
+  }catch{conteudo.textContent='Não foi possível carregar o reconhecimento.';}
+ });
+ area.open=abrir;
+}
+function wcStudents(title,tipo='ativos',parent='alunos',index=null,modalidade=''){
  wcSetRoute(index===null?[parent,'students',tipo]:[parent,'item',String(index)]);
  wcOpen(title,'Pesquise pelo nome ou escolha uma modalidade para encontrar o aluno.');
  const input=document.createElement('input');input.className='wc-search';
@@ -388,7 +652,7 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null){
  ];
  const grid=document.createElement('div');grid.className='wc-list';grid.style.margin='16px 0 20px';wcContent.append(grid);
  const list=document.createElement('div');list.className='wc-student-list';wcContent.append(list);
- let selected=null;
+ let selected=categories.some(([id])=>id===modalidade)?modalidade:null;
  const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
  function categoria(a){
   const m=normalize(a.modalidade).replace(/[\s_-]+/g,' ');
@@ -602,7 +866,7 @@ async function wcDetalhePendenciaAnamnese(tipo){
   }
  }catch(e){console.error(e);area.textContent='Não foi possível consultar as avaliações pendentes.';}
 }
-function wcAction(item,parent,index){const dest=item[3];if(dest==='pendencias-anamnese'){wcPendenciasAnamnese(parent,index);return}if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(parent==='bemestar'){location.href='bem-estar-coach.html?modo='+['aluno','checkins','feminina','historico'][index]+'&origem='+encodeURIComponent(location.hash);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(dest==='fotografica-alunos'&&index>0){location.href='avaliacao-fotografica-central.html?modo='+['fotos','postural','comparar','autorizacoes'][index]+'&origem='+encodeURIComponent(location.hash);return}if(dest==='avaliacao-alunos'||dest==='fotografica-alunos'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
+function wcAction(item,parent,index){const dest=item[3];if(dest==='legacy-niveis'){wcLegacyNiveis();return}if(dest==='legacy-catalogo'||dest==='legacy-regras'){wcLegacyConfig(dest);return}if(dest==='pendencias-anamnese'){wcPendenciasAnamnese(parent,index);return}if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(parent==='bemestar'){location.href='bem-estar-coach.html?modo='+['aluno','checkins','feminina','historico'][index]+'&origem='+encodeURIComponent(location.hash);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(dest==='fotografica-alunos'&&index>0){location.href='avaliacao-fotografica-central.html?modo='+['fotos','postural','comparar','autorizacoes'][index]+'&origem='+encodeURIComponent(location.hash);return}if(dest==='avaliacao-alunos'||dest==='fotografica-alunos'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
 async function wcCountSolicitacoes(badge){try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(!badge.isConnected)return;badge.textContent=String((data||[]).filter(p=>!['recusada','aprovada'].includes(String(p.status||'').toLowerCase())).length)}catch(e){console.warn('Contagem de solicitações indisponível:',e);if(badge.isConnected)badge.textContent='—'}}
 async function wcCountNovos(badge){const base=wcFiltered('novos').length;try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(badge.isConnected){const aprovadas=(data||[]).filter(p=>String(p.status||'').toLowerCase()==='aprovada');badge.textContent=String(base+aprovadas.filter(p=>!wcFiltered('novos').some(a=>wcMesmoInteressado(p,a))).length)}}catch(e){console.warn('Contagem de novos interessados indisponível:',e);if(badge.isConnected)badge.textContent=String(base)+'+'}}
 function wcRevisadas(){try{const x=JSON.parse(localStorage.getItem('wandcoach_notificacoes_revisadas')||'[]');return new Set(Array.isArray(x)?x:[])}catch{return new Set()}}
@@ -645,7 +909,16 @@ async function wcBuscarNotificacoes(){
     url:'avaliacao-fotografica-painel.html?id='+encodeURIComponent(n.aluno_id)+'&modo=consultar'});
   }
  }catch(e){console.warn('Falha ao consultar notificações fotográficas:',e);falhas++}
- entries.sort((a,b)=>String(b.date).localeCompare(String(a.date)));return {entries,falhas};
+ try{
+  const {data,error}=await supabase.rpc('wand_legacy_avisos');
+  if(error)throw error;
+  for(const aviso of data||[]){
+   const aluno=alunosCarregados.find(a=>String(a.id)===String(aviso.aluno_id));
+   const url='#wc/coins/conquistas/'+encodeURIComponent(aviso.aluno_id)+'//'+encodeURIComponent(aviso.destino);
+   entries.push({tipo:'legacy',title:aviso.titulo,detail:aluno?.nome_completo||'WAND LEGACY',url,avisoId:aviso.id});
+  }
+ }catch{ /* As demais fontes continuam disponíveis durante a implantação. */ }
+ entries.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));return {entries,falhas};
 }
 async function wcAtualizarNotificacoes(){
  const badge=$('wcNotificacoesCount'),area=$('wcNotificacoesInfo');if(!badge||!area)return;area.textContent='Consultando notificações...';
@@ -692,6 +965,10 @@ async function wcCentralNotificacoes(){
   const info=document.createElement('small');info.style.display='block';info.textContent=n.detail+(n.date?' · '+new Date(n.date).toLocaleString('pt-BR'):'');
   const actions=document.createElement('div');actions.style.cssText='display:flex;flex-wrap:wrap;gap:9px;margin-top:12px';
   const link=document.createElement('a');link.className='botao-link secundario';link.href=n.url;link.textContent=n.tipo==='cadastro'?'Analisar solicitação':n.tipo==='fotografia'?'Ver fotografias':n.tipo==='jornada'?'Analisar aluno':'Ver anamnese';if(n.tipo==='cadastro'){link.href='#wc/notificacoes/solicitacoes';link.onclick=e=>{e.preventDefault();wcSolicitacoesCadastro('notificacoes',0)}}actions.append(link);
+  if(n.tipo==='legacy'){
+   link.textContent='Abrir WAND LEGACY';
+   link.addEventListener('click',()=>{supabase.rpc('wand_legacy_ler_aviso',{p_id:n.avisoId}).then(()=>wcAtualizarNotificacoes());});
+  }
   if(n.tipo==='fotografia'){
    const done=document.createElement('button');done.type='button';done.textContent='Marcar como lida';
    done.onclick=async()=>{
@@ -712,7 +989,7 @@ async function wcCentralNotificacoes(){
  const refresh=document.createElement('button');refresh.type='button';refresh.className='secundario';refresh.textContent='Atualizar lista';refresh.onclick=wcCentralNotificacoes;area.append(refresh);
 }
 function wcMenu(key){wcToggleDrawer(false);const m=wcMenus[key];if(!m)return;wcSetRoute([key]);wcOpen(m.name,m.desc);const list=document.createElement('div');list.className='wc-list wand-primary-menu';m.items.forEach((item,index)=>{const tipo=item[3],count=['solicitacoes','novos'].includes(tipo)?'…':['ativos','inativos','excluidos'].includes(tipo)?wcFiltered(tipo).length:undefined;const row=wcRow(item,()=>wcAction(item,key,index),count);list.append(row);if(tipo==='solicitacoes')wcCountSolicitacoes(row.querySelector('.wc-count'));if(tipo==='novos')wcCountNovos(row.querySelector('.wc-count'))});wcContent.append(list)}
-function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){if(kind==='solicitacoes')wcSolicitacoesCadastro('notificacoes',0);else wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(key==='anamnese'&&kind==='pendencias'){if(value==='pedidos'||value==='avaliacoes')wcDetalhePendenciaAnamnese(value);else wcPendenciasAnamnese();}else if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
+function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){if(kind==='solicitacoes')wcSolicitacoesCadastro('notificacoes',0);else wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(key==='coins'&&kind==='niveis'){wcLegacyNiveis(value);}else if(key==='coins'&&kind==='conquistas'&&value){wcConquistasAluno(value,parts[3],undefined,parts[4]);}else if(key==='anamnese'&&kind==='pendencias'){if(value==='pedidos'||value==='avaliacoes')wcDetalhePendenciaAnamnese(value);else wcPendenciasAnamnese();}else if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
 $('wcAtualizarNotificacoes').onclick=wcCentralNotificacoes;
 let wcUltimaConsultaNotificacoes=0;
 window.addEventListener('focus',()=>{
