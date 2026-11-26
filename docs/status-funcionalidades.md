@@ -45,6 +45,7 @@ Atualizado em 2026-11-21. Este documento distingue código publicado de testes e
 - O detalhe do WandCoach concentra Conquistas, Gastos do aluno, Missões e metas do aluno, Histórico de XP e energia e Reconhecimento de alunos. A validação de treinos fica em Conquistas. A interface não oferece a antiga validação em lote de acompanhamento. A função de crédito continua no banco, sem acionamento pelos formulários atuais de acompanhamento.
 - As centrais atuais exibem avisos de XP e energia, insígnias, níveis, missões, resgates e reconhecimento. O reconhecimento permanece restrito ao personal.
 - O cartão WAND LEGACY substitui o indicador de adesão no painel do personal e mostra a quantidade de alunos com novidades de nível ou insígnia não lidas. A migração `20261126090006_wand_notificacoes_contextuais.sql` acrescenta avisos de missão atribuída ao aluno e de treino concluído e crédito confirmado ao personal. Os links abrem as seções correspondentes.
+- O cartão WAND LEGACY segue a composição dos quatro indicadores do painel, exibindo o contador também quando o total é zero.
 - Os dois perfis usam o escudo oficial transparente acima do nível atual. O formulário de missões do personal separa título, categoria e ação em campos rotulados, organizados lado a lado no desktop e empilhados no celular.
 - A validação autenticada com o esquema hospedado segue pendente. O projeto de produção não tem branch de homologação, e o Supabase recusou sua criação no plano atual. A migração foi executada em PostgreSQL isolado com um esquema de teste. A publicação segue pendente.
 
