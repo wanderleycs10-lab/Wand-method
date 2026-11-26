@@ -207,6 +207,54 @@ main,section,article{min-width:0}
   justify-self: start;
 }
 .wc-legacy-rules .wc-legacy-fields button.primary { grid-column: 1 / -1; }
+.wc-legacy-recognition-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  max-width: 46rem;
+}
+#wcInner .wc-legacy-recognition-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px 12px;
+  margin: 0;
+  padding: 10px 12px;
+}
+#wcInner .wc-legacy-recognition-row label {
+  min-width: 0;
+  margin: 0;
+  font-size: .9rem;
+}
+#wcInner .wc-legacy-recognition-row input:not([type="checkbox"]) {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  margin: 4px 0 0;
+  padding: 5px 8px;
+}
+.wc-legacy-recognition-status {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  gap: 5px;
+}
+.wc-legacy-recognition-status input { width: auto; margin: 0; }
+#wcInner .wc-legacy-recognition-row button.primary {
+  width: auto;
+  min-height: 36px;
+  padding: 6px 14px;
+  justify-self: start;
+}
+.wc-legacy-recognition-row [role="status"] { grid-column: 1 / -1; margin: 0; }
+.wc-legacy-recognition-row [role="status"]:empty { display: none; }
+@media (min-width: 650px) {
+  #wcInner .wc-legacy-recognition-row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+}
 @media (min-width: 720px) {
   .wc-legacy-catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wc-legacy-rules .wc-legacy-fields {
