@@ -31,6 +31,7 @@ Atualizado em 2026-11-21. Este documento distingue código publicado de testes e
 
 - O primeiro piloto da biblioteca é o supino reto com barra. Ele aparece na biblioteca e na prescrição do personal e no treino que contém o exercício no perfil do aluno. O modelo anatômico renderizado aparece em dois quadros, alto e baixo. É possível alternar manualmente entre eles ou reproduzir a sequência em GIF. A ficha PDF usa os mesmos quadros e inclui um link para a sequência.
 - O registro do exercício estava sem mídia no banco. O aplicativo associa o piloto a esse registro na biblioteca, sem alterar os links dos outros exercícios.
+- A biblioteca apresenta modelos feminino e masculino para dez exercícios. A produção cobre os seis exercícios já prescritos e adiciona Elevação lateral com halteres, Panturrilha em pé, Remada curvada com barra e Desenvolvimento sentado com halteres. As sequências alternam duas posições, que também podem ser consultadas separadamente.
 
 ## WAND LEGACY no WandCoach
 
