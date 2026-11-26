@@ -133,6 +133,7 @@ export function renderLegacy(container, summary) {
   const empty = document.createElement('p');
   empty.textContent = 'Nenhuma insígnia conquistada até agora.';
   const levels = document.createElement('details');
+  levels.dataset.legacyAchievements = '';
   const levelsHeading = document.createElement('summary');
   levelsHeading.textContent = 'Conquistas';
   const levelsList = document.createElement('ul');
@@ -152,7 +153,7 @@ export function renderLegacyRewards(container, summary, { request, decide }) {
   const section = document.createElement('details');
   section.dataset.legacyRewards = '';
   const heading = document.createElement('summary');
-  heading.textContent = request ? 'Central de recompensas' : 'Resgates do aluno';
+  heading.textContent = request ? 'Central de recompensas' : 'Gastos do aluno';
   section.append(heading);
   const status = document.createElement('p');
   status.setAttribute('role', 'status');

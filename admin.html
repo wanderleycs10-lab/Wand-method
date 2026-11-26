@@ -131,7 +131,7 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
 .wand-drawer .wc-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.wand-drawer .wc-tile{min-height:115px!important}
 #wcHome .wc-overview button.wc-overview-item{cursor:pointer!important}
 @media(max-width:400px){.wand-dock small{font-size:9px}.wand-drawer .wc-name{font-size:12px}}
-</style><link rel="stylesheet" href="./wand-premium.css?v=legacy-detalhe-1"><style id="wandcoach-menu-unificado">/* Padronização visual: menu aberto e ilha inferior alinhados ao painel premium. */
+</style><link rel="stylesheet" href="./wand-premium.css?v=legacy-reconhecimento-1"><style id="wandcoach-menu-unificado">/* Padronização visual: menu aberto e ilha inferior alinhados ao painel premium. */
 .wand-dock button{background:linear-gradient(150deg,#353535 0%,#242424 28%,#111 78%,#28221b 100%)!important;border:1px solid #a5a5a8!important;border-radius:17px!important;box-shadow:inset 0 2px 1px #ffffff75,inset 0 -3px 6px #0008,0 3px 8px #0009!important;color:#efbd55!important}
 .wand-dock button small{color:#f4ede1!important}
 .wand-drawer .wc-tile{background:linear-gradient(145deg,#33220c 0%,#17130e 34%,#0b0b0b 72%,#2b1d0b 100%)!important;border:1px solid #c99b45!important;border-radius:23px!important;box-shadow:inset 0 2px 1px #ffe1a26e,inset 0 -3px 8px #d19b2840,0 9px 17px #000a,0 0 13px #d4a32b28!important}
@@ -224,7 +224,7 @@ header .wc-brand-wordmark span{font-weight:300;color:#f0e9db}
 </div><section id="wcAlteracoesSaude" class="card" hidden style="margin:18px 0;padding:12px;border:1px solid #a88748;border-radius:16px"><h3><button type="button" id="wcAbrirNotificacoes" aria-expanded="false">🔔 Acompanhamento <span id="wcNotificacoesContador"></span></button></h3><div id="wcNotificacoesDetalhes" hidden><p>Pendências dos alunos para revisar.</p><p id="wcAlteracoesEstado">Carregando alterações...</p><div id="wcAlteracoesLista"></div><button type="button" id="wcAtualizarAlteracoes">Atualizar</button></div></section><button id="sair" type="button">Sair da conta</button></section></main><footer>WAND METHOD · WandCoach</footer>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import {LEGACY_LEVELS, legacyLevelCard, legacyProgress, loadLegacy, renderLegacy, renderLegacyRewards, renderLegacyMissions, renderLegacyHistory} from './wand-legacy.js?v=legacy-detalhe-1';
+import {LEGACY_LEVELS, legacyLevelCard, legacyProgress, loadLegacy, renderLegacy, renderLegacyRewards, renderLegacyMissions, renderLegacyHistory} from './wand-legacy.js?v=legacy-reconhecimento-1';
 const supabase=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
 const status=document.getElementById('status'),painel=document.getElementById('painel');let alunosCarregados=[],pedidosCarregados=[];
 const $=id=>document.getElementById(id);
@@ -552,7 +552,10 @@ async function wcConquistasAluno(id,nivel='',nome='',destino=''){
   if(resumo.isConnected)$('wcSubtitle').textContent=data.nome||nome;
   const rewardsOpen=resumo.querySelector('[data-legacy-rewards]')?.open;
   const missionsOpen=resumo.querySelector('[data-legacy-missions]')?.open;
+  const conquistasOpen=resumo.querySelector('[data-legacy-achievements]')?.open;
   renderLegacy(resumo,data);
+  const conquistas=resumo.querySelector('[data-legacy-achievements]');
+  conquistas.open=Boolean(conquistasOpen)||destino==='conquistas';
   const rewards=renderLegacyRewards(resumo,data,{decide:async(resgate,estado)=>{
    const {error}=await supabase.rpc('wand_legacy_decidir_resgate',{p_aluno_id:id,p_resgate_id:resgate,p_estado:estado});
    if(error)throw error;
@@ -577,17 +580,6 @@ async function wcConquistasAluno(id,nivel='',nome='',destino=''){
   missions.open=Boolean(missionsOpen)||destino==='missoes';
   renderLegacyHistory(resumo,data.historico);
   wcLegacyPresentes(resumo,id,destino==='reconhecimento');
-  resumo.append(wcRow(['Validar acompanhamento','Conferir anamnese, avaliações liberadas e check-ins','legacy'],async event=>{
-   const botao=event.currentTarget;
-   botao.disabled=true;
-   try{
-    const {error}=await supabase.rpc('wand_legacy_validar_acompanhamento',{p_aluno_id:id});
-    if(error)throw error;
-    await atualizar();
-    status.textContent='Acompanhamento conferido.';
-   }catch{status.textContent='Não foi possível conferir o acompanhamento.';}
-   finally{botao.disabled=false;}
-  }));
   if(!data.treinos_para_validar.length)return;
   const revisao=document.createElement('details');
   const titulo=document.createElement('summary');
@@ -609,16 +601,18 @@ async function wcConquistasAluno(id,nivel='',nome='',destino=''){
    });
    revisao.append(botao);
   }
-  resumo.append(revisao);
+  conquistas.append(revisao);
  }
  try{await atualizar();status.textContent='';}
  catch{status.textContent='XP, WAND ENERGY e insígnias indisponíveis. Confira o vínculo do aluno ou tente novamente.';}
 }
 function wcLegacyPresentes(container,alunoId,abrir=false){
  const area=document.createElement('details');
+ area.className='wc-legacy-config wc-legacy-recognition';
  const titulo=document.createElement('summary');
  titulo.textContent='Reconhecimento de alunos';
  const conteudo=document.createElement('div');
+ conteudo.className='wc-legacy-recognition-list';
  area.append(titulo,conteudo);
  container.append(area);
  area.addEventListener('toggle',async()=>{
@@ -632,7 +626,7 @@ function wcLegacyPresentes(container,alunoId,abrir=false){
     const nivel=index+1;
     const registro=data.registros.find(item=>item.nivel===nivel);
     const form=document.createElement('form');
-    form.className='card';
+    form.className='card wc-legacy-recognition-row';
     const nome=document.createElement('label');
     nome.textContent=level.roman+' — '+level.name+' ';
     const presente=document.createElement('input');
@@ -641,11 +635,14 @@ function wcLegacyPresentes(container,alunoId,abrir=false){
     presente.value=registro?.descricao??data.sugestoes[index];
     nome.append(presente);
     const estado=document.createElement('label');
+    estado.className='wc-legacy-recognition-status';
     const entregue=document.createElement('input');
     entregue.type='checkbox';
     entregue.checked=Boolean(registro?.entregue);
     estado.append(entregue,' Entregue');
     const salvar=document.createElement('button');
+    salvar.type='submit';
+    salvar.className='primary';
     salvar.textContent='Salvar';
     const status=document.createElement('p');
     status.setAttribute('role','status');
@@ -657,6 +654,7 @@ function wcLegacyPresentes(container,alunoId,abrir=false){
       const {error}=await supabase.rpc('wand_legacy_salvar_presente',{p_aluno_id:alunoId,p_nivel:nivel,p_descricao:presente.value,p_entregue:entregue.checked});
       if(error)throw error;
       status.textContent=entregue.checked?'Entrega registrada.':'Presente marcado como pendente.';
+      if(form.isConnected)await wcLegacySaved();
       await carregarHistorico();
      }catch{status.textContent='Não foi possível atualizar o reconhecimento.';}
      finally{salvar.disabled=false;}
@@ -664,6 +662,7 @@ function wcLegacyPresentes(container,alunoId,abrir=false){
     conteudo.append(form);
    }
    const historico=document.createElement('details');
+   historico.className='wc-legacy-config wc-legacy-recognition-history';
    const rotulo=document.createElement('summary');
    rotulo.textContent='Histórico de reconhecimento';
    const lista=document.createElement('ul');
