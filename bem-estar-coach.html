@@ -34,7 +34,14 @@ async function detail(a){
  const box=make('div',undefined,content,'panel');make('h2',(labels[mode]||labels.aluno)[0],box);
  const status=make('p','Consultando registros autorizados…',box);
  try{
-  const {data,error}=await db.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(a.id)});
+  if(mode==='feminina'){
+ const {data:c,error:ce}=await db.rpc('wand_coach_ciclo_aluno',{p_aluno_id:Number(a.id)});if(ce)throw ce;status.remove();
+ if(!c?.autorizado){make('p','Informações menstruais não compartilhadas pela aluna.',box);return}
+ const fmt=d=>d?d.split('-').reverse().join('/'):'Em andamento';
+ if(!c.ciclos?.length){make('p','A aluna ainda não registrou seu ciclo menstrual.',box);return}
+ for(const ciclo of c.ciclos){const item=make('details',undefined,box,'checkin');make('summary',fmt(ciclo.inicio)+' — '+fmt(ciclo.termino),item);const body=make('div',undefined,item,'checkin-body');if(!ciclo.sintomas?.length)make('p','Nenhum sintoma registrado neste período.',body);for(const r of ciclo.sintomas||[]){make('p',fmt(r.dia)+' · Cólicas: '+(r.colica??'Não informado')+(r.colica!=null?'/5':''),body);if(r.observacoes)make('p',r.observacoes,body)}}return;
+ }
+ const {data,error}=await db.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(a.id)});
   if(error)throw error;
   const bem=data||{};status.remove();
   if(!bem.ativo){make('p','O aluno não ativou o acompanhamento de bem-estar.',box);return}
@@ -52,7 +59,7 @@ async function detail(a){
     if(registro.observacoes)make('p',registro.observacoes,body);
     if(registro.pedir_ajuste)make('p','Solicitação de conversa sobre adaptação registrada. A aprovação deve ser feita no fluxo próprio.',body);
    }
-   if(bem.ciclo_compartilhado&&registro.menstruando!==null&&registro.menstruando!==undefined){
+   if(mode!=='checkins'&&bem.ciclo_compartilhado&&registro.menstruando!==null&&registro.menstruando!==undefined){
     make('p','Menstruação: '+(registro.menstruando?'Sim':'Não')+(registro.colica!==null&&registro.colica!==undefined?' · Cólicas: '+registro.colica+'/5':''),body);
    }else if(mode==='feminina'){make('p','Sem informações menstruais compartilhadas nesta data.',body)}
   }
