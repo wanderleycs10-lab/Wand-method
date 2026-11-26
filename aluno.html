@@ -1946,9 +1946,9 @@ function wbRenderCalendario(){
  const ciclos=[...wbCiclos].filter(c=>c.inicio).sort((a,b)=>a.inicio.localeCompare(b.inicio));
  const starts=ciclos.map(c=>c.inicio);
  const diffs=[];for(let i=1;i<starts.length;i++){const d=(Date.parse(starts[i]+'T12:00:00Z')-Date.parse(starts[i-1]+'T12:00:00Z'))/86400000;if(d>=18&&d<=60)diffs.push(d)}
- const media=diffs.length?Math.round(diffs.reduce((a,b)=>a+b,0)/diffs.length):null;
+ const media=diffs.length>=2?Math.round(diffs.reduce((a,b)=>a+b,0)/diffs.length):null;
  const hoje=wbDate();let proximo=null;
- if(media&&starts.length){proximo=new Date(starts.at(-1)+'T12:00:00Z');while(proximo.toISOString().slice(0,10)<hoje)proximo.setUTCDate(proximo.getUTCDate()+media)}
+ if(media&&starts.length){proximo=new Date(starts.at(-1)+'T12:00:00Z');proximo.setUTCDate(proximo.getUTCDate()+media);while(proximo.toISOString().slice(0,10)<hoje)proximo.setUTCDate(proximo.getUTCDate()+media)}
  const fmt=x=>x?new Date(x+'T12:00:00Z').toLocaleDateString('pt-BR',{timeZone:'UTC'}):'—';
  const registrado=new Set();for(const c of ciclos){const fim=c.termino||c.inicio;let d=new Date(c.inicio+'T12:00:00Z');const last=new Date(fim+'T12:00:00Z');while(d<=last){registrado.add(d.toISOString().slice(0,10));d.setUTCDate(d.getUTCDate()+1)}}
  const agora=new Date();let ano=agora.getFullYear(),mes=agora.getMonth();
