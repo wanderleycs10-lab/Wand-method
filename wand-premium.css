@@ -69,6 +69,12 @@ main,section,article{min-width:0}
 .wand-primary-row::after{content:'›';grid-column:3;grid-row:1/3;color:#f3c95f;font-size:23px;justify-self:end}
 .wand-primary-row:focus-visible{outline:2px solid #ffe08a;outline-offset:2px}
 .wand-primary-row[aria-expanded="true"]{border-color:#ffe08a!important}
+.wand-legacy-student-logo {
+  display: block;
+  width: min(100%, 14rem);
+  height: auto;
+  margin: 0 auto 1rem;
+}
 .wand-legacy-shield {
   display: grid;
   justify-items: center;
