@@ -131,7 +131,7 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
 .wand-drawer .wc-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.wand-drawer .wc-tile{min-height:115px!important}
 #wcHome .wc-overview button.wc-overview-item{cursor:pointer!important}
 @media(max-width:400px){.wand-dock small{font-size:9px}.wand-drawer .wc-name{font-size:12px}}
-</style><link rel="stylesheet" href="./wand-premium.css?v=legacy-levels-2"><style id="wandcoach-menu-unificado">/* Padronização visual: menu aberto e ilha inferior alinhados ao painel premium. */
+</style><link rel="stylesheet" href="./wand-premium.css?v=legacy-config-2"><style id="wandcoach-menu-unificado">/* Padronização visual: menu aberto e ilha inferior alinhados ao painel premium. */
 .wand-dock button{background:linear-gradient(150deg,#353535 0%,#242424 28%,#111 78%,#28221b 100%)!important;border:1px solid #a5a5a8!important;border-radius:17px!important;box-shadow:inset 0 2px 1px #ffffff75,inset 0 -3px 6px #0008,0 3px 8px #0009!important;color:#efbd55!important}
 .wand-dock button small{color:#f4ede1!important}
 .wand-drawer .wc-tile{background:linear-gradient(145deg,#33220c 0%,#17130e 34%,#0b0b0b 72%,#2b1d0b 100%)!important;border:1px solid #c99b45!important;border-radius:23px!important;box-shadow:inset 0 2px 1px #ffe1a26e,inset 0 -3px 8px #d19b2840,0 9px 17px #000a,0 0 13px #d4a32b28!important}
@@ -422,7 +422,7 @@ async function wcLegacyConfig(section){
  wcOpen(catalogo?'Catálogo de recompensas':'Regras de XP e energia',
   catalogo?'Gerencie o catálogo compartilhado do WAND METHOD.':'Os valores valem para os próximos créditos que você validar.');
  const lista=document.createElement('div');
- lista.className='wc-list';
+ lista.className='wc-list '+(catalogo?'wc-legacy-catalog':'wc-legacy-rules');
  lista.textContent='Carregando...';
  wcContent.append(lista);
  try{
@@ -436,9 +436,11 @@ async function wcLegacyConfig(section){
    const titulo=document.createElement('summary');
    titulo.textContent=catalogo?(item.nome||'Nova recompensa'):wcLegacyRuleTitle(item.codigo);
    const form=document.createElement('form');
+   form.className='wc-legacy-fields';
    const campos={};
    function campo(key,label,type,required=false){
     const wrapper=document.createElement('label');
+    wrapper.dataset.field=key;
     wrapper.textContent=label+' ';
     const input=document.createElement('input');
     input.type=type;
@@ -447,7 +449,7 @@ async function wcLegacyConfig(section){
     if(type==='checkbox')input.checked=Boolean(item[key]);
     else input.value=item[key]??'';
     wrapper.append(input);
-    form.append(wrapper,document.createElement('br'));
+    form.append(wrapper);
     campos[key]=input;
    }
    if(catalogo){
