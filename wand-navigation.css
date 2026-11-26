@@ -147,7 +147,49 @@ body.wand-navigation-standalone .wand-panel-surface {
   background: linear-gradient(145deg, #252322, #181818 35%, #111 78%, #20190e);
   box-shadow: inset 0 1px #e9edf359, 0 8px 19px #0008;
 }
+#homeView .wand-overview > button.wand-overview-item,
+#wcHome .wc-overview > button.wc-overview-item {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start !important;
+  gap: 5px;
+  min-height: 154px !important;
+  padding: 17px 13px !important;
+  border: 1px solid #c79c45 !important;
+  border-radius: 22px !important;
+  background: linear-gradient(145deg, #33220c, #090909 65%, #281a0b) !important;
+  box-shadow: inset 0 1px #ffe6a388, inset 0 -2px 8px #efb94055, 0 9px 18px #000b !important;
+  text-align: left;
+}
+#homeView .wand-overview .wand-metric-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 0;
+  gap: 5px;
+  font-size: 13px;
+}
+#homeView .wand-overview .wand-metric-heading svg,
+#wcHome .wc-overview .wc-kpi-icon svg {
+  width: 26px;
+  height: 26px;
+  color: #f6c45c;
+}
+#homeView .wand-overview .wand-overview-value,
+#wcHome .wc-overview .wc-overview-item > strong {
+  margin: 3px 0;
+  color: #ffce5d !important;
+  font-size: clamp(19px, 3.5vw, 32px);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
 @media (max-width: 400px) {
+  #homeView .wand-overview > button.wand-overview-item,
+  #wcHome .wc-overview > button.wc-overview-item {
+    min-height: 140px !important;
+    padding: 11px 8px !important;
+  }
   .wand-navigation-dock > :is(a,button) small { font-size: 9px; }
   body .wand-navigation-drawer { padding: 11px; }
   body .wand-navigation-grid > :is(.wand-navigation-tile,.wc-tile,.nav-tile) { padding: 10px !important; }
