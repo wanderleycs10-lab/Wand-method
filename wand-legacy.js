@@ -103,7 +103,7 @@ export function renderLegacy(container, summary, { currentLevelOnly = false } = 
   const shield = document.createElement(currentLevelOnly ? 'img' : 'div');
   if (currentLevelOnly) {
     shield.className = 'wand-legacy-student-logo';
-    shield.src = './imagens/wand-legacy-oficial.png';
+    shield.src = './imagens/wand-legacy-transparente.png';
     shield.alt = 'WAND LEGACY';
   } else {
     shield.className = 'wand-legacy-shield';
