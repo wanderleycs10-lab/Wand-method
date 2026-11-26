@@ -322,6 +322,10 @@ function wcBackContextual(){
   wcLegacyNiveis(partes[3]);
   return;
  }
+ if(partes[0]==='coins'&&partes[1]==='niveis'&&partes[2]){
+  wcLegacyNiveis();
+  return;
+ }
  if(partes[0]==='anamnese'&&partes[1]==='pendencias'){
   if(partes.length>2)wcPendenciasAnamnese();else wcMenu('anamnese');
   return;
@@ -382,11 +386,14 @@ function wcNotificacoesCadastro(pedido){
  box.append(title,desc,email,whats,btn);return box;
 }
 async function wcLegacyNiveis(nivel=''){
- wcSetRoute(['coins','niveis',nivel]);
- wcOpen('Conquistas','Escolha um nível para ver os alunos e suas conquistas.');
+ const selecionado=LEGACY_LEVELS.find(level=>level.roman===nivel);
+ const tituloNivel=selecionado?'Nível '+selecionado.roman+' — '+selecionado.name:'Conquistas';
+ wcSetRoute(selecionado?['coins','niveis',selecionado.roman]:['coins','niveis']);
+ wcOpen(tituloNivel,selecionado?selecionado.description:'Escolha um nível para ver os alunos e suas conquistas.');
+ if(selecionado)for(const id of ['wcBackTop','wcBackBottom'])$(id).textContent='← Voltar aos níveis';
  const lista=document.createElement('div');
  lista.className='wc-list';
- lista.textContent='Carregando níveis...';
+ lista.textContent=selecionado?'Carregando alunos...':'Carregando níveis...';
  wcContent.append(lista);
  try{
   const {data,error}=await supabase.rpc('wand_legacy_alunos');
@@ -394,27 +401,25 @@ async function wcLegacyNiveis(nivel=''){
   const grupos=new Map(LEGACY_LEVELS.map(level=>[level.roman,[]]));
   for(const aluno of data)grupos.get(legacyProgress(Number(aluno.xp)).current.roman).push(aluno);
   lista.replaceChildren();
+  if(selecionado){
+   const alunos=grupos.get(selecionado.roman);
+   for(const aluno of alunos){
+    lista.append(wcRow([aluno.nome||'Aluno sem nome',Number(aluno.xp).toLocaleString('pt-BR')+' XP','legacy'],
+     ()=>wcConquistasAluno(aluno.id,selecionado.roman,aluno.nome)));
+   }
+   if(!alunos.length)lista.textContent='Nenhum aluno neste nível.';
+   return;
+  }
   for(const level of LEGACY_LEVELS){
    const grupo=grupos.get(level.roman);
-   const detalhe=document.createElement('details');
-   detalhe.open=nivel===level.roman;
-   const titulo=document.createElement('summary');
-   titulo.className='wc-row wand-legacy-level-toggle';
-   titulo.append(legacyLevelCard(document,level,grupo.length+(grupo.length===1?' aluno':' alunos')));
-   detalhe.append(titulo);
-   for(const aluno of grupo){
-    detalhe.append(wcRow([aluno.nome||'Aluno sem nome',Number(aluno.xp).toLocaleString('pt-BR')+' XP','legacy'],
-     ()=>wcConquistasAluno(aluno.id,level.roman,aluno.nome)));
-   }
-   if(!grupo.length){
-    const vazio=document.createElement('p');
-    vazio.textContent='Nenhum aluno neste nível.';
-    detalhe.append(vazio);
-   }
-   detalhe.addEventListener('toggle',()=>{if(detalhe.open&&lista.isConnected)wcSetRoute(['coins','niveis',level.roman]);});
-   lista.append(detalhe);
+   const botao=document.createElement('button');
+   botao.type='button';
+   botao.className='wc-row wand-legacy-level-toggle';
+   botao.append(legacyLevelCard(document,level,grupo.length+(grupo.length===1?' aluno':' alunos')));
+   botao.onclick=()=>wcLegacyNiveis(level.roman);
+   lista.append(botao);
   }
- }catch{lista.textContent='Não foi possível carregar os níveis. Abra Conquistas novamente para tentar.';}
+ }catch{lista.textContent=selecionado?'Não foi possível carregar os alunos deste nível.':'Não foi possível carregar os níveis. Abra Conquistas novamente para tentar.';}
 }
 async function wcLegacyConfig(section){
  const catalogo=section==='legacy-catalogo';
@@ -540,7 +545,7 @@ function wcLegacySaved(){
 async function wcConquistasAluno(id,nivel='',nome='',destino=''){
  wcSetRoute(['coins','conquistas',String(id),nivel,destino]);
  wcOpen('Conquistas do aluno',nome);
- for(const id of ['wcBackTop','wcBackBottom'])$(id).textContent='← Voltar aos níveis';
+ for(const id of ['wcBackTop','wcBackBottom'])$(id).textContent=nivel?'← Voltar aos alunos do nível':'← Voltar aos níveis';
  const resumo=document.createElement('section');
  resumo.className='card';
  const status=document.createElement('p');

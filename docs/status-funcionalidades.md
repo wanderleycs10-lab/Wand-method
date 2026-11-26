@@ -26,7 +26,7 @@ Atualizado em 2026-11-21. Este documento distingue código publicado de testes e
 
 - Em Conquistas, o personal vê os dez níveis e os alunos vinculados em cada nível, agrupados pelo XP registrado. Ao selecionar um aluno, abre o detalhe dentro do WAND LEGACY. Ao voltar, o nível de origem é reaberto.
 - Conquistas concentra também os saldos dos alunos. Nas configurações, os títulos têm inicial maiúscula, o indicador de expansão fica à direita e Salvar usa o padrão dourado. Após a gravação, a confirmação ocupa a tela do aplicativo por alguns segundos e retorna à mesma área.
-- O personal vê os dez níveis em cartões compactos na seleção de alunos. Ao abrir o detalhe individual, personal e aluno veem apenas o cartão do nível atual e as insígnias conquistadas.
+- O personal vê os dez níveis em cartões compactos. Selecionar um nível abre uma tela exclusiva com os alunos daquele nível. Ao abrir o detalhe individual, personal e aluno veem apenas o cartão do nível atual e as insígnias conquistadas.
 - O escudo com raio identifica o WAND LEGACY nos menus, cartões e notificações. As insígnias mantêm seus símbolos próprios.
 - As configurações do personal usam cartões compactos. O catálogo abre em duas colunas no desktop, e os campos XP e WAND ENERGY aparecem lado a lado em qualquer tela. O formulário abre no próprio cartão.
 - A migração `20261126025347_wand_legacy_progressao.sql` cria o registro de gamificação. Os painéis consultam o resumo por aluno, com XP acumulado, WAND ENERGY, nível, prestígio e insígnias concedidas.
