@@ -41,7 +41,7 @@
       const {data,error}=await db.from('wand_solicitacoes_fotograficas')
         .select('id,criada_em').eq('aluno_id',alunoId)
         .eq('status','pendente').order('criada_em',{ascending:false}).limit(20);
-      if(error)throw error;
+      if(error)console.warn('[WAND] Solicitações fotográficas indisponíveis',error);
       // A avaliacao fotografica ja mostra o pedido no menu. Se a
       // consulta paralela estiver atrasada, manter o mesmo aviso na central.
       const pedidos=(data||[]).length ? data : (
@@ -67,7 +67,19 @@
       if(!fisica.error)for(const p of fisica.data||[])itens.push({titulo:'Avaliação física solicitada',detalhe:'Toque para enviar suas medidas ao treinador.',abrir:()=>location.assign('minha-avaliacao-fisica.html')});
       else console.warn('[WAND] Avaliações físicas indisponíveis',fisica.error);
       const internas=await db.rpc('wand_minhas_notificacoes');
-      if(!internas.error)for(const p of internas.data||[])if(p.tipo==='solicitacao_ciclo'&&!p.lida_em)itens.push({titulo:'Solicitação de registro menstrual',detalhe:'Seu treinador solicitou a atualização do registro. O preenchimento é voluntário.',abrir:async()=>{await db.rpc('wand_ler_notificacao',{p_id:p.id});window.wandAbrirRegistroMenstrual?.();atualizar();}});
+      if(!internas.error)for(const p of internas.data||[]){
+        if(p.lida_em)continue;
+        const destino={
+          solicitacao_ciclo:['Solicitação de registro menstrual','O preenchimento é voluntário.',()=>window.wandAbrirRegistroMenstrual?.()],
+          adaptacao_aprovada:['Adaptação de treino aprovada','Ver treinos.',()=>window.wandMostrarVista?.('treinos')],
+          adaptacao_programada:['Adaptação de treino programada','Ver treinos.',()=>window.wandMostrarVista?.('treinos')]
+        }[p.tipo];
+        if(destino)itens.push({titulo:destino[0],detalhe:destino[1],abrir:async()=>{
+          destino[2]();
+          await db.rpc('wand_ler_notificacao',{p_id:p.id});
+          atualizar();
+        }});
+      }
       const legacy=await db.rpc('wand_legacy_avisos');
       if(!legacy.error)for(const aviso of legacy.data||[])itens.push({
         titulo:aviso.titulo,detalhe:'Abrir WAND LEGACY',legacy:true,

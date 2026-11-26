@@ -210,7 +210,7 @@ header .wc-brand-wordmark span{font-weight:300;color:#f0e9db}
 <div class="wc-overview" aria-label="Indicadores administrativos">
  <button type="button" class="wc-overview-item" id="wcGoAlunos"><span class="wc-kpi-icon" data-icon="users"></span><span>Meus alunos</span><strong id="wcResumoAlunos">—</strong><small>Ativos</small></button>
  <button type="button" class="wc-overview-item" id="wcGoTreinos"><span class="wc-kpi-icon" data-icon="dumbbell"></span><span>Treinos publicados</span><strong id="wcResumoTreinos">—</strong><small id="wcTreinosNota">Programas publicados</small></button>
- <button type="button" class="wc-overview-item" id="wcGoAdesao"><span class="wc-kpi-icon" data-icon="adherence"></span><span>Taxa de adesão</span><strong id="wcResumoAdesao">—</strong><small>Indicador a integrar</small></button>
+ <button type="button" class="wc-overview-item" id="wcGoLegacy"><span class="wc-kpi-icon" data-icon="legacy"></span><span>WAND LEGACY</span><strong id="wcResumoLegacy" hidden></strong><small id="wcResumoLegacyLegenda">Ver níveis e conquistas</small></button>
  <button type="button" class="wc-overview-item wc-kpi-alert" id="wcGoPrioridades"><span class="wc-kpi-icon" data-icon="studentAlert"></span><span>Alunos em atenção</span><strong id="wcResumoAtencao">—</strong><small>Adaptações pendentes</small></button>
 </div>
 <div class="wc-feature-grid"><section class="wc-feature-card"><div class="wc-feature-heading"><h3>🔔 Notificações pendentes <span id="wcNotificacoesCount" class="chip">…</span></h3><button type="button" id="wcAtualizarNotificacoes" class="secundario">Acessar</button></div><div id="wcNotificacoesInfo" class="wc-priority-list" aria-live="polite">Consultando notificações...</div></section><section class="wc-feature-card wc-demographics" aria-label="Perfil dos alunos"><h3>Perfil dos alunos</h3><p class="wc-demo-note">Distribuição dos alunos cadastrados <strong id="wcDemoTotal"></strong></p><h4>Distribuição por sexo</h4><div id="wcDemoSexo" class="wc-demo-bars"></div><h4>Faixa etária</h4><div id="wcDemoIdade" class="wc-demo-bars"></div></section></div>
@@ -224,7 +224,7 @@ header .wc-brand-wordmark span{font-weight:300;color:#f0e9db}
 </div><section id="wcAlteracoesSaude" class="card" hidden style="margin:18px 0;padding:12px;border:1px solid #a88748;border-radius:16px"><h3><button type="button" id="wcAbrirNotificacoes" aria-expanded="false">🔔 Acompanhamento <span id="wcNotificacoesContador"></span></button></h3><div id="wcNotificacoesDetalhes" hidden><p>Pendências dos alunos para revisar.</p><p id="wcAlteracoesEstado">Carregando alterações...</p><div id="wcAlteracoesLista"></div><button type="button" id="wcAtualizarAlteracoes">Atualizar</button></div></section><button id="sair" type="button">Sair da conta</button></section></main><footer>WAND METHOD · WandCoach</footer>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import {LEGACY_LEVELS, legacyLevelCard, legacyProgress, loadLegacy, renderLegacy, renderLegacyRewards, renderLegacyMissions, renderLegacyHistory} from './wand-legacy.js?v=legacy-reconhecimento-1';
+import {LEGACY_LEVELS, legacyLevelCard, legacyProgress, loadLegacy, renderLegacy, renderLegacyRewards, renderLegacyMissions, renderLegacyHistory} from './wand-legacy.js?v=legacy-avisos-1';
 const supabase=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
 const status=document.getElementById('status'),painel=document.getElementById('painel');let alunosCarregados=[],pedidosCarregados=[];
 const $=id=>document.getElementById(id);
@@ -560,7 +560,7 @@ async function wcConquistasAluno(id,nivel='',nome='',destino=''){
   const conquistasOpen=resumo.querySelector('[data-legacy-achievements]')?.open;
   renderLegacy(resumo,data);
   const conquistas=resumo.querySelector('[data-legacy-achievements]');
-  conquistas.open=Boolean(conquistasOpen)||destino==='conquistas';
+  conquistas.open=Boolean(conquistasOpen)||['conquistas','treinos'].includes(destino);
   const rewards=renderLegacyRewards(resumo,data,{decide:async(resgate,estado)=>{
    const {error}=await supabase.rpc('wand_legacy_decidir_resgate',{p_aluno_id:id,p_resgate_id:resgate,p_estado:estado});
    if(error)throw error;
@@ -584,9 +584,11 @@ async function wcConquistasAluno(id,nivel='',nome='',destino=''){
   });
   missions.open=Boolean(missionsOpen)||destino==='missoes';
   renderLegacyHistory(resumo,data.historico);
+  if(destino==='historico')resumo.querySelector('[data-legacy-history]').open=true;
   wcLegacyPresentes(resumo,id,destino==='reconhecimento');
   if(!data.treinos_para_validar.length)return;
   const revisao=document.createElement('details');
+  revisao.open=destino==='treinos';
   const titulo=document.createElement('summary');
   titulo.textContent='Treinos para validar';
   revisao.append(titulo);
@@ -953,13 +955,30 @@ async function wcBuscarNotificacoes(){
    .order('criada_em',{ascending:false})
    .limit(100);
   if(error)throw error;
-  for(const n of data||[]){
+ for(const n of data||[]){
    const aluno=alunosCarregados.find(a=>String(a.id)===String(n.aluno_id));
    entries.push({tipo:'fotografia',notificacaoId:n.id,date:n.criada_em||'',title:n.titulo||'Avaliação fotográfica recebida',
     detail:aluno?.nome_completo||'Aluno cadastrado',
     url:'avaliacao-fotografica-painel.html?id='+encodeURIComponent(n.aluno_id)+'&modo=consultar'});
   }
  }catch(e){console.warn('Falha ao consultar notificações fotográficas:',e);falhas++}
+ try{
+  const {data:{user},error:authError}=await supabase.auth.getUser();
+  if(authError||!user)throw authError||new Error('Sessão não autenticada');
+  const {data,error}=await supabase.from('wand_notificacoes_internas')
+   .select('id,aluno_id,tipo,titulo,criada_em')
+   .eq('destinatario_id',user.id)
+   .in('tipo',['treino_interrompido','solicitacao_ajuste'])
+   .is('lida_em',null).order('criada_em',{ascending:false}).limit(20);
+  if(error)throw error;
+  for(const aviso of data||[]){
+   const aluno=alunosCarregados.find(a=>String(a.id)===String(aviso.aluno_id));
+   const id=encodeURIComponent(aviso.aluno_id);
+   const url=aviso.tipo==='treino_interrompido'?'perfil-aluno.html?id='+id+'&aba=treinos':'bem-estar-coach.html?modo=aluno&aluno='+id;
+   entries.push({tipo:'interna',title:aviso.titulo,detail:aluno?.nome_completo||'Aluno cadastrado',
+    date:aviso.criada_em,url,avisoId:aviso.id});
+  }
+ }catch(e){console.warn('Falha ao consultar atividades dos alunos:',e);falhas++}
  try{
   const {data,error}=await supabase.rpc('wand_legacy_avisos');
   if(error)throw error;
@@ -972,6 +991,7 @@ async function wcBuscarNotificacoes(){
  entries.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));return {entries,falhas};
 }
 async function wcAtualizarNotificacoes(){
+ wcAtualizarResumoLegacy();
  const badge=$('wcNotificacoesCount'),area=$('wcNotificacoesInfo');if(!badge||!area)return;area.textContent='Consultando notificações...';
  const {entries,falhas}=await wcBuscarNotificacoes();badge.textContent=String(entries.length);area.replaceChildren();
  const p=document.createElement('p');p.className='wc-subtitle';p.textContent=entries.length?entries.length+' notificação(ões) para analisar. Clique em Acessar para resolver.':falhas?'Não foi possível consultar todas as notificações.':'Tudo em dia! Nenhuma notificação pendente no momento.';area.append(p);
@@ -1005,6 +1025,17 @@ async function wcAtualizarNotificacoes(){
   requestAnimationFrame(ajustar);
  }
 }
+async function wcAtualizarResumoLegacy(){
+ const destaque=$('wcResumoLegacy');
+ const legenda=$('wcResumoLegacyLegenda');
+ try{
+  const {data,error}=await supabase.rpc('wand_legacy_total_novas_conquistas');
+  if(error)return;
+  destaque.hidden=!(data>0);
+  destaque.textContent=data>0?String(data):'';
+  legenda.textContent=data===1?'Aluno com nova conquista':data>1?'Alunos com novas conquistas':'Ver níveis e conquistas';
+ }catch{ /* O atalho permanece disponível sem a contagem. */ }
+}
 async function wcCentralNotificacoes(){
  wcSetRoute(['notificacoes']);wcOpen('Notificações pendentes','Selecione uma notificação para analisar e resolver.');
  const area=document.createElement('div');area.className='wc-student-list';area.textContent='Carregando notificações...';wcContent.append(area);
@@ -1019,6 +1050,14 @@ async function wcCentralNotificacoes(){
   if(n.tipo==='legacy'){
    link.textContent='Abrir WAND LEGACY';
    link.addEventListener('click',()=>{supabase.rpc('wand_legacy_ler_aviso',{p_id:n.avisoId}).then(()=>wcAtualizarNotificacoes());});
+  }
+  if(n.tipo==='interna'){
+   link.textContent='Abrir atividade';
+   link.addEventListener('click',async event=>{
+    event.preventDefault();
+    await supabase.rpc('wand_ler_notificacao',{p_id:n.avisoId});
+    location.assign(n.url);
+   });
   }
   if(n.tipo==='fotografia'){
    const done=document.createElement('button');done.type='button';done.textContent='Marcar como lida';
@@ -1050,7 +1089,7 @@ window.addEventListener('focus',()=>{
  if($('painel')?.style.display==='block')wcAtualizarNotificacoes();
 });
 
-$('wcGoAlunos').onclick=()=>wcMenu('alunos');$('wcGoTreinos').onclick=()=>location.assign('gerenciar-treinos.html');$('wcGoAdesao').onclick=()=>wcMenu('evolucao');$('wcGoPrioridades').onclick=()=>wcMenu('bemestar');
+$('wcGoAlunos').onclick=()=>wcMenu('alunos');$('wcGoTreinos').onclick=()=>location.assign('gerenciar-treinos.html');$('wcGoLegacy').onclick=()=>wcMenu('coins');$('wcGoPrioridades').onclick=()=>wcMenu('bemestar');
 const wcDrawer=$('wcDrawer');function wcToggleDrawer(open){wcDrawer.hidden=!open;document.querySelector('[data-wc-dock="menu"]').setAttribute('aria-expanded',String(open));} $('wcDrawerClose').onclick=()=>wcToggleDrawer(false);
 for(const b of document.querySelectorAll('[data-wc-dock]'))b.onclick=()=>{const key=b.dataset.wcDock;if(key==='menu'){wcToggleDrawer(wcDrawer.hidden);return}wcToggleDrawer(false);if(key==='home')wcBack();else wcMenu(key==='evolucoes'?'evolucao':key)};
 
