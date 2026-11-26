@@ -244,7 +244,7 @@ chart:'<path d="M3 20V15M8 20v-8M13 20v-5M18 20v-9"/><path d="m3 13 6-5 4 3 8-8M
 adherence:'<path d="M3 21V13M8 21V9M13 21V15M18 21V4M2 21h20"/>',
 studentAlert:'<circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 9-5.2M18 12l5 9H13zM18 16v2M18 20h.01"/>',
 heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
-coin:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="6"/><path d="M14.5 9.5c-.6-.8-1.4-1.2-2.5-1.2-1.5 0-2.5.7-2.5 1.8 0 2.7 5 1 5 3.7 0 1.1-1 1.9-2.5 1.9-1.1 0-2-.4-2.7-1.2M12 7v2M12 15.7V17"/>',
+legacy:'<path d="M12 2 21 6 19 15 12 22 5 15 3 6Z"/><path d="m13 5-5 8h4l-1 6 5-9h-4z"/>',
 message:'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a9 9 0 0 1-.9-4A8.5 8.5 0 1 1 21 11.5Z"/>',
 book:'<path d="M4 4h16v16H4zM8 4v16M11 8h6M11 12h6"/>',
 play:'<circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4z"/>',
@@ -266,7 +266,7 @@ avaliacao:{name:'Avaliação Física',desc:'Medidas, resultados e reavaliações
 fotografica:{name:'Avaliação Fotográfica',desc:'Fotografias e análise postural',icon:'camera',items:[['Solicitar Fotografias','Pedir ao aluno imagens de frente, lado e costas','camera','fotografica-alunos'],['Análise Postural','Analisar imagens e registrar observações','activity','fotografica-alunos'],['Comparar Fotografias','Comparar registros de diferentes datas','book','fotografica-alunos'],['Autorizações Fotográficas','Gerenciar consentimentos e permissões','check','fotografica-alunos']]},
 evolucao:{name:'Evoluções',desc:'Gráficos dos alunos',icon:'chart',items:[['Selecionar Aluno','Gráficos individuais','users','students'],['Progressão de Cargas','Desempenho','chart','students'],['Frequência de Treinos','Adesão semanal e mensal','activity','students'],['Evolução Corporal','Peso e circunferências','chart','students']]},
 bemestar:{name:'Bem-estar',desc:'Saúde e acompanhamento',icon:'heart',items:[['Selecionar Aluno','Consultar informações','users','students'],['Check-ins','Bem-estar registrado','check','students'],['Saúde Feminina','Registros autorizados','heart','students'],['Histórico de Acompanhamentos','Solicitações e notificações anteriores','history','historico-notificacoes']]},
-coins:{name:'WAND LEGACY',desc:'Evolução, conquistas e recompensas',icon:'coin',items:[['Conquistas','Ver níveis, XP, WAND ENERGY e insígnias','coin','legacy-niveis'],['Catálogo de recompensas','Editar itens, estoque e validade','coin','legacy-catalogo'],['Regras de XP e energia','Configurar pontuação','coin','legacy-regras']]},
+coins:{name:'WAND LEGACY',desc:'Evolução, conquistas e recompensas',icon:'legacy',items:[['Conquistas','Ver níveis, XP, WAND ENERGY e insígnias','legacy','legacy-niveis'],['Catálogo de recompensas','Editar itens, estoque e validade','legacy','legacy-catalogo'],['Regras de XP e energia','Configurar pontuação','legacy','legacy-regras']]},
 comunicacao:{name:'Comunicação',desc:'Mensagens e suporte',icon:'message',items:[['Mensagens no App','Contato pelo perfil','message','students'],['WhatsApp','Contato direto pelo perfil','message','students'],['Notificações','Alertas e solicitações','activity','adaptacoes']]}
 };
 function wcRenderDemographics(){
@@ -403,7 +403,7 @@ async function wcLegacyNiveis(nivel=''){
    titulo.append(legacyLevelCard(document,level,grupo.length+(grupo.length===1?' aluno':' alunos')));
    detalhe.append(titulo);
    for(const aluno of grupo){
-    detalhe.append(wcRow([aluno.nome||'Aluno sem nome',Number(aluno.xp).toLocaleString('pt-BR')+' XP','coin'],
+    detalhe.append(wcRow([aluno.nome||'Aluno sem nome',Number(aluno.xp).toLocaleString('pt-BR')+' XP','legacy'],
      ()=>wcConquistasAluno(aluno.id,level.roman,aluno.nome)));
    }
    if(!grupo.length){
@@ -575,7 +575,7 @@ async function wcConquistasAluno(id,nivel='',nome='',destino=''){
   missions.open=Boolean(missionsOpen)||destino==='missoes';
   renderLegacyHistory(resumo,data.historico);
   wcLegacyPresentes(resumo,id,destino==='reconhecimento');
-  resumo.append(wcRow(['Validar acompanhamento','Conferir anamnese, avaliações liberadas e check-ins','coin'],async event=>{
+  resumo.append(wcRow(['Validar acompanhamento','Conferir anamnese, avaliações liberadas e check-ins','legacy'],async event=>{
    const botao=event.currentTarget;
    botao.disabled=true;
    try{
@@ -593,7 +593,7 @@ async function wcConquistasAluno(id,nivel='',nome='',destino=''){
   revisao.append(titulo);
   for(const sessao of data.treinos_para_validar){
    const dia=new Date(sessao.finalizada_em).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
-   const botao=wcRow(['Validar '+sessao.nome,dia,'coin'],async()=>{
+   const botao=wcRow(['Validar '+sessao.nome,dia,'legacy'],async()=>{
     botao.disabled=true;
     try{
      const {data:creditado,error}=await supabase.rpc('wand_legacy_validar_treino',{p_aluno_id:id,p_sessao_id:sessao.id});
