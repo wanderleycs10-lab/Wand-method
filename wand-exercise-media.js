@@ -16,30 +16,38 @@ export function showExercisePilot(container, exercise, source = 'library') {
   heading.style.cursor = 'pointer';
   const image = document.createElement('img');
   image.alt = 'Execução ilustrada do supino reto com barra. Peitoral maior em dourado intenso, tríceps e deltoide anterior em dourado suave.';
-  image.width = 840;
-  image.height = 532;
+  image.width = 1000;
+  image.height = 615;
   image.loading = 'lazy';
   image.style.cssText = 'display:block;width:100%;max-width:840px;max-height:55dvh;height:auto;object-fit:contain;margin:.75rem 0;border-radius:12px';
   const play = document.createElement('button');
   play.type = 'button';
   play.className = 'secundario';
   const pdf = document.createElement('a');
-  pdf.href = assetPath + '.pdf';
+  pdf.href = assetPath + '.pdf?v=2';
   pdf.target = '_blank';
   pdf.rel = 'noopener';
   pdf.textContent = 'Abrir ficha em PDF';
-  pdf.style.marginInlineStart = '.75rem';
-  let playing = false;
-  function setPlaying(next) {
-    playing = next;
-    image.src = assetPath + (next ? '.gif' : '-capa.png');
-    play.textContent = next ? 'Pausar animação' : 'Reproduzir animação';
+  const pose = document.createElement('button');
+  pose.type = 'button';
+  pose.className = 'secundario';
+  const controls = document.createElement('div');
+  controls.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;gap:8px';
+  controls.append(play, pose, pdf);
+  let mode = 'high';
+  function show(next) {
+    mode = next;
+    const file = { high: '-capa.png', low: '-posicao-baixa.png', loop: '.gif' }[mode];
+    image.src = assetPath + file + '?v=2';
+    play.textContent = mode === 'loop' ? 'Parar sequência' : 'Reproduzir sequência';
+    pose.textContent = mode === 'low' ? 'Ver posição alta' : 'Ver posição baixa';
   }
-  play.onclick = () => setPlaying(!playing);
-  details.addEventListener('toggle', () => { if (!details.open && playing) setPlaying(false); });
-  setPlaying(false);
+  play.onclick = () => show(mode === 'loop' ? 'high' : 'loop');
+  pose.onclick = () => show(mode === 'low' ? 'high' : 'low');
+  details.addEventListener('toggle', () => { if (!details.open && mode === 'loop') show('high'); });
+  show('high');
   details.open = source === 'library';
-  details.append(heading, image, play, pdf);
+  details.append(heading, image, controls);
   container.append(details);
   return true;
 }
