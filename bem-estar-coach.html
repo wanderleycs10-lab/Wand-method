@@ -36,15 +36,16 @@ async function detail(a){
  try{
   if(mode==='feminina'){
  const {data:c,error:ce}=await db.rpc('wand_coach_ciclo_aluno',{p_aluno_id:Number(a.id)});if(ce)throw ce;status.remove();
- if(!c?.autorizado){make('p','Informações menstruais não compartilhadas pela aluna.',box);return}
+ const solicitar=()=>{const b=make('button','Solicitar registro menstrual',box,'back');const msg=make('p','',box);b.onclick=async()=>{b.disabled=true;const {data,error}=await db.rpc('wand_coach_solicitar_ciclo',{p_aluno_id:Number(a.id)});msg.textContent=error?'Não foi possível enviar a solicitação.':data?'Solicitação enviada com sucesso.':'Já existe uma solicitação recente.';if(error)b.disabled=false;};};if(!c?.autorizado){make('p','Informações menstruais não compartilhadas pela aluna.',box);solicitar();return}
  const fmt=d=>d?d.split('-').reverse().join('/'):'Em andamento';
- if(!c.ciclos?.length){make('p','A aluna ainda não registrou seu ciclo menstrual.',box);return}
+ if(!c.ciclos?.length){make('p','A aluna ainda não registrou seu ciclo menstrual.',box);solicitar();return}
  for(const ciclo of c.ciclos){const item=make('details',undefined,box,'checkin');make('summary',fmt(ciclo.inicio)+' — '+fmt(ciclo.termino),item);const body=make('div',undefined,item,'checkin-body');if(!ciclo.sintomas?.length)make('p','Nenhum sintoma registrado neste período.',body);for(const r of ciclo.sintomas||[]){make('p',fmt(r.dia)+' · Cólicas: '+(r.colica??'Não informado')+(r.colica!=null?'/5':''),body);if(r.observacoes)make('p',r.observacoes,body)}}return;
  }
  const {data,error}=await db.rpc('wand_coach_bemestar_aluno',{p_aluno_id:Number(a.id)});
   if(error)throw error;
   const bem=data||{};status.remove();
-  if(!bem.ativo){make('p','O aluno não ativou o acompanhamento de bem-estar.',box);return}
+  if(mode==='checkins'){const p=make('div',undefined,content,'panel');make('h2','Treinos adaptados',p);const {data:ad,error:ae}=await db.rpc('wand_coach_adaptacoes_aluno',{p_aluno_id:Number(a.id)});if(ae)make('p','Não foi possível consultar os treinos adaptados.',p);else if(!ad?.length)make('p','Nenhum treino adaptado programado.',p);else for(const x of ad){const d=make('details',undefined,p,'checkin');make('summary',x.dia.split('-').reverse().join('/')+' · '+(x.alternativo||'Treino adaptado'),d);const b=make('div',undefined,d,'checkin-body');make('p','Treino original: '+(x.original||'—'),b);make('p','Status: '+x.status,b);if(x.justificativa)make('p',x.justificativa,b);}}
+ if(!bem.ativo){make('p','O aluno não ativou o acompanhamento de bem-estar.',box);return}
   if(mode==='feminina'&&!bem.ciclo_compartilhado){make('p','A aluna não autorizou o compartilhamento de informações menstruais com o treinador. O calendário permanece privado.',box);return}
   if(mode==='feminina')make('p','Exibindo somente informações compartilhadas voluntariamente. O calendário menstrual privado não é exibido.',box);
   const registros=Array.isArray(bem.registros)?bem.registros:[];
