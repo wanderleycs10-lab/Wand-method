@@ -100,14 +100,20 @@ function badgeIcon(document, code) {
 export function renderLegacy(container, summary, { currentLevelOnly = false } = {}) {
   const document = container.ownerDocument;
   container.classList.add('wand-legacy-summary');
-  const shield = document.createElement('div');
-  shield.className = 'wand-legacy-shield';
-  shield.setAttribute('aria-label', 'WAND LEGACY');
-  const brand = document.createElement('strong');
-  brand.textContent = 'WAND';
-  const subtitle = document.createElement('span');
-  subtitle.textContent = 'LEGACY';
-  shield.append(badgeIcon(document, 'legado_eterno'), brand, subtitle);
+  const shield = document.createElement(currentLevelOnly ? 'img' : 'div');
+  if (currentLevelOnly) {
+    shield.className = 'wand-legacy-student-logo';
+    shield.src = './imagens/wand-legacy-oficial.png';
+    shield.alt = 'WAND LEGACY';
+  } else {
+    shield.className = 'wand-legacy-shield';
+    shield.setAttribute('aria-label', 'WAND LEGACY');
+    const brand = document.createElement('strong');
+    brand.textContent = 'WAND';
+    const subtitle = document.createElement('span');
+    subtitle.textContent = 'LEGACY';
+    shield.append(badgeIcon(document, 'legado_eterno'), brand, subtitle);
+  }
   const progress = legacyProgress(Number(summary.xp));
   const level = document.createElement('h3');
   level.textContent = `${progress.current.roman} — ${progress.current.name}`;
