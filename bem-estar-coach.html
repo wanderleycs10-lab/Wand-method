@@ -33,7 +33,7 @@ async function detail(a,restore=false){
  if(!restore)saveRoute({aluno:a.id,secao:null,mes:null,dia:null});
  if(mode==='feminina'&&!isFemale(a)){listing();return}
  content.replaceChildren();$('title').textContent=a.nome_completo||'Aluno';$('description').textContent=(labels[mode]||labels.aluno)[0];$('back').textContent='← Voltar à lista de alunos';$('back').onclick=listing;
- const box=make('div',undefined,content,'panel');make('h2',(labels[mode]||labels.aluno)[0],box);
+ const box=make('div',undefined,content,'panel');if(mode!=='feminina')make('h2',(labels[mode]||labels.aluno)[0],box);
  const status=make('p','Consultando registros autorizados…',box);
  try{
   if(mode==='feminina'){
@@ -47,7 +47,7 @@ async function detail(a,restore=false){
  const isRecorded=iso=>ciclos.some(x=>iso>=x.inicio&&iso<=(x.termino||x.inicio))||sintomas.some(r=>r.dia===iso&&r.menstruando===true);
  const renderSintoma=(r,p)=>{if(r.menstruando!=null)make('p','Menstruação: '+(r.menstruando?'Sim':'Não'),p);if(r.colica!=null){make('p','Cólicas: '+r.colica+'/5',p);const track=make('div',undefined,p,'cycle-track');const bar=make('div',undefined,track);bar.style.width=Math.max(0,Math.min(100,Number(r.colica)*20))+'%'}if(r.inicio_menstruacao)make('p','Início informado: '+fmt(r.inicio_menstruacao),p);if(r.observacoes)make('p','Observações do check-in: '+r.observacoes,p)};
  const menu=make('div',undefined,box);const interior=make('div',undefined,box);
- const abrir=(nome,fn,restoreSection=false)=>{saveRoute(restoreSection?{secao:nome}:{secao:nome,mes:null,dia:null});menu.hidden=true;interior.replaceChildren();const b=make('button','← Voltar à Saúde Feminina',interior,'back');b.onclick=()=>{saveRoute({secao:null,mes:null,dia:null});interior.replaceChildren();menu.hidden=false};make('h2',nome,interior);fn(interior)};
+ const abrir=(nome,fn,restoreSection=false)=>{saveRoute(restoreSection?{secao:nome}:{secao:nome,mes:null,dia:null});menu.hidden=true;interior.replaceChildren();$('description').textContent=nome;$('back').textContent='← Voltar à Saúde Feminina';$('back').onclick=()=>{saveRoute({secao:null,mes:null,dia:null});interior.replaceChildren();menu.hidden=false;$('description').textContent='Saúde Feminina';$('back').textContent='← Voltar à lista de alunos';$('back').onclick=listing};fn(interior)};
  const card=(titulo,desc,fn)=>{const b=make('button',undefined,menu,'student cycle-menu');const ico=make('span',undefined,b,'cycle-icon');ico.innerHTML=titulo.includes('sintomas')?'<svg viewBox="0 0 24 24"><path d="M3 12h4l3-6 4 12 3-6h4"/><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1"/></svg>':'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M7 14h3m4 0h3"/></svg>';const copy=make('span',undefined,b);make('strong',titulo,copy);make('small',desc,copy);make('span','›',b,'cycle-arrow');b.onclick=()=>abrir(titulo,fn);if(restore&&qs.get('secao')===titulo)abrir(titulo,fn,true)};
  if(!ciclos.length&&!sintomas.some(r=>r.menstruando===true)){make('p','A aluna ainda não registrou seu ciclo menstrual.',menu);solicitar()}
  const renderCalendar=(p,interactive)=>{
