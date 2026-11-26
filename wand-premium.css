@@ -69,3 +69,43 @@ main,section,article{min-width:0}
 .wand-primary-row::after{content:'›';grid-column:3;grid-row:1/3;color:#f3c95f;font-size:23px;justify-self:end}
 .wand-primary-row:focus-visible{outline:2px solid #ffe08a;outline-offset:2px}
 .wand-primary-row[aria-expanded="true"]{border-color:#ffe08a!important}
+.wand-legacy-shield {
+  display: grid;
+  justify-items: center;
+  width: 8rem;
+  margin: 0 auto 1rem;
+  padding: .8rem .6rem 1.55rem;
+  clip-path: polygon(0 0, 100% 0, 94% 72%, 50% 100%, 6% 72%);
+  background: linear-gradient(145deg, #c39a43 0 2px, #151310 2px 96%, #c39a43 96%);
+  border: 2px solid #b18a40;
+  color: #e6c679;
+  line-height: 1.25;
+}
+.wand-legacy-shield span {
+  display: flex;
+  align-items: center;
+  gap: .28rem;
+  font-size: .68rem;
+  letter-spacing: .06em;
+}
+.wand-legacy-shield span::before,
+.wand-legacy-shield span::after {
+  content: "";
+  width: .6rem;
+  border-top: 1px solid currentColor;
+}
+.wand-legacy-summary > details {
+  margin-block: .7rem;
+  padding: .85rem;
+  border: 1px solid #606060;
+  border-radius: .75rem;
+  background: linear-gradient(145deg, #252321, #151515);
+  overflow-wrap: anywhere;
+}
+.wand-legacy-summary > details > summary {
+  color: #edcf82;
+  cursor: pointer;
+}
+.wand-legacy-summary form :is(input, select, button) {
+  max-width: 100%;
+}

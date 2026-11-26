@@ -65,6 +65,15 @@
       else console.warn('[WAND] Avaliações físicas indisponíveis',fisica.error);
       const internas=await db.rpc('wand_minhas_notificacoes');
       if(!internas.error)for(const p of internas.data||[])if(p.tipo==='solicitacao_ciclo'&&!p.lida_em)itens.push({titulo:'Solicitação de registro menstrual',detalhe:'Seu treinador solicitou a atualização do registro. O preenchimento é voluntário.',abrir:async()=>{await db.rpc('wand_ler_notificacao',{p_id:p.id});window.wandAbrirRegistroMenstrual?.();atualizar();}});
+      const legacy=await db.rpc('wand_legacy_avisos');
+      if(!legacy.error)for(const aviso of legacy.data||[])itens.push({
+        titulo:aviso.titulo,detalhe:'Abrir WAND LEGACY',
+        abrir:async()=>{
+          window.wandAbrirLegacy?.(aviso.destino);
+          await db.rpc('wand_legacy_ler_aviso',{p_id:aviso.id});
+          atualizar();
+        }
+      });
       render(itens);
     }catch(e){
       console.warn('[WAND] Falha ao consultar notificações do aluno:',e);
