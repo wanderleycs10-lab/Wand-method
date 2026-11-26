@@ -192,7 +192,7 @@ async function wandPublicar(){
 function configurarValidade(t){const tipo=$('validadeTipo'),inicio=$('validadeInicio'),fim=$('validadeFim');tipo.value=t?.validade_fim?'com':'sem';inicio.value=t?.validade_inicio||'';fim.value=t?.validade_fim||'';$('validadeDatas').classList.toggle('oculto',tipo.value!=='com');}
 
 let idTreinoEmEdicao=null;
-import {showExercisePilot} from './wand-exercise-media.js?v=1';
+import {showExercisePilot} from './wand-exercise-media.js?v=2';
 const VIDEO_BUCKET="wand-exercicios-videos";
 let usuario=null,biblioteca=[],metodos=[],selecionados=[],pagina=1,passo=1,salvando=false,modalExercicio=null,editandoIndice=null,metodoDetalhado=null,expandidos=new Set(),conjugacao=null;
 const porPagina=12;
