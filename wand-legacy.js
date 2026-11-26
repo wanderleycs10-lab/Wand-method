@@ -1,15 +1,16 @@
 export const LEGACY_LEVELS = Object.freeze([
-  ['I', 'Iniciação', 0],
-  ['II', 'Compromisso', 500],
-  ['III', 'Disciplina', 1500],
-  ['IV', 'Determinação', 3000],
-  ['V', 'Superação', 5000],
-  ['VI', 'Ascensão', 8000],
-  ['VII', 'Excelência', 12000],
-  ['VIII', 'Elite', 18000],
-  ['IX', 'Mestre', 26000],
-  ['X', 'Lendário', 40000],
-].map(([roman, name, minimumXp]) => Object.freeze({ roman, name, minimumXp })));
+  ['I', 'Iniciação', 0, 'O início da jornada.', 'bronze'],
+  ['II', 'Compromisso', 500, 'Construindo novos hábitos.', 'bronze'],
+  ['III', 'Disciplina', 1500, 'Transformando esforço em rotina.', 'prata'],
+  ['IV', 'Determinação', 3000, 'Mantendo o foco nos objetivos.', 'prata'],
+  ['V', 'Superação', 5000, 'Ultrapassando os próprios limites com responsabilidade.', 'ouro'],
+  ['VI', 'Ascensão', 8000, 'Consolidando sua evolução.', 'ouro'],
+  ['VII', 'Excelência', 12000, 'Elevando seu padrão pessoal.', 'ouro'],
+  ['VIII', 'Elite', 18000, 'Uma trajetória de consistência.', 'platina'],
+  ['IX', 'Mestre', 26000, 'Dominando seus próprios hábitos.', 'prata'],
+  ['X', 'Lendário', 40000, 'O nível máximo do WAND LEGACY.', 'ouro'],
+].map(([roman, name, minimumXp, description, tone]) =>
+  Object.freeze({ roman, name, minimumXp, description, tone })));
 
 const PRESTIGE_INTERVAL = 10000;
 
@@ -42,6 +43,34 @@ export async function loadLegacy(client, studentId) {
 
 const formatNumber = new Intl.NumberFormat('pt-BR');
 const formatDate = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeZone: 'America/Sao_Paulo' });
+
+export function legacyLevelCard(document, level, annotation = '') {
+  const card = document.createElement('span');
+  card.className = 'wand-legacy-level';
+  card.dataset.tone = level.tone;
+  const shield = document.createElement('span');
+  shield.className = 'wand-legacy-level-shield';
+  shield.setAttribute('aria-hidden', 'true');
+  const icon = badgeIcon(document, 'legado_eterno');
+  icon.firstChild.setAttribute('d', 'M12 2l9 4-1 8c-.8 3.3-4 6-8 8-4-2-7.2-4.7-8-8L3 6z');
+  const lightning = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  lightning.setAttribute('d', 'M13 6l-4 5h3l-1 4 4-6h-3z');
+  icon.append(lightning);
+  shield.append(icon);
+  const numeral = document.createElement('span');
+  numeral.textContent = level.roman;
+  shield.append(numeral);
+  const copy = document.createElement('span');
+  const title = document.createElement('strong');
+  title.textContent = `Nível ${level.roman} — ${level.name}`;
+  const description = document.createElement('span');
+  description.textContent = level.description;
+  const threshold = document.createElement('small');
+  threshold.textContent = `${formatNumber.format(level.minimumXp)} XP${annotation ? ' · ' + annotation : ''}`;
+  copy.append(title, description, threshold);
+  card.append(shield, copy);
+  return card;
+}
 
 const badgePaths = {
   primeiro_passo: 'M4 13h5v7H4z M15 4h5v7h-5z',
@@ -109,11 +138,12 @@ export function renderLegacy(container, summary) {
   empty.textContent = 'Nenhuma insígnia conquistada até agora.';
   const levels = document.createElement('details');
   const levelsHeading = document.createElement('summary');
-  levelsHeading.textContent = 'Níveis de evolução';
+  levelsHeading.textContent = 'Conquistas';
   const levelsList = document.createElement('ul');
+  levelsList.className = 'wand-legacy-level-list';
   for (const entry of LEGACY_LEVELS) {
     const row = document.createElement('li');
-    row.textContent = `${entry.roman} — ${entry.name} · ${formatNumber.format(entry.minimumXp)} XP`;
+    row.append(legacyLevelCard(document, entry, entry === progress.current ? 'Nível atual' : ''));
     levelsList.append(row);
   }
   levels.append(levelsHeading, levelsList);
