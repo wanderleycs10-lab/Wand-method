@@ -1110,6 +1110,7 @@ iniciar();
 </style>
 <script src="./wand-push-config.js"></script>
 <script type="module">
+import {showExercisePilot} from './wand-exercise-media.js?v=1';
 import {createClient as createWandClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 const wandDb=createWandClient("https://kvxdnreipuahoaostlle.supabase.co","sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo");
 const wt=document.getElementById('wandTreinosArea');
@@ -1537,7 +1538,7 @@ function wtRender(){
  }
 }
 function wtVerTreino(t){const a=wtArea();wtBtn(a,'← Voltar',wtRender,true);wtAdd(a,'h3',null,t.nome||'Treino');if(t.observacoes)wtAdd(a,'p','notice',t.observacoes);
- for(const ex of t.exercicios||[]){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,ex.nome);if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
+ for(const ex of t.exercicios||[]){const c=wtAdd(a,'article','subcard');wtAdd(c,'h3',null,ex.nome);showExercisePilot(c,ex,'training');if(ex.metodo)wtAdd(c,'p','muted','Método: '+ex.metodo);if(ex.observacoes)wtAdd(c,'p',null,ex.observacoes);
  for(const s of ex.series||[])wtAdd(c,'p','muted','Série '+s.numero+': '+wtNum(s.repeticoes)+' repetições · '+wtNum(s.carga)+' kg · descanso '+wtNum(s.descanso)+' s'+(s.observacoes?' · '+s.observacoes:''));}
  wtAdd(a,'p','muted','Consulta da prescrição. Para começar, acesse o treino de hoje no painel inicial.');}
 async function wtRetomar(sessao,treino){
@@ -1751,6 +1752,7 @@ function wtExecucao(area){
   wtAdd(tit,'small','muted',bloco.metodo+' · '+Math.min(nRodadas,total)+'/'+total+(bloco.exercicios.length>1?' rodadas':' séries'));
   const status=wtAdd(head,'span',concluido?'wt-status-done':'wt-status-open',concluido?'✓ Concluído':indice===wtBlocoAberto?'▴':'▾');
   const content=wtAdd(card,'div','wt-exercise-body');content.hidden=indice!==wtBlocoAberto;
+  for(const {ex} of bloco.exercicios)showExercisePilot(content,ex,'training');
   head.setAttribute('aria-expanded',String(!content.hidden));
   head.onclick=()=>{const open=content.hidden;for(const e of area.querySelectorAll('.wt-exercise-body'))e.hidden=true;for(const h of area.querySelectorAll('.wt-exercise-head'))h.setAttribute('aria-expanded','false');content.hidden=!open;head.setAttribute('aria-expanded',String(open));wtBlocoAberto=open?indice:-1;wtPersistir();status.textContent=concluido?'✓ Concluído':open?'▴':'▾'};
   if(bloco.exercicios.length>1)wtAdd(content,'p','muted','Complete os movimentos da rodada e toque em Concluir rodada. Deslize lateralmente para visualizar todos.');

@@ -9,6 +9,7 @@ Preto/dourado premium, modo escuro padrão, logo oficial sem quadrado de fundo. 
 ## Regras existentes a preservar
 - Nas telas autenticadas, use a ilha fixa e o menu em cartões com ícones de `wand-navigation.js` e `wand-navigation.css`. Preserve os atalhos de cada perfil e o retorno contextual. Use o tema premium para cartões dourados nas entradas e painéis prateados nas subdivisões.
 - Treinos: halter dourado; check-ins: check; anamnese: prancheta; bem-estar: coração; evolução: gráfico de linha; excluídos: lixeira. WAND LEGACY: escudo e raio.
+- Piloto WAND EXERCISES: supino reto com barra com personagem ilustrado, fundo escuro, músculo principal em dourado intenso e auxiliares em dourado suave. GIF reproduzível no aplicativo e ficha em PDF com quadros estáticos e link para a animação. A aprovação da execução pelo personal precede o uso desse padrão nos demais exercícios.
 - Minha ficha: dados pessoais, contato, conta, privacidade, autorizações separadas LGPD/imagem e contrato. Reposição: até 3/mês, aviso 24h, prazo 30 dias, exceções avaliadas.
 - Contratos: contrato por aluno, nova proposta, todos os contratos; envio por e-mail com link único; voltar contextual.
 - Avaliação fotográfica: solicitar, análise postural, comparar, autorizações. Frente/perfil/costas, zoom, pontos e achados, relatório editável, rascunho, envio e retorno à lista. Preservar consentimentos.

@@ -27,6 +27,11 @@ Atualizado em 2026-11-21. Este documento distingue código publicado de testes e
 - Os painéis do aluno e do WandCoach e as telas internas compartilham a ilha fixa e o menu em duas colunas com ícones. Os atalhos das telas internas abrem a raiz de cada área do perfil.
 - Os cartões principais usam a entrada dourada. Os detalhes, como Evolução corporal, usam painéis prateados. Páginas públicas de acesso e aceite seguem seu fluxo próprio.
 
+## Demonstrações de exercícios
+
+- O primeiro piloto da biblioteca é o supino reto com barra. Ele aparece na biblioteca e na prescrição do personal e no treino que contém o exercício no perfil do aluno. O GIF roda com controle de reprodução, e a ficha PDF tem dois quadros e link para o movimento completo.
+- O registro do exercício estava sem mídia no banco. O aplicativo associa o piloto a esse registro na biblioteca, sem alterar os links dos outros exercícios.
+
 ## WAND LEGACY no WandCoach
 
 - Em Conquistas, o personal vê os dez níveis e os alunos vinculados em cada nível, agrupados pelo XP registrado. Ao selecionar um aluno, abre o detalhe dentro do WAND LEGACY. Ao voltar, o nível de origem é reaberto.
