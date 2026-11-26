@@ -97,7 +97,7 @@ function badgeIcon(document, code) {
   return icon;
 }
 
-export function renderLegacy(container, summary) {
+export function renderLegacy(container, summary, { currentLevelOnly = false } = {}) {
   const document = container.ownerDocument;
   container.classList.add('wand-legacy-summary');
   const shield = document.createElement('div');
@@ -141,7 +141,7 @@ export function renderLegacy(container, summary) {
   levelsHeading.textContent = 'Conquistas';
   const levelsList = document.createElement('ul');
   levelsList.className = 'wand-legacy-level-list';
-  for (const entry of LEGACY_LEVELS) {
+  for (const entry of currentLevelOnly ? [progress.current] : LEGACY_LEVELS) {
     const row = document.createElement('li');
     row.append(legacyLevelCard(document, entry, entry === progress.current ? 'Nível atual' : ''));
     levelsList.append(row);
