@@ -24,7 +24,10 @@
       botao.type='button';botao.className='wand-aluno-notificacao-item';
       const icone=adicionar('span',undefined,botao);
       icone.className='wand-aluno-notificacoes-icone';
-      icone.innerHTML='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h4l2-2h4l2 2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="3.5"/></svg>';
+      const desenho=item.legacy
+        ? '<path d="M12 2 21 6 19 15 12 22 5 15 3 6Z"/><path d="m13 5-5 8h4l-1 6 5-9h-4z"/>'
+        : '<path d="M4 7h4l2-2h4l2 2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="3.5"/>';
+      icone.innerHTML='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+desenho+'</svg>';
       const texto=adicionar('span',undefined,botao);
       adicionar('strong',item.titulo,texto);
       adicionar('small',item.detalhe,texto);
@@ -67,7 +70,7 @@
       if(!internas.error)for(const p of internas.data||[])if(p.tipo==='solicitacao_ciclo'&&!p.lida_em)itens.push({titulo:'Solicitação de registro menstrual',detalhe:'Seu treinador solicitou a atualização do registro. O preenchimento é voluntário.',abrir:async()=>{await db.rpc('wand_ler_notificacao',{p_id:p.id});window.wandAbrirRegistroMenstrual?.();atualizar();}});
       const legacy=await db.rpc('wand_legacy_avisos');
       if(!legacy.error)for(const aviso of legacy.data||[])itens.push({
-        titulo:aviso.titulo,detalhe:'Abrir WAND LEGACY',
+        titulo:aviso.titulo,detalhe:'Abrir WAND LEGACY',legacy:true,
         abrir:async()=>{
           window.wandAbrirLegacy?.(aviso.destino);
           await db.rpc('wand_legacy_ler_aviso',{p_id:aviso.id});
