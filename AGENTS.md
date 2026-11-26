@@ -17,7 +17,7 @@ Preto/dourado premium, modo escuro padrão, logo oficial sem quadrado de fundo. 
 - Notificações: eventos relevantes nos dois perfis, destino contextual; sem logs técnicos.
 
 ## WAND LEGACY (especificação aprovada; implementação em andamento)
-No WandCoach, Conquistas começa pelos dez níveis. Dentro de cada nível aparecem os alunos vinculados, agrupados pelo XP. Selecionar um aluno abre o detalhe de conquistas do WAND LEGACY. Voltar reabre o nível de origem.
+No WandCoach, Conquistas começa pelos dez níveis. Selecionar um nível abre uma tela separada com os alunos vinculados daquele nível, agrupados pelo XP e com o espaçamento padrão dos cartões. Selecionar um aluno abre seu detalhe. Voltar percorre o caminho inverso.
 Conquistas reúne nível, XP, WAND ENERGY e insígnias no detalhe do aluno. Nas configurações do WAND LEGACY, use nomes com inicial maiúscula e acentuação, seta no lado direito do cartão, botão Salvar primário dourado e confirmação em tela cheia dentro do aplicativo após a gravação.
 Nos dois perfis, os cartões de nível do WAND LEGACY mostram escudo com raio e numeral romano à esquerda, título, subtítulo descritivo e XP mínimo. Use os subtítulos aprovados em `wand-legacy.js`.
 No WandCoach, os cartões dos dez níveis seguem a altura e a tipografia compactas dos botões tradicionais. Em Conquistas do aluno, mostre apenas o cartão do nível atual e preserve as insígnias pessoais.
