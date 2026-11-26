@@ -97,23 +97,13 @@ function badgeIcon(document, code) {
   return icon;
 }
 
-export function renderLegacy(container, summary, { currentLevelOnly = false } = {}) {
+export function renderLegacy(container, summary) {
   const document = container.ownerDocument;
   container.classList.add('wand-legacy-summary');
-  const shield = document.createElement(currentLevelOnly ? 'img' : 'div');
-  if (currentLevelOnly) {
-    shield.className = 'wand-legacy-student-logo';
-    shield.src = './imagens/wand-legacy-transparente.png';
-    shield.alt = 'WAND LEGACY';
-  } else {
-    shield.className = 'wand-legacy-shield';
-    shield.setAttribute('aria-label', 'WAND LEGACY');
-    const brand = document.createElement('strong');
-    brand.textContent = 'WAND';
-    const subtitle = document.createElement('span');
-    subtitle.textContent = 'LEGACY';
-    shield.append(badgeIcon(document, 'legado_eterno'), brand, subtitle);
-  }
+  const shield = document.createElement('img');
+  shield.className = 'wand-legacy-detail-logo';
+  shield.src = './imagens/wand-legacy-transparente.png';
+  shield.alt = 'WAND LEGACY';
   const progress = legacyProgress(Number(summary.xp));
   const level = document.createElement('h3');
   level.textContent = `${progress.current.roman} — ${progress.current.name}`;
@@ -147,11 +137,9 @@ export function renderLegacy(container, summary, { currentLevelOnly = false } = 
   levelsHeading.textContent = 'Conquistas';
   const levelsList = document.createElement('ul');
   levelsList.className = 'wand-legacy-level-list';
-  for (const entry of currentLevelOnly ? [progress.current] : LEGACY_LEVELS) {
-    const row = document.createElement('li');
-    row.append(legacyLevelCard(document, entry, entry === progress.current ? 'Nível atual' : ''));
-    levelsList.append(row);
-  }
+  const row = document.createElement('li');
+  row.append(legacyLevelCard(document, progress.current, 'Nível atual'));
+  levelsList.append(row);
   levels.append(levelsHeading, levelsList);
   container.replaceChildren(shield, level, balances, label, bar, heading, badges.childElementCount ? badges : empty, levels);
   return progress;
@@ -259,6 +247,7 @@ export function renderLegacyMissions(container, missions, { assign, update }) {
   }
   if (assign) {
     const form = document.createElement('form');
+    form.className = 'wand-legacy-mission-form';
     const name = document.createElement('input');
     name.required = true;
     name.maxLength = 160;
@@ -279,8 +268,15 @@ export function renderLegacyMissions(container, missions, { assign, update }) {
     }
     const button = document.createElement('button');
     button.type = 'submit';
+    button.className = 'primary';
     button.textContent = 'Atribuir missão';
-    form.append(name, category, button);
+    const nameLabel = document.createElement('label');
+    nameLabel.textContent = 'Título da missão';
+    nameLabel.append(name);
+    const categoryLabel = document.createElement('label');
+    categoryLabel.textContent = 'Categoria';
+    categoryLabel.append(category);
+    form.append(nameLabel, categoryLabel, button);
     form.onsubmit = event => {
       event.preventDefault();
       execute(button, () => assign(name.value, category.value));

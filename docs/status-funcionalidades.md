@@ -26,7 +26,7 @@ Atualizado em 2026-11-21. Este documento distingue código publicado de testes e
 
 - Em Conquistas, o personal vê os dez níveis e os alunos vinculados em cada nível, agrupados pelo XP registrado. Ao selecionar um aluno, abre o detalhe dentro do WAND LEGACY. Ao voltar, o nível de origem é reaberto.
 - Conquistas concentra também os saldos dos alunos. Nas configurações, os títulos têm inicial maiúscula, o indicador de expansão fica à direita e Salvar usa o padrão dourado. Após a gravação, a confirmação ocupa a tela do aplicativo por alguns segundos e retorna à mesma área.
-- O personal vê os dez níveis em cartões compactos com escudo, numeral romano, título, subtítulo aprovado e XP mínimo. Abrir um cartão revela os alunos daquele nível. Em Conquistas, o aluno vê apenas o cartão do nível atual e suas insígnias pessoais.
+- O personal vê os dez níveis em cartões compactos na seleção de alunos. Ao abrir o detalhe individual, personal e aluno veem apenas o cartão do nível atual e as insígnias conquistadas.
 - O escudo com raio identifica o WAND LEGACY nos menus, cartões e notificações. As insígnias mantêm seus símbolos próprios.
 - As configurações do personal usam cartões compactos. O catálogo abre em duas colunas no desktop, e os campos XP e WAND ENERGY aparecem lado a lado em qualquer tela. O formulário abre no próprio cartão.
 - A migração `20261126025347_wand_legacy_progressao.sql` cria o registro de gamificação. Os painéis consultam o resumo por aluno, com XP acumulado, WAND ENERGY, nível, prestígio e insígnias concedidas.
@@ -38,7 +38,7 @@ Atualizado em 2026-11-21. Este documento distingue código publicado de testes e
 - As metas usam a quantidade de dias prescritos no programa ativo. A primeira sessão validada da semana registra a frequência usada naquela semana. Para a meta mensal, cada semana pertence ao mês da sua quinta-feira. Sem frequência prescrita, o treino pontua e a semana fica sem meta automática. A concessão de Disciplina de Ouro, Inabalável e marcos de consistência depende de sequências de metas alcançadas.
 - O personal valida o acompanhamento a partir de registros reais de anamnese, avaliações físicas liberadas, relatório postural publicado e check-ins de bem-estar. O crédito fotográfico depende do relatório profissional. Seu cálculo não consulta fotos, consentimentos, dados menstruais ou respostas da anamnese.
 - As centrais atuais exibem avisos de XP e energia, insígnias, níveis, missões, resgates e reconhecimento. O reconhecimento permanece restrito ao personal.
-- A entrada do WAND LEGACY do aluno usa o escudo oficial acima do nível atual, com transparência ao redor do contorno dourado. O resumo e a central de recompensas foram verificados no Chrome em 390 e 1280 pixels com dados de teste.
+- Os dois perfis usam o escudo oficial transparente acima do nível atual. O formulário de missões do personal separa título, categoria e ação em campos rotulados, organizados lado a lado no desktop e empilhados no celular.
 - A validação autenticada com o esquema hospedado segue pendente. O projeto de produção não tem branch de homologação, e o Supabase recusou sua criação no plano atual. A migração foi executada em PostgreSQL isolado com um esquema de teste. A publicação segue pendente.
 
 Para testar a migração com dados sintéticos em Postgres isolado, instale `@electric-sql/pglite` para uso local, aponte `WAND_LEGACY_PGLITE` para o diretório do pacote e execute `node --test tests/legacy-progressao.test.mjs`. Sem essa variável, o teste de banco é pulado.
