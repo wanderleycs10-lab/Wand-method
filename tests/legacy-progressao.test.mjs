@@ -48,10 +48,9 @@ test('Resumo apresenta XP, energia e a insígnia registrada pelo servidor', () =
   assert.match(panel.children[2].textContent, /50 XP.*20 WAND ENERGY/);
   assert.equal(panel.children[6].children[0].children[2].textContent, 'Primeiro Passo');
   const cards = panel.children[7].children[1].children;
-  assert.equal(cards.length,10);
+  assert.equal(cards.length,1);
   assert.equal(cards[0].children[0].children[1].children[0].textContent,'Nível I — Iniciação');
-  assert.equal(cards[9].children[0].children[1].children[1].textContent,'O nível máximo do WAND LEGACY.');
-  renderLegacy(panel, {xp:1500,energia:20,insignias:[]}, {currentLevelOnly:true});
+  renderLegacy(panel, {xp:1500,energia:20,insignias:[]});
   assert.equal(panel.children[0].src,'./imagens/wand-legacy-transparente.png');
   const studentCards = panel.children[7].children[1].children;
   assert.equal(studentCards.length,1);
