@@ -131,7 +131,7 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
 .wand-drawer .wc-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.wand-drawer .wc-tile{min-height:115px!important}
 #wcHome .wc-overview button.wc-overview-item{cursor:pointer!important}
 @media(max-width:400px){.wand-dock small{font-size:9px}.wand-drawer .wc-name{font-size:12px}}
-</style><link rel="stylesheet" href="./wand-premium.css?v=20261125-visual6"><style id="wandcoach-menu-unificado">/* Padronização visual: menu aberto e ilha inferior alinhados ao painel premium. */
+</style><link rel="stylesheet" href="./wand-premium.css?v=legacy-levels-1"><style id="wandcoach-menu-unificado">/* Padronização visual: menu aberto e ilha inferior alinhados ao painel premium. */
 .wand-dock button{background:linear-gradient(150deg,#353535 0%,#242424 28%,#111 78%,#28221b 100%)!important;border:1px solid #a5a5a8!important;border-radius:17px!important;box-shadow:inset 0 2px 1px #ffffff75,inset 0 -3px 6px #0008,0 3px 8px #0009!important;color:#efbd55!important}
 .wand-dock button small{color:#f4ede1!important}
 .wand-drawer .wc-tile{background:linear-gradient(145deg,#33220c 0%,#17130e 34%,#0b0b0b 72%,#2b1d0b 100%)!important;border:1px solid #c99b45!important;border-radius:23px!important;box-shadow:inset 0 2px 1px #ffe1a26e,inset 0 -3px 8px #d19b2840,0 9px 17px #000a,0 0 13px #d4a32b28!important}
@@ -224,7 +224,7 @@ header .wc-brand-wordmark span{font-weight:300;color:#f0e9db}
 </div><section id="wcAlteracoesSaude" class="card" hidden style="margin:18px 0;padding:12px;border:1px solid #a88748;border-radius:16px"><h3><button type="button" id="wcAbrirNotificacoes" aria-expanded="false">🔔 Acompanhamento <span id="wcNotificacoesContador"></span></button></h3><div id="wcNotificacoesDetalhes" hidden><p>Pendências dos alunos para revisar.</p><p id="wcAlteracoesEstado">Carregando alterações...</p><div id="wcAlteracoesLista"></div><button type="button" id="wcAtualizarAlteracoes">Atualizar</button></div></section><button id="sair" type="button">Sair da conta</button></section></main><footer>WAND METHOD · WandCoach</footer>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import {LEGACY_LEVELS, legacyProgress, loadLegacy, renderLegacy, renderLegacyRewards, renderLegacyMissions, renderLegacyHistory} from './wand-legacy.js';
+import {LEGACY_LEVELS, legacyLevelCard, legacyProgress, loadLegacy, renderLegacy, renderLegacyRewards, renderLegacyMissions, renderLegacyHistory} from './wand-legacy.js?v=legacy-levels-1';
 const supabase=createClient('https://kvxdnreipuahoaostlle.supabase.co','sb_publishable_8DJWlBHFrh_cULSe3icwJg_t9ZqTBjo');
 const status=document.getElementById('status'),painel=document.getElementById('painel');let alunosCarregados=[],pedidosCarregados=[];
 const $=id=>document.getElementById(id);
@@ -266,7 +266,7 @@ avaliacao:{name:'Avaliação Física',desc:'Medidas, resultados e reavaliações
 fotografica:{name:'Avaliação Fotográfica',desc:'Fotografias e análise postural',icon:'camera',items:[['Solicitar Fotografias','Pedir ao aluno imagens de frente, lado e costas','camera','fotografica-alunos'],['Análise Postural','Analisar imagens e registrar observações','activity','fotografica-alunos'],['Comparar Fotografias','Comparar registros de diferentes datas','book','fotografica-alunos'],['Autorizações Fotográficas','Gerenciar consentimentos e permissões','check','fotografica-alunos']]},
 evolucao:{name:'Evoluções',desc:'Gráficos dos alunos',icon:'chart',items:[['Selecionar Aluno','Gráficos individuais','users','students'],['Progressão de Cargas','Desempenho','chart','students'],['Frequência de Treinos','Adesão semanal e mensal','activity','students'],['Evolução Corporal','Peso e circunferências','chart','students']]},
 bemestar:{name:'Bem-estar',desc:'Saúde e acompanhamento',icon:'heart',items:[['Selecionar Aluno','Consultar informações','users','students'],['Check-ins','Bem-estar registrado','check','students'],['Saúde Feminina','Registros autorizados','heart','students'],['Histórico de Acompanhamentos','Solicitações e notificações anteriores','history','historico-notificacoes']]},
-coins:{name:'WAND LEGACY',desc:'Evolução, conquistas e recompensas',icon:'coin',items:[['Conquistas','Consultar alunos por nível','coin','legacy-niveis'],['Catálogo de recompensas','Editar itens, estoque e validade','coin','legacy-catalogo'],['Pontos dos Alunos','Consultar saldos por nível','users','legacy-niveis'],['Regras de XP e energia','Configurar pontuação','coin','legacy-regras']]},
+coins:{name:'WAND LEGACY',desc:'Evolução, conquistas e recompensas',icon:'coin',items:[['Conquistas','Ver níveis, XP, WAND ENERGY e insígnias','coin','legacy-niveis'],['Catálogo de recompensas','Editar itens, estoque e validade','coin','legacy-catalogo'],['Regras de XP e energia','Configurar pontuação','coin','legacy-regras']]},
 comunicacao:{name:'Comunicação',desc:'Mensagens e suporte',icon:'message',items:[['Mensagens no App','Contato pelo perfil','message','students'],['WhatsApp','Contato direto pelo perfil','message','students'],['Notificações','Alertas e solicitações','activity','adaptacoes']]}
 };
 function wcRenderDemographics(){
@@ -399,8 +399,8 @@ async function wcLegacyNiveis(nivel=''){
    const detalhe=document.createElement('details');
    detalhe.open=nivel===level.roman;
    const titulo=document.createElement('summary');
-   titulo.className='wc-row';
-   titulo.textContent=level.roman+' — '+level.name+' · '+grupo.length+(grupo.length===1?' aluno':' alunos');
+   titulo.className='wc-row wand-legacy-level-toggle';
+   titulo.append(legacyLevelCard(document,level,grupo.length+(grupo.length===1?' aluno':' alunos')));
    detalhe.append(titulo);
    for(const aluno of grupo){
     detalhe.append(wcRow([aluno.nome||'Aluno sem nome',Number(aluno.xp).toLocaleString('pt-BR')+' XP','coin'],
@@ -418,8 +418,7 @@ async function wcLegacyNiveis(nivel=''){
 }
 async function wcLegacyConfig(section){
  const catalogo=section==='legacy-catalogo';
- const index=catalogo?1:3;
- wcSetRoute(['coins','item',String(index)]);
+ wcSetRoute(['coins',section]);
  wcOpen(catalogo?'Catálogo de recompensas':'Regras de XP e energia',
   catalogo?'Gerencie o catálogo compartilhado do WAND METHOD.':'Os valores valem para os próximos créditos que você validar.');
  const lista=document.createElement('div');
@@ -433,9 +432,9 @@ async function wcLegacyConfig(section){
   const itens=catalogo?[...data,{ativa:true}]:data;
   for(const item of itens){
    const detalhe=document.createElement('details');
-   detalhe.className='card';
+   detalhe.className='card wc-legacy-config';
    const titulo=document.createElement('summary');
-   titulo.textContent=catalogo?(item.nome||'Nova recompensa'):item.codigo.replaceAll('_',' ');
+   titulo.textContent=catalogo?(item.nome||'Nova recompensa'):wcLegacyRuleTitle(item.codigo);
    const form=document.createElement('form');
    const campos={};
    function campo(key,label,type,required=false){
@@ -465,6 +464,7 @@ async function wcLegacyConfig(section){
    }
    const salvar=document.createElement('button');
    salvar.type='submit';
+   salvar.className='primary';
    salvar.textContent='Salvar';
    const aviso=document.createElement('p');
    aviso.setAttribute('role','status');
@@ -479,9 +479,12 @@ async function wcLegacyConfig(section){
       {p_codigo:item.codigo,p_xp:campos.xp.valueAsNumber,p_energia:campos.energia.valueAsNumber};
      const {error}=await supabase.rpc(catalogo?'wand_legacy_salvar_recompensa':'wand_legacy_salvar_regra',args);
      if(error)throw error;
+     if(!form.isConnected)return;
+     await wcLegacySaved();
+     if(!form.isConnected)return;
      if(catalogo&&!item.id){await wcLegacyConfig(section);return;}
      if(catalogo)titulo.textContent=campos.nome.value.trim();
-     aviso.textContent='Alterações salvas.';
+     aviso.textContent='';
     }catch{aviso.textContent='Não foi possível salvar. Confira os campos e tente novamente.';}
     finally{salvar.disabled=false;}
    };
@@ -489,6 +492,48 @@ async function wcLegacyConfig(section){
    lista.append(detalhe);
   }
  }catch{lista.textContent='Não foi possível carregar a configuração.';}
+}
+function wcLegacyRuleTitle(code){
+ const labels={
+  aerobico:'Treino aeróbico prescrito', anamnese:'Primeira anamnese', avaliacao_fisica:'Avaliação física',
+  avaliacao_fotografica:'Avaliação fotográfica', checkin:'Check-in de bem-estar', centuriao:'Centurião',
+  composicao:'Meta de composição corporal', consistencia_3:'3 meses de consistência',
+  consistencia_6:'6 meses de consistência', consistencia_12:'1 ano de consistência',
+  disciplina_ouro:'Disciplina de Ouro', forca:'Meta de força', legado_eterno:'Legado Eterno',
+  meta_curta:'Meta de curto prazo', meta_media:'Meta de médio prazo', meta_longa:'Meta de longo prazo',
+  meta_mensal:'Meta mensal', meta_semanal:'Meta semanal', missao:'Missão de acompanhamento',
+  mobilidade:'Meta de mobilidade', primeiro_treino:'Primeiro treino', reavaliacao:'Reavaliação física',
+  reconhecimento:'Reconhecimento do personal', resistencia:'Meta de resistência', treino:'Treino prescrito'
+ };
+ const fallback=code.replaceAll('_',' ');
+ return labels[code]??(fallback.charAt(0).toLocaleUpperCase('pt-BR')+fallback.slice(1));
+}
+function wcLegacySaved(){
+ return new Promise(resolve=>{
+  const dialog=document.createElement('dialog');
+  dialog.className='wc-legacy-success';
+  dialog.setAttribute('aria-labelledby','wcLegacySavedTitle');
+  const card=document.createElement('div');
+  card.className='card';
+  const icon=document.createElement('span');
+  icon.className='wc-legacy-success-icon';
+  icon.setAttribute('aria-hidden','true');
+  icon.textContent='✓';
+  const title=document.createElement('h2');
+  title.id='wcLegacySavedTitle';
+  title.textContent='Salvo com sucesso';
+  const close=document.createElement('button');
+  close.type='button';
+  close.className='primary';
+  close.textContent='OK';
+  close.onclick=()=>dialog.close();
+  card.append(icon,title,close);
+  dialog.append(card);
+  document.body.append(dialog);
+  const timer=setTimeout(()=>dialog.close(),2400);
+  dialog.addEventListener('close',()=>{clearTimeout(timer);dialog.remove();resolve();},{once:true});
+  dialog.showModal();
+ });
 }
 async function wcConquistasAluno(id,nivel='',nome='',destino=''){
  wcSetRoute(['coins','conquistas',String(id),nivel,destino]);
@@ -989,7 +1034,7 @@ async function wcCentralNotificacoes(){
  const refresh=document.createElement('button');refresh.type='button';refresh.className='secundario';refresh.textContent='Atualizar lista';refresh.onclick=wcCentralNotificacoes;area.append(refresh);
 }
 function wcMenu(key){wcToggleDrawer(false);const m=wcMenus[key];if(!m)return;wcSetRoute([key]);wcOpen(m.name,m.desc);const list=document.createElement('div');list.className='wc-list wand-primary-menu';m.items.forEach((item,index)=>{const tipo=item[3],count=['solicitacoes','novos'].includes(tipo)?'…':['ativos','inativos','excluidos'].includes(tipo)?wcFiltered(tipo).length:undefined;const row=wcRow(item,()=>wcAction(item,key,index),count);list.append(row);if(tipo==='solicitacoes')wcCountSolicitacoes(row.querySelector('.wc-count'));if(tipo==='novos')wcCountNovos(row.querySelector('.wc-count'))});wcContent.append(list)}
-function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){if(kind==='solicitacoes')wcSolicitacoesCadastro('notificacoes',0);else wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(key==='coins'&&kind==='niveis'){wcLegacyNiveis(value);}else if(key==='coins'&&kind==='conquistas'&&value){wcConquistasAluno(value,parts[3],undefined,parts[4]);}else if(key==='anamnese'&&kind==='pendencias'){if(value==='pedidos'||value==='avaliacoes')wcDetalhePendenciaAnamnese(value);else wcPendenciasAnamnese();}else if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
+function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){if(kind==='solicitacoes')wcSolicitacoesCadastro('notificacoes',0);else wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(key==='coins'&&kind==='niveis'){wcLegacyNiveis(value);}else if(key==='coins'&&(kind==='legacy-catalogo'||kind==='legacy-regras')){wcLegacyConfig(kind);}else if(key==='coins'&&kind==='item'&&(value==='2'||value==='3')){if(value==='2')wcLegacyNiveis();else wcLegacyConfig('legacy-regras');}else if(key==='coins'&&kind==='conquistas'&&value){wcConquistasAluno(value,parts[3],undefined,parts[4]);}else if(key==='anamnese'&&kind==='pendencias'){if(value==='pedidos'||value==='avaliacoes')wcDetalhePendenciaAnamnese(value);else wcPendenciasAnamnese();}else if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
 $('wcAtualizarNotificacoes').onclick=wcCentralNotificacoes;
 let wcUltimaConsultaNotificacoes=0;
 window.addEventListener('focus',()=>{

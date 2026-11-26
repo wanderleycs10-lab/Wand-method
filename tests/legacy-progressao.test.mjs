@@ -27,10 +27,12 @@ test('Resumo consulta apenas o aluno indicado e propaga falhas de acesso', async
 test('Resumo apresenta XP, energia e a insígnia registrada pelo servidor', () => {
   const element = () => ({
     children: [],
+    dataset: {},
     style: {},
     setAttribute() {},
     append(...children) { this.children.push(...children); },
     get childElementCount() { return this.children.length; },
+    get firstChild() { return this.children[0]; },
   });
   const panel = {
     ownerDocument: { createElement: element, createElementNS: element },
@@ -45,6 +47,10 @@ test('Resumo apresenta XP, energia e a insígnia registrada pelo servidor', () =
   assert.equal(progress.current.roman, 'I');
   assert.match(panel.children[2].textContent, /50 XP.*20 WAND ENERGY/);
   assert.equal(panel.children[6].children[0].children[2].textContent, 'Primeiro Passo');
+  const cards = panel.children[7].children[1].children;
+  assert.equal(cards.length,10);
+  assert.equal(cards[0].children[0].children[1].children[0].textContent,'Nível I — Iniciação');
+  assert.equal(cards[9].children[0].children[1].children[1].textContent,'O nível máximo do WAND LEGACY.');
 });
 
 const pglitePath = process.env.WAND_LEGACY_PGLITE;
