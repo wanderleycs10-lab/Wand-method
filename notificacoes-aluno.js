@@ -63,6 +63,8 @@
       const fisica=await db.rpc('wand_aluno_avaliacoes_pendentes');
       if(!fisica.error)for(const p of fisica.data||[])itens.push({titulo:'Avaliação física solicitada',detalhe:'Toque para enviar suas medidas ao treinador.',abrir:()=>location.assign('minha-avaliacao-fisica.html')});
       else console.warn('[WAND] Avaliações físicas indisponíveis',fisica.error);
+      const internas=await db.rpc('wand_minhas_notificacoes');
+      if(!internas.error)for(const p of internas.data||[])if(p.tipo==='solicitacao_ciclo'&&!p.lida_em)itens.push({titulo:'Solicitação de registro menstrual',detalhe:'Seu treinador solicitou a atualização do registro. O preenchimento é voluntário.',abrir:async()=>{await db.rpc('wand_ler_notificacao',{p_id:p.id});window.wandAbrirRegistroMenstrual?.();atualizar();}});
       render(itens);
     }catch(e){
       console.warn('[WAND] Falha ao consultar notificações do aluno:',e);
