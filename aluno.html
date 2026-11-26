@@ -296,7 +296,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
  item(svg,'path',{d:'M'+left+' '+top+' V'+base+' H'+right,stroke:'#a6a6a6',fill:'none','stroke-width':1});
  const pts=values.map((v,i)=>({x:values.length===1?(left+right)/2:left+16+i*(right-left-32)/(values.length-1),y:base-v/max*(base-top),v}));
  if(type==='line'&&pts.length>1){item(svg,'polygon',{points:pts.map(p=>p.x+','+p.y).join(' ')+' '+pts[pts.length-1].x+','+base+' '+pts[0].x+','+base,fill:'#d4af37',opacity:.09});item(svg,'polyline',{points:pts.map(p=>p.x+','+p.y).join(' '),stroke:'#e8c674','stroke-width':2.5,fill:'none','stroke-linejoin':'round'});}
- pts.forEach((p,i)=>{const mark=type==='bar'?item(svg,'rect',{x:p.x-12,y:p.y,width:24,height:Math.max(0,base-p.y),rx:3,fill:'#d4af37'}):item(svg,'circle',{cx:p.x,cy:p.y,r:4.5,fill:'#f5d578',stroke:'#111','stroke-width':1});item(mark,'title',{},labels[i]+': '+num(p.v)+' '+unidade);item(svg,'text',{x:p.x,y:p.y-9,'text-anchor':'middle',fill:'#f5d578','font-size':11},num(p.v));item(svg,'text',{x:p.x,y:194,'text-anchor':'middle',fill:'#c5c5c5','font-size':10},labels[i]);});
+ pts.forEach((p,i)=>{const mark=type==='bar'?item(svg,'rect',{x:p.x-Math.min(24,300/pts.length)/2,y:p.y,width:Math.min(24,300/pts.length),height:Math.max(0,base-p.y),rx:3,fill:'#d4af37'}):item(svg,'circle',{cx:p.x,cy:p.y,r:4.5,fill:'#f5d578',stroke:'#111','stroke-width':1});item(mark,'title',{},labels[i]+': '+num(p.v)+' '+unidade);if(pts.length<=12)item(svg,'text',{x:p.x,y:p.y-9,'text-anchor':'middle',fill:'#f5d578','font-size':11},num(p.v));if(i===0||i===pts.length-1||i%Math.ceil(pts.length/5)===0)item(svg,'text',{x:p.x,y:194,'text-anchor':'middle',fill:'#c5c5c5','font-size':10},labels[i]);});
 
  const abrir=add(card,'button','wand-ampliar','Ampliar gráfico');abrir.type='button';
  abrir.onclick=()=>{const dialog=document.createElement('dialog');dialog.className='wand-chart-dialog';const fechar=add(dialog,'button','wand-fechar','Fechar ×');fechar.type='button';add(dialog,'h2',null,title);const all=historico||values;const first=all[0],last=all.at(-1),delta=last-first;const unit=unidade==='%'?'p.p.':unidade;const signed=v=>(v>0?'+':'')+num(v);const grid=add(dialog,'div','wand-chart-resumo');for(const [k,v] of [['Inicial',num(first)+' '+unidade],['Atual',num(last)+' '+unidade],['Variação total',all.length>1?signed(delta)+' '+unit:'—']]){const cell=add(grid,'div');add(cell,'small',null,k);add(cell,'strong',null,v);}
@@ -306,8 +306,7 @@ header{background:linear-gradient(125deg,#0a0a0a,#171008);border-bottom:1px soli
  return card;
 }
 
-
-window.wandGraficoPadrao=wandGraficoPadrao;</script><style>.wand-grafico-padrao{box-sizing:border-box;background:#111;border:1px solid #aaa;border-radius:16px;padding:12px;max-width:520px;margin:12px auto;width:100%}.wand-grafico-padrao svg{width:100%;height:auto;max-height:230px}.wand-grafico-padrao h3{color:#e8c674}</style><style id="wand-chart-expand">.wand-grafico-padrao{cursor:pointer;min-width:0}.wand-mini-valor{display:none}.wand-ampliar,.wand-fechar{display:block;margin:8px auto 0;padding:8px 12px!important;text-align:center!important;color:#e8c674!important;background:#191919!important;border:1px solid #aaa!important;border-radius:9px;font-size:13px!important}.wand-chart-dialog{box-sizing:border-box;width:min(760px,94vw);max-height:90dvh;overflow:auto;background:#141414;color:#eee;border:1px solid #b8bcc4;border-radius:18px;padding:18px}.wand-chart-dialog::backdrop{background:#000b}.wand-chart-dialog h2{color:#e8c674}.wand-chart-dialog svg{display:block;width:100%;height:auto;max-height:400px}.wand-fechar{margin:0 0 8px auto}.wand-chart-resumo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.wand-chart-resumo>div{padding:8px;border:1px solid #777;border-radius:9px}.wand-chart-resumo strong,.wand-chart-resumo small{display:block}.wand-chart-resumo strong{color:#e8c674;margin-top:5px}.wand-chart-dialog p{font-size:14px}#graficos,#evolucao,.wand-grade-graficos{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px;align-items:stretch}#graficos>.wand-grafico-padrao{margin:0;width:100%}@media(max-width:767px){.wand-grafico-padrao h3{font-size:14px!important;overflow-wrap:anywhere}.wand-grafico-padrao .wand-mini-valor{display:block;color:#e8c674;font-size:17px}.wand-grafico-padrao svg text{display:none}.wand-grafico-padrao svg{max-height:100px!important}.wand-grafico-padrao>p{display:none}.wand-ampliar{font-size:11px!important;padding:6px!important;width:100%}.wand-chart-resumo strong{font-size:14px}}</style><style>.wand-chart-dialog svg text{fill:#c5c5c5}.wand-chart-dialog svg text[fill="#f5d578"]{fill:#f5d578}.wand-chart-dialog svg{max-height:400px!important}</style></head>
+window.wandGraficoPadrao=wandGraficoPadrao;</script><style>.wand-grafico-padrao{box-sizing:border-box;background:#111;border:1px solid #aaa;border-radius:16px;padding:12px;max-width:520px;margin:12px auto;width:100%}.wand-grafico-padrao svg{width:100%;height:auto;max-height:230px}.wand-grafico-padrao h3{color:#e8c674}</style><style id="wand-chart-expand">.wand-grafico-padrao{cursor:pointer;min-width:0}.wand-mini-valor{display:none}.wand-ampliar,.wand-fechar{display:block;margin:8px auto 0;padding:8px 12px!important;text-align:center!important;color:#e8c674!important;background:#191919!important;border:1px solid #aaa!important;border-radius:9px;font-size:13px!important}.wand-chart-dialog{box-sizing:border-box;width:min(760px,94vw);max-height:90dvh;overflow:auto;background:#141414;color:#eee;border:1px solid #b8bcc4;border-radius:18px;padding:18px}.wand-chart-dialog::backdrop{background:#000b}.wand-chart-dialog h2{color:#e8c674}.wand-chart-dialog svg{display:block;width:100%;height:auto;max-height:400px}.wand-fechar{margin:0 0 8px auto}.wand-chart-resumo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.wand-chart-resumo>div{padding:8px;border:1px solid #777;border-radius:9px}.wand-chart-resumo strong,.wand-chart-resumo small{display:block}.wand-chart-resumo strong{color:#e8c674;margin-top:5px}.wand-chart-dialog p{font-size:14px}#graficos,#evolucao,.wand-grade-graficos{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px;align-items:stretch}#graficos>.wand-grafico-padrao{margin:0;width:100%}@media(max-width:767px){.wand-grafico-padrao h3{font-size:14px!important;overflow-wrap:anywhere}.wand-grafico-padrao .wand-mini-valor{display:block;color:#e8c674;font-size:17px}.wand-grafico-padrao svg text{display:none}.wand-grafico-padrao svg{max-height:100px!important}.wand-grafico-padrao>p{display:none}.wand-ampliar{font-size:11px!important;padding:6px!important;width:100%}.wand-chart-resumo strong{font-size:14px}}</style><style>.wand-chart-dialog svg text{fill:#c5c5c5}.wand-chart-dialog svg text[fill="#f5d578"]{fill:#f5d578}.wand-chart-dialog svg{max-height:400px!important}</style><script>window.wandPeriodoFiltro=function(area,render,padrao='12'){let el=area.previousElementSibling;if(!el?.classList.contains('wand-periodo')){el=document.createElement('div');el.className='wand-periodo';const label=document.createElement('label');label.textContent='Período de análise';const select=document.createElement('select');select.setAttribute('aria-label','Período de análise');for(const [v,t] of [['3','3 meses'],['6','6 meses'],['12','12 meses'],['all','Contínuo']]){const o=document.createElement('option');o.value=v;o.textContent=t;select.append(o)}select.value=padrao;select.onchange=render;label.append(select);el.append(label);area.before(el)}return el.querySelector('select').value};window.wandDentroPeriodo=function(data,p){if(p==='all')return true;const d=new Date(data),now=new Date(),start=new Date(now);start.setDate(1);start.setMonth(start.getMonth()-Number(p));start.setDate(Math.min(now.getDate(),new Date(start.getFullYear(),start.getMonth()+1,0).getDate()));start.setHours(0,0,0,0);return Number.isFinite(+d)&&d>=start&&d<=now};</script><style>.wand-periodo{margin:12px 0;color:#e8c674}.wand-periodo label{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.wand-periodo select{background:#171717;color:#e8c674;border:1px solid #aaa;border-radius:10px;padding:10px;max-width:100%}</style></head>
 
 <body>
 
@@ -618,7 +617,7 @@ card.appendChild(acoes);
 return card;
 }
 
-function desenharGrafico(destino,registros,campo,titulo,unidade){const pontos=registros.filter(a=>a[campo]!=null&&String(a[campo]).trim()!==''&&Number.isFinite(Number(a[campo]))).map(a=>({data:a.data_avaliacao,valor:Number(a[campo])}));if(!pontos.length)return;const recentes=pontos.slice(-8);window.wandGraficoPadrao(destino,titulo,recentes.map(p=>p.valor),recentes.map(p=>dataBR(p.data).slice(0,5)),'line',unidade,pontos.map(p=>p.valor));}
+function desenharGrafico(destino,registros,campo,titulo,unidade){const pontos=registros.filter(a=>a[campo]!=null&&String(a[campo]).trim()!==''&&Number.isFinite(Number(a[campo]))).map(a=>({data:a.data_avaliacao,valor:Number(a[campo])}));if(!pontos.length)return;const recentes=pontos;window.wandGraficoPadrao(destino,titulo,recentes.map(p=>p.valor),recentes.map(p=>dataBR(p.data)),'line',unidade,pontos.map(p=>p.valor));}
 async function verificarSessao(){
 const {data:{user},error}=await supabase.auth.getUser();
 
@@ -807,6 +806,7 @@ area.appendChild(criarAvaliacao(avaliacao));
 
 function carregarEvolucao(){
 const area=$("graficos");
+const periodo=window.wandPeriodoFiltro(area,carregarEvolucao);
 area.replaceChildren();
 
 if(!avaliacoes.length){
@@ -819,7 +819,7 @@ area,
 return;
 }
 
-const ordenadas=[...avaliacoes].sort((a,b)=>{
+const ordenadas=avaliacoes.filter(a=>window.wandDentroPeriodo(a.data_avaliacao,periodo)).sort((a,b)=>{
 const dataA=String(a.data_avaliacao||"");
 const dataB=String(b.data_avaliacao||"");
 
@@ -829,6 +829,7 @@ return comparacao||
 Number(a.id)-Number(b.id);
 });
 
+if(!ordenadas.length){adicionar(area,'p','Nenhuma avaliação no período selecionado.','muted');return;}
 for(const [campo,titulo,unidade] of CAMPOS){
 desenharGrafico(
 area,
@@ -2065,12 +2066,12 @@ function wesRender(){
   if(!rows.length)wesAdd(wesRoot,'p','notice','Ainda não há registros nesta semana.');
   wesAdd(wesRoot,'p','wes-note','Volume = soma de carga × repetições registradas. Dias sem treino aparecem com zero. A meta semanal será exibida quando houver um campo de frequência prescrito pelo treinador.');
  }else{
-  const entries=[...grouped.entries()].sort((a,b)=>a[0].localeCompare(b[0]));const total=wesSummarize(wesRows);const grid=wesAdd(wesRoot,'div','wes-grid');wesMetric(grid,'Semanas com registros',String(entries.length));wesMetric(grid,'Treinos concluídos',String(total.trainings));wesMetric(grid,'Séries registradas',String(total.series));wesMetric(grid,'Volume acumulado',wesNum(total.volume)+' kg');
+  const periodo=window.wandPeriodoFiltro(wesRoot,wesRender,'3');const entries=[...grouped.entries()].filter(([k])=>window.wandDentroPeriodo(k,periodo)).sort((a,b)=>a[0].localeCompare(b[0]));const total=wesSummarize(entries.flatMap(([,rows])=>rows));const grid=wesAdd(wesRoot,'div','wes-grid');wesMetric(grid,'Semanas com registros',String(entries.length));wesMetric(grid,'Treinos concluídos',String(total.trainings));wesMetric(grid,'Séries registradas',String(total.series));wesMetric(grid,'Volume acumulado',wesNum(total.volume)+' kg');
   if(!entries.length){wesAdd(wesRoot,'p','notice','O histórico comparativo aparecerá após os primeiros registros de treino.');return}
-  const recent=entries.slice(-8);const labels=recent.map(([key])=>wesShort(new Date(key+'T12:00:00')));const summaries=recent.map(([,rows])=>wesSummarize(rows));
+  const recent=entries;const labels=recent.map(([key])=>wesShort(new Date(key+'T12:00:00')));const summaries=recent.map(([,rows])=>wesSummarize(rows));
   wesChart(wesRoot,'Evolução do volume entre semanas',summaries.map(s=>s.volume),labels,'line');
   const card=wesAdd(wesRoot,'div','wes-chart-card');wesAdd(card,'h3',null,'Frequência semanal');const svg=wesSvg(card);const values=summaries.map(s=>s.trainings),max=Math.max(1,...values);wesSvgItem(svg,'line',{x1:24,y1:154,x2:320,y2:154,class:'wes-axis'});values.forEach((v,i)=>{const x=values.length===1?170:41+i*262/(values.length-1),y=154-v/max*128;wesSvgItem(svg,'rect',{x:x-12,y,width:24,height:154-y,rx:4,class:'wes-bar'});wesSvgItem(svg,'text',{x,y:175,'text-anchor':'middle'},labels[i]);wesSvgItem(svg,'text',{x,y:y-7,'text-anchor':'middle'},String(v))});
-  wesAdd(wesRoot,'p','wes-note','Comparativo das últimas oito semanas com registros. Volume total e frequência podem variar com a prescrição, descanso e intensidade. Compare o mesmo exercício para avaliar progressão de carga e repetições.');
+  wesAdd(wesRoot,'p','wes-note','Comparativo das semanas no período selecionado. Volume total e frequência podem variar com a prescrição, descanso e intensidade. Compare o mesmo exercício para avaliar progressão de carga e repetições.');
  }
 }
 async function wesLoad(){if(wesLoading)return;wesLoading=true;wesError='';wesRender();try{const {data:{user},error:authError}=await wesDb.auth.getUser();if(authError||!user)throw Error('Faça login para visualizar seus dados.');const {data,error}=await wesDb.rpc('wand_aluno_historico');if(error)throw error;wesRows=Array.isArray(data)?data:[];wesLoaded=true}catch(e){wesError='Não foi possível consultar o histórico: '+(e.message||String(e))}finally{wesLoading=false;wesRender()}}
