@@ -95,6 +95,8 @@ test('Migração isola alunos e credita no máximo um treino por dia', { skip: !
     `);
     const url = new URL('../supabase/migrations/20261126025347_wand_legacy_progressao.sql', import.meta.url);
     await db.exec(readFileSync(url, 'utf8'));
+    const notifications = new URL('../supabase/migrations/20261126090006_wand_notificacoes_contextuais.sql', import.meta.url);
+    await db.exec(readFileSync(notifications, 'utf8'));
     const identity = (role, n) => db.exec(`set role ${role}; set test.uid='00000000-0000-0000-0000-00000000000${n}'`);
     const summary = async () => (await db.query('select wand_legacy_resumo(10) as data')).rows[0].data;
     const validate = async (n) => (await db.query('select wand_legacy_validar_treino(10,$1) as ok',
@@ -172,6 +174,7 @@ test('Migração isola alunos e credita no máximo um treino por dia', { skip: !
     assert.equal((await summary()).presentes, undefined);
     const alerts = (await db.query('select * from wand_legacy_avisos()')).rows;
     assert.ok(alerts.some(alert => alert.titulo.includes('Superação')));
+    assert.ok(alerts.some(alert => alert.titulo.startsWith('Nova missão ou meta:') && alert.destino === 'missoes'));
     await db.query('select wand_legacy_ler_aviso($1)',[alerts[0].id]);
     assert.equal((await db.query('select * from wand_legacy_avisos()')).rows.length, alerts.length-1);
     await db.exec(`reset role;
@@ -179,6 +182,9 @@ test('Migração isola alunos e credita no máximo um treino por dia', { skip: !
       insert into avaliacoes_fisicas values (1,10,'2026-01-02');
       insert into wand_bemestar_registros values (10,'2026-01-02',3,null,null);`);
     await identity('authenticated', 1);
+    assert.equal(Number((await db.query('select wand_legacy_total_novas_conquistas() as total')).rows[0].total),1);
+    const coachAlerts = (await db.query('select * from wand_legacy_avisos()')).rows;
+    assert.ok(coachAlerts.some(alert => alert.titulo.startsWith('Crédito registrado') && alert.destino === 'historico'));
     await db.query('select wand_legacy_validar_acompanhamento(10)');
     await db.query('select wand_legacy_validar_acompanhamento(10)');
     assert.equal((await summary()).xp,705);
@@ -198,6 +204,8 @@ test('Migração isola alunos e credita no máximo um treino por dia', { skip: !
       ]);
     }
     const consistency = await summary();
+    const workoutAlerts = (await db.query("select * from wand_legacy_avisos() where destino = 'treinos'")).rows;
+    assert.ok(workoutAlerts.length > 0);
     assert.equal(consistency.historico.filter(item => item.codigo === 'meta_semanal').length,4);
     assert.equal(consistency.historico.filter(item => item.codigo === 'meta_mensal').length,1);
     assert.ok(consistency.insignias.some(badge => badge.codigo === 'disciplina_ouro'));

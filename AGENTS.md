@@ -15,6 +15,7 @@ Preto/dourado premium, modo escuro padrão, logo oficial sem quadrado de fundo. 
 - Prescrição: rascunho/ativo/arquivado, ativar exige exercícios; duplicar independente; excluir erros; biblioteca de modelos e métodos; publicação retorna aos treinos do aluno.
 - Bem-estar aprovado: adaptação de treino e saúde feminina com submenus, consentimento e privacidade; previsão aproximada com histórico suficiente; não alterar automaticamente prescrição. Evolução física aprovada: preservar gráficos e padrão visual.
 - Notificações: eventos relevantes nos dois perfis, destino contextual; sem logs técnicos.
+- O painel principal do WandCoach usa o cartão WAND LEGACY com a contagem de alunos com avisos de nível ou insígnia não lidos. As notificações ficam nas centrais dos perfis e abrem o destino correspondente. Conclusão de treino avisa o personal independentemente da validação de XP.
 
 ## WAND LEGACY (especificação aprovada; implementação em andamento)
 No WandCoach, Conquistas começa pelos dez níveis. Selecionar um nível abre uma tela separada com os alunos vinculados daquele nível, agrupados pelo XP e com o espaçamento padrão dos cartões. Selecionar um aluno abre seu detalhe. Voltar percorre o caminho inverso.
