@@ -6,14 +6,15 @@ import { runInNewContext } from 'node:vm';
 const read = name => readFileSync(new URL('../' + name, import.meta.url), 'utf8');
 const routes = read('docs/design-system-wand-method.md');
 const authenticated = [...routes.matchAll(/^\| `([^\x60]+\.html)` \| Nível (\d)/gm)];
+const files = readdirSync(new URL('../', import.meta.url)).filter(file => file.endsWith('.html'));
 
 test('todo HTML da raiz consta no inventário', () => {
-  const files = readdirSync(new URL('../', import.meta.url)).filter(file => file.endsWith('.html'));
   for (const file of files) assert.ok(routes.includes('| `' + file + '` |'), file);
 });
 
 test('as rotas autenticadas usam o nível explícito, o tema e a ilha compartilhada', () => {
-  assert.equal(authenticated.length, 20);
+  const usingDock = files.filter(file => /wand-navigation\.js[^>]+data-profile=/.test(read(file)));
+  assert.deepEqual(authenticated.map(([, file]) => file).sort(), usingDock.sort());
   for (const [, file, level] of authenticated) {
     const page = read(file);
     assert.match(page, new RegExp('<body[^>]+data-wand-level="' + level + '"'), file);

@@ -10,8 +10,10 @@ Branch `dev/design-system-global`. Base `85bb8fc`. As mudanças de conteúdo ant
 - [x] Adicionar testes de inventário, componentes compartilhados e retorno da biblioteca.
 - [x] Exercitar consulta, filtros, filas, detalhe via atualização de página, adição, desfazer e retorno à montagem em 390, 768, 1024 e 1280 px, com dados simulados.
 - [x] Exercitar Treinos → Biblioteca → Treinos no WandCoach e Minha Ficha → Dados pessoais → atualização no aluno.
+- [x] Exercitar abertura e retorno ao painel nas 11 centrais do WandCoach e nas 10 do aluno, a 390 e 1280 px, com dados simulados.
 - [x] Exercitar acesso direto ao calendário, retorno à Saúde Feminina e retorno ao Bem-estar. A automação expôs a perda do fragmento na abertura, corrigida antes da nova execução.
 - [x] Preservar os retornos internos da avaliação postural e testar rejeição de destinos externos.
+- [x] Restaurar a lista da central fotográfica após atualizar ou voltar do detalhe. Fluxo de autorizações validado no Chrome a 390 px com dados simulados.
 - [x] Remover duplicatas de Voltar em cadastro e medidas, e usar Voltar à montagem na biblioteca aberta a partir do treino.
 - [x] Migrar nove páginas para o componente compartilhado de conclusão. Testar exibição, foco no botão OK, fechamento e resolução nos dois perfis.
 - [x] Comparar as dimensões e a posição da ilha antes e depois nas quatro larguras em ambos os perfis, com valores iguais.
