@@ -159,3 +159,7 @@ Após autorização, o projeto separado `wand-method-homologacao` foi criado por
 ### Auth fechado e pré-verificação do esquema
 
 A homologação confirmou cadastro público e login anônimo desativados, com confirmação de e-mail mantida. O catálogo ainda não contém `profiles`, `alunos`, `wand_treinos` ou a RPC de histórico. Foram registrados a conferência SQL de Treinos, os requisitos da entrega do DDL e o caminho de criação administrativa das contas sem convites. A execução autenticada continua pendente do DDL e das contas de teste.
+
+### Recorte de Treinos em homologação
+
+A migração `homologacao_base_treinos_catalogo` foi aplicada somente ao projeto `kcusxtfvcwqdflszqjes`. Confirmamos 17 tabelas com RLS, 18 funções, as permissões efetivas e a ausência de extensões de integração, servidores externos e Edge Functions. O cenário PGlite com identidades fictícias passou para publicação, execução, carga, conclusão, histórico e bloqueios entre alunos. A homologação com login real aguarda as contas fictícias confirmadas administrativamente. O guia documenta a diferença entre o recorte e a instalação integral.
