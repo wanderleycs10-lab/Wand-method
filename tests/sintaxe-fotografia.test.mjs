@@ -32,8 +32,8 @@ test('Script da área fotográfica do aluno tem sintaxe válida', () => {
 
 test('Script principal do WandCoach tem sintaxe JavaScript válida', () => {
   const html = readFileSync('admin.html', 'utf8');
-  const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)]
-    .filter(([, attrs]) => !/\\bsrc\\s*=/.test(attrs));
+  const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter(([, attrs]) => !/\bsrc\s*=/.test(attrs));
   assert.ok(scripts.length > 0, 'Nenhum script embutido do WandCoach encontrado');
   for (const [, attrs, body] of scripts) {
     check(body, /type=["']module["']/.test(attrs) ? 'mjs' : 'js');

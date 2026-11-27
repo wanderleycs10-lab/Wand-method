@@ -106,3 +106,36 @@ A nova consulta ao GitHub confirmou a integração em dia com a main (`717abd1`)
 A varredura visual repetiu 255 aberturas nos dois temas, sem registrar rolagem horizontal, duplicação do Voltar compartilhado, erro JavaScript não tratado ou diferença nas medidas da ilha entre temas. O axe-core não apontou violações nas regras selecionadas nas oito telas prioritárias.
 
 A aprovação é visual. A homologação de gravações, permissões e comunicações com contas e dados isolados em um serviço de teste e a autorização para publicação seguem pendentes. As verificações desta rodada usaram respostas simuladas. Nenhuma migração ou alteração em produção foi realizada.
+
+## Homologação final — correções da suíte e validação isolada
+
+A revisão partiu de `45d82ae`, sucessor de `548bf50` com a aprovação da identidade visual. Não houve nova integração da main. As correções desta rodada estão restritas aos testes e à documentação. A comparação dos arquivos confirma que a ilha, as superfícies dos níveis e os fluxos e regras do aplicativo permanecem iguais.
+
+### Testes automatizados
+
+A suíte padrão foi executada com Node.js 22.23.5 após cada mudança.
+
+| Falha anterior | Causa e correção | Resultado da suíte após a correção |
+| --- | --- | --- |
+| Sintaxe dos scripts | O extrator de scripts do painel principal do WandCoach tinha barras escapadas duas vezes, impedindo o carregamento do arquivo de testes. A expressão foi alinhada à usada no painel fotográfico, habilitando três testes de sintaxe reais. | 37 passaram, 3 falharam, 1 ignorado |
+| Registro de solicitação | A expressão exigia que `.insert` viesse imediatamente após `.from(...)`. O código usa quebra de linha. O teste aceita espaço em branco e continua verificando tabela, aluno, solicitante e estado. | 38 passaram, 2 falharam, 1 ignorado |
+| Consentimento na solicitação direta | O texto esperado era antigo. O teste passou a exigir a mensagem existente e continua verificando a condição de autorização e a confirmação de sucesso. | 39 passaram, 1 falhou, 1 ignorado |
+| Revisão das três fotografias | O botão aprovado diz “Enviar fotografias”. O teste passou a conferir esse texto e manteve as verificações de rascunho, edição local e bloqueio sem as três posições. | 40 passaram, 0 falharam, 1 ignorado |
+
+Com PGlite e banco descartável em memória, a mesma suíte passou **41 de 41**. Essa execução também verificou isolamento de alunos, permissões do WAND LEGACY e limite diário de crédito de treino, com dados fictícios. Nenhum banco remoto participou.
+
+### Testes funcionais simulados
+
+- WandCoach e aluno, com requisições externas e service worker bloqueados no Chromium. Contratos foram verificados pelos três destinos e pelo aceite fictício. A notificação fotográfica abriu a área correspondente. Perfil, acompanhamento, avaliação física e níveis do WAND LEGACY passaram nos percursos de ida e retorno. O painel de avaliação e o de prescrição apresentaram a recusa esperada para o perfil aluno.
+- Fotografia: nenhuma inclusão simulada quando o consentimento estava recusado ou já havia pedido pendente. Com autorização, foi conferida a carga da inclusão. Na visão do aluno, imagens sintéticas nas três posições ficaram em prévia sem chamadas de gravação. Após confirmação, o navegador registrou três cargas e três inclusões no serviço simulado.
+- Prescrição: adicionar, desfazer, avançar à montagem e voltar da biblioteca em tema escuro e claro. A publicação e a persistência de uma prescrição no serviço de homologação ainda precisam ser verificadas.
+- A matriz visual repetiu 255 aberturas em 51 endereços a 320, 390, 768, 1024 e 1280 px, nos dois temas. A comparação de posição, dimensões e estilos computados da ilha passou nos dois painéis nas quatro larguras de referência.
+
+### Testes reais e verificações que dependem do responsável
+
+Não foi identificado um ambiente de homologação autenticado e autorizado para este workspace. Os testes do Chromium usaram respostas simuladas. O banco local em memória comprova o cenário automatizado descrito acima, sem validar autenticação, armazenamento, e-mail ou políticas de um serviço implantado.
+
+1. Indicar e autorizar um serviço de homologação separado da produção, com acesso seguro e configuração própria. Preparar um WandCoach, um aluno fictício vinculado e um aluno fictício fora desse vínculo. Usar apenas imagens sintéticas e caixas de e-mail de teste.
+2. Servir o commit candidato com configuração exclusiva desse serviço e confirmar o destino das chamadas antes de entrar. Validar sessão, restrições por perfil e vínculo entre os dois alunos fictícios.
+3. Executar proposta, envio, aceite e leitura de notificação; solicitar, enviar e revisar avaliações físicas e fotográficas; salvar, recarregar e publicar uma prescrição fictícia apenas na homologação. Verificar registros persistidos, comunicação de teste, retorno contextual, erros e negativas de acesso, sem inserir dados reais.
+4. Registrar as evidências dos dois perfis. Submeter o resultado para aprovação final. Merge na main e publicação dependem de autorização explícita.

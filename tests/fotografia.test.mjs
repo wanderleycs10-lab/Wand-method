@@ -9,7 +9,7 @@ const painel = readFileSync(resolve('avaliacao-fotografica-painel.html'), 'utf8'
 const aluno = readFileSync(resolve('avaliacao-fotografica.js'), 'utf8');
 
 test('WandCoach registra solicitações na tabela correta', () => {
-  assert.match(painel, /from\('wand_solicitacoes_fotograficas'\)\.insert\(/);
+  assert.match(painel, /from\('wand_solicitacoes_fotograficas'\)\s*\.insert\(/);
   for (const campo of ['aluno_id:id', 'solicitado_por:user.id', "status:'pendente'"]) {
     assert.ok(painel.includes(campo), 'Campo obrigatório ausente: '+campo);
   }
@@ -31,7 +31,7 @@ test('Envio das fotos preserva identidade do remetente e armazenamento privado',
 });
 test('Solicitacao direta exige consentimento e informa resultado', () => {
   assert.match(painel, /consent\?\.status_avaliacao!=='autorizada'/);
-  assert.match(painel, /Aluno não autorizou a avaliação fotográfica/);
+  assert.match(painel, /O aluno ainda não autorizou a avaliação fotográfica/);
   assert.match(painel, /Fotografia solicitada com sucesso!/);
   assert.doesNotMatch(painel, /Orientações para o aluno \(opcional\)/);
   assert.doesNotMatch(painel, /Registrar solicitação/);
@@ -59,7 +59,7 @@ test('Aluno revisa tres fotos antes de confirmar o envio', () => {
   assert.match(aluno, /const rascunhos = new Map/);
   assert.match(aluno, /function cartoes\(pai\)/);
   assert.match(aluno, /editarImagem\(posicao,input\.files\[0\]\)/);
-  assert.match(aluno, /Enviar as três fotografias/);
+  assert.match(aluno, /Enviar fotografias/);
   assert.match(aluno, /enviarConjunto/);
   assert.match(aluno, /posicoes\.some\(p=>!rascunhos\.has\(p\)\)/);
   assert.doesNotMatch(aluno, /enviar\(posicao, input\.files\[0\]\)/);
