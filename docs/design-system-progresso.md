@@ -167,3 +167,7 @@ A migração `homologacao_base_treinos_catalogo` foi aplicada somente ao projeto
 ### Contas fictícias e ciclo SQL na homologação
 
 As três contas confirmadas foram vinculadas aos respectivos perfis e cadastros no projeto de teste. Prescrição, publicação, carga, conclusão, histórico e seis negativas entre alunos passaram com papéis e claims SQL no banco hospedado. As gravações do ensaio foram revertidas. O roteiro de API está preparado para repetir o ciclo com sessões emitidas pelo Auth. As senhas fictícias ainda não estão disponíveis no cofre do runtime.
+
+### Inventário dos módulos complementares
+
+O teste de Treinos com sessão emitida pelo Auth foi adiado a pedido do responsável. O [inventário de homologação](inventario-homologacao.md) registra dependências, requisitos de segurança e sequência de validação das áreas restantes. A suíte isolada passou 41 de 41. Os scripts de fotografia e notificações foram exercitados em banco em memória, com dados fictícios. A Data API da homologação também foi consultada sem sessão e não expôs registros de perfis, alunos ou notificações nas consultas realizadas. Esta rodada alterou apenas documentação.
