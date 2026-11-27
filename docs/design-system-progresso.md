@@ -32,3 +32,9 @@ As linhas de páginas autenticadas do inventário confirmam a integração ao te
 ## Próximo passo
 
 Começar pelas telas autenticadas ainda sem teste de interação no inventário, em especial perfil individual, contratos, notificações, avaliações e WAND LEGACY. Revisar cabeçalhos e confirmações locais, profundidades restantes, acessibilidade e tema claro. O código rastreado das áreas autenticadas usa esquema escuro e ainda não tem tema claro global. Manter as falhas antigas separadas e preservar o CSS e os atalhos da ilha.
+
+## Continuidade no Codex Cloud
+
+- A preferência Tema claro é opcional, começa no modo escuro e é compartilhada pelos dois perfis no mesmo navegador. A primeira camada cobre superfícies e controles compartilhados nas 20 páginas autenticadas. A ilha e os cabeçalhos com logotipo mantêm o acabamento oficial.
+- O perfil do aluno passa a conservar no endereço as subáreas abertas dentro da própria página e apresenta um único Voltar contextual. Propostas na área de contratos do aluno recebem superfície de nível 2. A confirmação de gravação do WAND LEGACY usa o diálogo compartilhado em tela cheia.
+- Node.js 22.23.5 registrou 34 sucessos, as mesmas quatro falhas conhecidas de fotografia e um teste ignorado. As falhas antigas são acompanhadas na linha de base acima.

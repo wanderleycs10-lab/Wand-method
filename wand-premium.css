@@ -283,39 +283,6 @@ main,section,article{min-width:0}
   .wc-legacy-catalog,
   .wc-legacy-rules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.wc-legacy-success[open] {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 1rem;
-  border: 0;
-  background: #080808e8;
-  color: #f5f4f0;
-}
-.wc-legacy-success .card {
-  width: min(100%, 26rem);
-  box-sizing: border-box;
-  text-align: center;
-  padding: 1.75rem;
-}
-.wc-legacy-success-icon {
-  display: grid;
-  place-items: center;
-  width: 3.6rem;
-  height: 3.6rem;
-  margin: 0 auto;
-  border: 2px solid var(--wand-gold);
-  border-radius: 50%;
-  color: var(--wand-gold-light);
-  font-size: 2rem;
-}
 .wand-legacy-level-list {
   padding: 0;
   list-style: none;
@@ -397,7 +364,7 @@ details[open] > .wand-legacy-level-toggle::after { transform: rotate(90deg); }
   --wand-route-surface: linear-gradient(145deg,#33220d,#1c1915 28%,#111 70%,#2a1a08);
   --wand-route-shadow: inset 0 2px 1px #ffdb8c73,inset 0 -3px 7px #d19b2840,0 10px 20px #0009;
 }
-[data-wand-level="2"], [data-wand-level="3"] {
+[data-wand-level]:not([data-wand-level="0"],[data-wand-level="1"]) {
   --wand-route-edge: #a8abb2;
   --wand-route-surface: linear-gradient(145deg,#2c2b2a,#171717 45%,#111 78%,#21190e);
   --wand-route-shadow: inset 0 2px 1px #e9edf359,inset 0 -2px 6px #d5a53a16,0 8px 19px #0008;
@@ -464,6 +431,17 @@ body dialog.wand-completion {
   text-align: center;
 }
 body dialog.wand-completion::backdrop { background: #000b; }
+body dialog.wand-completion-fullscreen {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  align-content: center;
+  justify-items: center;
+  border: 0;
+  border-radius: 0;
+}
+body dialog.wand-completion-fullscreen button.primary { max-width: 26rem; }
 .wand-completion-icon {
   display: grid;
   place-items: center;
@@ -492,4 +470,104 @@ body .wand-completion button.primary {
 }
 @media print {
   body[data-wand-level] [data-wand-back] { display: none !important; }
+}
+
+.wand-appearance {
+  display: flex;
+  justify-content: flex-end;
+  margin-block: .35rem .75rem;
+}
+.wand-appearance button[data-wand-theme-toggle] {
+  width: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: .5rem .9rem;
+}
+@media print {
+  .wand-appearance { display: none; }
+}
+
+@media screen {
+  html[data-wand-light] {
+    --wand-light-text: #24211e;
+    --wand-light-muted: #56514a;
+    --wand-light-gold: #75500d;
+    --wand-light-silver: #797e87;
+    --wand-light-surface: linear-gradient(145deg,#fff,#ededef 75%,#e3e4e8);
+    --wand-light-shadow: inset 0 2px #fff,inset 0 -2px 5px #797e8729,0 5px 12px #29241a24;
+    color-scheme: light;
+  }
+  html[data-wand-light] body[data-wand-level] {
+    background: radial-gradient(ellipse at top right,#f4e6c9,transparent 45%),#f6f4ef !important;
+    color: var(--wand-light-text) !important;
+  }
+  html[data-wand-light] body[data-wand-level] > header {
+    /* Mantém o fundo dos logotipos e o acabamento do cabeçalho oficial. */
+    color-scheme: dark;
+    color: #f5f4f0;
+  }
+  html[data-wand-light] body[data-wand-level] > :is(.wand-dock,.wand-navigation-dock,.wand-navigation-drawer,.wand-drawer) {
+    color-scheme: dark;
+  }
+  html[data-wand-light] [data-wand-level] {
+    --wand-route-edge: #99722e;
+    --wand-route-surface: linear-gradient(145deg,#fff9e8,#f2e4c2 70%,#e4cd9c);
+    --wand-route-shadow: var(--wand-light-shadow);
+  }
+  html[data-wand-light] [data-wand-level]:not([data-wand-level="0"],[data-wand-level="1"]) {
+    --wand-route-edge: var(--wand-light-silver);
+    --wand-route-surface: var(--wand-light-surface);
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.card,.subcard,.sub-card,.status-card,.panel-card,.form-card,.metric,.wc-person,.contract-details,.contract-consent,.contract-progress,.documento,.doc,.wand-legacy-summary > details):not([data-wand-route-card]) {
+    background: var(--wand-light-surface) !important;
+    border-color: var(--wand-light-silver) !important;
+    box-shadow: var(--wand-light-shadow) !important;
+    color: var(--wand-light-text) !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(h1,h2,h3,label,summary,.gold,[data-wand-heading]) {
+    color: var(--wand-light-gold) !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.muted,.contract-meta,.contract-consent-hint,.contract-note) {
+    color: var(--wand-light-muted) !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.error,.ok) { color: #8c2424 !important; }
+  html[data-wand-light] body[data-wand-level] main .ok { color: #235c33 !important; }
+  html[data-wand-light] body[data-wand-level] main :is(input:not([type="checkbox"],[type="radio"],[type="range"]),select,textarea) {
+    box-sizing: border-box;
+    max-width: 100%;
+    background: #fff !important;
+    border-color: var(--wand-light-silver) !important;
+    color: var(--wand-light-text) !important;
+    box-shadow: inset 0 1px 3px #211b121f !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is([data-wand-back],.secondary,.secundario):not(.wand-primary-row,.wc-row) {
+    background: var(--wand-light-surface) !important;
+    box-shadow: var(--wand-light-shadow) !important;
+    border-color: var(--wand-light-silver) !important;
+    color: var(--wand-light-gold) !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile,[data-wand-route-card]),
+  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile) :is(.nav-name,.wc-name,strong) {
+    color: var(--wand-light-text) !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile) :is(small,.nav-desc,.wc-desc) {
+    color: var(--wand-light-muted) !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row) :is(.nav-icon,.wc-icon,.ficha-icon) {
+    color: #f3c95f !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row)::after {
+    color: var(--wand-light-gold);
+  }
+  html[data-wand-light] body[data-wand-level] main :is(button,a,summary,input,textarea,select):focus-visible {
+    outline: 2px solid #79500a !important;
+    outline-offset: 3px;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.wand-grafico-padrao,.wce-chart-card) {
+    color-scheme: dark;
+    color: #f5f4f0;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.wand-grafico-padrao,.wce-chart-card) :is(h2,h3,.muted) {
+    color: #e8c674 !important;
+  }
 }

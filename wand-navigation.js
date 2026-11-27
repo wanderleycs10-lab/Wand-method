@@ -2,6 +2,29 @@
   const role = document.currentScript?.dataset.profile;
   if (!['coach', 'student'].includes(role)) return;
 
+  const themeToggle = document.querySelector('[data-wand-theme-toggle]');
+  const themeKey = 'wand-appearance';
+  function applyTheme(light) {
+    document.documentElement.toggleAttribute('data-wand-light', light);
+    themeToggle?.setAttribute('aria-pressed', String(light));
+  }
+  if (document.body?.hasAttribute('data-wand-level')) {
+    try {
+      applyTheme(localStorage.getItem(themeKey) === 'light');
+    } catch {
+      applyTheme(false);
+    }
+    themeToggle?.addEventListener('click', () => {
+      const light = !document.documentElement.hasAttribute('data-wand-light');
+      applyTheme(light);
+      try {
+        localStorage.setItem(themeKey, light ? 'light' : 'dark');
+      } catch {
+        // A preferência continua disponível nesta página.
+      }
+    });
+  }
+
   window.wandContextUrl = (value, allowedPages, fallback) => {
     if (!value) return fallback;
     try {
@@ -15,9 +38,10 @@
     }
   };
 
-  window.wandMostrarConclusao = mensagem => new Promise(resolve => {
+  window.wandMostrarConclusao = (mensagem, { fullscreen = false } = {}) => new Promise(resolve => {
     const dialog = document.createElement('dialog');
     dialog.className = 'wand-completion';
+    dialog.classList.toggle('wand-completion-fullscreen', fullscreen);
     dialog.setAttribute('aria-label', 'Concluído com sucesso');
     const check = document.createElement('span');
     check.className = 'wand-completion-icon';
