@@ -155,3 +155,7 @@ A montagem temporária foi validada com configuração fictícia. O Chromium blo
 ### Provisionamento Supabase Free
 
 Após autorização, o projeto separado `wand-method-homologacao` foi criado por US$ 0 por mês e confirmado ativo. A verificação consultou o Auth de homologação e os catálogos, sem ler dados de alunos. O cliente de homologação recusa iniciar se o cadastro público estiver habilitado. As dependências de prescrição, execução e histórico foram registradas no [guia](homologacao-isolada.md). A homologação autenticada segue bloqueada pela base DDL revisada e pelo acesso administrativo de Auth para restringir envios e provisionar contas de teste. A produção e os destinos de publicação ficaram intactos.
+
+### Auth fechado e pré-verificação do esquema
+
+A homologação confirmou cadastro público e login anônimo desativados, com confirmação de e-mail mantida. O catálogo ainda não contém `profiles`, `alunos`, `wand_treinos` ou a RPC de histórico. Foram registrados a conferência SQL de Treinos, os requisitos da entrega do DDL e o caminho de criação administrativa das contas sem convites. A execução autenticada continua pendente do DDL e das contas de teste.
