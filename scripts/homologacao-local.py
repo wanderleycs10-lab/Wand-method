@@ -9,6 +9,7 @@ import subprocess
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from tempfile import TemporaryDirectory
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_API = "http://127.0.0.1:54321"
@@ -25,6 +26,19 @@ def target(ref, key):
     if not PUBLIC_KEY.fullmatch(key):
         raise ValueError("Use a chave publicável do projeto de homologação.")
     return f"https://{ref}.supabase.co", key
+
+
+class NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def verify_hosted_auth(api, key):
+    request = Request(f"{api}/auth/v1/settings", headers={"apikey": key})
+    with build_opener(NoRedirect).open(request, timeout=10) as response:
+        settings = json.load(response)
+    if settings.get("disable_signup") is not True:
+        raise ValueError("Desabilite o cadastro público no Auth do projeto de homologação.")
 
 
 def content_security_policy(api):
@@ -110,6 +124,8 @@ if __name__ == "__main__":
     ref = os.environ.get("WAND_STAGING_REF", "")
     key = os.environ.get("WAND_STAGING_PUBLIC_KEY" if ref else "WAND_LOCAL_PUBLIC_KEY", "")
     api, key = target(ref, key)
+    if ref:
+        verify_hosted_auth(api, key)
     with TemporaryDirectory(prefix="wand-homologacao-") as directory:
         prepare(Path(directory), key, api)
         handler = partial(LocalHandler, directory=directory, csp=content_security_policy(api))

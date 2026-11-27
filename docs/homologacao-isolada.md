@@ -63,3 +63,15 @@ Em 27/11/2026, o conector identificou a organização **WAND METHOD** no plano *
 5. Com perfil de navegador limpo, inspecionar a rede antes de fornecer credenciais de teste. Validar que solicitações REST e Storage do cliente vão somente ao projeto de teste, que login por senha funciona e que ações de e-mail e Edge Functions são bloqueadas no cliente. Verificar separadamente no serviço que as rotas, triggers e funções não carregam segredos, endereços ou integrações de produção. Fazer as provas negativas com sentinelas fictícias, sem chamar a API de produção. Repetir a matriz funcional deste guia e guardar evidências redigidas.
 
 A CSP é uma barreira para o cliente servido. As garantias necessárias no serviço hospedado dependem da verificação do DDL e das configurações reais depois da criação. Nenhum projeto, conta, função ou bucket foi criado nesta etapa.
+
+### Projeto provisionado e estado da homologação
+
+O Supabase confirmou custo de US$ 0 por mês na organização Free. Após autorização, `wand-method-homologacao` (`kcusxtfvcwqdflszqjes`) foi criado em São Paulo e confirmado como `ACTIVE_HEALTHY`. A leitura de `/auth/v1/settings` mostrou cadastro público habilitado na configuração inicial. O servidor de teste agora recusa iniciar com esse estado. O catálogo de homologação ainda está vazio de buckets. Nenhum e-mail, usuário ou dado foi criado.
+
+O catálogo de produção foi consultado somente para estruturar a sequência de Treinos:
+
+- **Prescrição:** `profiles`, `alunos`, `wand_exercicios`, `wand_metodos`, `wand_treinos`, `wand_treino_exercicios`, `wand_treino_series`, `wand_programas_treino`, `wand_programa_fichas`, validação de exercício e RPC `wand_publicar_programa`.
+- **Execução:** `wand_sessoes_treino` referencia `wand_adaptacoes_programadas`, treino, aluno e Auth. Preservar os triggers de bloqueio diário, auditoria de interrupção e aviso do Legacy. `wand_series_executadas` depende de sessão e série. Sessão e séries executadas têm RLS sem políticas diretas no catálogo consultado. Validar o caminho de gravação via funções autorizadas.
+- **Histórico:** confirmar assinaturas de `wand_aluno_historico` e `wand_aluno_historico_treinos`, além do acesso a treinos ativos e notificações por titular. Repetir o teste com alunos A e B e comparar o estado persistido após recarregar. Para Storage, restaurar somente buckets e políticas necessários, sem objetos de produção.
+
+Bloqueios para executar o roteiro autenticado: disponibilizar a base DDL revisada sem dados, com as dependências acima, e acesso administrativo ao Auth da homologação para desabilitar cadastro, verificar a barreira de e-mail e preparar contas confirmadas sem envio. O conector disponível não oferece alteração da configuração de Auth nem criação administrativa de usuários. O projeto permanece sem esquema de aplicativo, funções, buckets ou usuários até cumprir esses pré-requisitos. A migração dos arquivos do repositório sem a base deixaria a execução incompleta.
