@@ -76,8 +76,8 @@ button.remover{background:#572323;color:#fff}
 @keyframes wandCheck{from{opacity:0;transform:scale(.65)}to{opacity:1;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.wand-confirmacao .wand-check{animation:none}}
 </style>
-<link rel="stylesheet" href="./wand-premium.css?v=20261117-1"><link rel="stylesheet" href="./wand-navigation.css?v=1"><link rel="stylesheet" href="./wand-exercise-catalog.css?v=1"></head>
-<body>
+<link rel="stylesheet" href="./wand-premium.css?v=design-1"><link rel="stylesheet" href="./wand-navigation.css?v=1"><link rel="stylesheet" href="./wand-exercise-catalog.css?v=1"></head>
+<body data-wand-level="2">
 
 <header>
 <h1>WAND METHOD</h1>
@@ -85,7 +85,7 @@ button.remover{background:#572323;color:#fff}
 </header>
 
 <main>
-<a id="voltar" href="admin.html">← Voltar ao WandCoach</a>
+<a id="voltar" href="admin.html#wc/treinos" data-wand-back>Voltar para Treinos</a>
 <p id="status">Verificando acesso...</p>
 
 <div id="app">
@@ -104,7 +104,7 @@ button.remover{background:#572323;color:#fff}
 <p id="mensagem" role="status" aria-live="polite"></p>
 </div>
 <div id="modalMetodo" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloMetodo"><div class="modal"><h2 id="tituloMetodo">Escolha um método</h2><p id="exercicioModal" class="info"></p><button id="semMetodo" type="button">+ Adicionar sem método</button><label for="buscarMetodo">Pesquisar método</label><input id="buscarMetodo" placeholder="Pesquisar..." type="search"><div id="listaMetodos"></div><hr class="separador"><h3>Criar método personalizado</h3><p class="avisinho">O método criado aqui será salvo na biblioteca de métodos do treinador. A configuração detalhada de regras depende do cadastro avançado de métodos.</p><label for="nomeNovoMetodo">Nome do método</label><input id="nomeNovoMetodo" placeholder="Ex.: Drop + Isometria"><div class="botoes"><button id="criarMetodo" type="button" class="secundario">Criar e selecionar</button><button id="fecharMetodo" type="button" class="secundario">Cancelar</button></div><p id="erroMetodo" class="erro"></p></div></div>
-<div id="modalDetalheMetodo" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloDetalheMetodo"><div class="modal"><h2 id="tituloDetalheMetodo">Método</h2><p id="descricaoDetalheMetodo" class="info"></p><div id="seriesDetalheMetodo"></div><p id="observacaoDetalheMetodo" class="notice"></p><div id="referenciasMetodo" class="referencias-metodo"></div><div class="botoes"><button type="button" id="aplicarDetalheMetodo">+ Aplicar método</button><button type="button" class="secundario" id="voltarDetalheMetodo">← Voltar aos métodos</button></div></div></div>
+<div id="modalDetalheMetodo" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloDetalheMetodo"><div class="modal"><h2 id="tituloDetalheMetodo">Método</h2><p id="descricaoDetalheMetodo" class="info"></p><div id="seriesDetalheMetodo"></div><p id="observacaoDetalheMetodo" class="notice"></p><div id="referenciasMetodo" class="referencias-metodo"></div><div class="botoes"><button type="button" id="aplicarDetalheMetodo">+ Aplicar método</button><button type="button" class="secundario" id="voltarDetalheMetodo" data-wand-back>Voltar aos métodos</button></div></div></div>
 <div id="modalConjugado" class="modal-fundo oculto" role="dialog" aria-modal="true" aria-labelledby="tituloConjugado"><div class="modal"><h2 id="tituloConjugado">Escolher exercícios conjugados</h2><p id="instrucaoConjugado" class="info"></p><div id="resumoConjugado" class="conjugado-resumo"></div><div class="conjugado-filtros"><div><label for="buscaConjugado">Pesquisar exercício</label><input id="buscaConjugado" type="search" placeholder="Nome do exercício..."></div><div><label for="grupoConjugado">Grupo muscular</label><select id="grupoConjugado"><option value="">Todos os grupos</option></select></div></div><div id="listaConjugado" class="conjugado-lista"></div><div class="botoes"><button id="confirmarConjugado" type="button">Adicionar combinação ao treino</button><button id="cancelarConjugado" class="secundario" type="button">Cancelar</button></div><p id="erroConjugado" class="erro"></p></div></div>
 
 </main>
@@ -121,6 +121,17 @@ const supabase=createClient(
 const $=id=>document.getElementById(id);
 const parametros=new URLSearchParams(location.search);
 const alunoPerfil=parametros.get("aluno_id")||parametros.get("id");
+const retornoGerenciamento=parametros.get('de')==='gerenciamento';
+if(retornoGerenciamento){
+ const destino=new URL('gerenciar-treinos.html',location.href);
+ const alunoGestao=parametros.get('gestao_aluno');
+ if(alunoGestao&&/^\d+$/.test(alunoGestao))destino.searchParams.set('aluno_id',alunoGestao);
+ if(parametros.get('gestao_visao')==='rascunhos')destino.searchParams.set('visao','rascunhos');
+ const voltar=document.getElementById('voltar');
+ voltar.href=destino.href;
+ voltar.textContent='Voltar ao gerenciamento de treinos';
+}
+
 const rascunhoId=parametros.get("treino_id");
 const programaUrl=parametros.get('programa_id');const fichaUrl=Number(parametros.get('ficha')||1);
 let wandProgramaId=null,wandFichaAtual=1,wandFichasIds=[],wandCarregando=false;
@@ -206,7 +217,7 @@ const {data:perfil,error:ep}=await supabase.from('profiles').select('role').eq('
 const [ra,re,rm]=await Promise.all([supabase.from('alunos').select('id,nome_completo').order('nome_completo'),supabase.from('wand_exercicios').select('*').eq('ativo',true).order('nome'),supabase.from('wand_metodos').select('id,nome,descricao,estrutura,personalizado').eq('ativo',true).order('nome')]);
 if(ra.error)throw ra.error;if(re.error)throw re.error;if(rm.error)throw rm.error;
 biblioteca=re.data||[];metodos=rm.data||[];metodos.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));(ra.data||[]).forEach(a=>opcao($('aluno'),String(a.id),a.nome_completo||'Sem nome'));
-if(alunoPerfil!==null){if(!/^\d+$/.test(alunoPerfil)||!Number.isSafeInteger(Number(alunoPerfil))||Number(alunoPerfil)<=0)throw Error('Identificador de aluno inválido.');if(!(ra.data||[]).some(a=>String(a.id)===alunoPerfil))throw Error('Aluno não encontrado ou sem acesso.');$('aluno').value=alunoPerfil;$('aluno').disabled=true;$('alunoFixoAviso').hidden=false;$('voltar').href='perfil-aluno.html?id='+encodeURIComponent(alunoPerfil);$('voltar').textContent='← Voltar ao perfil do aluno';}
+if(alunoPerfil!==null){if(!/^\d+$/.test(alunoPerfil)||!Number.isSafeInteger(Number(alunoPerfil))||Number(alunoPerfil)<=0)throw Error('Identificador de aluno inválido.');if(!(ra.data||[]).some(a=>String(a.id)===alunoPerfil))throw Error('Aluno não encontrado ou sem acesso.');$('aluno').value=alunoPerfil;$('aluno').disabled=true;$('alunoFixoAviso').hidden=false;if(!retornoGerenciamento){$('voltar').href='perfil-aluno.html?id='+encodeURIComponent(alunoPerfil);$('voltar').textContent='Voltar ao perfil do aluno';}}
 for(const g of [...new Set(biblioteca.map(e=>e.grupo_muscular).filter(Boolean))].sort()){opcao($('grupoBib'),g,g);opcao($('grupoConjugado'),g,g);}
 for(const c of [...new Set(biblioteca.map(e=>e.categoria).filter(Boolean))].sort())opcao($('categoriaBib'),c,c);
 if(!$('categoriaBib').options.length||$('categoriaBib').options.length===1){$('categoriaBib').disabled=true;$('categoriaBib').title='Categorias ainda não cadastradas na biblioteca';}
@@ -424,7 +435,7 @@ async function salvarTreino(status){const apenasRascunho=status==='rascunho';
   }else{
    const {data:novo,error:et}=await supabase.from('wand_treinos').insert({...treino,status:'rascunho'}).select('id').single();if(et)throw et;
    treinoId=novo.id;idTreinoEmEdicao=treinoId;
-   if(!emPrograma)history.replaceState(null,'',location.pathname+'?treino_id='+encodeURIComponent(treinoId)+(alunoPerfil?'&aluno_id='+encodeURIComponent(alunoPerfil):''));
+   if(!emPrograma){const rota=new URL(location.href);rota.searchParams.set('treino_id',treinoId);if(alunoPerfil)rota.searchParams.set('aluno_id',alunoPerfil);history.replaceState(null,'',rota);}
   }
   const {data:antigos,error:ea}=await supabase.from('wand_treino_exercicios').select('id').eq('treino_id',treinoId);if(ea)throw ea;
   const idsAntigos=new Set((antigos||[]).map(x=>x.id));
@@ -475,5 +486,5 @@ $('validadeTipo').onchange=()=>{$('validadeDatas').classList.toggle('oculto',$('
 
 iniciar();
 </script>
-<script>function wandConfirmarLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Confirmar ação');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #b8bcc4;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const ic=document.createElement('div');ic.setAttribute('aria-hidden','true');ic.style.cssText='width:58px;height:58px;margin:0 auto 14px;border:2px solid #e8c674;border-radius:50%;display:grid;place-items:center;color:#e8c674;font-size:34px;box-shadow:0 0 15px #d4af3740';ic.textContent='?';const h=document.createElement('h2');h.textContent='Concluído com sucesso!';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='Confirmar';b.style.cssText='width:100%!important;padding:14px!important;border:1px solid #f6d98e!important;border-radius:12px!important;background:linear-gradient(180deg,#fff0b0 0%,#e5bd58 35%,#b17d25 100%)!important;color:#171005!important;font-weight:700!important;font-size:16px!important;box-shadow:inset 0 2px 2px #fff9,inset 0 -3px 5px #70470c88,0 5px 12px #0009!important;text-shadow:none!important;cursor:pointer';const c=document.createElement('button');c.type='button';c.textContent='Cancelar';c.style.cssText='width:100%;margin-top:10px;padding:12px;border:1px solid #b8bcc4;border-radius:12px;background:#191919;color:#fff';d.append(ic,h,p,b,c);c.onclick=()=>{d.close();d.remove();resolve(false)};document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.style.setProperty('background','linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)','important');b.style.setProperty('color','#171005','important');b.onclick=()=>{d.close();d.remove();resolve(true)};d.showModal();b.focus()})}</script><script src="./wand-navigation.js?v=1" data-profile="coach"></script></body>
+<script>function wandConfirmarLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Confirmar ação');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #b8bcc4;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const ic=document.createElement('div');ic.setAttribute('aria-hidden','true');ic.style.cssText='width:58px;height:58px;margin:0 auto 14px;border:2px solid #e8c674;border-radius:50%;display:grid;place-items:center;color:#e8c674;font-size:34px;box-shadow:0 0 15px #d4af3740';ic.textContent='?';const h=document.createElement('h2');h.textContent='Concluído com sucesso!';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='Confirmar';b.style.cssText='width:100%!important;padding:14px!important;border:1px solid #f6d98e!important;border-radius:12px!important;background:linear-gradient(180deg,#fff0b0 0%,#e5bd58 35%,#b17d25 100%)!important;color:#171005!important;font-weight:700!important;font-size:16px!important;box-shadow:inset 0 2px 2px #fff9,inset 0 -3px 5px #70470c88,0 5px 12px #0009!important;text-shadow:none!important;cursor:pointer';const c=document.createElement('button');c.type='button';c.textContent='Cancelar';c.style.cssText='width:100%;margin-top:10px;padding:12px;border:1px solid #b8bcc4;border-radius:12px;background:#191919;color:#fff';d.append(ic,h,p,b,c);c.onclick=()=>{d.close();d.remove();resolve(false)};document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.style.setProperty('background','linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)','important');b.style.setProperty('color','#171005','important');b.onclick=()=>{d.close();d.remove();resolve(true)};d.showModal();b.focus()})}</script><script src="./wand-navigation.js?v=design-1" data-profile="coach"></script></body>
 </html>

@@ -1,4 +1,4 @@
-/* WAND METHOD — Tema premium unificado v1. Cores, relevo e acessibilidade. */
+/* WAND METHOD — Tema premium unificado. Cores, relevo e acessibilidade. */
 :root{--wand-black:#080808;--wand-gold:#eac052;--wand-gold-light:#ffe6a0;--wand-silver:#aeb2bb;--wand-silver-edge:#737983;--wand-panel:#151515}
 html{color-scheme:dark}
 body{background:radial-gradient(ellipse at 95% 7%,rgba(117,76,18,.18),transparent 35%),radial-gradient(ellipse at 2% 80%,rgba(80,55,19,.13),transparent 40%),#080808;color:#f5f4f0}
@@ -389,4 +389,64 @@ details[open] > .wand-legacy-level-toggle::after { transform: rotate(90deg); }
 #wcInner .wand-legacy-level-toggle .wand-legacy-level-shield {
   width: 43px;
   flex-basis: 43px;
+}
+
+/* Hierarquia oficial. A ilha é controlada exclusivamente por wand-navigation.css. */
+[data-wand-level] {
+  --wand-route-edge: #a17c36;
+  --wand-route-surface: linear-gradient(145deg,#33220d,#1c1915 28%,#111 70%,#2a1a08);
+  --wand-route-shadow: inset 0 2px 1px #ffdb8c73,inset 0 -3px 7px #d19b2840,0 10px 20px #0009;
+}
+[data-wand-level="2"], [data-wand-level="3"] {
+  --wand-route-edge: #a8abb2;
+  --wand-route-surface: linear-gradient(145deg,#2c2b2a,#171717 45%,#111 78%,#21190e);
+  --wand-route-shadow: inset 0 2px 1px #e9edf359,inset 0 -2px 6px #d5a53a16,0 8px 19px #0008;
+}
+body[data-wand-level] :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile,[data-wand-route-card]) {
+  border-color: var(--wand-route-edge) !important;
+  background: var(--wand-route-surface) !important;
+  box-shadow: var(--wand-route-shadow) !important;
+}
+.wand-primary-row[aria-expanded="true"]::after {
+  transform: rotate(90deg);
+}
+body[data-wand-level] [data-wand-heading] {
+  color: var(--wand-gold);
+  font-size: clamp(1.35rem, 1.15rem + .55vw, 1.65rem);
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+body[data-wand-level] [data-wand-back]:not([hidden]) {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center;
+  gap: .55rem;
+  width: fit-content !important;
+  max-width: 100%;
+  min-height: 44px;
+  padding: .65rem .9rem !important;
+  border: 1px solid #a8abb2 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(145deg,#292725,#121212 70%,#21190e) !important;
+  box-shadow: inset 0 1px #f6f8fb66,0 5px 13px #0008 !important;
+  color: #f3cd72 !important;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+body[data-wand-level] [data-wand-back]::before {
+  content: "";
+  flex: 0 0 1.1rem;
+  height: 1.1rem;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m10 6-6 6 6 6M4 12h16'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+body[data-wand-level] :is([data-wand-back],.wand-primary-row,.wc-row,summary):focus-visible {
+  outline: 2px solid var(--wand-gold-light) !important;
+  outline-offset: 3px;
+}
+@media print {
+  body[data-wand-level] [data-wand-back] { display: none !important; }
 }

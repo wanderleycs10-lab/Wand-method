@@ -74,13 +74,13 @@ body.video-aberto{overflow:hidden}
 #sucessoRevisao{text-align:center}
 @media(max-width:380px){.revisao-contadores{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="./wand-premium.css?v=20261117-2">
+<link rel="stylesheet" href="./wand-premium.css?v=design-1">
 <link rel="stylesheet" href="./wand-exercise-catalog.css?v=1">
 <link rel="stylesheet" href="./wand-navigation.css?v=1"></head>
-<body>
+<body data-wand-level="2">
 <header><h1>WAND METHOD</h1><p>WAND EXERCISES</p></header>
 <main>
-<a href="admin.html" class="voltar">← Voltar ao WandCoach</a>
+<a id="voltarBiblioteca" href="admin.html#wc/treinos" data-wand-back>Voltar para Treinos</a>
 <p id="status" class="status" role="status">Verificando acesso...</p>
 <div id="conteudo" class="oculto">
 <div class="revisao-contadores" aria-label="Totais da biblioteca">
@@ -89,8 +89,7 @@ body.video-aberto{overflow:hidden}
  <a class="painel voltar" href="#revisao-midia">Substituições de mídia <strong id="totalMidias">—</strong></a>
 </div>
 <section id="revisaoExercicios" hidden aria-labelledby="tituloRevisao">
- <a class="voltar" href="#biblioteca">← Voltar à biblioteca</a>
- <div class="topo-acoes"><h2 id="tituloRevisao">Exercícios pendentes de revisão</h2>
+ <div class="topo-acoes"><h2 id="tituloRevisao" data-wand-heading>Exercícios pendentes de revisão</h2>
  <div class="acoes"><button type="button" id="aprovarSelecao" class="revisao-primario" disabled>Aprovar exercícios selecionados</button>
  <button type="button" id="abrirImportarRevisao" class="secundario">Importar lote</button></div></div>
  <p id="statusRevisao" role="status"></p>
@@ -104,9 +103,9 @@ body.video-aberto{overflow:hidden}
 </section>
 <section id="catalogoOficial">
 <div id="consultaCatalogo">
-<div class="topo-acoes"><h2 id="tituloCatalogo">Biblioteca de Exercícios</h2>
+<div class="topo-acoes"><h2 id="tituloCatalogo" data-wand-heading>Biblioteca de Exercícios</h2>
  <a id="abrirGerenciamento" class="voltar" href="#gerenciar">Gerenciar biblioteca</a>
- <div id="gestaoCatalogo" class="acoes" hidden><a class="voltar" href="#biblioteca">← Voltar à consulta</a><button type="button" id="novo">Cadastrar exercício</button></div>
+ <div id="gestaoCatalogo" class="acoes" hidden><button type="button" id="novo">Cadastrar exercício</button></div>
 </div>
 <div class="painel"><div class="filtros">
 <div><label for="pesquisa">Pesquisar pelo nome</label><input type="search" id="pesquisa" placeholder="Pesquisar exercício..."></div>
@@ -119,9 +118,8 @@ body.video-aberto{overflow:hidden}
 <div class="navegacao-rodape"><p class="contador" id="contador" role="status" aria-live="polite"></p><nav id="paginacao" class="paginacao" aria-label="Páginas de exercícios"></nav></div>
 </div>
 <section id="fichaExercicio" hidden aria-labelledby="tituloFichaExercicio">
- <a href="#gerenciar" class="voltar">← Voltar ao gerenciamento</a>
  <article class="card">
-  <h2 id="tituloFichaExercicio" tabindex="-1"></h2>
+  <h2 id="tituloFichaExercicio" data-wand-heading tabindex="-1"></h2>
   <div id="dadosFichaExercicio"></div>
   <div id="fichaVideo"></div>
   <div id="acoesFichaExercicio" class="acoes"></div>
@@ -129,7 +127,6 @@ body.video-aberto{overflow:hidden}
 </section>
 </section>
 </div>
-<a href="admin.html" class="voltar rodape">← Voltar ao WandCoach</a>
 </main>
 <div id="modalFundo" class="modal-fundo oculto" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
 <h2 id="tituloModal">Cadastrar exercício</h2><form id="formExercicio">
@@ -233,6 +230,12 @@ async function abrirVideo(e,origem){
 }
 function mostrarFicha(moverFoco=false){
  const hash=location.hash;
+ const ficha=hash.startsWith("#exercicio=");
+ const interno=ficha||["#gerenciar","#revisao","#revisao-midia"].includes(hash);
+ const voltar=$("voltarBiblioteca");
+ voltar.href=ficha?"#gerenciar":interno?"#biblioteca":"admin.html#wc/treinos";
+ voltar.textContent=ficha?"Voltar ao gerenciamento":interno?"Voltar à biblioteca":"Voltar para Treinos";
+ document.body.dataset.wandLevel=ficha?"3":"2";
  const id=hash.startsWith("#exercicio=")?hash.slice("#exercicio=".length):null;
  const e=id?exercicios.find(item=>encodeURIComponent(item.id)===id):null;
  $("consultaCatalogo").hidden=Boolean(id);
@@ -279,4 +282,4 @@ async function salvar(ev){ev.preventDefault();const nome=$("nome").value.trim(),
 async function desativarExercicio(e){if(!await wandConfirmarLocal(`Desativar "${e.nome}"? Ele deixará de aparecer na biblioteca, mas os históricos não serão apagados.`))return;const {error}=await supabase.from("wand_exercicios").update({ativo:false}).eq("id",e.id);if(error){alert("Não foi possível desativar: "+error.message);return;}await carregar();if(location.hash.startsWith("#exercicio="))location.hash="#gerenciar";mensagem("Exercício desativado.");}
 ["pesquisa","grupo","categoria","equipamento","porPagina"].forEach(id=>$(id).addEventListener(id==="pesquisa"?"input":"change",()=>{pagina=1;renderizar();}));$("novo").addEventListener("click",()=>abrirModal());$("cancelar").addEventListener("click",fecharModal);$("tipoVideo").addEventListener("change",ajustarTipo);$("formExercicio").addEventListener("submit",salvar);$("modalFundo").addEventListener("click",e=>{if(e.target===$("modalFundo"))fecharModal();});document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("videoFundo").classList.contains("oculto"))fecharVideo();else if(!$("modalFundo").classList.contains("oculto"))fecharModal();}});$("fecharVideo").addEventListener("click",fecharVideo);$("videoFundo").addEventListener("click",e=>{if(e.target===$("videoFundo"))fecharVideo();});$("cancelarPropostaMidia").onclick=()=>$("propostaMidia").close();$("cancelarImportarRevisao").onclick=()=>$("importarRevisao").close();verificarAcesso();
 </script>
-<script>function wandConfirmarLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Confirmar ação');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #b8bcc4;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const ic=document.createElement('div');ic.setAttribute('aria-hidden','true');ic.style.cssText='width:58px;height:58px;margin:0 auto 14px;border:2px solid #e8c674;border-radius:50%;display:grid;place-items:center;color:#e8c674;font-size:34px;box-shadow:0 0 15px #d4af3740';ic.textContent='?';const h=document.createElement('h2');h.textContent='Confirmar ação';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='Confirmar';b.style.cssText='width:100%!important;text-align:center!important;padding:14px!important;border:1px solid #f6d98e!important;border-radius:12px!important;background:linear-gradient(180deg,#fff0b0 0%,#e5bd58 35%,#b17d25 100%)!important;color:#171005!important;font-weight:700!important;font-size:16px!important;box-shadow:inset 0 2px 2px #fff9,inset 0 -3px 5px #70470c88,0 5px 12px #0009!important;text-shadow:none!important;cursor:pointer';const c=document.createElement('button');c.type='button';c.textContent='Cancelar';c.style.cssText='width:100%;margin-top:10px;padding:12px;border:1px solid #b8bcc4;border-radius:12px;background:#191919;color:#fff';d.append(ic,h,p,b,c);c.onclick=()=>{d.close();d.remove();resolve(false)};document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.style.setProperty('background','linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)','important');b.style.setProperty('color','#171005','important');b.onclick=()=>{d.close();d.remove();resolve(true)};d.showModal();b.focus()})}</script><script src="./wand-navigation.js?v=1" data-profile="coach"></script></body></html>
+<script>function wandConfirmarLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Confirmar ação');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #b8bcc4;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const ic=document.createElement('div');ic.setAttribute('aria-hidden','true');ic.style.cssText='width:58px;height:58px;margin:0 auto 14px;border:2px solid #e8c674;border-radius:50%;display:grid;place-items:center;color:#e8c674;font-size:34px;box-shadow:0 0 15px #d4af3740';ic.textContent='?';const h=document.createElement('h2');h.textContent='Confirmar ação';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='Confirmar';b.style.cssText='width:100%!important;text-align:center!important;padding:14px!important;border:1px solid #f6d98e!important;border-radius:12px!important;background:linear-gradient(180deg,#fff0b0 0%,#e5bd58 35%,#b17d25 100%)!important;color:#171005!important;font-weight:700!important;font-size:16px!important;box-shadow:inset 0 2px 2px #fff9,inset 0 -3px 5px #70470c88,0 5px 12px #0009!important;text-shadow:none!important;cursor:pointer';const c=document.createElement('button');c.type='button';c.textContent='Cancelar';c.style.cssText='width:100%;margin-top:10px;padding:12px;border:1px solid #b8bcc4;border-radius:12px;background:#191919;color:#fff';d.append(ic,h,p,b,c);c.onclick=()=>{d.close();d.remove();resolve(false)};document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.style.setProperty('background','linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)','important');b.style.setProperty('color','#171005','important');b.onclick=()=>{d.close();d.remove();resolve(true)};d.showModal();b.focus()})}</script><script src="./wand-navigation.js?v=design-1" data-profile="coach"></script></body></html>
