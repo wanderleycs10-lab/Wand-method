@@ -84,4 +84,9 @@ Consulte o [registro de continuidade](design-system-progresso.md) para distingui
 
 ## Tema claro
 
-Nos painéis autenticados, o controle **Tema claro** alterna a aparência e informa seu estado com `aria-pressed`. O escuro permanece a configuração inicial. A preferência se mantém nas páginas autenticadas do mesmo navegador. As superfícies claras conservam dourado nos níveis 0 e 1 e prata a partir do nível 2, com texto escuro e ícones dourados. Os cabeçalhos oficiais com logotipo e a ilha seguem o acabamento aprovado. As adaptações para tela não se aplicam à impressão.
+Nos painéis autenticados, o botão indica a ação disponível com **Alternar para o tema claro** ou **Alternar para o tema escuro**. O escuro permanece a configuração inicial. A preferência se mantém nas páginas autenticadas do mesmo navegador. As superfícies claras conservam dourado nos níveis 0 e 1 e prata a partir do nível 2, com texto escuro e ícones dourados. Os cabeçalhos oficiais com logotipo e a ilha seguem o acabamento aprovado. As adaptações para tela não se aplicam à impressão.
+
+
+## Aprovação visual
+
+Em 27/11/2026, o responsável aprovou a identidade dos temas escuro e claro apresentada na prévia de integração. Ela é o padrão oficial e permanente do WAND METHOD. Preserve o relevo dos cartões, a hierarquia das superfícies, os ícones e a ilha inferior. Use `data-wand-heading` nos títulos internos e mantenha o cabeçalho com a marca oficial. Na central de Contratos, a ordem é **Contrato por aluno**, **Nova proposta** e **Todos os contratos**. A aprovação visual é independente da autorização de publicação.

@@ -6,7 +6,7 @@
   const themeKey = 'wand-appearance';
   function applyTheme(light) {
     document.documentElement.toggleAttribute('data-wand-light', light);
-    themeToggle?.setAttribute('aria-pressed', String(light));
+    if (themeToggle) themeToggle.textContent = light ? 'Alternar para o tema escuro' : 'Alternar para o tema claro';
   }
   if (document.body?.hasAttribute('data-wand-level')) {
     try {

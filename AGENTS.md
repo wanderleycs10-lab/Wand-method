@@ -10,6 +10,9 @@ Preto/dourado premium, modo escuro padrão, logo oficial sem quadrado de fundo. 
 
 ## DESIGN SYSTEM OFICIAL — HIERARQUIA VISUAL E NAVEGAÇÃO DO WAND METHOD
 
+O acabamento dos temas escuro e claro foi aprovado visualmente em 27/11/2026 e é o padrão permanente do WAND METHOD. Preserve cartões e relevo 3D, dourado nos níveis 0 e 1, prata nos níveis 2 e posteriores, ícones funcionais dourados e a ilha inferior aprovada. Use o cabeçalho oficial com logotipo e o componente compartilhado para títulos internos. O seletor de tema informa o tema de destino. A central de Contratos apresenta, nesta ordem, Contrato por aluno, Nova proposta e Todos os contratos. A aprovação visual não autoriza publicação.
+
+
 - Consulte [o Design System e o inventário de rotas](docs/design-system-wand-method.md) antes de criar ou modificar interfaces.
 - Classifique cada página e subárea pelo seu papel funcional. Nível 0 é o painel dourado. Nível 1 é a central dourada de uma funcionalidade, com cartões horizontais compactos. Nível 2 é a subpágina prateada. Nível 3 e posteriores preservam a estrutura prateada. Ícones funcionais, destaques e ações primárias continuam dourados.
 - Use os componentes oficiais de `wand-premium.css` e `wand-navigation.js`. A ilha fixa aprovada permanece com ícones prateados e contorno dourado, com atalhos para as raízes do perfil. Resolva sobreposições com espaço no conteúdo.

@@ -96,3 +96,13 @@ A simulação do merge produziu a mesma árvore de `164a818` e não indicou arqu
 - O Chromium repetiu 255 aberturas nos dois temas, em 20 páginas e 51 endereços, a 320, 390, 768, 1024 e 1280 px. A varredura não registrou erros JavaScript não tratados, rolagem horizontal, duplicação de Voltar compartilhado ou diferença nas medidas da ilha entre temas. A comparação com `8d8735c` confirmou posição, dimensões e estilos computados da ilha em ambos os painéis nas quatro larguras de referência.
 - A suíte com Node.js 22.23.5 repetiu 34 sucessos, quatro falhas preexistentes de fotografia (registro da solicitação, consentimento na solicitação direta, revisão das três fotos e expressão regular inválida) e um teste de banco ignorado. As sessões de navegador foram simuladas com requisições externas bloqueadas.
 - A revisão técnica da divergência está concluída, e a branch está disponível para homologação. Para publicação ainda faltam a validação de ponta a ponta com contas e dados de teste isolados para gravações, permissões e comunicações, a disposição das quatro falhas de fotografia para o release e a aprovação da prévia. Nenhuma migração foi executada.
+
+### Aprovação da identidade visual
+
+Em 27/11/2026, o responsável aprovou os temas claro e escuro da prévia de integração como padrão oficial e permanente. O registro está no AGENTS.md e no Design System. O botão agora anuncia o tema de destino, os títulos internos revisados usam o componente oficial e a central de Contratos segue a ordem Contrato por aluno, Nova proposta e Todos os contratos.
+
+A nova consulta ao GitHub confirmou a integração em dia com a main (`717abd1`). No Chromium, passaram a troca de tema por teclado com persistência e leitura do rótulo nos dois perfis, a ordem e os três destinos da central de Contratos, os retornos de perfil e avaliação física, o acesso negado ao aluno no painel de avaliação do treinador, o aceite fictício, o destino da notificação e a navegação do WAND LEGACY. A ilha manteve as medidas e os estilos computados nas quatro larguras de referência. A suíte Node.js 22 repetiu 34 sucessos, as quatro falhas preexistentes de fotografia e um teste de banco ignorado.
+
+A varredura visual repetiu 255 aberturas nos dois temas, sem registrar rolagem horizontal, duplicação do Voltar compartilhado, erro JavaScript não tratado ou diferença nas medidas da ilha entre temas. O axe-core não apontou violações nas regras selecionadas nas oito telas prioritárias.
+
+A aprovação é visual. A homologação de gravações, permissões e comunicações com contas e dados isolados em um serviço de teste e a autorização para publicação seguem pendentes. As verificações desta rodada usaram respostas simuladas. Nenhuma migração ou alteração em produção foi realizada.

@@ -267,7 +267,7 @@ window.wandGraficoPadrao=wandGraficoPadrao;</script><style>#evolucao{display:gri
 
 <div id="conteudo" class="hidden">
 <section class="card">
-<h2>Dados do aluno</h2>
+<h2 data-wand-heading>Dados do aluno</h2>
 <div class="grid">
 <div class="metric"><strong>Nome</strong><span id="nome">—</span></div>
 <div class="metric"><strong>Modalidade</strong><span id="modalidade">—</span></div>
@@ -293,35 +293,35 @@ window.wandGraficoPadrao=wandGraficoPadrao;</script><style>#evolucao{display:gri
 <p id="orientacaoPerfil" class="muted">Selecione uma opção acima para visualizar os detalhes.</p>
 
 <section id="painel-anamnese" class="card painel-perfil">
-<h2>Anamnese</h2>
+<h2 data-wand-heading>Anamnese</h2>
 <p class="muted">Triagem de saúde e respostas do aluno.</p>
 <div id="anamneses">Carregando anamnese...</div>
 </section>
 
 <section id="painel-avaliacao" class="card painel-perfil">
-<h2>Avaliação física</h2>
+<h2 data-wand-heading>Avaliação física</h2>
 <p>Cadastre avaliações, acompanhe os resultados e libere o parecer profissional.</p>
 <a id="novaAvaliacao" class="button" href="#">+ Nova avaliação física</a>
 <button type="button" id="wandSolicitarFisicaPerfil" class="button" style="margin-left:8px">Solicitar medidas ao aluno</button>
 <div id="avaliacoes">Carregando avaliações...</div>
 </section>
 
-<section id="painel-atalhos-evolucao" class="card painel-perfil"><h2>Evoluções</h2><div class="menu-perfil" id="wandAtalhosEvolucao"><button type="button" data-tipo-evolucao="cargas">Progressão de cargas</button><button type="button" data-tipo-evolucao="frequencia">Frequência de treinos</button><button type="button" data-tipo-evolucao="corporal">Evolução corporal</button></div></section>
+<section id="painel-atalhos-evolucao" class="card painel-perfil"><h2 data-wand-heading>Evoluções</h2><div class="menu-perfil" id="wandAtalhosEvolucao"><button type="button" data-tipo-evolucao="cargas">Progressão de cargas</button><button type="button" data-tipo-evolucao="frequencia">Frequência de treinos</button><button type="button" data-tipo-evolucao="corporal">Evolução corporal</button></div></section>
 <section id="painel-evolucao" class="card painel-perfil">
-<h2>Evolução corporal</h2>
+<h2 data-wand-heading>Evolução corporal</h2>
 <p class="muted">Histórico das avaliações físicas registradas.</p>
 <div id="wandResumoCorporal"></div>
 <div id="evolucao">Carregando gráficos...</div>
 </section>
 
 <section id="painel-fotos" class="card painel-perfil">
-<h2>Avaliação fotográfica</h2>
+<h2 data-wand-heading>Avaliação fotográfica</h2>
 <p class="muted">Registro fotográfico e acompanhamento corporal e postural.</p>
 <div id="area-fotos"></div>
 </section>
 
 <section id="painel-treinos" class="card painel-perfil">
-<h2>Treinos</h2>
+<h2 data-wand-heading>Treinos</h2>
 <p class="muted">Monte um treino com exercícios da biblioteca, escolha os métodos e configure as séries antes de publicar para este aluno.</p>
 <div id="wandPublicacaoDestaque" class="subcard hidden" role="status" aria-live="polite" style="border:2px solid #d4af37;background:#29220f"></div>
 <div class="actions">
@@ -334,7 +334,7 @@ window.wandGraficoPadrao=wandGraficoPadrao;</script><style>#evolucao{display:gri
 <div class="subcard" id="wandHistoricoCard" hidden><h3>Histórico detalhado de treinos</h3><button type="button" class="button secondary" id="wandHistoricoAtualizar">Atualizar histórico</button><div id="wandHistoricoArea" role="status">Abra o histórico para consultar as sessões.</div></div>
 </section>
 <section id="painel-acompanhamento" class="card painel-perfil">
-<h2>Acompanhamento</h2>
+<h2 data-wand-heading>Acompanhamento</h2>
 <p class="muted">Avisos, adaptações e bem-estar. Abra somente o que precisar.</p>
 <details class="wa-main-fold"><summary>🔔 Central de acompanhamento <span class="wa-summary-hint">Interrupções e solicitações</span></summary><div class="wa-main-body">
 <div class="subcard"><h3>Solicitações de ajuste</h3><p id="waMensagem" role="status" class="muted"></p><div id="waSolicitacoes"></div><div id="waNotificacoes" aria-live="polite"></div><button type="button" class="button secondary" id="waAtualizar">Atualizar acompanhamento</button></div>
