@@ -1,0 +1,16 @@
+.wand-catalog-list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.wand-catalog-row{display:flex;align-items:stretch;min-width:0;min-height:60px;background:var(--wand-surface);border:1px solid var(--wand-border);border-radius:14px;box-shadow:var(--wand-shadow)}
+.wand-catalog-row button{margin:0;background:transparent;box-shadow:none;border:0}
+.wand-catalog-row .wand-catalog-open{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:1;min-width:0;padding:8px 13px;text-align:left;border-radius:13px;color:var(--wand-gold)}
+.wand-catalog-open strong,.wand-catalog-open small{display:block;line-height:1.25;overflow-wrap:anywhere}
+.wand-catalog-open strong{font-size:16px;color:var(--wand-gold)}
+.wand-catalog-open small{font-size:12px;color:#d2c9ba;margin-top:4px}
+.wand-catalog-row svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.wand-catalog-row .wand-catalog-toggle{flex:0 0 48px;display:grid;place-items:center;border-left:1px solid var(--wand-border);border-radius:0 13px 13px 0;color:var(--wand-gold)}
+.wand-catalog-row .wand-catalog-selected{color:#edd48d}
+.wand-catalog-row :focus-visible{outline:2px solid var(--wand-gold);outline-offset:-3px}
+.wand-catalog-video{width:min(92vw,800px);max-height:90dvh;overflow:auto;padding:16px;color:#f4f1ec}
+.wand-catalog-video::backdrop{background:#000c}
+.wand-catalog-video-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.wand-catalog-video-top h2{margin:0;color:var(--wand-gold)}
+.wand-catalog-video video{width:100%;max-height:70dvh}
