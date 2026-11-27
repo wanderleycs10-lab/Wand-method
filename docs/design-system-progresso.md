@@ -139,3 +139,15 @@ Não foi identificado um ambiente de homologação autenticado e autorizado para
 2. Servir o commit candidato com configuração exclusiva desse serviço e confirmar o destino das chamadas antes de entrar. Validar sessão, restrições por perfil e vínculo entre os dois alunos fictícios.
 3. Executar proposta, envio, aceite e leitura de notificação; solicitar, enviar e revisar avaliações físicas e fotográficas; salvar, recarregar e publicar uma prescrição fictícia apenas na homologação. Verificar registros persistidos, comunicação de teste, retorno contextual, erros e negativas de acesso, sem inserir dados reais.
 4. Registrar as evidências dos dois perfis. Submeter o resultado para aprovação final. Merge na main e publicação dependem de autorização explícita.
+
+### Preparação da homologação real isolada
+
+A configuração versionada do GitHub e do aplicativo e o catálogo somente leitura do Supabase foram inspecionados. O conector mostrou apenas o projeto de produção. O histórico remoto e o repositório têm incrementos de esquema, sem uma base reproduzível completa. A opção inicial é Supabase CLI em Docker local, com usuários fictícios e Mailpit. Neste workspace, o cliente Docker não teve permissão de acesso ao daemon.
+
+O [guia de homologação isolada](homologacao-isolada.md) registra pré-requisitos, migrações, RLS e Storage, os usuários sintéticos, o roteiro e as decisões do responsável. O cliente temporário a 4180 foi verificado com uma chave fictícia em 29 páginas. O Chromium confirmou que a CSP bloqueia uma tentativa de envio a um domínio sentinela antes da requisição. Essa prova cobre o cliente preparado. Ainda é necessário verificar a rede, Auth, banco, Storage, funções e e-mail na pilha autorizada. Nenhum dado real foi lido nas consultas de catálogo e nenhuma configuração remota foi alterada.
+
+### Preparação de homologação hospedada
+
+O caminho prioritário agora é um segundo projeto Supabase Free, separado da produção. A organização WAND METHOD está no plano Free e o conector lista um projeto ativo. A cota publicada de dois projetos indica uma vaga. A criação depende de autorização explícita e confirmação do custo no fluxo da organização. O cliente temporário passou a aceitar um destino hospedado de homologação e a restringir o acesso às rotas necessárias de Auth, REST e Storage. O guia registra a barreira adicional de e-mail no serviço e a dependência do esquema estruturado sem dados. Docker permanece suspenso. Nenhuma configuração remota foi alterada.
+
+A montagem temporária foi validada com configuração fictícia. O Chromium bloqueou, antes da rede, uma gravação para domínio sentinela, a recuperação de senha e a chamada à função de envio. O isolamento no serviço ainda depende do provisionamento e das verificações descritas no guia.
