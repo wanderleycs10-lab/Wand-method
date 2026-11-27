@@ -36,7 +36,7 @@ export function youtubeId(link) {
   }
 }
 
-export function showYouTubeExercise(container, exercise) {
+export function showYouTubeExercise(container, exercise, {direct=false} = {}) {
   if (exercise.video_tipo !== 'youtube') return false;
   const document = container.ownerDocument;
   const id = youtubeId(exercise.video_url);
@@ -109,5 +109,6 @@ export function showYouTubeExercise(container, exercise) {
   });
   section.append(preview, source);
   container.append(section);
+  if (direct) preview.click();
   return true;
 }

@@ -1,5 +1,5 @@
 import {approvedExerciseVideos, showExerciseVideo} from './wand-exercise-videos.js';
-import {showYouTubeExercise} from './wand-youtube.js';
+import {showYouTubeExercise} from './wand-youtube.js?v=2';
 
 const exercises = [
   ['079b68ab-ac22-4113-b67e-57f6170dd21c', 'Supino reto com barra', 'supino-reto-com-barra', 'lateral', 'Pegada pronada na barra.'],
@@ -16,11 +16,11 @@ const exercises = [
 const normalize = value => String(value ?? '').trim().normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-export function showExercisePilot(container, exercise, source = 'library') {
+export function showExercisePilot(container, exercise, source = 'library', {direct=false} = {}) {
   const catalogId = source === 'training' ? exercise.exercicio_id : exercise.id;
   const match = exercises.find(([id, name]) =>
     catalogId ? catalogId === id : normalize(exercise.nome) === normalize(name));
-  if ((!match || exercise.midia_revisada_em) && showYouTubeExercise(container, exercise)) return true;
+  if ((!match || exercise.midia_revisada_em) && showYouTubeExercise(container, exercise, {direct})) return true;
   if (exercise.video_tipo === 'proprio' && source !== 'training') return false;
   if (!match) return false;
   const [, name, slug, existingView, technique] = match;
@@ -107,9 +107,10 @@ export function showExercisePilot(container, exercise, source = 'library') {
   play.onclick = () => show(mode === 'loop' ? 'start' : 'loop');
   pose.onclick = () => show(mode === 'end' ? 'start' : 'end');
   details.addEventListener('toggle', () => { if (!details.open && mode === 'loop') show('start'); });
-  show('start');
+  show(direct ? 'loop' : 'start');
   details.open = source === 'library';
-  details.append(heading, image, controls, guidance);
+  details.append(heading, image, controls);
+  if (!direct) details.append(guidance);
   container.append(details);
   return true;
 }
