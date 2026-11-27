@@ -163,3 +163,7 @@ A homologação confirmou cadastro público e login anônimo desativados, com co
 ### Recorte de Treinos em homologação
 
 A migração `homologacao_base_treinos_catalogo` foi aplicada somente ao projeto `kcusxtfvcwqdflszqjes`. Confirmamos 17 tabelas com RLS, 18 funções, as permissões efetivas e a ausência de extensões de integração, servidores externos e Edge Functions. O cenário PGlite com identidades fictícias passou para publicação, execução, carga, conclusão, histórico e bloqueios entre alunos. A homologação com login real aguarda as contas fictícias confirmadas administrativamente. O guia documenta a diferença entre o recorte e a instalação integral.
+
+### Contas fictícias e ciclo SQL na homologação
+
+As três contas confirmadas foram vinculadas aos respectivos perfis e cadastros no projeto de teste. Prescrição, publicação, carga, conclusão, histórico e seis negativas entre alunos passaram com papéis e claims SQL no banco hospedado. As gravações do ensaio foram revertidas. O roteiro de API está preparado para repetir o ciclo com sessões emitidas pelo Auth. As senhas fictícias ainda não estão disponíveis no cofre do runtime.
