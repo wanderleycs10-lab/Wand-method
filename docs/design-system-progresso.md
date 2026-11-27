@@ -175,3 +175,7 @@ O teste de Treinos com sessão emitida pelo Auth foi adiado a pedido do respons�
 ### Ensaios transacionais de Anamnese e Avaliações
 
 Com IDs próprios por ensaio e caminhos únicos no bucket privado, passaram em `kcusxtfvcwqdflszqjes` os testes SQL de Anamnese, autorizações, Avaliações Física, Fotográfica e Postural, RLS de Storage e avisos. Os ensaios reverteram as gravações. As três contas fictícias e a estrutura de Treinos permaneceram disponíveis. A proteção do Storage bloqueia DELETE direto via SQL. O teste negativo foi substituído pela tentativa de gravação em caminho alheio, rejeitada pela RLS. Consulte o [inventário atualizado](inventario-homologacao.md) para distinguir os resultados do banco dos testes pendentes de Auth, API de Storage, e-mail e push.
+
+### Ensaios dos módulos complementares
+
+Depois de corrigir as barreiras de papel e titularidade sinalizadas pela revisão, o recorte de Bem-estar, Saúde Feminina, adaptação, check-ins, evolução, Legacy, contratos, gestão, ficha e relatórios foi aplicado na homologação. Os quatro grupos de ensaios passaram com `ROLLBACK` e a suíte automatizada passou 41 de 41. A conferência final mostrou as três contas fictícias e ausência de registros residuais dos testes. O [inventário](inventario-homologacao.md) registra resultados por funcionalidade, divergências e a distinção entre SQL, automação e interface real.

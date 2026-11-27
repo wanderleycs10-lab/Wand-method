@@ -52,3 +52,25 @@ Os ensaios usaram transações com `ROLLBACK`, IDs exclusivos para anamnese, sol
 | Notificações | A fotografia concluída gerou aviso do coach com ID do pedido e ID do aluno. Marcar leitura funcionou uma vez. Os 14 testes de notificações e leitura também passaram, incluindo as verificações de destino na interface. |
 
 O Supabase recusou a tentativa de DELETE direto em `storage.objects` por proteção própria do Storage. O teste usou uma negativa de gravação no caminho do titular e não contornou a proteção. O teste SQL de Storage envolve metadados fictícios. Upload de bytes, assinatura, expiração e exclusão pela API de Storage, login real, e-mail e push continuam pendentes. Antes e depois, as três contas confirmadas e as sete tabelas centrais de Treinos estavam presentes, sem treinos ou sessões residuais e sem anamnese, fotografia ou objeto de Storage deixado pelos ensaios.
+
+## Módulos complementares em homologação
+
+A migração `homologacao_modulos_complementares_acesso_restrito`, aplicada exclusivamente em `kcusxtfvcwqdflszqjes`, acrescentou 22 tabelas e 64 funções. O catálogo final confirmou 54 tabelas com RLS e 105 funções do aplicativo. A configuração inicial do Legacy veio da migração versionada. Os ensaios executaram em PGlite descartável e no banco hospedado, com papéis e claims SQL dos usuários fictícios, IDs próprios para novos registros e `ROLLBACK`. Minha Ficha alterou temporariamente apenas o cadastro da conta fictícia A. Preferências e check-in exigiram ausência de dados prévios no recorte testado.
+
+| Funcionalidade | Evidência de banco no Supabase de homologação |
+| --- | --- |
+| Bem-estar e Check-ins | A habilitou o bem-estar, gravou um check-in, consultou-o no painel e gerou solicitação de ajuste. |
+| Saúde Feminina | A gravou um ciclo fictício. O coach vinculado só viu os detalhes após A habilitar o compartilhamento. B não teve acesso. |
+| Adaptação de Treinos | O coach criou e ativou protocolo, aprovou a solicitação de A e o treino alternativo apareceu para A na consulta do dia. |
+| Minha Evolução | A concluiu uma sessão fictícia e o histórico do aluno retornou o ID da sessão. A consulta do coach vinculado retornou o mesmo registro. |
+| WAND LEGACY e recompensas | Com crédito sintético, o resgate repetido devolveu o mesmo ID. A aprovação e o cancelamento restauraram o estoque. B não pôde consultar o resumo de A. A pontuação por treino e o limite diário continuam cobertos no teste automatizado de banco versionado. |
+| Contratos e propostas | O coach criou uma proposta mensal, A aceitou e B não conseguiu aceitar. A ativação foi negada antes do pagamento. Após confirmação fictícia, o coach conseguiu ativar. Nenhuma cobrança ou comunicação externa foi executada. |
+| Gestão de alunos | O coach criou e inativou um cadastro novo marcado como QA. |
+| Minha Ficha e gerenciamento de conta | A atualizou o próprio nome de teste pela RPC. B não conseguiu ler o cadastro de A. Alteração de senha, e-mail e recuperação continuam fora desta execução. |
+| Relatórios do personal e do aluno | O coach criou um relatório. O rascunho ficou oculto do aluno, o relatório publicado ficou disponível para A e B não conseguiu ler nem criar relatório para A. B também foi impedido de chamar a RPC de status de sessões de A. |
+
+**Divergências de segurança na homologação.** A revisão automática bloqueou o primeiro lote por falta de verificação explícita de papel e vínculo na RPC de status de sessões. A versão aplicada adicionou verificação administrativa em funções do painel, titularidade na consulta de status e de elegibilidade de contrato, e papel de coach nas políticas de comunicação, relatórios, planos e contratos internos. Grants amplos ao cliente e execução anônima não foram importados no lote. A função de proposta mensal usa `extensions.digest` explicitamente no ambiente de teste. Nenhuma dessas alterações foi aplicada ao banco de produção.
+
+**Testes automatizados.** A suíte Node.js 22 com PGlite passou 41 de 41. Os quatro ensaios transacionais adicionais passaram tanto em PGlite quanto na homologação. Após o rollback, a conferência encontrou as três contas confirmadas e zero treinos, sessões, check-ins, propostas, relatórios ou resgates deixados pelos ensaios. Não foram registradas extensões de rede ou agendamento nem conexões via servidores externos.
+
+**Interface real e integrações.** Os resultados acima são de banco e testes automatizados. Nenhum fluxo autenticado foi executado na interface nesta rodada. Login real, operações de arquivos pela API de Storage, e-mail e push continuam pendentes. Não houve alteração no Design System, em produção ou nos destinos de publicação.
