@@ -6,11 +6,11 @@ O nível 0 é o painel do perfil. O nível 1 é a central principal da funcional
 
 ## Componentes oficiais
 
-- `wand-premium.css` define superfícies, foco, controles e o botão com `data-wand-back`. Aplique `data-wand-level` ao corpo ou a uma subdivisão que possua hierarquia própria.
+- `wand-premium.css` define superfícies, foco, controles e o botão com `data-wand-back`. Aplique `data-wand-level` ao corpo ou a uma subdivisão que possua hierarquia própria. Use `data-wand-route-card` em superfícies que assumem as cores do nível e `data-wand-heading` no título da subárea.
 - `wand-navigation.js` e `wand-navigation.css` entregam a ilha fixa e o menu de cada perfil. Preserve o desenho e os atalhos da ilha. Reserve espaço no conteúdo para o último controle permanecer acessível.
 - Use os cabeçalhos já aprovados e os cartões horizontais da central. Links internos abrem na mesma aba. Expansões aprovadas mantêm o controle e o chevron à direita, girando para baixo ao abrir.
 - Cada tela tem um retorno contextual. Use destino interno explícito e fallback para acesso direto. Vídeo da biblioteca fecha no mesmo estado de pesquisa. A seleção em prescrição retorna à montagem com o rascunho preservado.
-- Use as ações primária e secundária existentes. Confirmações definitivas mostram a sobreposição de sucesso aprovada. Alterações intermediárias mantêm feedback discreto. Preserve exceções como gráficos, execução de treino, aceite público e impressão.
+- Use as ações primária e secundária existentes. Confirmações definitivas usam `wandMostrarConclusao` nas páginas migradas. Aguarde o reconhecimento do usuário antes de retornar ao destino contextual. Alterações intermediárias mantêm feedback discreto. Preserve exceções como gráficos, execução de treino, aceite público e impressão.
 
 ## Inventário dos 50 arquivos HTML rastreados
 

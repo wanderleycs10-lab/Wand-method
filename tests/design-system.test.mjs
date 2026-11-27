@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 
 const read = name => readFileSync(new URL('../' + name, import.meta.url), 'utf8');
 const routes = read('docs/design-system-wand-method.md');
@@ -27,4 +28,33 @@ test('a biblioteca tem um único Voltar contextual e mantém seus destinos inter
   assert.equal([...page.matchAll(/\bdata-wand-back\b/g)].length, 1);
   assert.match(page, /id="voltarBiblioteca" href="admin\.html#wc\/treinos"/);
   assert.match(page, /voltar\.href=ficha\?"#gerenciar":interno\?"#biblioteca":"admin\.html#wc\/treinos"/);
+});
+
+test('o retorno fotográfico preserva a rota interna autorizada e rejeita destinos externos', () => {
+  const element = {
+    classList: { add() {} },
+    querySelector() { return this; },
+    replaceChildren() {}
+  };
+  const window = {};
+  const document = {
+    currentScript: { dataset: { profile: 'coach', root: 'true' } },
+    querySelector: () => element,
+    createElement: () => ({ ...element }),
+    addEventListener() {}
+  };
+  runInNewContext(read('wand-navigation.js'), {
+    window, document, URL,
+    location: { href: 'https://wandmethod.example/app/avaliacao-postural.html' }
+  });
+  const pages = ['avaliacao-fotografica-central.html', 'avaliacao-fotografica-painel.html'];
+  const fallback = 'admin.html#wc/fotografica';
+  const link = 'avaliacao-fotografica-painel.html?id=7&modo=postural';
+  assert.equal(window.wandContextUrl(link, pages, fallback), 'https://wandmethod.example/app/' + link);
+  for (const value of [
+    'https://fora.example/app/' + link,
+    'https://wandmethod.example/outra/' + link,
+    'javascript:alert(1)',
+    'http://['
+  ]) assert.equal(window.wandContextUrl(value, pages, fallback), fallback);
 });

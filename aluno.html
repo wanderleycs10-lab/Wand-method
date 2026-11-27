@@ -982,12 +982,14 @@ function mostrarVista(nome, atualizarEndereco=true){
   $("homeView").hidden=Boolean(valido);if((!valido||valido==="jornada")&&alunoAtual)wandAtualizarJornada().catch(()=>{});
   $("sair").closest(".actions").style.display=valido?"none":"";
   for(const id of VIEWS) $("view-"+id).hidden=id!==valido;
+  if(valido==="bemestar"&&atualizarEndereco)window.wandBemEstarRaiz?.();
   acomodarModulos();
   window.scrollTo({top:0,behavior:"instant"});
 }
 window.wandMostrarVista = mostrarVista;
 function restaurarVista(){
   let nome=location.hash.slice(1).split('/')[0];if(nome==="privacidade"&&!$("view-privacidade").children.length){nome="ficha";history.replaceState(null,"","#ficha");}
+  if(nome==="bemestar")window.wandBemEstarRestaurar?.();
   mostrarVista(VIEWS.includes(nome)?nome:null,false);
   if(nome==="ficha")restaurarAbaFicha();
 }
@@ -1066,7 +1068,7 @@ iniciar();
 <script type="module" src="analise-corporal.js"></script>
 
 
-<script defer src="./avaliacao-fotografica.js?v=8"></script>
+<script defer src="./avaliacao-fotografica.js?v=design-2"></script>
 
 <style>
 .wt-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.wt-row>*{min-width:0}
@@ -1925,13 +1927,15 @@ function wbLerRota(){
  return [area,wbRotas[area].includes(sub)?sub:'menu'];
 }
 let [wbArea,wbSub]=wbLerRota();
-window.addEventListener('hashchange',()=>{
- if(location.hash.split('/')[0]!=='#bemestar')return;
+window.wandBemEstarRestaurar=()=>{
  [wbArea,wbSub]=wbLerRota();
  if(wb.dataset.loaded==='1'&&wbData.preferencias)wbRender();
-});
+};
 window.wandAbrirRegistroMenstrual=async()=>{window.wandMostrarVista?.('bemestar');await wbLoad();wbArea='saude';wbSub=wbPodeCalendario()?'registro':'preferencias';wbRender();};
-document.querySelectorAll('[data-view="bemestar"]').forEach(b=>b.addEventListener('click',()=>{wbArea='menu';wbSub='menu';wbRender()}));
+window.wandBemEstarRaiz=()=>{
+ wbArea='menu';wbSub='menu';
+ if(wb.dataset.loaded==='1'&&wbData.preferencias)wbRender();
+};
 const wbBack=(label='Voltar')=>`<button type="button" class="back-btn" id="wbVoltarMenu" data-wand-back>${label}</button>`;
 const wbIconPaths={
  calendario:'<rect x="4" y="6" width="16" height="15" rx="2"/><path d="M8 3v6M16 3v6M4 11h16M8 15h3M14 15h3"/>',
@@ -2067,9 +2071,16 @@ async function wbSaveSaudeDia(){
 }
 function wbRenderHistorico(cycle){if(cycle){$w('wbHistorico').innerHTML='<div class="subcard"><h3>Meu histórico menstrual</h3>'+ (wbCiclos.length?wbCiclos.map(c=>'<p class="wb-muted">Início: '+wbEsc(c.inicio)+' · Término: '+wbEsc(c.termino||'em aberto')+'</p>').join(''):'<p class="wb-muted">Nenhum período registrado.</p>')+'</div>';return}const list=wbData.registros||[];$w('wbHistorico').innerHTML=`<div class="subcard wb-panel"><h3>Meus registros</h3>${list.length?list.slice(0,30).map(r=>`<div class="subcard"><strong>${wbEsc(r.dia)}</strong><p class="wb-muted">Energia ${r.energia}/5 · Sono ${r.sono}/5 · Disposição ${r.disposicao}/5 · Dor muscular ${r.dor_muscular}/5</p>${cycle&&r.menstruando!=null?`<p class="wb-muted">Menstruação: ${r.menstruando?'sim':'não'}${r.colica!=null?' · Cólicas '+r.colica+'/5':''}</p>`:''}${r.pedir_ajuste?'<p class="wb-note">Interesse registrado em conversar sobre adaptação</p>':''}${r.observacoes?`<p>${wbEsc(r.observacoes)}</p>`:''}</div>`).join(''):'<p class="wb-muted">Nenhum registro ainda.</p>'}</div>`}
 async function wbDelete(all){if(!await wandConfirmarLocal(all?'Excluir permanentemente TODOS os check-ins e preferências?':'Excluir permanentemente os dados menstruais e desativar o acompanhamento do ciclo?'))return;try{for(const c of wbCiclos){await wbRpc('wand_ciclo_excluir',{p_id:c.id})}await wbRpc('wand_bemestar_apagar',{p_apagar_tudo:all,p_apagar_ciclo:!all});await wbLoad();wbStatus('Dados excluídos.')}catch(e){wbStatus(e.message,true)}}
-document.querySelector('[data-view="bemestar"]')?.addEventListener('click',()=>{wbArea='menu';wbSub='menu';wb.dataset.loaded='';wbLoad().then(()=>{wb.dataset.loaded='1'})});
-const wbObserver=new MutationObserver(()=>{if(!document.getElementById('view-bemestar')?.hidden&&wb.dataset.loaded!=='1'){wb.dataset.loaded='1';wbLoad()}});
-wbObserver.observe(document.getElementById('painel'),{subtree:true,attributes:true,attributeFilter:['hidden']});
+const wbVista=document.getElementById('view-bemestar');
+function wbCarregarAoAbrir(){
+ if(wbVista.hidden||wb.dataset.loaded==='1')return;
+ [wbArea,wbSub]=wbLerRota();
+ wb.dataset.loaded='1';
+ wbLoad();
+}
+const wbObserver=new MutationObserver(wbCarregarAoAbrir);
+wbObserver.observe(wbVista,{attributes:true,attributeFilter:['hidden']});
+wbCarregarAoAbrir();
 </script>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -2179,5 +2190,5 @@ body .wand-primary-row > :is(.nav-desc,small){grid-area:2/2/3/3!important;align-
 body .wand-primary-row::after{content:'›'!important;position:static!important;grid-area:1/3/3/4!important;align-self:center!important;justify-self:end!important;color:#f3c95f!important;font-size:21px!important}
 body .wand-primary-row::before{display:none!important}
 body .wand-primary-row[aria-expanded="true"]{border-color:#ffe08a!important}
-</style><style id="wand-ficha-exact">#view-ficha .ficha-nav.wand-primary-menu{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important}#view-ficha .ficha-nav.wand-primary-menu > .ficha-tile.wand-primary-row{display:grid!important;grid-template-columns:42px minmax(0,1fr) 12px!important;grid-template-rows:auto auto!important;min-height:76px!important;padding:11px 12px!important;gap:3px 12px!important;align-items:center!important;justify-items:start!important;align-content:center!important;border:1px solid #a17c36!important;background:linear-gradient(145deg,#33220d,#1c1915 28%,#111 70%,#2a1a08)!important;box-shadow:inset 0 2px 1px #ffdb8c73,inset 0 -3px 7px #d19b2840,0 6px 12px #0009!important;border-radius:16px!important}#view-ficha .ficha-nav>.ficha-tile>.nav-name{grid-area:1/2/2/3!important;text-align:left!important;justify-self:start!important}#view-ficha .ficha-nav>.ficha-tile>.nav-desc{grid-area:2/2/3/3!important;text-align:left!important;justify-self:start!important}</style><script src="./wand-navigation.js?v=design-1" data-profile="student" data-root="true"></script></body>
+</style><style id="wand-ficha-exact">#view-ficha .ficha-nav.wand-primary-menu{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important}#view-ficha .ficha-nav.wand-primary-menu > .ficha-tile.wand-primary-row{display:grid!important;grid-template-columns:42px minmax(0,1fr) 12px!important;grid-template-rows:auto auto!important;min-height:76px!important;padding:11px 12px!important;gap:3px 12px!important;align-items:center!important;justify-items:start!important;align-content:center!important;border:1px solid #a17c36!important;background:linear-gradient(145deg,#33220d,#1c1915 28%,#111 70%,#2a1a08)!important;box-shadow:inset 0 2px 1px #ffdb8c73,inset 0 -3px 7px #d19b2840,0 6px 12px #0009!important;border-radius:16px!important}#view-ficha .ficha-nav>.ficha-tile>.nav-name{grid-area:1/2/2/3!important;text-align:left!important;justify-self:start!important}#view-ficha .ficha-nav>.ficha-tile>.nav-desc{grid-area:2/2/3/3!important;text-align:left!important;justify-self:start!important}</style><script src="./wand-navigation.js?v=design-2" data-profile="student" data-root="true"></script></body>
 </html>

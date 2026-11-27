@@ -2,6 +2,47 @@
   const role = document.currentScript?.dataset.profile;
   if (!['coach', 'student'].includes(role)) return;
 
+  window.wandContextUrl = (value, allowedPages, fallback) => {
+    if (!value) return fallback;
+    try {
+      const url = new URL(value, location.href);
+      return allowedPages.some(page => {
+        const allowed = new URL(page, location.href);
+        return url.origin === allowed.origin && url.pathname === allowed.pathname;
+      }) && !url.username && !url.password ? url.href : fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
+  window.wandMostrarConclusao = mensagem => new Promise(resolve => {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'wand-completion';
+    dialog.setAttribute('aria-label', 'Concluído com sucesso');
+    const check = document.createElement('span');
+    check.className = 'wand-completion-icon';
+    check.setAttribute('aria-hidden', 'true');
+    check.textContent = '✓';
+    const title = document.createElement('h2');
+    title.textContent = 'Concluído com sucesso!';
+    const detail = document.createElement('p');
+    detail.textContent = mensagem;
+    const confirm = document.createElement('button');
+    confirm.type = 'button';
+    confirm.className = 'primary';
+    confirm.textContent = 'OK';
+    dialog.append(check, title, detail, confirm);
+    dialog.addEventListener('cancel', event => event.preventDefault());
+    dialog.addEventListener('close', () => {
+      dialog.remove();
+      resolve();
+    }, { once: true });
+    confirm.addEventListener('click', () => dialog.close(), { once: true });
+    document.body.append(dialog);
+    dialog.showModal();
+    confirm.focus();
+  });
+
   const icons = {
     home: '<path d="m3 11 9-8 9 8v9h-6v-6H9v6H3z"/>',
     users: '<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6m1 3a5 5 0 0 1 3 4v2"/>',

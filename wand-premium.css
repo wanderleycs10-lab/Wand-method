@@ -417,7 +417,7 @@ body[data-wand-level] [data-wand-heading] {
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
-body[data-wand-level] [data-wand-back]:not([hidden]) {
+body[data-wand-level] [data-wand-back]:not([hidden], .hidden, .oculto) {
   box-sizing: border-box;
   display: inline-flex !important;
   align-items: center;
@@ -446,6 +446,49 @@ body[data-wand-level] [data-wand-back]::before {
 body[data-wand-level] :is([data-wand-back],.wand-primary-row,.wc-row,summary):focus-visible {
   outline: 2px solid var(--wand-gold-light) !important;
   outline-offset: 3px;
+}
+body dialog.wand-completion {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  width: min(90vw, 420px);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid #b8bcc4;
+  border-radius: 20px;
+  background: #191919;
+  color: #fff;
+  font: inherit;
+  text-align: center;
+}
+body dialog.wand-completion::backdrop { background: #000b; }
+.wand-completion-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 14px;
+  border: 2px solid #e8c674;
+  border-radius: 50%;
+  color: #e8c674;
+  font-size: 34px;
+  box-shadow: 0 0 15px #d4af3740;
+}
+.wand-completion h2 { color: #e8c674; }
+.wand-completion p { white-space: pre-line; overflow-wrap: anywhere; }
+body .wand-completion button.primary {
+  width: 100% !important;
+  padding: 14px !important;
+  border: 1px solid #f6d98e !important;
+  border-radius: 12px;
+  background: linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25) !important;
+  color: #171005 !important;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
 }
 @media print {
   body[data-wand-level] [data-wand-back] { display: none !important; }

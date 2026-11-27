@@ -21,6 +21,8 @@
 .topo-acoes{margin-bottom:16px;gap:12px}
 .topo-acoes h2{font-size:26px;line-height:1.2}
 .painel{margin-bottom:12px;padding:16px}
+#status:empty{display:none}
+#voltarBiblioteca{margin-bottom:1rem}
 .filtros{gap:10px}
 .grade{gap:10px;align-items:stretch}
 .exercicio{padding:16px 17px 17px;min-height:0}
@@ -84,9 +86,9 @@ body.video-aberto{overflow:hidden}
 <p id="status" class="status" role="status">Verificando acesso...</p>
 <div id="conteudo" class="oculto">
 <div class="revisao-contadores" aria-label="Totais da biblioteca">
- <div class="painel">Exercícios cadastrados <strong id="totalCadastrados">—</strong></div>
- <a class="painel voltar" href="#revisao">Exercícios pendentes de revisão <strong id="totalPendentes">—</strong></a>
- <a class="painel voltar" href="#revisao-midia">Substituições de mídia <strong id="totalMidias">—</strong></a>
+ <div class="painel" data-wand-route-card>Exercícios cadastrados <strong id="totalCadastrados">—</strong></div>
+ <a class="painel voltar" href="#revisao" data-wand-route-card>Exercícios pendentes de revisão <strong id="totalPendentes">—</strong></a>
+ <a class="painel voltar" href="#revisao-midia" data-wand-route-card>Substituições de mídia <strong id="totalMidias">—</strong></a>
 </div>
 <section id="revisaoExercicios" hidden aria-labelledby="tituloRevisao">
  <div class="topo-acoes"><h2 id="tituloRevisao" data-wand-heading>Exercícios pendentes de revisão</h2>
@@ -107,7 +109,7 @@ body.video-aberto{overflow:hidden}
  <a id="abrirGerenciamento" class="voltar" href="#gerenciar">Gerenciar biblioteca</a>
  <div id="gestaoCatalogo" class="acoes" hidden><button type="button" id="novo">Cadastrar exercício</button></div>
 </div>
-<div class="painel"><div class="filtros">
+<div class="painel" data-wand-route-card><div class="filtros">
 <div><label for="pesquisa">Pesquisar pelo nome</label><input type="search" id="pesquisa" placeholder="Pesquisar exercício..."></div>
 <div><label for="grupo">Grupo muscular</label><select id="grupo"><option value="">Todos os grupos</option></select></div>
 <div><label for="categoria">Categoria</label><select id="categoria"><option value="">Todas as categorias</option></select></div>
