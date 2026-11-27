@@ -171,3 +171,7 @@ As três contas confirmadas foram vinculadas aos respectivos perfis e cadastros 
 ### Inventário dos módulos complementares
 
 O teste de Treinos com sessão emitida pelo Auth foi adiado a pedido do responsável. O [inventário de homologação](inventario-homologacao.md) registra dependências, requisitos de segurança e sequência de validação das áreas restantes. A suíte isolada passou 41 de 41. Os scripts de fotografia e notificações foram exercitados em banco em memória, com dados fictícios. A Data API da homologação também foi consultada sem sessão e não expôs registros de perfis, alunos ou notificações nas consultas realizadas. Esta rodada alterou apenas documentação.
+
+### Ensaios transacionais de Anamnese e Avaliações
+
+Com IDs próprios por ensaio e caminhos únicos no bucket privado, passaram em `kcusxtfvcwqdflszqjes` os testes SQL de Anamnese, autorizações, Avaliações Física, Fotográfica e Postural, RLS de Storage e avisos. Os ensaios reverteram as gravações. As três contas fictícias e a estrutura de Treinos permaneceram disponíveis. A proteção do Storage bloqueia DELETE direto via SQL. O teste negativo foi substituído pela tentativa de gravação em caminho alheio, rejeitada pela RLS. Consulte o [inventário atualizado](inventario-homologacao.md) para distinguir os resultados do banco dos testes pendentes de Auth, API de Storage, e-mail e push.

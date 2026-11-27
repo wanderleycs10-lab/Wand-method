@@ -36,3 +36,19 @@ O ciclo hospedado de Treinos já passou com papéis e claims SQL. O teste real c
 - Node.js 22.23.5 e PGlite descartável. **41 de 41 testes passaram**, incluindo o caso de banco do WAND LEGACY. Esse caso usa uma base sintética e cobre isolamento e crédito diário. Ele não declara o módulo completo instalado na homologação.
 - PostgreSQL em memória com base mínima fictícia. Executei os scripts reais [020](../sql/020_concluir_solicitacao_fotografica.sql), [021](../sql/021_notificar_conclusao_fotografica.sql) e [022](../sql/022_leitura_notificacoes_fotograficas.sql). O pedido permaneceu pendente com consentimento recusado ou fotografia antiga ou de outro aluno. A conclusão com as três posições válidas gerou um aviso único. O destinatário conseguiu marcá-lo como lido uma única vez, outro usuário não conseguiu vê-lo ou marcá-lo e o papel anônimo não conseguiu executar a RPC.
 - API hospedada, com chave publicável e sem sessão de usuário. Perfis e alunos retornaram listas vazias com HTTP 200. Notificações internas retornaram HTTP 401. O endpoint de configuração confirmou cadastro público e login anônimo desativados. Essas verificações foram de leitura e restritas à homologação.
+
+## Anamnese, avaliações e notificações na homologação
+
+O recorte já foi aplicado exclusivamente em `kcusxtfvcwqdflszqjes`, na migração `homologacao_avaliacoes_e_anamnese_privilegios_minimos`. Acrescentou 15 tabelas e 23 funções ao recorte de Treinos. O bucket privado `avaliacoes-fotograficas` tem três políticas próprias, limite de 10 MiB e aceita JPEG, PNG e WebP. As tabelas de propostas e aceites são dependências da regra de entrada da Anamnese. O serviço de contratos e seus envios não foram instalados. No recorte novo, os grants foram reduzidos às operações necessárias. Privilégios amplos de origem, como TRUNCATE e MAINTAIN para papéis do cliente, não foram reproduzidos.
+
+Os ensaios usaram transações com `ROLLBACK`, IDs exclusivos para anamnese, solicitação, avaliação postural e objeto de Storage, e caminhos com UUID por execução. Os consentimentos foram localizados pela chave primária do registro inserido na própria transação. As operações foram restritas aos perfis fictícios existentes.
+
+| Área | Resultado no banco hospedado com papéis e claims SQL |
+| --- | --- |
+| Anamnese e autorizações | Coach criou anamnese, o titular registrou resposta e autorização de dados e o aluno B não leu a anamnese nem a autorização de A e não conseguiu alterar a resposta. |
+| Avaliação física | Coach pediu avaliação, A enviou peso fictício de 72,5 kg, B não validou nem leu o resultado e A visualizou o registro liberado após parecer do coach. |
+| Fotografia e consentimento | Negativa de gravação sem consentimento. O titular registrou três posições fictícias com consentimento vigente, o pedido foi concluído e B não leu fotografia ou consentimento de A e não alterou o consentimento. |
+| Postura e Storage privado | O coach viu o registro postural criado, o aluno não leu o rascunho e o titular pôde consultar o metadado do objeto. B não leu o objeto e a RLS rejeitou a tentativa de gravar no caminho do titular. |
+| Notificações | A fotografia concluída gerou aviso do coach com ID do pedido e ID do aluno. Marcar leitura funcionou uma vez. Os 14 testes de notificações e leitura também passaram, incluindo as verificações de destino na interface. |
+
+O Supabase recusou a tentativa de DELETE direto em `storage.objects` por proteção própria do Storage. O teste usou uma negativa de gravação no caminho do titular e não contornou a proteção. O teste SQL de Storage envolve metadados fictícios. Upload de bytes, assinatura, expiração e exclusão pela API de Storage, login real, e-mail e push continuam pendentes. Antes e depois, as três contas confirmadas e as sete tabelas centrais de Treinos estavam presentes, sem treinos ou sessões residuais e sem anamnese, fotografia ou objeto de Storage deixado pelos ensaios.
