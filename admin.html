@@ -131,7 +131,7 @@ body:has(#painel[style*="block"]) main{padding-bottom:125px}
 .wand-drawer .wc-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.wand-drawer .wc-tile{min-height:115px!important}
 #wcHome .wc-overview button.wc-overview-item{cursor:pointer!important}
 @media(max-width:400px){.wand-dock small{font-size:9px}.wand-drawer .wc-name{font-size:12px}}
-</style><link rel="stylesheet" href="./wand-premium.css?v=design-3"><style id="wandcoach-menu-unificado">/* Padronização visual: menu aberto e ilha inferior alinhados ao painel premium. */
+</style><link rel="stylesheet" href="./wand-premium.css?v=design-4"><style id="wandcoach-menu-unificado">/* Padronização visual: menu aberto e ilha inferior alinhados ao painel premium. */
 .wand-dock button{background:linear-gradient(150deg,#353535 0%,#242424 28%,#111 78%,#28221b 100%)!important;border:1px solid #a5a5a8!important;border-radius:17px!important;box-shadow:inset 0 2px 1px #ffffff75,inset 0 -3px 6px #0008,0 3px 8px #0009!important;color:#efbd55!important}
 .wand-dock button small{color:#f4ede1!important}
 .wand-drawer .wc-tile{background:linear-gradient(145deg,#33220c 0%,#17130e 34%,#0b0b0b 72%,#2b1d0b 100%)!important;border:1px solid #c99b45!important;border-radius:23px!important;box-shadow:inset 0 2px 1px #ffe1a26e,inset 0 -3px 8px #d19b2840,0 9px 17px #000a,0 0 13px #d4a32b28!important}
@@ -332,6 +332,12 @@ function wcBackContextual(){
   return;
  }
  if(partes[0]==='notificacoes'&&partes.length>1){wcCentralNotificacoes();return;}
+ const [area,tipo,valor,modalidade]=partes;
+ if(modalidade&&['students','item'].includes(tipo)){
+  if(tipo==='students'){wcStudents('Selecionar Aluno',valor,area);return;}
+  const item=wcMenus[area]?.items[Number(valor)];
+  if(item){wcAction(item,area,Number(valor));return;}
+ }
  if(partes[0]&&partes.length>1&&wcMenus[partes[0]]){wcMenu(partes[0]);return;}
  wcBack();
 }
@@ -684,7 +690,8 @@ function wcLegacyPresentes(container,alunoId,abrir=false){
  area.open=abrir;
 }
 function wcStudents(title,tipo='ativos',parent='alunos',index=null,modalidade=''){
- wcSetRoute(index===null?[parent,'students',tipo]:[parent,'item',String(index)]);
+ const rota=index===null?[parent,'students',tipo]:[parent,'item',String(index)];
+ wcSetRoute(rota);
  wcOpen(title,'Pesquise pelo nome ou escolha uma modalidade para encontrar o aluno.');
  const input=document.createElement('input');input.className='wc-search';
  input.placeholder='Buscar aluno pelo nome';input.setAttribute('aria-label','Buscar aluno');
@@ -757,17 +764,16 @@ function wcStudents(title,tipo='ativos',parent='alunos',index=null,modalidade=''
   renderFotos();
   return;
  }
+ const voltar=$('wcBackTop');
+ const rotuloVoltar=voltar.textContent;
  function draw(){
   const term=normalize(input.value);
+  wcSetRoute(selected?[...rota,selected]:rota);
+  document.body.dataset.wandLevel=selected?'3':'2';
+  voltar.textContent=selected?'Voltar às modalidades':rotuloVoltar;
   grid.hidden=Boolean(term||selected);grid.style.setProperty('display',term||selected?'none':'grid','important');
   for(const b of grid.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.modalidade===selected));
   list.replaceChildren();
-  if(selected&&!term){
-   const trocar=document.createElement('button');
-   trocar.type='button';trocar.className='wc-back';trocar.textContent='← Escolher outra modalidade';
-   trocar.addEventListener('click',()=>{selected=null;draw();});
-   list.append(trocar);
-  }
   if(!term&&!selected){
    const p=document.createElement('p');p.className='wc-student-hint';
    p.textContent='Selecione uma modalidade ou pesquise diretamente pelo nome.';list.append(p);return;
@@ -820,7 +826,7 @@ async function wcSolicitacoesCadastro(parent='alunos',index=0){
   if(error)throw error;area.replaceChildren();
   if(!data?.length){area.textContent='Nenhuma solicitação cadastrada.';return;}
   for(const pedido of data){
-   const card=document.createElement('article');card.className='wc-person';card.style.display='block';
+   const card=document.createElement('article');card.className='wc-person';card.dataset.wandLevel='2';card.setAttribute('data-wand-route-card','');card.style.display='block';
    const nome=document.createElement('strong');nome.textContent=pedido.nome_completo||'Interessado';
    const info=document.createElement('small');info.style.display='block';info.textContent=[pedido.email,pedido.whatsapp,pedido.modalidade,'Status: '+pedido.status].filter(Boolean).join(' · ');
    const contato=document.createElement('a');contato.textContent='Conversar pelo WhatsApp';contato.target='_blank';contato.rel='noopener noreferrer';contato.href='https://wa.me/'+String(pedido.whatsapp||'').replace(/\D/g,'')+'?text='+encodeURIComponent('Olá! Recebemos sua solicitação de cadastro no WAND METHOD.');
@@ -909,7 +915,7 @@ async function wcDetalhePendenciaAnamnese(tipo){
   }
  }catch(e){console.error(e);area.textContent='Não foi possível consultar as avaliações pendentes.';}
 }
-function wcAction(item,parent,index){const dest=item[3];if(dest==='legacy-niveis'){wcLegacyNiveis();return}if(dest==='legacy-catalogo'||dest==='legacy-regras'){wcLegacyConfig(dest);return}if(dest==='pendencias-anamnese'){wcPendenciasAnamnese(parent,index);return}if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(parent==='bemestar'){location.href='bem-estar-coach.html?modo='+['aluno','checkins','feminina','historico'][index]+'&origem='+encodeURIComponent(location.hash);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index);return}if(dest==='fotografica-alunos'&&index>0){location.href='avaliacao-fotografica-central.html?modo='+['fotos','postural','comparar','autorizacoes'][index]+'&origem='+encodeURIComponent(location.hash);return}if(dest==='avaliacao-alunos'||dest==='fotografica-alunos'){wcStudents(item[0],'ativos',parent,index);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
+function wcAction(item,parent,index,modalidade){const dest=item[3];if(dest==='legacy-niveis'){wcLegacyNiveis();return}if(dest==='legacy-catalogo'||dest==='legacy-regras'){wcLegacyConfig(dest);return}if(dest==='pendencias-anamnese'){wcPendenciasAnamnese(parent,index);return}if(dest==='solicitacoes'){wcSolicitacoesCadastro(parent,index);return}if(dest==='novos'){wcNovosAlunos(parent,index);return}if(parent==='bemestar'){location.href='bem-estar-coach.html?modo='+['aluno','checkins','feminina','historico'][index]+'&origem='+encodeURIComponent(location.hash);return}if(dest==='students'){wcStudents(item[0],'ativos',parent,index,modalidade);return}if(dest==='fotografica-alunos'&&index>0){location.href='avaliacao-fotografica-central.html?modo='+['fotos','postural','comparar','autorizacoes'][index]+'&origem='+encodeURIComponent(location.hash);return}if(dest==='avaliacao-alunos'||dest==='fotografica-alunos'){wcStudents(item[0],'ativos',parent,index,modalidade);return}if(['ativos','inativos','excluidos','novos'].includes(dest)){wcStudents(item[0],dest,parent,index,modalidade);return}if(dest==='historico-notificacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Histórico de Acompanhamentos','Alterações e solicitações anteriores');wcMostrarHistoricoAcompanhamentos();return}if(dest==='adaptacoes'){wcSetRoute([parent,'item',String(index)]);wcOpen('Solicitações de Adaptação','Aprovações e acompanhamento');wcLegacy.classList.add('wc-open');wcContent.append($('adaptacoes'));$('adaptacoes').style.display='block';return}window.location.href=dest}
 async function wcCountSolicitacoes(badge){try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(!badge.isConnected)return;badge.textContent=String((data||[]).filter(p=>!['recusada','aprovada'].includes(String(p.status||'').toLowerCase())).length)}catch(e){console.warn('Contagem de solicitações indisponível:',e);if(badge.isConnected)badge.textContent='—'}}
 async function wcCountNovos(badge){const base=wcFiltered('novos').length;try{const {data,error}=await supabase.rpc('wand_coach_solicitacoes_cadastro');if(error)throw error;if(badge.isConnected){const aprovadas=(data||[]).filter(p=>String(p.status||'').toLowerCase()==='aprovada');badge.textContent=String(base+aprovadas.filter(p=>!wcFiltered('novos').some(a=>wcMesmoInteressado(p,a))).length)}}catch(e){console.warn('Contagem de novos interessados indisponível:',e);if(badge.isConnected)badge.textContent=String(base)+'+'}}
 function wcRevisadas(){try{const x=JSON.parse(localStorage.getItem('wandcoach_notificacoes_revisadas')||'[]');return new Set(Array.isArray(x)?x:[])}catch{return new Set()}}
@@ -1027,7 +1033,7 @@ async function wcAtualizarResumoLegacy(){
 }
 async function wcCentralNotificacoes(){
  wcSetRoute(['notificacoes']);wcOpen('Notificações pendentes','Selecione uma notificação para analisar e resolver.');
- const area=document.createElement('div');area.className='wc-student-list';area.textContent='Carregando notificações...';wcContent.append(area);
+ const area=document.createElement('div');area.className='wc-student-list';area.setAttribute('aria-live','polite');area.textContent='Carregando notificações...';wcContent.append(area);
  const {entries,falhas}=await wcBuscarNotificacoes();area.replaceChildren();
  if(!entries.length){const p=document.createElement('p');p.textContent=falhas?'Não foi possível consultar todas as notificações.':'Tudo em dia! Nenhuma notificação pendente no momento.';area.append(p)}
  for(const n of entries){
@@ -1068,7 +1074,7 @@ async function wcCentralNotificacoes(){
  const refresh=document.createElement('button');refresh.type='button';refresh.className='secundario';refresh.textContent='Atualizar lista';refresh.onclick=wcCentralNotificacoes;area.append(refresh);
 }
 function wcMenu(key){wcToggleDrawer(false);const m=wcMenus[key];if(!m)return;wcSetRoute([key]);wcOpen(m.name,m.desc);const list=document.createElement('div');list.className='wc-list wand-primary-menu';m.items.forEach((item,index)=>{const tipo=item[3],count=['solicitacoes','novos'].includes(tipo)?'…':['ativos','inativos','excluidos'].includes(tipo)?wcFiltered(tipo).length:undefined;const row=wcRow(item,()=>wcAction(item,key,index),count);list.append(row);if(tipo==='solicitacoes')wcCountSolicitacoes(row.querySelector('.wc-count'));if(tipo==='novos')wcCountNovos(row.querySelector('.wc-count'))});wcContent.append(list)}
-function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){document.body.dataset.wandLevel='0';wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){if(kind==='solicitacoes')wcSolicitacoesCadastro('notificacoes',0);else wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(key==='coins'&&kind==='niveis'){wcLegacyNiveis(value);}else if(key==='coins'&&(kind==='legacy-catalogo'||kind==='legacy-regras')){wcLegacyConfig(kind);}else if(key==='coins'&&kind==='item'&&(value==='2'||value==='3')){if(value==='2')wcLegacyNiveis();else wcLegacyConfig('legacy-regras');}else if(key==='coins'&&kind==='conquistas'&&value){wcConquistasAluno(value,parts[3],undefined,parts[4]);}else if(key==='anamnese'&&kind==='pendencias'){if(value==='pedidos'||value==='avaliacoes')wcDetalhePendenciaAnamnese(value);else wcPendenciasAnamnese();}else if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key)}else wcMenu(key)}finally{wcRestoring=false}}
+function wcRestore(){const hash=location.hash;if(!hash.startsWith(wcRoutePrefix)){document.body.dataset.wandLevel='0';wcInner.hidden=true;wcHome.hidden=false;return;}if(!hash.startsWith(wcRoutePrefix))return;const parts=hash.slice(wcRoutePrefix.length).split('/').map(decodeURIComponent);const [key,kind,value]=parts;if(key==='notificacoes'){if(kind==='solicitacoes')wcSolicitacoesCadastro('notificacoes',0);else wcCentralNotificacoes();return;}if(!wcMenus[key]){wcInner.hidden=true;wcHome.hidden=false;return;}wcRestoring=true;try{if(key==='coins'&&kind==='niveis'){wcLegacyNiveis(value);}else if(key==='coins'&&(kind==='legacy-catalogo'||kind==='legacy-regras')){wcLegacyConfig(kind);}else if(key==='coins'&&kind==='item'&&(value==='2'||value==='3')){if(value==='2')wcLegacyNiveis();else wcLegacyConfig('legacy-regras');}else if(key==='coins'&&kind==='conquistas'&&value){wcConquistasAluno(value,parts[3],undefined,parts[4]);}else if(key==='anamnese'&&kind==='pendencias'){if(value==='pedidos'||value==='avaliacoes')wcDetalhePendenciaAnamnese(value);else wcPendenciasAnamnese();}else if(kind==='item'){const index=Number(value),item=wcMenus[key].items[index];if(item)wcAction(item,key,index,parts[3]);else wcMenu(key)}else if(kind==='students'){wcStudents('Selecionar Aluno',value||'ativos',key,null,parts[3])}else wcMenu(key)}finally{wcRestoring=false}}
 $('wcAtualizarNotificacoes').onclick=wcCentralNotificacoes;
 let wcUltimaConsultaNotificacoes=0;
 window.addEventListener('focus',()=>{

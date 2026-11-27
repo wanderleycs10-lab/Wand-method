@@ -13,7 +13,7 @@ h1,h2,h3,.gold{color:#f2c65b}
 /* Somente ações explicitamente primárias recebem preenchimento dourado.
    Botões de navegação internos preservam fundo escuro e contraste. */
 button.primary,.btn.primary,.button.primary,.botao-link.primary,.btn:not(.secondary),a.button:not(.secondary),a.botao-link:not(.secundario){background:linear-gradient(120deg,#a97114,#e6af38 22%,#ffe6a0 48%,#e2ac33 80%,#ae7412);border:1px solid #ffe19a;border-radius:12px;color:#1b1307;box-shadow:inset 0 2px #fff9e5bb,inset 0 -3px 6px #92620c77,0 6px 14px #0008,0 0 15px #c99a3040;text-shadow:0 1px #fff1c47a}
-button:not(.primary):not(.nav-tile):not(.wc-tile):not(.danger):not(.perigo):not(.remover):not(.wand-excluir):not(.eye),.wb-choice,.wb-icon-choice,.wand-overview-item button{background:linear-gradient(145deg,#302e2a,#181818 52%,#20190e)!important;border:1px solid #a5a9b1!important;color:#f5f1e8!important;text-shadow:none!important;box-shadow:inset 0 1px #f6f7fa78,inset 0 -2px 5px #c39a2929,0 6px 13px #0008!important}
+button:not(.primary):not(.nav-tile):not(.wc-tile):not(.danger):not(.perigo):not(.remover):not(.wand-excluir):not(.eye):not(:where(.wand-primary-row,.wc-row,[data-wand-back],[data-wand-route-card])),.wb-choice,.wb-icon-choice,.wand-overview-item button{background:linear-gradient(145deg,#302e2a,#181818 52%,#20190e)!important;border:1px solid #a5a9b1!important;color:#f5f1e8!important;text-shadow:none!important;box-shadow:inset 0 1px #f6f7fa78,inset 0 -2px 5px #c39a2929,0 6px 13px #0008!important}
 button:not(.primary) strong,button:not(.primary) small,button:not(.primary) .wand-overview-label,button:not(.primary) .wand-overview-note{color:#eee9de!important;text-shadow:none!important}
 button:not(.primary) .wand-overview-value{color:#f1c65d!important}
 .wb-choice strong,.wb-icon-choice strong{color:#f7e5bd!important}.wb-choice small,.wb-icon-choice small{color:#e3ded5!important}
@@ -369,7 +369,9 @@ details[open] > .wand-legacy-level-toggle::after { transform: rotate(90deg); }
   --wand-route-surface: linear-gradient(145deg,#2c2b2a,#171717 45%,#111 78%,#21190e);
   --wand-route-shadow: inset 0 2px 1px #e9edf359,inset 0 -2px 6px #d5a53a16,0 8px 19px #0008;
 }
-body[data-wand-level] :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile,[data-wand-route-card]) {
+body[data-wand-level] :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile,[data-wand-route-card]),
+body[data-wand-level] #wcInner .wc-row,
+body[data-wand-level] .wand-primary-menu > .wand-primary-row {
   border-color: var(--wand-route-edge) !important;
   background: var(--wand-route-surface) !important;
   box-shadow: var(--wand-route-shadow) !important;
@@ -472,6 +474,8 @@ body .wand-completion button.primary {
   body[data-wand-level] [data-wand-back] { display: none !important; }
 }
 
+.wand-notificacao-seta { margin-inline-start: auto; color: var(--wand-gold); }
+
 .wand-appearance {
   display: flex;
   justify-content: flex-end;
@@ -518,19 +522,22 @@ body .wand-completion button.primary {
     --wand-route-edge: var(--wand-light-silver);
     --wand-route-surface: var(--wand-light-surface);
   }
-  html[data-wand-light] body[data-wand-level] main :is(.card,.subcard,.sub-card,.status-card,.panel-card,.form-card,.metric,.wc-person,.contract-details,.contract-consent,.contract-progress,.documento,.doc,.wand-legacy-summary > details):not([data-wand-route-card]) {
+  html[data-wand-light] body[data-wand-level] main :is(.card,.subcard,.sub-card,.status-card,.panel-card,.form-card,.metric,.wc-person,.contract-details,.contract-consent,.contract-progress,.documento,.doc,.wand-programa,.wand-accordion,.wand-legacy-summary > details):not([data-wand-route-card]) {
     background: var(--wand-light-surface) !important;
     border-color: var(--wand-light-silver) !important;
     box-shadow: var(--wand-light-shadow) !important;
     color: var(--wand-light-text) !important;
   }
-  html[data-wand-light] body[data-wand-level] main :is(h1,h2,h3,label,summary,.gold,[data-wand-heading]) {
+  html[data-wand-light] body[data-wand-level] main .wand-accordion > summary {
+    background: var(--wand-light-surface);
+  }
+  html[data-wand-light] body[data-wand-level] main :is(h1,h2,h3,label,summary,.gold,[data-wand-heading],.metric > strong,.contract-progress strong) {
     color: var(--wand-light-gold) !important;
   }
-  html[data-wand-light] body[data-wand-level] main :is(.muted,.contract-meta,.contract-consent-hint,.contract-note) {
+  html[data-wand-light] body[data-wand-level] main :is(.muted,.contract-meta,.contract-consent-hint,.contract-note,#wcSubtitle,#status,.welcome p,.contract-progress p,.metric > span,.wand-aluno-intro p,.wand-legacy-level > span:last-child > span) {
     color: var(--wand-light-muted) !important;
   }
-  html[data-wand-light] body[data-wand-level] main :is(.error,.ok) { color: #8c2424 !important; }
+  html[data-wand-light] body[data-wand-level] main .error { color: #8c2424 !important; }
   html[data-wand-light] body[data-wand-level] main .ok { color: #235c33 !important; }
   html[data-wand-light] body[data-wand-level] main :is(input:not([type="checkbox"],[type="radio"],[type="range"]),select,textarea) {
     box-sizing: border-box;
@@ -540,24 +547,37 @@ body .wand-completion button.primary {
     color: var(--wand-light-text) !important;
     box-shadow: inset 0 1px 3px #211b121f !important;
   }
-  html[data-wand-light] body[data-wand-level] main :is([data-wand-back],.secondary,.secundario):not(.wand-primary-row,.wc-row) {
+  html[data-wand-light] body[data-wand-level] main :is([data-wand-back],.secondary,.secundario):not(.wand-primary-row,.wc-row),
+  html[data-wand-light] body[data-wand-level] main #wcBackTop,
+  html[data-wand-light] body[data-wand-level] main .panel-view [data-wand-back],
+  html[data-wand-light] body[data-wand-level] button[data-wand-theme-toggle] {
     background: var(--wand-light-surface) !important;
     box-shadow: var(--wand-light-shadow) !important;
     border-color: var(--wand-light-silver) !important;
     color: var(--wand-light-gold) !important;
   }
   html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile,[data-wand-route-card]),
-  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile) :is(.nav-name,.wc-name,strong) {
+  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile,.wand-aluno-notificacao-item) :is(.nav-name,.wc-name,strong) {
     color: var(--wand-light-text) !important;
   }
-  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile) :is(small,.nav-desc,.wc-desc) {
+  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile,[data-wand-route-card]),
+  html[data-wand-light] body[data-wand-level] main #wcInner .wc-row,
+  html[data-wand-light] body[data-wand-level] main .wand-primary-menu > .wand-primary-row,
+  html[data-wand-light] body[data-wand-level] main .menu-perfil .wand-primary-row {
+    background: var(--wand-route-surface) !important;
+    border-color: var(--wand-route-edge) !important;
+    box-shadow: var(--wand-route-shadow) !important;
+  }
+  html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row,.wb-menu > .nav-tile,.wand-aluno-notificacao-item) :is(small,.nav-desc,.wc-desc) {
     color: var(--wand-light-muted) !important;
   }
   html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row) :is(.nav-icon,.wc-icon,.ficha-icon) {
     color: #f3c95f !important;
   }
+  html[data-wand-light] body[data-wand-level] main .wand-aluno-notificacoes-icone svg,
+  html[data-wand-light] body[data-wand-level] main .wand-notificacao-seta,
   html[data-wand-light] body[data-wand-level] main :is(.wand-primary-row,.wc-row)::after {
-    color: var(--wand-light-gold);
+    color: var(--wand-light-gold) !important;
   }
   html[data-wand-light] body[data-wand-level] main :is(button,a,summary,input,textarea,select):focus-visible {
     outline: 2px solid #79500a !important;

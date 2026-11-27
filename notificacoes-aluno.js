@@ -22,6 +22,7 @@
     for(const item of itens){
       const botao=adicionar('button',undefined,lista);
       botao.type='button';botao.className='wand-aluno-notificacao-item';
+      botao.dataset.wandLevel='2';botao.setAttribute('data-wand-route-card','');
       const icone=adicionar('span',undefined,botao);
       icone.className='wand-aluno-notificacoes-icone';
       const desenho=item.legacy
@@ -31,6 +32,9 @@
       const texto=adicionar('span',undefined,botao);
       adicionar('strong',item.titulo,texto);
       adicionar('small',item.detalhe,texto);
+      const seta=adicionar('span','›',botao);
+      seta.setAttribute('aria-hidden','true');
+      seta.className='wand-notificacao-seta';
       botao.addEventListener('click',item.abrir);
     }
   }

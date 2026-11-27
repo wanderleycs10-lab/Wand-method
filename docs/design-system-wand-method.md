@@ -81,3 +81,7 @@ O nível 0 é o painel do perfil. O nível 1 é a central principal da funcional
 | Aluno | 3+ | Calendário, registros, sintomas, preferências e detalhes da conta |
 
 Consulte o [registro de continuidade](design-system-progresso.md) para distinguir classificação, execução e validação.
+
+## Tema claro
+
+Nos painéis autenticados, o controle **Tema claro** alterna a aparência e informa seu estado com `aria-pressed`. O escuro permanece a configuração inicial. A preferência se mantém nas páginas autenticadas do mesmo navegador. As superfícies claras conservam dourado nos níveis 0 e 1 e prata a partir do nível 2, com texto escuro e ícones dourados. Os cabeçalhos oficiais com logotipo e a ilha seguem o acabamento aprovado. As adaptações para tela não se aplicam à impressão.
