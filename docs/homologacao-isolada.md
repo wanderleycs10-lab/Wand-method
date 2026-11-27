@@ -83,3 +83,23 @@ Em 27/11/2026, o endpoint de Auth da homologação confirmou cadastro público e
 O artefato que falta é um arquivo SQL **somente com DDL**. Um administrador com acesso ao banco pode usar `pg_dump --schema-only --no-owner --schema=public --schema=wand_legacy` com o cliente compatível com Postgres 17 e a conexão de produção em armazenamento local seguro. Acrescentar separadamente apenas as políticas e os triggers próprios do WAND METHOD que pertençam a Auth ou Storage. Revisar funções e defaults em busca de destinos de produção ou segredos e retirar integrações externas antes de entregar. Não incluir `COPY`, dados de tabelas, senhas, sessões ou arquivos. Entregar o SQL revisado fora do repositório público e sem compartilhar a conexão de produção.
 
 Depois da revisão e importação do esquema, criar contas somente em [Authentication → Users da homologação](https://supabase.com/dashboard/project/kcusxtfvcwqdflszqjes/auth/users). Em **Add user**, escolher **Create new user**, nunca **Invite user**. Criar `coach@wand.test`, `aluno-a@wand.test` e `aluno-b@wand.test` com senhas exclusivas e **Auto Confirm User** marcado. Se essa opção não estiver disponível, interromper para evitar convite ou confirmação por e-mail. Guardar senhas em canal seguro do ambiente, sem repassá-las no chat ou no Git. O cadastro administrativo confirma apenas essas contas, sem mudar a regra geral do projeto. As associações a `profiles` e `alunos` são feitas após conferir os triggers da base importada. O envio de e-mail permanece fora do roteiro de Treinos.
+
+### Exportação única de DDL
+
+O acesso no Cloud permite consultar o catálogo via SQL, e não fornece conexão Postgres para `pg_dump`. A leitura do catálogo encontrou 48 tabelas em `public` e 13 em `wand_legacy`, com 102 funções `SECURITY DEFINER` no conjunto. As 12 políticas próprias de `storage.objects` e o trigger próprio `on_auth_user_created` foram extraídos separadamente para revisão. Nenhum objeto foi importado. O destino confirmado para uma importação futura é exclusivamente `kcusxtfvcwqdflszqjes`.
+
+No computador com `pg_dump` 17 ou mais recente, abra **Connect → Session pooler** no projeto de produção. Use o host exibido, porta 5432 e o usuário do pooler de produção. No terminal Bash, execute:
+
+```bash
+umask 077
+read -r -p 'Host do Session pooler de produção: ' WAND_POOLER_HOST
+PGSSLMODE=require PGOPTIONS='-c default_transaction_read_only=on' \
+  pg_dump -W --host="$WAND_POOLER_HOST" --port=5432 \
+  --username=postgres.kvxdnreipuahoaostlle --dbname=postgres \
+  --schema-only --no-owner --schema=public --schema=wand_legacy \
+  --file=wand-esquema-revisar.sql
+```
+
+Se usar a conexão **Direct** (requer conectividade adequada), troque host e usuário por `db.kvxdnreipuahoaostlle.supabase.co` e `postgres`. A senha é informada apenas no prompt do `pg_dump`. Entregar o arquivo fora do GitHub, após uma triagem por segredos e endpoints. A exportação preserva grants e políticas e não exporta dados, usuários, sessões, buckets ou arquivos. O recorte por esquema pode exigir dependências e extensões tratadas separadamente.
+
+Na revisão antes da aplicação, verificar grants de tabelas e funções, titularidade, RLS, escopo e `search_path` de funções privilegiadas, ordem de dependências, triggers e os auxiliares usados pelas políticas do Storage. Não restaurar esquemas internos, cópias de Vault, agendamentos, webhooks ou credenciais. A presença de extensões de rede e agendamento no catálogo de produção é motivo para verificar referências no DDL, sem reinstalá-las automaticamente. Testar a versão sanitizada somente na homologação e repetir `scripts/conferir-esquema-homologacao.sql` antes do login.
