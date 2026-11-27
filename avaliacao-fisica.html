@@ -213,9 +213,11 @@ async function iniciar() {
       modalidade === "semipresencial";
     secaoDobras.hidden = !permiteDobras;
 
-    const origem = new URLSearchParams(location.search).get("origem");
+    const parametros = new URLSearchParams(location.search);
+    const origem = parametros.get("origem") || "#wc/avaliacao/item/0";
     const retorno = "avaliacao-fisica-painel.html?id=" + encodeURIComponent(alunoId) +
-      "&modo=nova&origem=" + encodeURIComponent("#wc/avaliacao/item/0");
+      "&modo=nova&origem=" + encodeURIComponent(origem) +
+      (parametros.get("voltar_perfil") === "1" ? "&voltar_perfil=1" : "");
     const voltar = document.getElementById("voltar");
     voltar.href = retorno;
     const formularioAlterado = () => [...form.elements].some(campo =>

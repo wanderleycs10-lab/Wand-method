@@ -56,3 +56,43 @@ A suíte padrão com Node.js 22.23.5 continua com 34 sucessos, quatro falhas e u
 - A matriz cobriu a abertura de páginas e estados de rota com respostas simuladas. Ainda faltam revisão manual de interações profundas e dos estados condicionados a dados (edição, validações de formulário, erro, vazio, permissão e retornos após gravação), revisão de leitores de tela e das superfícies locais ainda fora do tema compartilhado.
 - Fluxos de negócio que dependem de autenticação, permissões, gravação, e-mail e histórico de um serviço real precisam de contas e dados de teste isolados. Nenhuma conexão de produção foi usada nesta rodada.
 - A prévia está disponível para aprovação. Merge e publicação aguardam decisão do responsável.
+
+## Integração do histórico da main
+
+A comparação de `164a818` com `717abd1` confirmou seis commits exclusivos de desenvolvimento e 23 exclusivos da main. O ancestral comum era `85bb8fc`, também segundo pai do último merge da main. A árvore da main e a desse ancestral têm o mesmo identificador `a33784b54c9e32cf5f8b981cdd07a4e57ad99518`. Portanto, as mudanças de WAND LEGACY, navegação, layout e WAND EXERCISES já faziam parte do desenvolvimento. Os 23 commits exclusivos eram registros de merge dos PRs, sem diferença líquida de arquivos em relação ao ancestral.
+
+A simulação do merge produziu a mesma árvore de `164a818` e não indicou arquivos em conflito. O merge `4825a9a` incorporou a ancestralidade da main na branch de desenvolvimento. A comparação com o primeiro pai ficou vazia, preservando integralmente os arquivos, inclusive a ilha, o tema e os retornos já existentes.
+
+| Commit exclusivo | PR | Branch incorporada |
+| --- | --- | --- |
+| `191b897` | #1 | `dev/wand-legacy` |
+| `b709697` | #2 | `dev/wand-legacy-visual` |
+| `3b683fa` | #3 | `dev/wand-legacy-icone` |
+| `d5ad215` | #4 | `dev/wand-legacy-cartoes` |
+| `f30cc6b` | #5 | `dev/wand-legacy-config-compacta` |
+| `16294fa` | #6 | `dev/wand-legacy-logo-aluno` |
+| `48c5db7` | #7 | `dev/wand-legacy-fundo-transparente` |
+| `c474af7` | #8 | `dev/wand-legacy-detalhe` |
+| `6b40565` | #9 | `dev/wand-legacy-reconhecimento` |
+| `a3a5dad` | #10 | `dev/wand-legacy-alunos-por-nivel` |
+| `05781d7` | #11 | `dev/wand-legacy-chevron` |
+| `972aef4` | #12 | `dev/wand-legacy-regras-compactas` |
+| `885b6a5` | #13 | `dev/wand-legacy-central-avisos` |
+| `4990545` | #14 | `dev/wand-navegacao-compartilhada` |
+| `e98d4b9` | #15 | `dev/wand-legacy-indicador` |
+| `3709553` | #16 | `dev/wand-layout-aluno-personal` |
+| `6520e13` | #17 | `dev/wand-exercises-supino-piloto` |
+| `d1fa2bb` | #18 | `dev/wand-supino-modelo-anatomico` |
+| `f340c56` | #19 | `dev/wand-exercises-dois-modelos` |
+| `9162669` | #20 | `dev/wand-exercises-vistas-pegadas` |
+| `b713467` | #21 | `dev/wand-exercises-revisao-oficial` |
+| `520f93a` | #22 | `dev/wand-exercises-catalogo-compacto` |
+| `717abd1` | #23 | `dev/wand-exercises-consulta-prescricao` |
+
+### Validação após a integração
+
+- O teste de interação isolado percorreu seleção de modalidade, perfil e acompanhamento com atualização e retorno, aceite de contrato fictício, abertura da avaliação fotográfica a partir da notificação do aluno, ida e volta entre níveis e detalhe no WAND LEGACY e confirmação compartilhada pelo teclado.
+- O teste da avaliação física exercitou retorno da revisão aos resultados seguido de recarregamento e o percurso perfil → painel de avaliação → formulário → painel → perfil. A revisão física passou a atualizar o endereço no retorno, e a origem passou a acompanhar a abertura do formulário. As alterações são restritas à navegação.
+- O Chromium repetiu 255 aberturas nos dois temas, em 20 páginas e 51 endereços, a 320, 390, 768, 1024 e 1280 px. A varredura não registrou erros JavaScript não tratados, rolagem horizontal, duplicação de Voltar compartilhado ou diferença nas medidas da ilha entre temas. A comparação com `8d8735c` confirmou posição, dimensões e estilos computados da ilha em ambos os painéis nas quatro larguras de referência.
+- A suíte com Node.js 22.23.5 repetiu 34 sucessos, quatro falhas preexistentes de fotografia (registro da solicitação, consentimento na solicitação direta, revisão das três fotos e expressão regular inválida) e um teste de banco ignorado. As sessões de navegador foram simuladas com requisições externas bloqueadas.
+- A revisão técnica da divergência está concluída, e a branch está disponível para homologação. Para publicação ainda faltam a validação de ponta a ponta com contas e dados de teste isolados para gravações, permissões e comunicações, a disposição das quatro falhas de fotografia para o release e a aprovação da prévia. Nenhuma migração foi executada.
