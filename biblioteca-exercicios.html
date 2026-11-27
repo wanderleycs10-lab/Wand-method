@@ -68,6 +68,14 @@ body.video-aberto{overflow:hidden}
 .revisao-selecao{display:flex;align-items:center;gap:.5rem}.revisao-selecao input{width:auto;accent-color:#d4af37}
 .revisao-media{width:100%}.revisao-media section{width:100%}
 .revisao-primario{background:linear-gradient(180deg,#ffe5a2,#c89531);color:#171005}
+#lista .catalogo-card{display:grid;grid-template-rows:2.5em auto;align-content:center;gap:.25rem;min-height:96px;padding:10px 14px;text-decoration:none;color:inherit;background:var(--wand-surface);border:1px solid var(--wand-border);box-shadow:var(--wand-shadow);border-radius:var(--wand-radius)}
+#lista .catalogo-card h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:0;color:var(--wand-gold);font-size:16px;line-height:1.25}
+.catalogo-meta{display:flex;align-items:center;gap:.25rem .6rem;flex-wrap:wrap;font-size:12px}
+.catalogo-meta .etiqueta,.catalogo-meta .categoria{margin:0}
+#lista .catalogo-card:hover,#lista .catalogo-card:focus-visible{outline:2px solid var(--wand-gold);outline-offset:2px}
+#fichaExercicio .acoes{margin-top:1rem}
+#fichaVideo iframe,#fichaVideo video{width:100%;max-width:840px;aspect-ratio:16/9}
+@media(max-width:650px){#lista .catalogo-card{min-height:82px;padding:8px 12px}}
 #modalFundo,.video-fundo{z-index:1201}
 #sucessoRevisao{text-align:center}
 @media(max-width:380px){.revisao-contadores{grid-template-columns:1fr}}
@@ -100,6 +108,7 @@ body.video-aberto{overflow:hidden}
  </nav>
 </section>
 <section id="catalogoOficial">
+<div id="consultaCatalogo">
 <div class="topo-acoes"><h2>Biblioteca de Exercícios</h2><button type="button" id="novo">+ Cadastrar exercício</button></div>
 <div class="painel"><div class="filtros">
 <div><label for="pesquisa">Pesquisar pelo nome</label><input type="search" id="pesquisa" placeholder="Pesquisar exercício..."></div>
@@ -110,6 +119,16 @@ body.video-aberto{overflow:hidden}
 <div class="linha por-pagina"><label for="porPagina">Exercícios por página</label><select id="porPagina"><option value="8">8</option><option value="12" selected>12</option><option value="20">20</option></select></div>
 <div id="lista" class="grade"></div>
 <div class="navegacao-rodape"><p class="contador" id="contador" role="status" aria-live="polite"></p><nav id="paginacao" class="paginacao" aria-label="Páginas de exercícios"></nav></div>
+</div>
+<section id="fichaExercicio" hidden aria-labelledby="tituloFichaExercicio">
+ <a href="#biblioteca" class="voltar">← Voltar à biblioteca</a>
+ <article class="card">
+  <h2 id="tituloFichaExercicio" tabindex="-1"></h2>
+  <div id="dadosFichaExercicio"></div>
+  <div id="fichaVideo"></div>
+  <div id="acoesFichaExercicio" class="acoes"></div>
+ </article>
+</section>
 </section>
 </div>
 <a href="admin.html" class="voltar rodape">← Voltar ao WandCoach</a>
@@ -123,6 +142,7 @@ body.video-aberto{overflow:hidden}
 <div class="campo"><label for="primariosCadastro">Músculos primários</label><input id="primariosCadastro" maxlength="240"></div>
 <div class="campo"><label for="secundariosCadastro">Músculos secundários</label><input id="secundariosCadastro" maxlength="240"></div>
 <div class="campo"><label for="instrucoesCadastro">Orientações de execução</label><textarea id="instrucoesCadastro" rows="3" maxlength="1800"></textarea></div>
+<div class="campo"><label for="errosCadastro">Erros comuns</label><textarea id="errosCadastro" rows="2" maxlength="1800"></textarea></div>
 <div class="campo"><label for="tipoVideo">Vídeo demonstrativo</label><select id="tipoVideo"><option value="nenhum">Adicionar depois</option><option value="youtube">Link do YouTube</option><option value="proprio">Meu vídeo (MP4)</option></select></div>
 <div class="campo oculto" id="campoYoutube"><label for="urlYoutube">Link do YouTube</label><input type="url" id="urlYoutube" placeholder="https://www.youtube.com/watch?v=..."></div>
 <div class="campo oculto" id="campoArquivo"><label for="arquivoVideo">Selecionar vídeo MP4 (até 50 MB)</label><input type="file" id="arquivoVideo" accept="video/mp4"><p class="ajuda">O envio exige configurar o bucket wand-exercicios-videos no Supabase. Vídeos próprios serão exibidos por link temporário. Não envie vídeos sem autorização de uso.</p></div>
@@ -175,7 +195,7 @@ function preencherSelect(sel,valores,placeholder){const anterior=sel.value;sel.r
 function mapaGrupoExibicao(g){return GRUPOS.find(x=>normal(x)===normal(g))||g||"Grupo não informado";}
 function atualizarFiltros(){const mapaGrupos=new Map();for(const g of GRUPOS)mapaGrupos.set(normal(g),g);for(const e of exercicios){if(e.grupo_muscular&&!mapaGrupos.has(normal(e.grupo_muscular)))mapaGrupos.set(normal(e.grupo_muscular),e.grupo_muscular);}const grupos=[...mapaGrupos.values()].sort((a,b)=>a.localeCompare(b,"pt-BR"));const equips=[...new Set(exercicios.map(e=>e.equipamento).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));preencherSelect($("grupo"),grupos,"Todos os grupos");preencherSelect($("grupoCadastro"),grupos,null);preencherSelect($("equipamento"),equips,"Todos os equipamentos");const categorias=[...new Set([...CATEGORIAS,...exercicios.map(e=>e.categoria).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"pt-BR"));preencherSelect($("categoria"),categorias,"Todas as categorias");preencherSelect($("categoriaCadastro"),categorias,null);}
 async function verificarAcesso(){try{const {data:{user},error}=await supabase.auth.getUser();if(error||!user){location.replace("login.html");return;}const {data:perfil,error:ep}=await supabase.from("profiles").select("role").eq("id",user.id).single();if(ep||perfil?.role!=="admin"){mensagem("Acesso não autorizado.",true);return;}usuario=user;$("conteudo").classList.remove("oculto");await carregar();revisao=setupExerciseReview({supabase,edit:abrirModal,openVideo:abrirVideo,confirm:wandConfirmarLocal,refreshLibrary:async()=>{await carregar();await revisao.load()}});}catch(e){mensagem("Falha ao verificar acesso.",true);console.error(e);}}
-async function carregar(){mensagem("Carregando exercícios...");let itens=[],offset=0;while(true){const {data,error}=await supabase.from("wand_exercicios").select("*").eq("ativo",true).order("nome",{ascending:true}).range(offset,offset+999);if(error){console.error(error);mensagem("Não foi possível carregar os exercícios: "+error.message,true);return;}itens.push(...(data||[]));if(!data||data.length<1000)break;offset+=1000;}exercicios=itens;$("totalCadastrados").textContent=exercicios.length;atualizarFiltros();renderizar();mensagem("");}
+async function carregar(){mensagem("Carregando exercícios...");let itens=[],offset=0;while(true){const {data,error}=await supabase.from("wand_exercicios").select("*").eq("ativo",true).order("nome",{ascending:true}).range(offset,offset+999);if(error){console.error(error);mensagem("Não foi possível carregar os exercícios: "+error.message,true);return;}itens.push(...(data||[]));if(!data||data.length<1000)break;offset+=1000;}exercicios=itens;$("totalCadastrados").textContent=exercicios.length;atualizarFiltros();renderizar();mostrarFicha();mensagem("");}
 function renderizar(){const termo=normal($("pesquisa").value.trim());const filtrados=exercicios.filter(e=>normal(e.nome).includes(termo)&&(!$("grupo").value||normal(e.grupo_muscular)===normal($("grupo").value))&&(!$("categoria").value||e.categoria===$("categoria").value)&&(!$("equipamento").value||e.equipamento===$("equipamento").value));const limite=Number($("porPagina").value);const total=Math.max(1,Math.ceil(filtrados.length/limite));pagina=Math.min(pagina,total);$("contador").textContent=`${filtrados.length} exercício(s) encontrado(s) · Página ${pagina} de ${total}`;$("lista").replaceChildren();if(!filtrados.length)$("lista").append(criar("p","vazio","Nenhum exercício encontrado."));filtrados.slice((pagina-1)*limite,pagina*limite).forEach(e=>$("lista").append(cardExercicio(e)));const nav=$("paginacao");nav.replaceChildren();if(total<=1)return;const bot=(txt,p,ativo=false)=>{const b=criar("button",ativo?"ativo":"",txt);b.type="button";b.disabled=p<1||p>total||p===pagina;b.setAttribute("aria-label",txt==="‹"?"Página anterior":txt==="›"?"Próxima página":`Página ${p}`);if(ativo)b.setAttribute("aria-current","page");b.addEventListener("click",()=>{pagina=p;renderizar();$("lista").scrollIntoView({behavior:"smooth",block:"start"});});nav.append(b);};bot("‹",pagina-1);const inicio=Math.max(1,Math.min(pagina-2,total-4)),fim=Math.min(total,inicio+4);for(let i=inicio;i<=fim;i++)bot(String(i),i,i===pagina);bot("›",pagina+1);}
 function youtubeId(link){try{const u=new URL(link);const host=u.hostname.toLowerCase().replace(/^www\./,"");let id="";if(host==="youtu.be")id=u.pathname.split("/")[1];else if(host==="youtube.com"||host==="m.youtube.com"||host==="youtube-nocookie.com"){if(u.pathname==="/watch")id=u.searchParams.get("v");else if(/^\/(shorts|embed|live)\//.test(u.pathname))id=u.pathname.split("/")[2];}return /^[a-zA-Z0-9_-]{11}$/.test(id||"")?id:null;}catch{return null;}}
 function videoTipo(e){return e.video_tipo||"nenhum";}
@@ -198,34 +218,64 @@ async function abrirVideo(e,origem){
  if(video)video.addEventListener("loadedmetadata",()=>{player.classList.toggle("vertical",video.videoHeight>video.videoWidth);},{once:true});
 }
 function cardExercicio(e){
- const card=criar("article","exercicio");
- card.append(criar("h3","",e.nome),criar("span","etiqueta",mapaGrupoExibicao(e.grupo_muscular)),criar("span","categoria",e.categoria||"Sem categoria"));
- card.append(criar("p","",`Equipamento: ${e.equipamento||"Não informado"}`));
- for(const [rotulo,valor] of [["Músculos secundários",e.musculos_secundarios],["Execução",e.instrucoes],["Erros comuns",e.erros_comuns]]){
-  if(valor)card.append(criar("p","",rotulo+": "+valor));
- }
- const detalhe=criar("div","detalhes");
- const acoes=criar("div","acoes");
- const ver=criar("button","secundario","▶ Ver vídeo");ver.type="button";
- ver.addEventListener("click",()=>abrirVideo(e,ver));
- const gerenciar=criar("button","secundario","Gerenciar exercício");gerenciar.type="button";
- gerenciar.addEventListener("click",()=>{
-  const abrir=!detalhe.classList.contains("aberto");detalhe.classList.toggle("aberto",abrir);
-  gerenciar.textContent=abrir?"Ocultar opções":"Gerenciar exercício";
-  detalhe.replaceChildren();if(!abrir)return;
-  const gestao=criar("div","acoes");
-  const editar=criar("button","secundario","Editar cadastro");editar.type="button";editar.onclick=()=>abrirModal(e);
-  const desativar=criar("button","perigo","Desativar exercício");desativar.type="button";desativar.onclick=()=>desativarExercicio(e);
-  const propor=criar("button","secundario","Propor substituição de vídeo");propor.type="button";propor.onclick=()=>revisao?.propose(e);
-  gestao.append(editar,propor,desativar);detalhe.append(gestao);
- });
- acoes.append(ver,gerenciar);card.append(acoes,detalhe);return card;
+ const card=criar("a","catalogo-card");
+ card.href="#exercicio="+encodeURIComponent(e.id);
+ card.title=e.nome;
+ const meta=criar("div","catalogo-meta");
+ meta.append(criar("span","etiqueta",mapaGrupoExibicao(e.grupo_muscular)),criar("span","categoria",e.categoria||"Sem categoria"));
+ card.append(criar("h3","",e.nome),meta);
+ card.addEventListener("click",()=>{retornoFicha={hash:card.hash,scroll:window.scrollY};});
+ return card;
 }
+let retornoFicha=null;
+function mostrarFicha(moverFoco=false){
+ const hash=location.hash;
+ const id=hash.startsWith("#exercicio=")?hash.slice("#exercicio=".length):null;
+ const e=id?exercicios.find(item=>encodeURIComponent(item.id)===id):null;
+ $("consultaCatalogo").hidden=Boolean(id);
+ $("fichaExercicio").hidden=!id;
+ $("fichaVideo").replaceChildren();
+ $("dadosFichaExercicio").replaceChildren();
+ $("acoesFichaExercicio").replaceChildren();
+ if(!id){
+  if(moverFoco&&retornoFicha&&(!hash||hash==="#biblioteca")){
+   Array.from($("lista").querySelectorAll("a")).find(card=>card.hash===retornoFicha.hash)?.focus({preventScroll:true});
+   window.scrollTo(0,retornoFicha.scroll);
+   retornoFicha=null;
+  }
+  return;
+ }
+ const titulo=$("tituloFichaExercicio");
+ titulo.textContent=e?.nome||"Exercício indisponível";
+ if(moverFoco){titulo.scrollIntoView({block:"start"});titulo.focus({preventScroll:true});}
+ if(!e)return;
+ for(const [rotulo,valor] of [
+  ["Grupo muscular",mapaGrupoExibicao(e.grupo_muscular)],["Categoria",e.categoria],
+  ["Equipamento",e.equipamento],["Músculos primários",e.musculos_primarios],
+  ["Músculos secundários",e.musculos_secundarios],["Orientações de execução",e.instrucoes],
+  ["Erros comuns",e.erros_comuns],["Pegada",e.pegada],["Variação",e.variacao],
+  ["Características",e.caracteristicas],["Padrão de movimento",e.padrao_movimento],["Dificuldade",e.dificuldade],
+ ]){
+  if(valor)$("dadosFichaExercicio").append(criar("p","",rotulo+": "+valor));
+ }
+ const player=criar("div");
+ $("fichaVideo").append(player);
+ void mostrarVideo(e,player);
+ for(const [rotulo,classe,acao] of [
+  ["Editar cadastro","secundario",()=>abrirModal(e)],
+  ["Propor substituição de vídeo","secundario",()=>revisao?.propose(e)],
+  ["Desativar exercício","perigo",()=>desativarExercicio(e)],
+ ]){
+  const button=criar("button",classe,rotulo);button.type="button";button.onclick=acao;
+  $("acoesFichaExercicio").append(button);
+ }
+}
+window.addEventListener("hashchange",()=>mostrarFicha(true));
 function ajustarTipo(){const t=$("tipoVideo").value;$("tipoVideo").disabled=Boolean(editando?.ativo);$("campoYoutube").classList.toggle("oculto",t!=="youtube"||Boolean(editando?.ativo));$("campoArquivo").classList.toggle("oculto",t!=="proprio"||Boolean(editando?.ativo));}
-function abrirModal(e=null,focarVideo=false){editando=e;$("formExercicio").reset();$("erroFormulario").textContent="";$("tituloModal").textContent=e?"Editar exercício":"Cadastrar exercício";$("nome").value=e?.nome||"";$("grupoCadastro").value=mapaGrupoExibicao(e?.grupo_muscular)||"Peitoral";$("equipCadastro").value=e?.equipamento||"";$("categoriaCadastro").value=e?.categoria||"Musculação";$("tipoVideo").value=e?videoTipo(e):"nenhum";$("urlYoutube").value=e?.video_tipo==="youtube"?e.video_url||"":"";$("primariosCadastro").value=e?.musculos_primarios||"";$("secundariosCadastro").value=e?.musculos_secundarios||"";$("instrucoesCadastro").value=e?.instrucoes||"";ajustarTipo();$("modalFundo").classList.remove("oculto");$(focarVideo?(e?.video_tipo==="youtube"?"urlYoutube":"tipoVideo"):"nome").focus();}
+function abrirModal(e=null,focarVideo=false){editando=e;$("formExercicio").reset();$("erroFormulario").textContent="";$("tituloModal").textContent=e?"Editar exercício":"Cadastrar exercício";$("nome").value=e?.nome||"";$("grupoCadastro").value=mapaGrupoExibicao(e?.grupo_muscular)||"Peitoral";$("equipCadastro").value=e?.equipamento||"";$("categoriaCadastro").value=e?.categoria||"Musculação";$("tipoVideo").value=e?videoTipo(e):"nenhum";$("urlYoutube").value=e?.video_tipo==="youtube"?e.video_url||"":"";$("primariosCadastro").value=e?.musculos_primarios||"";$("secundariosCadastro").value=e?.musculos_secundarios||"";$("instrucoesCadastro").value=e?.instrucoes||"";$("errosCadastro").value=e?.erros_comuns||"";ajustarTipo();$("modalFundo").classList.remove("oculto");$(focarVideo?(e?.video_tipo==="youtube"?"urlYoutube":"tipoVideo"):"nome").focus();}
 function fecharModal(){$("modalFundo").classList.add("oculto");editando=null;}
-async function salvar(ev){ev.preventDefault();const nome=$("nome").value.trim(),grupo=$("grupoCadastro").value,categoria=$("categoriaCadastro").value,equip=$("equipCadastro").value.trim(),tipo=$("tipoVideo").value;const erro=$("erroFormulario");erro.textContent="";if(!nome||!grupo||!categoria){erro.textContent="Informe nome, grupo muscular e categoria.";return;}let videoUrl=null,novoArquivo=null;const antigo=editando?.video_tipo==="proprio"?editando.video_url:null;if(editando?.ativo){videoUrl=editando.video_url;}else if(tipo==="youtube"){videoUrl=$("urlYoutube").value.trim();if(!youtubeId(videoUrl)){erro.textContent="Informe um link válido do YouTube.";return;}}else if(tipo==="proprio"){const file=$("arquivoVideo").files[0];if(file){if(file.type!=="video/mp4"||file.size>50*1024*1024){erro.textContent="Selecione um MP4 de até 50 MB.";return;}novoArquivo=file;}else if(editando?.video_tipo==="proprio"&&antigo){videoUrl=antigo;}else{erro.textContent="Selecione um arquivo MP4.";return;}}$("salvar").disabled=true;$("salvar").textContent="Salvando...";try{if(novoArquivo){const caminho=`${usuario.id}/${crypto.randomUUID()}.mp4`;const {error:up}=await supabase.storage.from(VIDEO_BUCKET).upload(caminho,novoArquivo,{contentType:"video/mp4",upsert:false});if(up)throw new Error("Falha no envio do vídeo: "+up.message);videoUrl=caminho;}const payload={nome,grupo_muscular:grupo,categoria,equipamento:equip||null,...(editando?.ativo?{}:{video_tipo:tipo,video_url:videoUrl}),musculos_primarios:$("primariosCadastro").value.trim()||null,musculos_secundarios:$("secundariosCadastro").value.trim()||null,instrucoes:$("instrucoesCadastro").value.trim()||null};let resultado;if(editando){let consulta=supabase.from("wand_exercicios").update(payload).eq("id",editando.id);if(editando.status_revisao==="pendente")consulta=consulta.eq("status_revisao","pendente");resultado=await consulta.select("id");}else{resultado=await supabase.from("wand_exercicios").insert({...payload,ativo:true}).select("id");}if(resultado.error||!resultado.data?.length){if(novoArquivo&&videoUrl)await supabase.storage.from(VIDEO_BUCKET).remove([videoUrl]);throw resultado.error||new Error("O exercício já não está disponível para edição nesta fila.");}const editouPendente=editando?.status_revisao==="pendente";fecharModal();pagina=1;await carregar();if(editouPendente){await revisao?.load();$("textoSucessoRevisao").textContent="As alterações foram salvas.";$("sucessoRevisao").showModal();}else mensagem("Exercício salvo com sucesso.");}catch(e){console.error(e);erro.textContent="Não foi possível salvar: "+(e.message||"Erro desconhecido")+". Confira as colunas, políticas RLS e o armazenamento no Supabase.";}finally{$("salvar").disabled=false;$("salvar").textContent="Salvar exercício";}}
-async function desativarExercicio(e){if(!await wandConfirmarLocal(`Desativar "${e.nome}"? Ele deixará de aparecer na biblioteca, mas os históricos não serão apagados.`))return;const {error}=await supabase.from("wand_exercicios").update({ativo:false}).eq("id",e.id);if(error){alert("Não foi possível desativar: "+error.message);return;}await carregar();mensagem("Exercício desativado.");}
+async function salvar(ev){ev.preventDefault();const nome=$("nome").value.trim(),grupo=$("grupoCadastro").value,categoria=$("categoriaCadastro").value,equip=$("equipCadastro").value.trim(),tipo=$("tipoVideo").value;const erro=$("erroFormulario");erro.textContent="";if(!nome||!grupo||!categoria){erro.textContent="Informe nome, grupo muscular e categoria.";return;}let videoUrl=null,novoArquivo=null;const antigo=editando?.video_tipo==="proprio"?editando.video_url:null;if(editando?.ativo){videoUrl=editando.video_url;}else if(tipo==="youtube"){videoUrl=$("urlYoutube").value.trim();if(!youtubeId(videoUrl)){erro.textContent="Informe um link válido do YouTube.";return;}}else if(tipo==="proprio"){const file=$("arquivoVideo").files[0];if(file){if(file.type!=="video/mp4"||file.size>50*1024*1024){erro.textContent="Selecione um MP4 de até 50 MB.";return;}novoArquivo=file;}else if(editando?.video_tipo==="proprio"&&antigo){videoUrl=antigo;}else{erro.textContent="Selecione um arquivo MP4.";return;}}$("salvar").disabled=true;$("salvar").textContent="Salvando...";try{if(novoArquivo){const caminho=`${usuario.id}/${crypto.randomUUID()}.mp4`;const {error:up}=await supabase.storage.from(VIDEO_BUCKET).upload(caminho,novoArquivo,{contentType:"video/mp4",upsert:false});if(up)throw new Error("Falha no envio do vídeo: "+up.message);videoUrl=caminho;}const payload={nome,grupo_muscular:grupo,categoria,equipamento:equip||null,...(editando?.ativo?{}:{video_tipo:tipo,video_url:videoUrl}),musculos_primarios:$("primariosCadastro").value.trim()||null,musculos_secundarios:$("secundariosCadastro").value.trim()||null,instrucoes:$("instrucoesCadastro").value.trim()||null,erros_comuns:$("errosCadastro").value.trim()||null};let resultado;if(editando){let consulta=supabase.from("wand_exercicios").update(payload).eq("id",editando.id);if(editando.status_revisao==="pendente")consulta=consulta.eq("status_revisao","pendente");resultado=await consulta.select("id");}else{resultado=await supabase.from("wand_exercicios").insert({...payload,ativo:true}).select("id");}if(resultado.error||!resultado.data?.length){if(novoArquivo&&videoUrl)await supabase.storage.from(VIDEO_BUCKET).remove([videoUrl]);throw resultado.error||new Error("O exercício já não está disponível para edição nesta fila.");}const editouPendente=editando?.status_revisao==="pendente";fecharModal();pagina=1;await carregar();if(editouPendente){await revisao?.load();$("textoSucessoRevisao").textContent="As alterações foram salvas.";$("sucessoRevisao").showModal();}else mensagem("Exercício salvo com sucesso.");}catch(e){console.error(e);erro.textContent="Não foi possível salvar: "+(e.message||"Erro desconhecido")+". Confira as colunas, políticas RLS e o armazenamento no Supabase.";}finally{$("salvar").disabled=false;$("salvar").textContent="Salvar exercício";}}
+async function desativarExercicio(e){if(!await wandConfirmarLocal(`Desativar "${e.nome}"? Ele deixará de aparecer na biblioteca, mas os históricos não serão apagados.`))return;const {error}=await supabase.from("wand_exercicios").update({ativo:false}).eq("id",e.id);if(error){alert("Não foi possível desativar: "+error.message);return;}await carregar();if(location.hash.startsWith("#exercicio="))location.hash="#biblioteca";mensagem("Exercício desativado.");}
 ["pesquisa","grupo","categoria","equipamento","porPagina"].forEach(id=>$(id).addEventListener(id==="pesquisa"?"input":"change",()=>{pagina=1;renderizar();}));$("novo").addEventListener("click",()=>abrirModal());$("cancelar").addEventListener("click",fecharModal);$("tipoVideo").addEventListener("change",ajustarTipo);$("formExercicio").addEventListener("submit",salvar);$("modalFundo").addEventListener("click",e=>{if(e.target===$("modalFundo"))fecharModal();});document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("videoFundo").classList.contains("oculto"))fecharVideo();else if(!$("modalFundo").classList.contains("oculto"))fecharModal();}});$("fecharVideo").addEventListener("click",fecharVideo);$("videoFundo").addEventListener("click",e=>{if(e.target===$("videoFundo"))fecharVideo();});$("cancelarPropostaMidia").onclick=()=>$("propostaMidia").close();$("cancelarImportarRevisao").onclick=()=>$("importarRevisao").close();verificarAcesso();
 </script>
 <script>function wandConfirmarLocal(mensagem){return new Promise(resolve=>{const d=document.createElement('dialog');d.setAttribute('aria-label','Confirmar ação');d.style.cssText='position:fixed;margin:auto;width:min(90vw,420px);max-height:90vh;box-sizing:border-box;border:1px solid #b8bcc4;border-radius:20px;background:#191919;color:#fff;padding:28px;text-align:center;box-shadow:0 0 0 100vmax #000b;z-index:2147483647;font-family:inherit';const ic=document.createElement('div');ic.setAttribute('aria-hidden','true');ic.style.cssText='width:58px;height:58px;margin:0 auto 14px;border:2px solid #e8c674;border-radius:50%;display:grid;place-items:center;color:#e8c674;font-size:34px;box-shadow:0 0 15px #d4af3740';ic.textContent='?';const h=document.createElement('h2');h.textContent='Confirmar ação';h.style.color='#e8c674';const p=document.createElement('p');p.textContent=mensagem;p.style.whiteSpace='pre-line';const b=document.createElement('button');b.type='button';b.textContent='Confirmar';b.style.cssText='width:100%!important;text-align:center!important;padding:14px!important;border:1px solid #f6d98e!important;border-radius:12px!important;background:linear-gradient(180deg,#fff0b0 0%,#e5bd58 35%,#b17d25 100%)!important;color:#171005!important;font-weight:700!important;font-size:16px!important;box-shadow:inset 0 2px 2px #fff9,inset 0 -3px 5px #70470c88,0 5px 12px #0009!important;text-shadow:none!important;cursor:pointer';const c=document.createElement('button');c.type='button';c.textContent='Cancelar';c.style.cssText='width:100%;margin-top:10px;padding:12px;border:1px solid #b8bcc4;border-radius:12px;background:#191919;color:#fff';d.append(ic,h,p,b,c);c.onclick=()=>{d.close();d.remove();resolve(false)};document.body.append(d);d.addEventListener('cancel',e=>e.preventDefault());b.style.setProperty('background','linear-gradient(180deg,#fff0b0,#e5bd58 35%,#b17d25)','important');b.style.setProperty('color','#171005','important');b.onclick=()=>{d.close();d.remove();resolve(true)};d.showModal();b.focus()})}</script><script src="./wand-navigation.js?v=1" data-profile="coach"></script></body></html>
