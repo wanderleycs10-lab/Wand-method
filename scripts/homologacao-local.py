@@ -14,14 +14,17 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_API = "http://127.0.0.1:54321"
 APP = "http://127.0.0.1:4180"
+STAGING_REF = "kcusxtfvcwqdflszqjes"
 PRODUCTION_REF = "kvxdnreipuahoaostlle"
 PUBLIC_KEY = re.compile(r"sb_publishable_[A-Za-z0-9_-]+")
 PRODUCTION = re.compile(r"kvxdnreipuahoaostlle|wandmethod\.com\.br|wa\.me", re.I)
-ASSETS = {".css", ".gif", ".jpg", ".png", ".pdf", ".webp"}
+ASSETS = {".gif", ".jpg", ".png", ".pdf", ".webp"}
+
+
 def target(ref, key):
     if not ref:
         return LOCAL_API, public_key(key)
-    if not re.fullmatch(r"[a-z0-9]{20}", ref) or ref == PRODUCTION_REF:
+    if ref != STAGING_REF:
         raise ValueError("Informe a referência do projeto Supabase exclusivo de homologação.")
     if not PUBLIC_KEY.fullmatch(key):
         raise ValueError("Use a chave publicável do projeto de homologação.")
@@ -39,6 +42,8 @@ def verify_hosted_auth(api, key):
         settings = json.load(response)
     if settings.get("disable_signup") is not True:
         raise ValueError("Desabilite o cadastro público no Auth do projeto de homologação.")
+    if settings.get("external", {}).get("anonymous_users") is not False:
+        raise ValueError("Desabilite o login anônimo no Auth do projeto de homologação.")
 
 
 def content_security_policy(api):
@@ -83,7 +88,7 @@ def prepare(destination, key, api=LOCAL_API):
         relative = Path(name)
         root_file = len(relative.parts) == 1
         asset = relative.suffix in ASSETS and (root_file or relative.parts[0] in {"icons", "imagens"})
-        source = root_file and (name in active_pages or relative.suffix in {".js", ".webmanifest"})
+        source = root_file and (name in active_pages or relative.suffix in {".css", ".js", ".webmanifest"})
         if not (asset or source):
             continue
         target = destination / relative
@@ -114,6 +119,7 @@ class LocalHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Security-Policy", self.csp)
         self.send_header("Cache-Control", "no-store")
         self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Robots-Tag", "noindex, nofollow")
         super().end_headers()
 
     def log_message(self, *_):

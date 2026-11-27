@@ -179,3 +179,7 @@ Com IDs próprios por ensaio e caminhos únicos no bucket privado, passaram em `
 ### Ensaios dos módulos complementares
 
 Depois de corrigir as barreiras de papel e titularidade sinalizadas pela revisão, o recorte de Bem-estar, Saúde Feminina, adaptação, check-ins, evolução, Legacy, contratos, gestão, ficha e relatórios foi aplicado na homologação. Os quatro grupos de ensaios passaram com `ROLLBACK` e a suíte automatizada passou 41 de 41. A conferência final mostrou as três contas fictícias e ausência de registros residuais dos testes. O [inventário](inventario-homologacao.md) registra resultados por funcionalidade, divergências e a distinção entre SQL, automação e interface real.
+
+### Preparação final da interface
+
+O [roteiro de interface](roteiro-homologacao-interface.md) cobre WandCoach e aluno, desktop e mobile, além de controles para Auth, arquivos, e-mail e push. A versão temporária ficou fixada ao projeto de homologação e a CSP foi verificada no Chromium. A migração candidata consolida as barreiras de autorização testadas no banco descartável. Ela permanece versionada para revisão, sem aplicação remota. A suíte passou 41 de 41. O Design System aprovado foi preservado.
