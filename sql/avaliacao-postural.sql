@@ -1,5 +1,4 @@
 -- WAND METHOD · Avaliação Postural (executar no SQL Editor do Supabase)
--- O aluno não tem acesso a esta tabela nesta etapa. A futura área Minha Evolução terá política específica.
 create table if not exists public.wand_avaliacoes_posturais (
  id uuid primary key default gen_random_uuid(),
  aluno_id bigint not null references public.alunos(id) on delete cascade,
@@ -16,11 +15,90 @@ create index if not exists wand_avaliacoes_posturais_aluno_data_idx on public.wa
 alter table public.wand_avaliacoes_posturais enable row level security;
 revoke all on public.wand_avaliacoes_posturais from anon;
 grant select,insert,update,delete on public.wand_avaliacoes_posturais to authenticated;
+
+-- Usa o mesmo vínculo por treino da autorização do WAND LEGACY.
+-- Alunos têm leitura dos pareceres publicados. Publicar preserva a linha existente.
+
 drop policy if exists wand_postural_coach_select on public.wand_avaliacoes_posturais;
+create policy wand_postural_coach_select on public.wand_avaliacoes_posturais
+for select to authenticated using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = (select auth.uid()) and p.role = 'admin'
+  )
+  and exists (
+    select 1 from public.wand_treinos t
+    where t.aluno_id = wand_avaliacoes_posturais.aluno_id
+      and t.treinador_id = (select auth.uid())
+  )
+  and (status = 'publicado' or criado_por = (select auth.uid()))
+);
+
 drop policy if exists wand_postural_coach_insert on public.wand_avaliacoes_posturais;
+create policy wand_postural_coach_insert on public.wand_avaliacoes_posturais
+for insert to authenticated with check (
+  exists (
+    select 1 from public.profiles p
+    where p.id = (select auth.uid()) and p.role = 'admin'
+  )
+  and exists (
+    select 1 from public.wand_treinos t
+    where t.aluno_id = wand_avaliacoes_posturais.aluno_id
+      and t.treinador_id = (select auth.uid())
+  )
+  and criado_por = (select auth.uid())
+);
+
 drop policy if exists wand_postural_coach_update on public.wand_avaliacoes_posturais;
+create policy wand_postural_coach_update on public.wand_avaliacoes_posturais
+for update to authenticated using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = (select auth.uid()) and p.role = 'admin'
+  )
+  and exists (
+    select 1 from public.wand_treinos t
+    where t.aluno_id = wand_avaliacoes_posturais.aluno_id
+      and t.treinador_id = (select auth.uid())
+  )
+  and criado_por = (select auth.uid())
+  and status = 'rascunho'
+) with check (
+  exists (
+    select 1 from public.profiles p
+    where p.id = (select auth.uid()) and p.role = 'admin'
+  )
+  and exists (
+    select 1 from public.wand_treinos t
+    where t.aluno_id = wand_avaliacoes_posturais.aluno_id
+      and t.treinador_id = (select auth.uid())
+  )
+  and criado_por = (select auth.uid())
+);
+
 drop policy if exists wand_postural_coach_delete on public.wand_avaliacoes_posturais;
-create policy wand_postural_coach_select on public.wand_avaliacoes_posturais for select to authenticated using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and p.role='admin'));
-create policy wand_postural_coach_insert on public.wand_avaliacoes_posturais for insert to authenticated with check (criado_por=(select auth.uid()) and exists(select 1 from public.profiles p where p.id=(select auth.uid()) and p.role='admin'));
-create policy wand_postural_coach_update on public.wand_avaliacoes_posturais for update to authenticated using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and p.role='admin')) with check (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and p.role='admin'));
-create policy wand_postural_coach_delete on public.wand_avaliacoes_posturais for delete to authenticated using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and p.role='admin'));
+create policy wand_postural_coach_delete on public.wand_avaliacoes_posturais
+for delete to authenticated using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = (select auth.uid()) and p.role = 'admin'
+  )
+  and exists (
+    select 1 from public.wand_treinos t
+    where t.aluno_id = wand_avaliacoes_posturais.aluno_id
+      and t.treinador_id = (select auth.uid())
+  )
+  and criado_por = (select auth.uid())
+  and status = 'rascunho'
+);
+
+drop policy if exists wand_postural_aluno_publicado_select on public.wand_avaliacoes_posturais;
+create policy wand_postural_aluno_publicado_select on public.wand_avaliacoes_posturais
+for select to authenticated using (
+  status = 'publicado'
+  and exists (
+    select 1 from public.alunos a
+    where a.id = wand_avaliacoes_posturais.aluno_id
+      and a.user_id = (select auth.uid())
+  )
+);

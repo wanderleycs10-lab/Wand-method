@@ -187,3 +187,7 @@ O [roteiro de interface](roteiro-homologacao-interface.md) cobre WandCoach e alu
 ### Homologação funcional com sessões reais
 
 O [inventário por funcionalidade](inventario-homologacao.md#homologação-com-sessões-reais-pela-api) registra a rodada autenticada no Supabase de homologação. Treinos, permissões entre os alunos, contratos, recompensas e o ciclo de avaliação fotográfica com Storage privado passaram nos cenários executados. O parecer postural publicado ficou inacessível ao aluno titular. A política atual restringe a leitura ao perfil administrativo. A entrega do parecer, a rodada visual e manual com as contas fictícias e as verificações controladas de e-mail e push permanecem pendentes.
+
+### Autorização do parecer postural corrigida
+
+O aluno titular acessa os pareceres publicados na Evolução corporal. A política reserva os rascunhos ao WandCoach autor vinculado, dá acesso ao histórico publicado ao WandCoach vinculado e mantém o isolamento entre alunos. A migração foi aplicada somente no Supabase de homologação. O [reteste com as três sessões fictícias](inventario-homologacao.md#reteste-da-autorização-postural) confirmou as permissões e a preservação do histórico. A suíte passou 41 de 41. A prévia privada segue o [roteiro de interface](roteiro-homologacao-interface.md).

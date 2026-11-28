@@ -367,7 +367,12 @@ window.wandGraficoPadrao=wandGraficoPadrao;</script><style>.wand-grafico-padrao{
     <div id="wandAlunoNotificacoesLista" class="wand-aluno-notificacoes-lista" aria-live="polite"></div>
   </section>
   <section class="panel-view" id="view-fotografica" hidden><button class="back-btn" type="button" data-home data-wand-back>Voltar ao painel</button><div class="card"><h2 data-wand-heading>Avaliação Fotográfica</h2><p class="muted">Referências de frente, perfil e costas e envio das suas fotografias.</p><div id="fotografiaDestino"></div><p id="fotografiaAjuda" class="muted">Carregando módulo de avaliação fotográfica...</p></div></section>
-  <section class="panel-view" id="view-evolucao" hidden><button id="wandEvoPainel" class="back-btn" type="button" data-home data-wand-back>Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Acompanhe seus treinos, avaliações e resultados ao longo do tempo.</p><div id="wandEvoMenu" class="nav-grid wand-evo-menu wand-primary-menu"><button type="button" class="nav-tile" data-evo="0"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 32 32" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="11" width="3.5" height="10" rx="1"/><rect x="6.5" y="8.5" width="5" height="15" rx="1.2"/><path d="M11.5 16h9"/><rect x="20.5" y="8.5" width="5" height="15" rx="1.2"/><rect x="26" y="11" width="3.5" height="10" rx="1"/></svg></span><span class="nav-name">Progressão de cargas</span><span class="nav-desc">Cargas e repetições por exercício</span></button><button type="button" class="nav-tile" data-evo="1"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18m-13 5 2 2 5-5"/></svg></span><span class="nav-name">Frequência de treinos</span><span class="nav-desc">Histórico semanal e mensal</span></button><button type="button" class="nav-tile" data-evo="2"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-8 5 16 3-8h5"/></svg></span><span class="nav-name">Evolução corporal</span><span class="nav-desc">Medidas e avaliações físicas</span></button><button type="button" class="nav-tile" data-evo="3"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M6 15l5-5 4 3 6-7"/></svg></span><span class="nav-name">Desempenho de treinos</span><span class="nav-desc">Volume e desempenho semanal</span></button></div><div id="wandEvoConteudo" hidden><button type="button" class="back-btn" id="wandEvoVoltar" data-wand-back>Voltar à evolução</button><div id="wandEvoExtra" hidden><div id="wandEvoGraficos" class="wand-grade-graficos"></div></div><div id="wandEvoDesempenho" hidden><div id="wandEvolucaoSemanal" class="wes-root"><p class="muted">Carregando desempenho semanal...</p></div></div><div id="wandEvoCorporal" hidden><details class="wes-avaliacoes" open><summary>Gráficos de avaliação física</summary><div id="graficos">Carregando evolução...</div></details></div></div></div></section>
+  <section class="panel-view" id="view-evolucao" hidden><button id="wandEvoPainel" class="back-btn" type="button" data-home data-wand-back>Voltar ao painel</button><div class="card"><h2>Minha Evolução Física</h2><p class="muted">Acompanhe seus treinos, avaliações e resultados ao longo do tempo.</p><div id="wandEvoMenu" class="nav-grid wand-evo-menu wand-primary-menu"><button type="button" class="nav-tile" data-evo="0"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 32 32" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="11" width="3.5" height="10" rx="1"/><rect x="6.5" y="8.5" width="5" height="15" rx="1.2"/><path d="M11.5 16h9"/><rect x="20.5" y="8.5" width="5" height="15" rx="1.2"/><rect x="26" y="11" width="3.5" height="10" rx="1"/></svg></span><span class="nav-name">Progressão de cargas</span><span class="nav-desc">Cargas e repetições por exercício</span></button><button type="button" class="nav-tile" data-evo="1"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18m-13 5 2 2 5-5"/></svg></span><span class="nav-name">Frequência de treinos</span><span class="nav-desc">Histórico semanal e mensal</span></button><button type="button" class="nav-tile" data-evo="2"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-8 5 16 3-8h5"/></svg></span><span class="nav-name">Evolução corporal</span><span class="nav-desc">Medidas e avaliações físicas</span></button><button type="button" class="nav-tile" data-evo="3"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M6 15l5-5 4 3 6-7"/></svg></span><span class="nav-name">Desempenho de treinos</span><span class="nav-desc">Volume e desempenho semanal</span></button></div><div id="wandEvoConteudo" hidden><button type="button" class="back-btn" id="wandEvoVoltar" data-wand-back>Voltar à evolução</button><div id="wandEvoExtra" hidden><div id="wandEvoGraficos" class="wand-grade-graficos"></div></div><div id="wandEvoDesempenho" hidden><div id="wandEvolucaoSemanal" class="wes-root"><p class="muted">Carregando desempenho semanal...</p></div></div><div id="wandEvoCorporal" hidden>
+      <details class="wes-avaliacoes" id="wandParecerPostural">
+        <summary>Pareceres posturais</summary>
+        <div id="wandParecerPosturalResultados" aria-live="polite"></div>
+      </details>
+<details class="wes-avaliacoes" open><summary>Gráficos de avaliação física</summary><div id="graficos">Carregando evolução...</div></details></div></div></div></section>
   <section class="panel-view" id="view-bemestar" hidden><button id="wbVoltarPainel" class="back-btn" type="button" data-home data-wand-back>Voltar ao painel</button><div class="card"><h2 data-wand-heading>Meu bem-estar</h2><p id="wbStatus" role="status"></p><div id="wbConteudo"></div></div></section>
   <section class="panel-view" id="view-coins" hidden><button class="back-btn" type="button" data-home data-wand-back>Voltar ao painel</button><div class="card"><h2>WAND LEGACY</h2><div id="wandLegacyResumo" aria-live="polite">Carregando conquistas...</div></div></section>
   <section class="panel-view" id="view-treinador" hidden><button class="back-btn" type="button" data-home data-wand-back>Voltar ao painel</button><div class="card"><h2>Meu Treinador</h2><p>Precisa de orientação sobre sua avaliação ou treinamento?</p><a class="button" href="https://wa.me/5521982212876?text=Ol%C3%A1%21%20Sou%20aluno%20do%20WAND%20METHOD%20e%20preciso%20de%20orienta%C3%A7%C3%A3o." target="_blank" rel="noopener noreferrer">FALAR PELO WHATSAPP</a></div></section>
@@ -1061,6 +1066,55 @@ observadorModulos.observe(document.body,{childList:true,subtree:true});
 acomodarModulos();
 
 $("sair").addEventListener("click",sair);
+
+const pareceresPosturais = document.getElementById('wandParecerPostural');
+async function carregarPareceresPosturais() {
+  const area = document.getElementById('wandParecerPosturalResultados');
+  area.textContent = 'Carregando pareceres…';
+  if (!alunoAtual) {
+    area.textContent = 'Entre na sua conta para consultar seus pareceres.';
+    return;
+  }
+  const { data, error } = await supabase.from('wand_avaliacoes_posturais')
+    .select('avaliado_em,resumo,prioridades,estrategia')
+    .eq('aluno_id', alunoAtual.id)
+    .eq('status', 'publicado')
+    .order('avaliado_em', { ascending: false })
+    .order('criado_em', { ascending: false })
+    .abortSignal(AbortSignal.timeout(15000));
+  area.replaceChildren();
+  if (error) {
+    area.append(elemento('p', 'error', 'Não foi possível consultar os pareceres.'));
+    const retry = elemento('button', null, 'Tentar novamente');
+    area.append(retry);
+    retry.type = 'button';
+    retry.onclick = carregarPareceresPosturais;
+    return;
+  }
+  if (!data.length) {
+    area.append(elemento('p', 'muted', 'Nenhum parecer postural publicado.'));
+    return;
+  }
+  for (const parecer of data) {
+    const item = elemento('details', 'wes-avaliacoes');
+    area.append(item);
+    const date = parecer.avaliado_em.split('-').reverse().join('/');
+    item.append(elemento('summary', 'nav-name', 'Parecer de ' + date));
+    for (const [label, value] of [
+      ['Relatório', parecer.resumo], ['Prioridades', parecer.prioridades], ['Estratégia', parecer.estrategia],
+    ]) {
+      if (!value?.trim()) continue;
+      const text = elemento('p', null, value);
+      item.append(elemento('h4', null, label), text);
+      text.style.whiteSpace = 'pre-wrap';
+      text.style.overflowWrap = 'anywhere';
+    }
+  }
+}
+pareceresPosturais.addEventListener('toggle', () => {
+  if (pareceresPosturais.open) carregarPareceresPosturais();
+});
+
 
 iniciar();
 
@@ -2158,10 +2212,11 @@ async function wesLoad(){if(wesLoading)return;wesLoading=true;wesError='';try{we
 const wesObserver=new MutationObserver(()=>{const view=document.getElementById('view-evolucao');if(view&&!view.hidden&&!wesLoaded&&!wesLoading)wesLoad()});
 wesObserver.observe(document.getElementById('view-evolucao'),{attributes:true,attributeFilter:['hidden']});
 document.querySelector('[data-view="evolucao"]')?.addEventListener('click',()=>wesLoad());
+
 window.addEventListener('pageshow',()=>{wesLoaded=false});
 (()=>{const menu=document.getElementById('wandEvoMenu'),conteudo=document.getElementById('wandEvoConteudo'),extra=document.getElementById('wandEvoExtra'),area=document.getElementById('wandEvoGraficos'),corporal=document.getElementById('wandEvoCorporal'),desempenho=document.getElementById('wandEvoDesempenho');let modo=0,exercicio='';const titulo=menu.parentElement.querySelector('h2'),sub=menu.parentElement.querySelector('p.muted'),painel=document.getElementById('wandEvoPainel');const nomes=['Progressão de cargas','Frequência de treinos','Evolução corporal','Desempenho de treinos'];
 function render(){area.replaceChildren();if(wesError){wesAdd(area,'p','error','Não foi possível consultar seus registros. Tente novamente.');return;}if(!wesRows.length){wandEvoVazio(area,modo===0?'Seus registros de cargas serão exibidos conforme você realizar seus treinos.':'Você ainda não possui treinos registrados. Acompanhe sua frequência após iniciar seu programa.');return;}const periodo=window.wandPeriodoFiltro(area,render,'3');const rows=wesRows.filter(r=>window.wandDentroPeriodo(r.finalizada_em||r.iniciada_em,periodo));if(modo===1){if(!rows.some(r=>wesStatus(r)==='concluido')){wandEvoVazio(area,'Nenhum treino concluído no período selecionado.');return;}for(const mensal of [false,true]){const grupos=new Map();for(const r of rows){if(wesStatus(r)!=='concluido')continue;const d=wesDate(r.finalizada_em||r.iniciada_em);if(!d)continue;const k=mensal?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'):wesKey(d);if(!grupos.has(k))grupos.set(k,new Set());grupos.get(k).add(String(r.id));}const keys=[...grupos.keys()].sort();window.wandGraficoPadrao(area,mensal?'Frequência mensal':'Frequência semanal',keys.map(k=>grupos.get(k).size),keys,'bar','treinos');}return;}const grupos=new Map();for(const r of rows){const d=wesDate(r.finalizada_em||r.iniciada_em);if(!d)continue;for(const sr of r.series||[]){if(sr.concluida!==true||!sr.exercicio)continue;const n=v=>v==null||String(v).trim()===''?null:Number.isFinite(Number(v))?Number(v):null;const kg=n(sr.carga),reps=n(sr.repeticoes);if(kg===null&&reps===null)continue;const nome=String(sr.exercicio);if(!grupos.has(nome))grupos.set(nome,[]);grupos.get(nome).push({d,kg,reps});}}if(!grupos.size){wandEvoVazio(area,'Nenhuma série registrada no período selecionado.');return;}const sel=wesAdd(area,'select');sel.setAttribute('aria-label','Selecionar exercício');sel.style.gridColumn='1 / -1';for(const nome of [...grupos.keys()].sort()){const op=wesAdd(sel,'option',null,nome);op.value=nome;}if(grupos.has(exercicio))sel.value=exercicio;exercicio=sel.value;sel.onchange=()=>{exercicio=sel.value;render()};for(const [campo,titulo,unidade] of [['kg','Progressão de cargas','kg'],['reps','Progressão de repetições','reps']]){const dias=new Map();for(const p of grupos.get(exercicio)){if(p[campo]===null)continue;const k=p.d.getFullYear()+'-'+String(p.d.getMonth()+1).padStart(2,'0')+'-'+String(p.d.getDate()).padStart(2,'0');dias.set(k,Math.max(dias.get(k)??0,p[campo]));}const keys=[...dias.keys()].sort();window.wandGraficoPadrao(area,titulo,keys.map(k=>dias.get(k)),keys.map(k=>k.split('-').reverse().join('/')),'bar',unidade);}}
-menu.onclick=async e=>{const b=e.target.closest('[data-evo]');if(!b)return;modo=Number(b.dataset.evo);titulo.textContent=nomes[modo];sub.hidden=true;painel.hidden=true;menu.hidden=true;conteudo.hidden=false;extra.hidden=modo>1;corporal.hidden=modo!==2;desempenho.hidden=modo!==3;if(modo===3){if(!wesLoaded&&!wesLoading)await wesLoad();else wesRender();return;}if(modo<2){area.textContent='Carregando registros...';if(!wesLoaded&&!wesLoading)await wesLoad();if(wesLoading){const timer=setInterval(()=>{if(!wesLoading){clearInterval(timer);if(!extra.hidden)render()}},150);}else render();}};function voltarEvolucao(){conteudo.hidden=true;menu.hidden=false;painel.hidden=false;titulo.textContent='Minha Evolução Física';sub.hidden=false;}document.getElementById('wandEvoVoltar').onclick=voltarEvolucao;document.querySelectorAll('[data-view="evolucao"]').forEach(b=>b.addEventListener('click',voltarEvolucao));})();
+menu.onclick=async e=>{const b=e.target.closest('[data-evo]');if(!b)return;modo=Number(b.dataset.evo);titulo.textContent=nomes[modo];sub.hidden=true;painel.hidden=true;menu.hidden=true;conteudo.hidden=false;extra.hidden=modo>1;corporal.hidden=modo!==2;desempenho.hidden=modo!==3;if(modo===3){if(!wesLoaded&&!wesLoading)await wesLoad();else wesRender();return;}if(modo<2){area.textContent='Carregando registros...';if(!wesLoaded&&!wesLoading)await wesLoad();if(wesLoading){const timer=setInterval(()=>{if(!wesLoading){clearInterval(timer);if(!extra.hidden)render()}},150);}else render();}};function voltarEvolucao(){document.getElementById("wandParecerPostural").open=false;conteudo.hidden=true;menu.hidden=false;painel.hidden=false;titulo.textContent='Minha Evolução Física';sub.hidden=false;}document.getElementById('wandEvoVoltar').onclick=voltarEvolucao;document.querySelectorAll('[data-view="evolucao"]').forEach(b=>b.addEventListener('click',voltarEvolucao));})();
 
 </script>
 

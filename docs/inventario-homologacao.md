@@ -96,3 +96,19 @@ As três contas fictícias passaram pelo Auth do projeto `kcusxtfvcwqdflszqjes`.
 | Relatórios do personal e do aluno | WandCoach gravou e publicou relatório. A leu apenas após a publicação. B não conseguiu ler o relatório nem chamar a função exclusiva do WandCoach usada no ensaio. |
 
 A rodada acrescentou evidência da API hospedada à homologação SQL transacional e à suíte de 41 testes registrada anteriormente. A correção do ensaio de recompensas dispensou alteração no aplicativo ou nas políticas. O bloqueio de entrega do parecer postural permanece aberto. As verificações autenticadas de interface, desktop e mobile, com ambos os temas, incluem ilha inferior, hierarquia de cores, contratos, confirmações, navegação contextual, recarga e estados de erro. E-mail e push permanecem reservados a um teste posterior com destinos controlados. A produção, o Cloudflare e a main ficaram fora da rodada.
+
+### Reteste da autorização postural
+
+A causa era a política de leitura exclusiva de administradores. A migração candidata `20261128014047_wand_autorizar_parecer_postural.sql` foi aplicada pelo conector exclusivamente em `kcusxtfvcwqdflszqjes`. Ela substitui as políticas da tabela sem alterar registros existentes. O aluno titular lê somente os pareceres publicados. O WandCoach precisa de papel administrativo e vínculo pelo treino do aluno, conforme a regra existente do WAND LEGACY. Entre os WandCoaches vinculados, o rascunho fica reservado ao autor. Pareceres publicados ficam protegidos contra edição, reabertura ou exclusão pelas contas do aplicativo.
+
+Na API hospedada, com as três sessões fictícias, a rodada `QA a519d51228` confirmou:
+
+- O WandCoach vinculado criou e releu o rascunho. A e B não o leram nem conseguiram publicá-lo.
+- Ao publicar, o UUID, a autoria, as datas e o conteúdo ficaram idênticos. O histórico preexistente permaneceu disponível.
+- A e o WandCoach releram o parecer publicado. B não acessou o parecer por UUID ou filtro de aluno, nem conseguiu inserir um parecer. O WandCoach teve a criação negada para B, que não tinha vínculo por treino.
+- As sessões autenticadas não conseguiram reabrir ou apagar o registro publicado. O ensaio fez alterações apenas no UUID fictício que criou e deixou o parecer para conferência manual.
+- A suíte Node.js 22.23.5 com PGlite passou com 41 de 41 testes.
+
+O aluno encontra o relatório, as prioridades e a estratégia em **Minha Evolução Física → Evolução corporal → Pareceres posturais**. A prévia do Codex Cloud escuta em loopback e usa exclusivamente o Supabase de homologação. A rodada não acionou e-mail nem push.
+
+No Chromium com sessões reais, o aluno A abriu o parecer fictício e retornou à central em 1280 e 390 px. Em 390 px, B viu o estado sem pareceres e também retornou à central. A largura do documento coincidiu com a da janela nos três cenários. O teste de publicação pela tela do WandCoach e a revisão manual nos dois temas continuam no roteiro.

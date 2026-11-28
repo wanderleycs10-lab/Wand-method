@@ -47,3 +47,12 @@ Registre commit, projeto observado, perfil, data, largura, tema, resultado, IDs 
 - O frontend temporário passou pela conferência do Auth da homologação. No Chromium, a tela de login carregou a 390 e 1280 px sem rolagem horizontal. A CSP bloqueou, antes de qualquer requisição, chamadas à produção, recuperação de senha e função de e-mail. Nenhuma credencial de usuário foi usada.
 - A migração candidata `20261127230708_wand_restringir_autorizacao_painel_coach.sql` consolida 12 funções e quatro políticas. Exige papel administrativo nos fluxos do coach, vínculo na consulta de status das sessões e limita a consulta de elegibilidade de contrato. Foi executada apenas em banco descartável sobre as definições anteriores. Passaram as negativas de acesso de outro aluno e os ensaios positivos de Bem-estar, adaptação, contratos, gestão, ficha, relatórios e Legacy. A suíte do projeto passou 41 de 41 com PGlite.
 - Login real, operação de arquivos pela API, e-mail, push, UI autenticada e mobile físico permanecem pendentes.
+
+### Reteste manual do parecer postural
+
+Abra a [prévia privada no navegador do Codex Cloud](http://127.0.0.1:4180/login.html). Se a sessão do ambiente tiver sido encerrada, reinicie o servidor pelo procedimento acima. O endereço de loopback é do desktop do Codex Cloud.
+
+1. Como WandCoach, abra a Análise Postural de A, que possui vínculo por treino, e salve um rascunho com um texto identificado. Recarregue e confirme que o rascunho foi recuperado.
+2. Em outro contexto, entre como A e abra **Minha Evolução Física → Evolução corporal → Pareceres posturais**. Confira que o rascunho não aparece. Já existe o parecer fictício `QA a519d51228` para conferir a leitura.
+3. Publique como WandCoach. Como A, reabra a seção e confirme a data, o relatório, as prioridades e a estratégia. Recarregue, retorne pelo botão contextual e confira o histórico publicado.
+4. Entre como B e confirme que o parecer de A não aparece. Repita a leitura e a navegação nos temas claro e escuro a 1280 e 390 px. Confira foco, expansão por teclado e espaço acima da ilha inferior.
