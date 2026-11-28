@@ -183,3 +183,7 @@ Depois de corrigir as barreiras de papel e titularidade sinalizadas pela revisã
 ### Preparação final da interface
 
 O [roteiro de interface](roteiro-homologacao-interface.md) cobre WandCoach e aluno, desktop e mobile, além de controles para Auth, arquivos, e-mail e push. A versão temporária ficou fixada ao projeto de homologação e a CSP foi verificada no Chromium. A migração candidata consolida as barreiras de autorização testadas no banco descartável. Ela permanece versionada para revisão, sem aplicação remota. A suíte passou 41 de 41. O Design System aprovado foi preservado.
+
+### Homologação funcional com sessões reais
+
+O [inventário por funcionalidade](inventario-homologacao.md#homologação-com-sessões-reais-pela-api) registra a rodada autenticada no Supabase de homologação. Treinos, permissões entre os alunos, contratos, recompensas e o ciclo de avaliação fotográfica com Storage privado passaram nos cenários executados. O parecer postural publicado ficou inacessível ao aluno titular. A política atual restringe a leitura ao perfil administrativo. A entrega do parecer, a rodada visual e manual com as contas fictícias e as verificações controladas de e-mail e push permanecem pendentes.

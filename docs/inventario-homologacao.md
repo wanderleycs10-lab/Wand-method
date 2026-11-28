@@ -74,3 +74,25 @@ A migração `homologacao_modulos_complementares_acesso_restrito`, aplicada excl
 **Testes automatizados.** A suíte Node.js 22 com PGlite passou 41 de 41. Os quatro ensaios transacionais adicionais passaram tanto em PGlite quanto na homologação. Após o rollback, a conferência encontrou as três contas confirmadas e zero treinos, sessões, check-ins, propostas, relatórios ou resgates deixados pelos ensaios. Não foram registradas extensões de rede ou agendamento nem conexões via servidores externos.
 
 **Interface real e integrações.** Os resultados acima são de banco e testes automatizados. Nenhum fluxo autenticado foi executado na interface nesta rodada. Login real, operações de arquivos pela API de Storage, e-mail e push continuam pendentes. Não houve alteração no Design System, em produção ou nos destinos de publicação.
+
+## Homologação com sessões reais pela API
+
+As três contas fictícias passaram pelo Auth do projeto `kcusxtfvcwqdflszqjes`. Os testes usaram sessões emitidas pelo Supabase e requisições restritas ao host de homologação. As rodadas `QA Treinos b8462dfd` e `QA db98532dcd` deixaram registros fictícios para conferência de persistência. As três imagens sintéticas foram removidas após a verificação. A conferência final mostrou três contas, bucket privado, zero objetos com o prefixo do ensaio, zero Edge Functions e nenhuma das extensões consultadas de rede e agendamento. Cadastro público e login anônimo estavam desativados. Os testes usaram exclusivamente Auth por senha, Data API e Storage. E-mail e push não foram acionados.
+
+| Funcionalidade | Resultado pela API autenticada |
+| --- | --- |
+| Prescrição, publicação, execução e histórico | WandCoach publicou. Aluno A iniciou, registrou 18,5 kg, concluiu e consultou o histórico. B não conseguiu ler nem operar sobre o treino de A. |
+| Anamnese | WandCoach abriu a ficha, A gravou respostas e o WandCoach leu a gravação. B não conseguiu ler ou atualizar a ficha. |
+| Autorizações e consentimentos | Aceite de dados persistiu. O consentimento fotográfico respondeu ao pedido do WandCoach e manteve a divulgação desautorizada. B não leu os aceites de A. |
+| Avaliação física e Minha Evolução | Solicitação, envio de medidas, revisão, liberação e leitura pelo titular passaram. B não viu o pedido nem o resultado e não conseguiu enviar medidas em nome de A. Gráficos aguardam interface. |
+| Avaliação fotográfica e Storage | As três posições sintéticas concluíram o pedido. A baixou o arquivo por URL assinada, que expirou. B não leu os metadados nem obteve URL. A exclusão dos três arquivos passou. |
+| Análise Postural | WandCoach gravou rascunho e publicou. B não leu o parecer. A também não leu mesmo após a publicação. A única política de leitura verificada é exclusiva para administradores. A entrega do parecer ao titular fica pendente de correção com preservação do sigilo antes da publicação e entre alunos. |
+| Notificações internas | Conclusão da fotografia gerou aviso para o WandCoach com os IDs corretos do aluno e do pedido. A marcação de leitura persistiu, a repetição não alterou o estado e B não recebeu o aviso. Clique e destino renderizado aguardam interface. |
+| Bem-estar, Check-ins e Saúde Feminina | A gravou e releu check-in e ciclo. A visibilidade do ciclo para o WandCoach respeitou o compartilhamento. B não consultou o ciclo nem o check-in de A. |
+| Adaptação de Treinos | WandCoach ativou um protocolo e aprovou a solicitação do check-in. A releu a adaptação do dia e B não a recebeu. |
+| WAND LEGACY e recompensas | Crédito por treino sem duplicação, resgate idempotente, débito, aprovação, cancelamento e estorno de saldo e estoque passaram. B não consultou o saldo de A. O ensaio foi corrigido para ler as recompensas estudantis pelo resumo do titular. O catálogo administrativo negou acesso ao aluno como esperado. |
+| Contratos e propostas | WandCoach criou proposta, A aceitou, B teve o aceite cruzado recusado e a ativação foi bloqueada antes da confirmação do pagamento fictício. Estado persistido e visível apenas ao destinatário entre os alunos. |
+| Gestão de alunos e Minha Ficha | WandCoach cadastrou e inativou um registro sintético. A atualizou a própria ficha e releu a alteração. B não viu os registros protegidos. Operações de conta que exigem entrega externa ficam pendentes. |
+| Relatórios do personal e do aluno | WandCoach gravou e publicou relatório. A leu apenas após a publicação. B não conseguiu ler o relatório nem chamar a função exclusiva do WandCoach usada no ensaio. |
+
+A rodada acrescentou evidência da API hospedada à homologação SQL transacional e à suíte de 41 testes registrada anteriormente. A correção do ensaio de recompensas dispensou alteração no aplicativo ou nas políticas. O bloqueio de entrega do parecer postural permanece aberto. As verificações autenticadas de interface, desktop e mobile, com ambos os temas, incluem ilha inferior, hierarquia de cores, contratos, confirmações, navegação contextual, recarga e estados de erro. E-mail e push permanecem reservados a um teste posterior com destinos controlados. A produção, o Cloudflare e a main ficaram fora da rodada.
